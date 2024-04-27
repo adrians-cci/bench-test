@@ -23,4 +23,4 @@ _Boot/
 _CompileInfo/
 _Libraries/
 _ModuleInstall/
-WeatherStation_Test/.vs/WeatherStation_Test/v15/.suo
+*.suo
