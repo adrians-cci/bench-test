@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_Modbus_State" Id="{091a3451-a681-4903-9548-847951b61c62}">
+    <Declaration><![CDATA[// Phase 0 - E_WS_State
+// Rev 1.0 - January 8, 2024
+
+TYPE E_Modbus_State :
+(
+	Idle			 													:= 0,
+	eReadCoils,
+	ReadInputStatus,
+	ReadRegs,
+	ReadInputRegs,
+	WriteSingleCoil,
+	WriteSingleReg,
+	WriteMultipleCoils,
+	WriteRegs,
+	Error,
+	Error_Reset,
+	Error_Check
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

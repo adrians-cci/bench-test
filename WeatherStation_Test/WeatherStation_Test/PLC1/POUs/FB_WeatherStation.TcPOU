@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_WeatherStation" Id="{9d4fa5b8-a31a-4ca3-a5f1-7d49d480025c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_WeatherStation
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+	o_press_Pa : REAL ;
+	o_temp_degc : REAL;
+	o_humidity_rh : REAL;
+	o_wind_direction_deg : REAL;
+	o_wind_speed_ms : REAL;
+	o_dew_point_degC : REAL;
+END_VAR
+VAR
+	fbModbus : FB_Modbus_Rs485;
+	raw_data : ARRAY[0..25] OF WORD;
+	modbus_error : BOOL;
+	
+	raw_pressure :  U_2Words_toDWord;
+	
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbModbus(
+	i_slave_id:= 1, 
+	i_start_read_address:= 1,
+	i_registers_qty := 23, 
+	o_error=> modbus_error, 
+	io_raw_data:= raw_data);
+
+o_temp_degc := TO_REAL(raw_data[0])/10;
+o_humidity_rh := TO_REAL(raw_data[1])/10;
+o_wind_direction_deg := TO_REAL(raw_data[2]);
+o_wind_speed_ms := TO_REAL(raw_data[3])/10;
+o_dew_point_degC := TO_REAL(raw_data[18])/10;
+
+
+	
+	
+raw_pressure.u_words[1] := raw_data[11];
+raw_pressure.u_words[0] := raw_data[12];
+o_press_Pa := TO_REAL(raw_pressure.u_dword)/10;]]></ST>
+    </Implementation>
+    <LineIds Name="FB_WeatherStation">
+      <LineId Id="19" Count="2" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="33" Count="4" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
