@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_Service_Assignment" Id="{88ac7093-3b6f-4c77-8c11-0cdec708d90d}">
+    <Declaration><![CDATA[TYPE ST_Service_Assignment :
+STRUCT
+	rs_number : UINT;
+	is_assigned : BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

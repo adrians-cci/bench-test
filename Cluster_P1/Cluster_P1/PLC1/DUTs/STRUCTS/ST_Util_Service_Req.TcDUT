@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_Util_Service_Req" Id="{147c5434-470b-4b9d-b271-1c35472686c0}">
+    <Declaration><![CDATA[TYPE ST_Util_Service_Req :
+STRUCT
+	rs_number 		: UINT;
+	request_cmd		: INT;  // ( dispatcher   :  0 = reset, 1 = assign/activate, 2 = release/deactivate )
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

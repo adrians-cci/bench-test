@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ReactorSet" Id="{8e27e1de-b4c9-47f4-af94-ac0054b8b104}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ReactorSet
+VAR_INPUT
+	i_seq_req 				: E_RS_SeqState;
+	i_cooling_pump_sts 		: ST_Util_Service_Sts;
+	i_deadair_pump_sts 		: ST_Util_Service_Sts;
+	i_steam_system_sts 		: ST_Util_Service_Sts;
+	i_purge_assist_sts		: ST_Util_Service_Sts;	
+	
+END_VAR
+VAR_OUTPUT
+	o_adsorption_seq_sts 	: ST_SeqSts;
+	o_evac_seq_sts 			: ST_SeqSts;
+	o_desorption_seq_sts 	: ST_SeqSts;
+	o_cooling_seq_sts 		: ST_SeqSts;
+	o_airpress_seq_sts 		: ST_SeqSts;
+	
+	o_cooling_pump_req		: BYTE;  
+	o_deadair_pump_req		: BYTE;
+	o_steam_system_req		: BYTE;
+	o_purge_assist_req		: BYTE;
+END_VAR
+VAR
+	
+	// from RS Controller 
+	adsorption_seq_sts  	AT %I*	: BYTE;
+	evac_seq_sts 			AT %I*	: BYTE;
+	desorption_seq_sts 		AT %I*	: BYTE;
+	cooling_seq_sts 		AT %I*	: BYTE;
+	airpress_seq_sts 		AT %I*	: BYTE;
+	
+	cooling_pump_req		AT %I*	: BYTE;  
+	deadair_pump_req		AT %I*	: BYTE;
+	steam_system_req		AT %I*	: BYTE;
+	purge_assist_req		AT %I*	: BYTE;
+	
+	// to RS Controller
+	seq_req 				AT %Q*	: BYTE;
+	
+	cooling_pump_sts 		AT %Q*	: BYTE;  // 1 = Run, 0 = Stop 
+	deadair_pump_sts		AT %Q*	: BYTE;
+	steam_system_sts		AT %Q*	: BYTE;
+	purge_assist_sts		AT %Q*	: BYTE;
+	
+	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Sequence Select + Run request to RS controller
+
+seq_req := TO_BYTE(i_seq_req);
+
+
+// Utilities Request to RS Copntroller 
+
+Set_Service_Sts ( i_service_sts := i_cooling_pump_sts,o_service_sts => cooling_pump_sts);
+Set_Service_Sts ( i_service_sts := i_deadair_pump_sts,o_service_sts => deadair_pump_sts);
+Set_Service_Sts ( i_service_sts := i_steam_system_sts,o_service_sts => steam_system_sts);
+Set_Service_Sts ( i_service_sts := i_purge_assist_sts,o_service_sts => purge_assist_sts);
+
+// Seq Status from RS controller 
+
+Get_Seq_Status(i_seq_sts := adsorption_seq_sts,o_seq_sts => o_adsorption_seq_sts);
+Get_Seq_Status(i_seq_sts := evac_seq_sts,o_seq_sts => o_evac_seq_sts);
+Get_Seq_Status(i_seq_sts := desorption_seq_sts,o_seq_sts => o_desorption_seq_sts);
+Get_Seq_Status(i_seq_sts := cooling_seq_sts,o_seq_sts => o_cooling_seq_sts);
+Get_Seq_Status(i_seq_sts := airpress_seq_sts,o_seq_sts => o_airpress_seq_sts);
+
+// Utilities Req from RS Controller 
+
+o_cooling_pump_req		:= cooling_pump_req;
+o_deadair_pump_req		:= deadair_pump_req;
+o_steam_system_req		:= steam_system_req;
+o_purge_assist_req		:= purge_assist_req;
+
+]]></ST>
+    </Implementation>
+    <Method Name="Get_Seq_Status" Id="{4dbc3252-9aa5-422d-87bd-aedbcb4954a1}">
+      <Declaration><![CDATA[METHOD Get_Seq_Status : BOOL
+VAR_INPUT
+	i_seq_sts : BYTE;
+END_VAR
+VAR_OUTPUT
+	o_seq_sts : ST_SeqSts;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+o_seq_sts.not_started 		:= i_seq_sts = 0;
+o_seq_sts.started 			:= i_seq_sts = 1;
+o_seq_sts.completed 		:= i_seq_sts = 2;
+o_seq_sts.error 			:= i_seq_sts = 9;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Set_Service_Sts" Id="{7bc84eef-0834-4c67-8959-d790ac013a0b}">
+      <Declaration><![CDATA[METHOD Set_Service_Sts : BOOL
+VAR_INPUT
+	i_service_sts : ST_Util_Service_Sts;
+END_VAR
+VAR_OUTPUT
+	o_service_sts	: BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF i_service_sts.ready THEN
+	o_service_sts := 1 ;
+ELSIF i_service_sts.running THEN
+	o_service_sts := 2 ;
+ELSIF i_service_sts.faulted THEN
+	o_service_sts := 9 ;
+ELSE
+	o_service_sts := 0 ;	
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_ReactorSet">
+      <LineId Id="60" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="113" Count="1" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="110" Count="2" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="35" Count="2" />
+      <LineId Id="42" Count="3" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="53" Count="3" />
+      <LineId Id="33" Count="1" />
+      <LineId Id="32" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ReactorSet.Get_Seq_Status">
+      <LineId Id="10" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ReactorSet.Set_Service_Sts">
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="13" Count="3" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="10" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

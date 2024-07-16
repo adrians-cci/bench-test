@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Utilities_Service" Id="{316b1915-9e3f-4dce-ae11-ef4ece4f6502}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Utilities_Service
+VAR_INPUT
+	i_service_req : ST_Util_Service_Req;
+	
+END_VAR
+VAR_OUTPUT
+	o_service_req_sts 	: ST_Util_Service_Sts;
+END_VAR
+VAR
+	service_sts 		AT %I* : ST_Util_Service_Sts;
+	service_req 		AT %Q* : UINT;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+service_req := TO_UINT(i_service_req.request_cmd);
+
+o_service_req_sts := service_sts;
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Utilities_Service">
+      <LineId Id="29" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="25" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

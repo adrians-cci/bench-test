@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="U_SeqStart" Id="{b86d7af4-9059-416a-a9c9-4a466b6a2483}">
+    <Declaration><![CDATA[TYPE U_SeqStart :
+UNION
+	_seq_st 	: ST_RS_SeqNumber;
+	_seq_byte 	: BYTE;
+END_UNION
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

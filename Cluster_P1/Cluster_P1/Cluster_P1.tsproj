@@ -1,0 +1,281 @@
+<?xml version="1.0"?>
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.55">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{3587FACF-E555-5B9F-7B96-DB1FFF70B4B4}" AutoDeleteType="true">ST_SeqSts</Name>
+			<BitSize>32</BitSize>
+			<SubItem>
+				<Name>not_started</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>started</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>completed</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>16</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>error</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>24</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{0CBB2F5E-9916-94B0-729B-A50727711D93}" AutoDeleteType="true">ST_Util_Service_Sts</Name>
+			<BitSize>64</BitSize>
+			<SubItem>
+				<Name>ready</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>running</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>faulted</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>16</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>error_code</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000007}">DWORD</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+		</DataType>
+	</DataTypes>
+	<Project ProjectGUID="{4BE36A0A-6791-4BF9-A597-DB53620C6D9B}" Target64Bit="true" ShowHideConfigurations="#x6">
+		<System>
+			<Settings MaxCpus="20">
+				<Cpu CpuId="18"/>
+				<Cpu CpuId="19"/>
+			</Settings>
+			<Tasks>
+				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
+					<Name>PlcTask</Name>
+				</Task>
+			</Tasks>
+		</System>
+		<Plc>
+			<Project GUID="{D86426BD-5570-4D01-8842-A79647151612}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{9579FDED-41D3-5001-09B4-6775CD9DFE43}">
+					<Name>PLC1 Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Vars VarGrpType="1">
+						<Name>PlcTask Inputs</Name>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].adsorption_seq_sts</Name>
+							<Comment><![CDATA[ from RS Controller ]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].evac_seq_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].desorption_seq_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].cooling_seq_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].airpress_seq_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].cooling_pump_req</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].deadair_pump_req</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].steam_system_req</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].purge_assist_req</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].adsorption_seq_sts</Name>
+							<Comment><![CDATA[ from RS Controller ]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].evac_seq_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].desorption_seq_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].cooling_seq_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].airpress_seq_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].cooling_pump_req</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].deadair_pump_req</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].steam_system_req</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].purge_assist_req</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.warmup_sts</Name>
+							<Type GUID="{3587FACF-E555-5B9F-7B96-DB1FFF70B4B4}">ST_SeqSts</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.activate_sts</Name>
+							<Type GUID="{3587FACF-E555-5B9F-7B96-DB1FFF70B4B4}">ST_SeqSts</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.shutdown_sts</Name>
+							<Type GUID="{3587FACF-E555-5B9F-7B96-DB1FFF70B4B4}">ST_SeqSts</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.error_sts</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.cooling_pump.service_sts</Name>
+							<Type GUID="{0CBB2F5E-9916-94B0-729B-A50727711D93}">ST_Util_Service_Sts</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.dead_air_pump.service_sts</Name>
+							<Type GUID="{0CBB2F5E-9916-94B0-729B-A50727711D93}">ST_Util_Service_Sts</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.steam_sytem.service_sts</Name>
+							<Type GUID="{0CBB2F5E-9916-94B0-729B-A50727711D93}">ST_Util_Service_Sts</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.purge_assist.service_sts</Name>
+							<Type GUID="{0CBB2F5E-9916-94B0-729B-A50727711D93}">ST_Util_Service_Sts</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" AreaNo="1">
+						<Name>PlcTask Outputs</Name>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].seq_req</Name>
+							<Comment><![CDATA[ to RS Controller]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].cooling_pump_sts</Name>
+							<Comment><![CDATA[ 1 = Run, 0 = Stop ]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].deadair_pump_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].steam_system_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].purge_assist_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].seq_req</Name>
+							<Comment><![CDATA[ to RS Controller]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].cooling_pump_sts</Name>
+							<Comment><![CDATA[ 1 = Run, 0 = Stop ]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].deadair_pump_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].steam_system_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].purge_assist_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.state_cmd</Name>
+							<Comment><![CDATA[ 0 = Idle, 1 = warmup, 2 = activavte, 3 = shutdown ]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.reset_fault</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.cooling_pump.service_req</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.dead_air_pump.service_req</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.steam_sytem.service_req</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.purge_assist.service_req</Name>
+							<Type>UINT</Type>
+						</Var>
+					</Vars>
+					<Contexts>
+						<Context>
+							<Id>0</Id>
+							<Name>PlcTask</Name>
+							<ManualConfig>
+								<OTCID>#x02010030</OTCID>
+							</ManualConfig>
+							<Priority>20</Priority>
+							<CycleTime>10000000</CycleTime>
+						</Context>
+					</Contexts>
+					<TaskPouOids>
+						<TaskPouOid Prio="20" OTCID="#x08502001"/>
+					</TaskPouOids>
+				</Instance>
+			</Project>
+		</Plc>
+	</Project>
+</TcSmProject>

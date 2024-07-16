@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Utilities_Dispatcher" Id="{d0755d92-1ccf-48ac-9a0e-e752bed1f7d0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Utilities_Dispatcher
+VAR_INPUT
+	i_cooling_pump_req : ST_Util_Service_Req;
+	i_deadair_pump_req : ST_Util_Service_Req;
+END_VAR
+VAR_OUTPUT
+	o_cooling_pump_assigned : BOOL;
+	o_deadair_pump_assigned : BOOL;
+END_VAR
+
+VAR
+	cooling_pump_dispatch : FB_Service_Dispatcher();
+	deadair_pump_dispatch : FB_Service_Dispatcher();
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+
+cooling_pump_dispatch( i_service_req := i_cooling_pump_req, o_service_assigned_sts => o_cooling_pump_assigned);
+deadair_pump_dispatch( i_service_req := i_deadair_pump_req, o_service_assigned_sts => o_deadair_pump_assigned);]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Utilities_Dispatcher">
+      <LineId Id="95" Count="2" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="98" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

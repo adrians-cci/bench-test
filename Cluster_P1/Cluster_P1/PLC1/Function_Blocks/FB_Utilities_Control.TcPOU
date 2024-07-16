@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Utilities_Control" Id="{8c6b6cdd-7265-4a56-a4b4-c8746bfbe857}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Utilities_Control
+VAR_INPUT
+	i_init_utilities 		: BOOL;
+	i_shutdown_utilities 	: BOOL;
+	i_fault_reset			: BOOL;
+	i_cooling_pump_req		: ST_Util_Service_Req;
+	i_deadair_pump_req		: ST_Util_Service_Req;
+	i_steam_system_req		: ST_Util_Service_Req;
+	i_purge_assist_req		: ST_Util_Service_Req;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	warmup_sts 		AT %I* : ST_SeqSts;
+	activate_sts	AT %I* : ST_SeqSts;
+	shutdown_sts	AT %I* : ST_SeqSts;
+	error_sts		AT %I* : BOOL;
+	error_code		AT %I* : DWORD;
+	
+	state_cmd 		AT %Q* : BYTE; // 0 = Idle, 1 = warmup, 2 = activavte, 3 = shutdown 
+	reset_fault		AT %Q* : BOOL;
+	
+	cooling_pump	: FB_Utilities_Service;
+	dead_air_pump	: FB_Utilities_Service;
+	steam_sytem 	: FB_Utilities_Service;
+	purge_assist 	: FB_Utilities_Service;
+	
+	//util_dispatcher	: FB_Utilities_Dispatcher;
+	
+	cooling_pump_dispatch : FB_Service_Dispatcher();
+	deadair_pump_dispatch : FB_Service_Dispatcher();
+	
+	seq_state : ( Idle := 0, Warmup := 1, Activate := 2, Shutdown := 3, Error) ;
+	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+
+
+
+//util_dispatcher (i_cooling_pump_req := i_cooling_pump_req,  i_deadair_pump_req := i_deadair_pump_req);
+
+
+
+
+
+cooling_pump_dispatch( i_service_req := i_cooling_pump_req);
+
+
+IF cooling_pump_dispatch.o_service_assigned_sts AND NOT cooling_pump.o_service_req_sts.faulted THEN 
+	cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.On;
+ELSIF NOT  cooling_pump_dispatch.o_service_assigned_sts THEN
+	cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.Off;
+ELSIF i_cooling_pump_req.request_cmd = 0 AND cooling_pump.o_service_req_sts.faulted THEN 
+	cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.Reset_Fault;
+END_IF
+
+cooling_pump();
+
+
+//IF util_dispatcher.o_cooling_pump_assigned AND NOT cooling_pump.o_service_req_sts.faulted THEN 
+//	cooling_pump.i_service_req.request_cmd := 1;
+//ELSIF NOT  util_dispatcher.o_cooling_pump_assigned  THEN
+//	cooling_pump.i_service_req.request_cmd := 2;
+//ELSIF i_cooling_pump_req.request_cmd = 0 AND cooling_pump.o_service_req_sts.faulted THEN 
+//	cooling_pump.i_service_req.request_cmd := 0;
+//END_IF
+
+
+
+
+deadair_pump_dispatch( i_service_req := i_deadair_pump_req);
+dead_air_pump();
+
+]]></ST>
+    </Implementation>
+    <Property Name="CoolingPump_Sts" Id="{7316fd9b-3061-4fa0-a714-ac480e11acfa}">
+      <Declaration><![CDATA[PROPERTY CoolingPump_Sts : ST_Util_Service_Sts]]></Declaration>
+      <Get Name="Get" Id="{d3c6616e-43cf-48e4-87e3-0a629123ca49}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CoolingPump_Sts := cooling_pump.o_service_req_sts;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="DeadAirPump_Sts" Id="{f06135dc-afa2-4efa-8940-c4c64349210e}">
+      <Declaration><![CDATA[PROPERTY DeadAirPump_Sts : ST_Util_Service_Sts]]></Declaration>
+      <Get Name="Get" Id="{38a46abb-2a3d-4082-898e-ce5b5951812b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DeadAirPump_Sts := dead_air_pump.o_service_req_sts;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PurgeAssist_Sts" Id="{38bed4f6-0484-45ef-98fa-176288db34d8}">
+      <Declaration><![CDATA[PROPERTY PurgeAssist_Sts : ST_Util_Service_Sts]]></Declaration>
+      <Get Name="Get" Id="{77e09263-3af6-4d99-bf48-816409fdbc74}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PurgeAssist_Sts := purge_assist.o_service_req_sts;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="State_Machine" Id="{098dda64-0e68-4a64-9b10-f955bc143fbc}">
+      <Declaration><![CDATA[METHOD State_Machine : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF i_shutdown_utilities THEN
+	seq_state := Shutdown;
+END_IF
+
+CASE seq_state OF 
+	
+	Idle : 
+		IF i_init_utilities AND NOT error_sts THEN 
+			seq_state := Warmup;
+		ELSIF 	error_sts THEN 
+			seq_state := Error;
+		END_IF
+	Warmup: 
+		state_cmd := TO_BYTE(Warmup);
+		IF NOT warmup_sts.error THEN 
+			IF warmup_sts.completed THEN 
+				seq_state := Activate;
+			END_IF
+		ELSE
+			seq_state := Error;
+		END_IF
+	Activate: 
+		state_cmd := TO_BYTE(Activate);
+		IF  activate_sts.error THEN 
+			seq_state := Error;
+		END_IF
+		
+	Shutdown : 
+		state_cmd := TO_BYTE(Shutdown);
+		IF NOT shutdown_sts.error THEN 
+			IF shutdown_sts.completed THEN 
+				seq_state := Idle;
+			END_IF
+		ELSE
+			seq_state := Error;
+		END_IF
+	Error: 
+		IF i_fault_reset THEN 
+			reset_fault := TRUE;
+			IF NOT error_sts THEN
+				seq_state := Idle;
+			END_IF
+		END_IF
+		
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SteamSystem_Sts" Id="{67bbb3e4-1b43-46e6-b3ec-6650925c7d57}">
+      <Declaration><![CDATA[PROPERTY SteamSystem_Sts : ST_Util_Service_Sts]]></Declaration>
+      <Get Name="Get" Id="{3d1618d8-ce06-4106-9724-ecdc500e13d1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SteamSystem_Sts := steam_sytem.o_service_req_sts;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="FB_Utilities_Control">
+      <LineId Id="245" Count="0" />
+      <LineId Id="265" Count="0" />
+      <LineId Id="264" Count="0" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="246" Count="1" />
+      <LineId Id="312" Count="1" />
+      <LineId Id="311" Count="0" />
+      <LineId Id="306" Count="2" />
+      <LineId Id="305" Count="0" />
+      <LineId Id="315" Count="0" />
+      <LineId Id="317" Count="5" />
+      <LineId Id="316" Count="0" />
+      <LineId Id="325" Count="0" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="304" Count="0" />
+      <LineId Id="248" Count="4" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="260" Count="0" />
+      <LineId Id="253" Count="0" />
+      <LineId Id="267" Count="0" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="323" Count="1" />
+      <LineId Id="310" Count="0" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="254" Count="0" />
+      <LineId Id="142" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Utilities_Control.CoolingPump_Sts.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Utilities_Control.DeadAirPump_Sts.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Utilities_Control.PurgeAssist_Sts.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Utilities_Control.State_Machine">
+      <LineId Id="6" Count="43" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Utilities_Control.SteamSystem_Sts.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

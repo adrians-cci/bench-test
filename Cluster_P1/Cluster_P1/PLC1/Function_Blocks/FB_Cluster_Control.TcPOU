@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Cluster_Control" Id="{6fd5e4a5-e99d-4b99-9ff7-8b5ec4c922f0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Cluster_Control
+VAR_INPUT
+	i_rs_start_auto : ARRAY[1..2] OF BOOL;
+	i_rs_stop		: ARRAY[1..2] OF BOOL;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	rs_control 			: ARRAY[1..2] OF FB_ReactorSet_Control;
+	reactor_set			: ARRAY[1..2] OF FB_ReactorSet;
+	
+	utilities_control 	: FB_Utilities_Control;
+	
+	idx_rs 				: UINT;
+	
+	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FOR idx_rs := 1 TO 2 DO 
+	utilities_control.i_cooling_pump_req.rs_number := idx_rs;
+	reactor_set[idx_rs]( i_seq_req 				:= rs_control[idx_rs].SeqState_Sts,
+						 i_cooling_pump_sts 	:= utilities_control.CoolingPump_Sts,
+						 i_deadair_pump_sts 	:= utilities_control.DeadAirPump_Sts,
+						 i_steam_system_sts 	:= utilities_control.SteamSystem_Sts,
+						 i_purge_assist_sts 	:= utilities_control.PurgeAssist_Sts,
+						 o_adsorption_seq_sts 	=> rs_control[idx_rs].i_adsorption_seq_sts,
+						 o_airpress_seq_sts		=> rs_control[idx_rs].i_airpress_seq_sts,
+						 o_evac_seq_sts 		=> rs_control[idx_rs].i_evac_seq_sts,
+						 o_desorption_seq_sts 	=> rs_control[idx_rs].i_desorption_seq_sts,
+						 o_cooling_seq_sts		=> rs_control[idx_rs].i_cooling_seq_sts,
+						 o_cooling_pump_req		=> utilities_control.i_cooling_pump_req.request_cmd,
+						 o_deadair_pump_req		=> utilities_control.i_deadair_pump_req.request_cmd,
+						 o_steam_system_req		=> utilities_control.i_steam_system_req.request_cmd,
+						 o_purge_assist_req		=> utilities_control.i_purge_assist_req.request_cmd
+						);
+	
+	rs_control[idx_rs]( i_rs_number := idx_rs,
+				   		i_start := i_rs_start_auto[idx_rs],
+				  		i_stop_cmd := i_rs_stop[idx_rs]
+			  		  );
+					  
+	
+	utilities_control();
+END_FOR
+
+utilities_control.State_Machine();]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Cluster_Control">
+      <LineId Id="175" Count="0" />
+      <LineId Id="202" Count="0" />
+      <LineId Id="176" Count="5" />
+      <LineId Id="191" Count="4" />
+      <LineId Id="197" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="182" Count="0" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="185" Count="3" />
+      <LineId Id="199" Count="2" />
+      <LineId Id="189" Count="1" />
+      <LineId Id="99" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Service_Dispatcher" Id="{a567eb61-ac7e-400e-a3c0-e91bb0f7a48e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Service_Dispatcher
+VAR_INPUT
+	i_service_req : ST_Util_Service_Req;
+END_VAR
+VAR_OUTPUT
+	o_service_assigned_sts : BOOL;
+END_VAR
+VAR
+	service_req_queue	: ARRAY [1..RS_NUMBER] OF ST_Service_Assignment;
+	idx_queue			: UINT;
+	trig_service_assign		: R_TRIG;
+	trig_service_release	: R_TRIG;
+	
+	service_assign				: BOOL;
+	service_release				: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Add to queue 
+
+FOR idx_queue := 1 TO RS_NUMBER DO
+	IF (i_service_req.request_cmd = E_Util_Service_Req.On)  THEN 
+		IF  (service_req_queue[idx_queue].rs_number = i_service_req.rs_number)  THEN
+			service_assign := FALSE;
+			EXIT;
+		ELSE
+			service_assign := TRUE;
+		END_IF
+	END_IF
+END_FOR
+
+FOR idx_queue := 1 TO RS_NUMBER DO
+	IF (i_service_req.request_cmd = E_Util_Service_Req.Off)  THEN 
+		IF  (service_req_queue[idx_queue].rs_number = i_service_req.rs_number)  THEN
+			service_release := TRUE;
+			EXIT;
+		ELSE
+			service_release := FALSE;
+		END_IF
+	END_IF
+END_FOR
+
+
+//trig_service_assign(CLK := i_service_req.request_cmd = E_Util_Service_Req.On);
+//trig_service_release(CLK := i_service_req.request_cmd = E_Util_Service_Req.Off);
+
+trig_service_assign(CLK := service_assign);
+trig_service_release(CLK := service_release);
+
+IF trig_service_assign.Q THEN
+	FOR idx_queue := 1 TO RS_NUMBER DO
+		IF service_req_queue[idx_queue].rs_number = i_service_req.rs_number THEN
+			EXIT;
+		ELSIF NOT service_req_queue[idx_queue].is_assigned AND  service_req_queue[idx_queue].rs_number <> i_service_req.rs_number   THEN 
+			service_req_queue[idx_queue].is_assigned  := TRUE;
+			service_req_queue[idx_queue].rs_number := i_service_req.rs_number;
+			EXIT;
+		END_IF
+	END_FOR
+END_IF
+
+// Remove from queue
+IF trig_service_release.Q THEN
+	FOR idx_queue := 1 TO RS_NUMBER DO
+		IF service_req_queue[idx_queue].rs_number =  i_service_req.rs_number THEN
+			service_req_queue[idx_queue].rs_number := 0;
+			service_req_queue[idx_queue].is_assigned  := FALSE;
+			EXIT;
+		END_IF
+	END_FOR
+END_IF
+
+// Update queue
+FOR idx_queue := 1 TO RS_NUMBER-1 DO
+	IF  NOT service_req_queue[idx_queue].is_assigned  THEN 
+		IF service_req_queue[idx_queue + 1].rs_number > 0 THEN 
+			service_req_queue[idx_queue] := service_req_queue[idx_queue + 1];
+			service_req_queue[idx_queue + 1].rs_number := 0;
+			service_req_queue[idx_queue + 1].is_assigned := FALSE;
+			
+		END_IF
+	END_IF
+	IF idx_queue = 3 AND NOT service_req_queue[idx_queue].is_assigned THEN 
+		EXIT;
+	END_IF
+END_FOR
+
+
+
+// Assign Service
+FOR idx_queue := 1 TO RS_NUMBER DO
+	IF service_req_queue[idx_queue].is_assigned THEN 
+		o_service_assigned_sts := TRUE;
+		EXIT;
+	ELSE
+		o_service_assigned_sts := FALSE;
+	END_IF
+END_FOR]]></ST>
+    </Implementation>
+    <Method Name="Clear_Queue" Id="{ec07c837-9081-45a3-91d1-67ce24451c4a}">
+      <Declaration><![CDATA[METHOD Clear_Queue : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR idx_queue := 1 TO RS_NUMBER DO
+	service_req_queue[idx_queue].rs_number := 0;
+	service_req_queue[idx_queue].is_assigned  := FALSE;
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Service_Dispatcher">
+      <LineId Id="273" Count="0" />
+      <LineId Id="355" Count="1" />
+      <LineId Id="358" Count="0" />
+      <LineId Id="368" Count="0" />
+      <LineId Id="362" Count="0" />
+      <LineId Id="360" Count="0" />
+      <LineId Id="369" Count="0" />
+      <LineId Id="364" Count="0" />
+      <LineId Id="370" Count="0" />
+      <LineId Id="361" Count="0" />
+      <LineId Id="359" Count="0" />
+      <LineId Id="374" Count="9" />
+      <LineId Id="373" Count="0" />
+      <LineId Id="357" Count="0" />
+      <LineId Id="354" Count="0" />
+      <LineId Id="274" Count="1" />
+      <LineId Id="366" Count="1" />
+      <LineId Id="365" Count="0" />
+      <LineId Id="350" Count="0" />
+      <LineId Id="276" Count="43" />
+      <LineId Id="323" Count="0" />
+      <LineId Id="320" Count="2" />
+      <LineId Id="60" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Service_Dispatcher.Clear_Queue">
+      <LineId Id="6" Count="0" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
