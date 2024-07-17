@@ -21,7 +21,13 @@
     <Compile Include="DUTs\ENUM\E_RS_SeqState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\ENUM\E_Cluster_State_Cmd.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\ENUM\E_Util_Service_Req.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ENUM\E_Util_Service_Sts.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\STRUCTS\ST_RS_SeqNumber.TcDUT">
@@ -65,6 +71,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GVLs\CONSTANTS.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="GVLs\hmi.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
     </Compile>

@@ -23,6 +23,8 @@ VAR_INPUT
 	i_cooling_seq_sts 		: ST_SeqSts;
 	i_airpress_seq_sts 		: ST_SeqSts;
 	
+	i_rs_error_active		: BOOL;
+	
 END_VAR
 VAR_OUTPUT
 	o_Error 				: BOOL;

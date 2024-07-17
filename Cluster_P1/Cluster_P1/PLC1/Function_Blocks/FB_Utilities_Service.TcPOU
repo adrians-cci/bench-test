@@ -7,19 +7,26 @@ VAR_INPUT
 	
 END_VAR
 VAR_OUTPUT
-	o_service_req_sts 	: ST_Util_Service_Sts;
+	o_service_sts 	: ST_Util_Service_Sts;
 END_VAR
 VAR
-	service_sts 		AT %I* : ST_Util_Service_Sts;
-	service_req 		AT %Q* : UINT;
+	service_sts 		AT %I* : BYTE;
+	service_error_code  AT %I* : DWORD;
+	service_req 		AT %Q* : BYTE;
 
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[
-service_req := TO_UINT(i_service_req.request_cmd);
+service_req := TO_BYTE(i_service_req.request_cmd);
 
-o_service_req_sts := service_sts;
+
+o_service_sts.idle 				:= service_sts = E_Util_Service_Sts.PowerUp;
+o_service_sts.ready 			:= service_sts = E_Util_Service_Sts.Ready;
+o_service_sts.running 			:= service_sts = E_Util_Service_Sts.Running;
+o_service_sts.faulted 			:= service_sts = E_Util_Service_Sts.Faulted;
+o_service_sts.error_code		:=service_error_code;
+
 
 
 ]]></ST>
@@ -27,8 +34,12 @@ o_service_req_sts := service_sts;
     <LineIds Name="FB_Utilities_Service">
       <LineId Id="29" Count="0" />
       <LineId Id="9" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="48" Count="2" />
+      <LineId Id="44" Count="0" />
       <LineId Id="28" Count="0" />
-      <LineId Id="21" Count="0" />
       <LineId Id="26" Count="1" />
       <LineId Id="25" Count="0" />
     </LineIds>

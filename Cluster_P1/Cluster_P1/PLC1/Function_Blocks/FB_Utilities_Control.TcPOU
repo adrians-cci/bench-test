@@ -4,6 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Utilities_Control
 VAR_INPUT
 	i_init_utilities 		: BOOL;
+	i_activate_util			: BOOL;
 	i_shutdown_utilities 	: BOOL;
 	i_fault_reset			: BOOL;
 	i_cooling_pump_req		: ST_Util_Service_Req;
@@ -12,6 +13,7 @@ VAR_INPUT
 	i_purge_assist_req		: ST_Util_Service_Req;
 END_VAR
 VAR_OUTPUT
+	o_util_error			: BOOL;
 END_VAR
 VAR
 	warmup_sts 		AT %I* : ST_SeqSts;
@@ -20,8 +22,12 @@ VAR
 	error_sts		AT %I* : BOOL;
 	error_code		AT %I* : DWORD;
 	
+	comms_fault		: BOOL;
+	
 	state_cmd 		AT %Q* : BYTE; // 0 = Idle, 1 = warmup, 2 = activavte, 3 = shutdown 
 	reset_fault		AT %Q* : BOOL;
+	
+	
 	
 	cooling_pump	: FB_Utilities_Service;
 	dead_air_pump	: FB_Utilities_Service;
@@ -35,32 +41,44 @@ VAR
 	
 	seq_state : ( Idle := 0, Warmup := 1, Activate := 2, Shutdown := 3, Error) ;
 	
+	cooling_pump_req : ST_Util_Service_Req;
 	
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
+      <ST><![CDATA[//util_dispatcher (i_cooling_pump_req := i_cooling_pump_req,  i_deadair_pump_req := i_deadair_pump_req);
 
 
+// To make a FB_Util_Service_Control for shared and non-shared services 
+
+// Clear Queue if pump is faulted from utilities controller
+IF NOT cooling_pump.o_service_sts.faulted AND NOT comms_fault AND  HMI.util_auto_mode THEN 
+	cooling_pump_req := i_cooling_pump_req;
+ELSE
+	cooling_pump_dispatch.Clear_Queue();
+END_IF
 
 
-//util_dispatcher (i_cooling_pump_req := i_cooling_pump_req,  i_deadair_pump_req := i_deadair_pump_req);
-
-
-
-
-
+// manage the cooling pump assignmnet queue based on request form reactor set controller
 cooling_pump_dispatch( i_service_req := i_cooling_pump_req);
 
 
-IF cooling_pump_dispatch.o_service_assigned_sts AND NOT cooling_pump.o_service_req_sts.faulted THEN 
-	cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.On;
-ELSIF NOT  cooling_pump_dispatch.o_service_assigned_sts THEN
-	cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.Off;
-ELSIF i_cooling_pump_req.request_cmd = 0 AND cooling_pump.o_service_req_sts.faulted THEN 
-	cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.Reset_Fault;
+IF HMI.util_auto_mode THEN 
+	// set  the cooling pump on/off command based on dispacher assignnments
+	IF cooling_pump_dispatch.o_service_assigned_sts THEN 
+		cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.On;
+	ELSIF cooling_pump_dispatch.o_service_assigned_sts THEN
+		cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.Off;
+	END_IF
+
+	IF i_cooling_pump_req.request_cmd = E_Util_Service_Req.Reset AND cooling_pump.o_service_sts.faulted THEN 
+		cooling_pump.i_service_req.request_cmd := i_cooling_pump_req.request_cmd;
+	END_IF
+ELSE
+	cooling_pump.i_service_req.request_cmd := HMI.util_cooling_pump_cmd;
 END_IF
 
+//  cooling pump ios ( cmd + sts )  mapping to/from utilities controller 
 cooling_pump();
 
 
@@ -71,8 +89,6 @@ cooling_pump();
 //ELSIF i_cooling_pump_req.request_cmd = 0 AND cooling_pump.o_service_req_sts.faulted THEN 
 //	cooling_pump.i_service_req.request_cmd := 0;
 //END_IF
-
-
 
 
 deadair_pump_dispatch( i_service_req := i_deadair_pump_req);
@@ -87,7 +103,7 @@ dead_air_pump();
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CoolingPump_Sts := cooling_pump.o_service_req_sts;]]></ST>
+          <ST><![CDATA[CoolingPump_Sts := cooling_pump.o_service_sts;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -98,7 +114,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[DeadAirPump_Sts := dead_air_pump.o_service_req_sts;]]></ST>
+          <ST><![CDATA[DeadAirPump_Sts := dead_air_pump.o_service_sts;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -109,7 +125,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[PurgeAssist_Sts := purge_assist.o_service_req_sts;]]></ST>
+          <ST><![CDATA[PurgeAssist_Sts := purge_assist.o_service_sts;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -134,7 +150,7 @@ CASE seq_state OF
 	Warmup: 
 		state_cmd := TO_BYTE(Warmup);
 		IF NOT warmup_sts.error THEN 
-			IF warmup_sts.completed THEN 
+			IF warmup_sts.completed AND i_activate_util THEN 
 				seq_state := Activate;
 			END_IF
 		ELSE
@@ -173,36 +189,29 @@ END_CASE]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[SteamSystem_Sts := steam_sytem.o_service_req_sts;]]></ST>
+          <ST><![CDATA[SteamSystem_Sts := steam_sytem.o_service_sts;]]></ST>
         </Implementation>
       </Get>
     </Property>
     <LineIds Name="FB_Utilities_Control">
-      <LineId Id="245" Count="0" />
-      <LineId Id="265" Count="0" />
-      <LineId Id="264" Count="0" />
-      <LineId Id="263" Count="0" />
-      <LineId Id="246" Count="1" />
-      <LineId Id="312" Count="1" />
-      <LineId Id="311" Count="0" />
-      <LineId Id="306" Count="2" />
-      <LineId Id="305" Count="0" />
-      <LineId Id="315" Count="0" />
-      <LineId Id="317" Count="5" />
-      <LineId Id="316" Count="0" />
-      <LineId Id="325" Count="0" />
-      <LineId Id="314" Count="0" />
-      <LineId Id="304" Count="0" />
-      <LineId Id="248" Count="4" />
-      <LineId Id="256" Count="0" />
-      <LineId Id="260" Count="0" />
-      <LineId Id="253" Count="0" />
-      <LineId Id="267" Count="0" />
-      <LineId Id="266" Count="0" />
-      <LineId Id="323" Count="1" />
-      <LineId Id="310" Count="0" />
-      <LineId Id="309" Count="0" />
-      <LineId Id="254" Count="0" />
+      <LineId Id="374" Count="0" />
+      <LineId Id="429" Count="2" />
+      <LineId Id="416" Count="0" />
+      <LineId Id="375" Count="4" />
+      <LineId Id="382" Count="0" />
+      <LineId Id="421" Count="0" />
+      <LineId Id="417" Count="0" />
+      <LineId Id="383" Count="1" />
+      <LineId Id="423" Count="0" />
+      <LineId Id="422" Count="0" />
+      <LineId Id="419" Count="0" />
+      <LineId Id="385" Count="4" />
+      <LineId Id="427" Count="1" />
+      <LineId Id="390" Count="2" />
+      <LineId Id="424" Count="2" />
+      <LineId Id="420" Count="0" />
+      <LineId Id="393" Count="10" />
+      <LineId Id="406" Count="4" />
       <LineId Id="142" Count="0" />
     </LineIds>
     <LineIds Name="FB_Utilities_Control.CoolingPump_Sts.Get">

@@ -1,15 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
-  <DUT Name="E_Util_Service_Req" Id="{d6dc575d-ec45-4850-9a51-cf2bd5d1ed73}">
+  <DUT Name="E_Util_Service_Sts" Id="{ed0539d3-9462-4157-8bfe-81ced6969cf9}">
     <Declaration><![CDATA[//{attribute 'qualified_only'}
 //{attribute 'strict'}
 {attribute 'to_string'}
 
-TYPE E_Util_Service_Req :
+TYPE E_Util_Service_Sts :
 (
-	Off			:= 0,
-	On 			:= 1,
-	Reset		:= 2
+	PowerUp		:= 0,
+	Ready		:= 1,
+	Running		:= 2,
+	Faulted		:= 9
 );
 END_TYPE
 ]]></Declaration>

@@ -21,6 +21,8 @@ VAR_OUTPUT
 	o_deadair_pump_req		: BYTE;
 	o_steam_system_req		: BYTE;
 	o_purge_assist_req		: BYTE;
+	
+	o_error_active			: BOOL;
 END_VAR
 VAR
 	
@@ -35,6 +37,11 @@ VAR
 	deadair_pump_req		AT %I*	: BYTE;
 	steam_system_req		AT %I*	: BYTE;
 	purge_assist_req		AT %I*	: BYTE;
+	
+	error_sts				AT %I* 	: BYTE;
+	error_code1				AT %I*	: DWORD;
+	error_code2				AT %I*	: DWORD;
+	
 	
 	// to RS Controller
 	seq_req 				AT %Q*	: BYTE;
@@ -76,6 +83,8 @@ o_deadair_pump_req		:= deadair_pump_req;
 o_steam_system_req		:= steam_system_req;
 o_purge_assist_req		:= purge_assist_req;
 
+// Error mapping
+o_error_active := error_sts.1;
 ]]></ST>
     </Implementation>
     <Method Name="Get_Seq_Status" Id="{4dbc3252-9aa5-422d-87bd-aedbcb4954a1}">
@@ -131,7 +140,10 @@ END_IF]]></ST>
       <LineId Id="47" Count="0" />
       <LineId Id="46" Count="0" />
       <LineId Id="53" Count="3" />
-      <LineId Id="33" Count="1" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="170" Count="0" />
       <LineId Id="32" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet.Get_Seq_Status">

@@ -3,67 +3,145 @@
   <POU Name="FB_Cluster_Control" Id="{6fd5e4a5-e99d-4b99-9ff7-8b5ec4c922f0}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Cluster_Control
 VAR_INPUT
-	i_rs_start_auto : ARRAY[1..2] OF BOOL;
-	i_rs_stop		: ARRAY[1..2] OF BOOL;
+	i_rs_start_auto : ARRAY[1..RS_NUMBER] OF BOOL;
+	i_rs_stop		: ARRAY[1..RS_NUMBER] OF BOOL;
+	
 END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	rs_control 			: ARRAY[1..2] OF FB_ReactorSet_Control;
-	reactor_set			: ARRAY[1..2] OF FB_ReactorSet;
+	rs_control 			: ARRAY[1..RS_NUMBER] OF FB_ReactorSet_Control;
+	reactor_set			: ARRAY[1..RS_NUMBER] OF FB_ReactorSet;
+	rs_error			: BOOL;
 	
 	utilities_control 	: FB_Utilities_Control;
 	
 	idx_rs 				: UINT;
 	
-	
+	{attribute 'to_string'}
+	state_cluster		: (Idle := 0, Warmup := 1, Ready := 2, Cycling := 3, Shutdown := 4, Error); 
 	
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[FOR idx_rs := 1 TO 2 DO 
-	utilities_control.i_cooling_pump_req.rs_number := idx_rs;
-	reactor_set[idx_rs]( i_seq_req 				:= rs_control[idx_rs].SeqState_Sts,
-						 i_cooling_pump_sts 	:= utilities_control.CoolingPump_Sts,
-						 i_deadair_pump_sts 	:= utilities_control.DeadAirPump_Sts,
-						 i_steam_system_sts 	:= utilities_control.SteamSystem_Sts,
-						 i_purge_assist_sts 	:= utilities_control.PurgeAssist_Sts,
-						 o_adsorption_seq_sts 	=> rs_control[idx_rs].i_adsorption_seq_sts,
-						 o_airpress_seq_sts		=> rs_control[idx_rs].i_airpress_seq_sts,
-						 o_evac_seq_sts 		=> rs_control[idx_rs].i_evac_seq_sts,
-						 o_desorption_seq_sts 	=> rs_control[idx_rs].i_desorption_seq_sts,
-						 o_cooling_seq_sts		=> rs_control[idx_rs].i_cooling_seq_sts,
-						 o_cooling_pump_req		=> utilities_control.i_cooling_pump_req.request_cmd,
-						 o_deadair_pump_req		=> utilities_control.i_deadair_pump_req.request_cmd,
-						 o_steam_system_req		=> utilities_control.i_steam_system_req.request_cmd,
-						 o_purge_assist_req		=> utilities_control.i_purge_assist_req.request_cmd
-						);
-	
-	rs_control[idx_rs]( i_rs_number := idx_rs,
-				   		i_start := i_rs_start_auto[idx_rs],
-				  		i_stop_cmd := i_rs_stop[idx_rs]
-			  		  );
-					  
-	
-	utilities_control();
-END_FOR
+      <ST><![CDATA[IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Shutdown AND  state_cluster <> Cycling THEN 
+	state_cluster := Shutdown;
+END_IF
 
+CASE state_cluster OF 
+	
+	Idle : 
+		IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Warmup THEN 
+			state_cluster := Warmup;
+		END_IF
+		
+	Warmup:	
+		utilities_control.i_init_utilities := TRUE;
+		IF utilities_control.warmup_sts.completed THEN 
+			IF utilities_control.warmup_sts.error THEN 
+				state_cluster := Error;
+			ELSE
+				state_cluster := Ready;
+			END_IF
+		END_IF
+		
+		
+	Ready :
+		utilities_control.i_activate_util := TRUE;
+		IF utilities_control.activate_sts.completed AND  NOT utilities_control.o_util_error AND NOT rs_error THEN
+			IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Cycling THEN 
+				state_cluster := Cycling;
+			END_IF
+		ELSE
+			state_cluster := Error;
+		END_IF
+		
+	Cycling :
+	
+		FOR idx_rs := 1 TO RS_NUMBER DO 
+			utilities_control.i_cooling_pump_req.rs_number := idx_rs;
+			reactor_set[idx_rs]( i_seq_req 				:= rs_control[idx_rs].SeqState_Sts,
+								 i_cooling_pump_sts 	:= utilities_control.CoolingPump_Sts,
+								 i_deadair_pump_sts 	:= utilities_control.DeadAirPump_Sts,
+								 i_steam_system_sts 	:= utilities_control.SteamSystem_Sts,
+								 i_purge_assist_sts 	:= utilities_control.PurgeAssist_Sts,
+								 o_adsorption_seq_sts 	=> rs_control[idx_rs].i_adsorption_seq_sts,
+								 o_airpress_seq_sts		=> rs_control[idx_rs].i_airpress_seq_sts,
+								 o_evac_seq_sts 		=> rs_control[idx_rs].i_evac_seq_sts,
+								 o_desorption_seq_sts 	=> rs_control[idx_rs].i_desorption_seq_sts,
+								 o_cooling_seq_sts		=> rs_control[idx_rs].i_cooling_seq_sts,
+								 o_cooling_pump_req		=> utilities_control.i_cooling_pump_req.request_cmd,
+								 o_deadair_pump_req		=> utilities_control.i_deadair_pump_req.request_cmd,
+								 o_steam_system_req		=> utilities_control.i_steam_system_req.request_cmd,
+								 o_purge_assist_req		=> utilities_control.i_purge_assist_req.request_cmd
+								);
+			
+			rs_control[idx_rs]( i_rs_number := idx_rs,
+								i_start := i_rs_start_auto[idx_rs] AND NOT reactor_set[idx_rs].o_error_active,
+								i_stop_cmd := i_rs_stop[idx_rs]
+							  );
+							  
+			
+			utilities_control();
+			
+			
+		END_FOR
+		
+		
+		IF  hmi.cluster_state_cmd = E_Cluster_State_Cmd.Shutdown AND Get_All_RS_Done_Sts() THEN 
+			state_cluster := Shutdown;
+		END_IF
+		
+	Shutdown : 
+		
+		utilities_control.i_shutdown_utilities := TRUE;
+		FOR idx_rs := 1 TO RS_NUMBER DO 
+			rs_control[idx_rs].i_safe_shutdown := TRUE;
+		END_FOR
+		IF NOT utilities_control.shutdown_sts.error THEN 
+			IF utilities_control.shutdown_sts.completed THEN 
+				state_cluster := Idle;
+			END_IF
+		ELSE
+			state_cluster := Error;	
+		END_IF
+	
+	Error : 
+		
+		IF hmi.cluster_state_cmd = 4 THEN 
+			utilities_control.i_fault_reset := TRUE;
+		END_IF
+		IF  NOT utilities_control.o_util_error THEN 
+				state_cluster := Idle;
+		END_IF
+		
+		
+END_CASE
+
+utilities_control();
 utilities_control.State_Machine();]]></ST>
     </Implementation>
+    <Method Name="Get_All_RS_Done_Sts" Id="{7304ccc2-7947-447d-8057-95279c90ae71}">
+      <Declaration><![CDATA[METHOD Get_All_RS_Done_Sts : BOOL
+VAR
+	rs_done : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[rs_done := rs_control[1].o_Done;
+FOR idx_rs := 2 TO RS_NUMBER DO 
+	rs_done := rs_done AND rs_control[idx_rs].o_Done;
+END_FOR
+Get_All_RS_Done_Sts := rs_done;]]></ST>
+      </Implementation>
+    </Method>
     <LineIds Name="FB_Cluster_Control">
-      <LineId Id="175" Count="0" />
-      <LineId Id="202" Count="0" />
-      <LineId Id="176" Count="5" />
-      <LineId Id="191" Count="4" />
-      <LineId Id="197" Count="0" />
-      <LineId Id="196" Count="0" />
-      <LineId Id="182" Count="0" />
-      <LineId Id="198" Count="0" />
-      <LineId Id="183" Count="0" />
-      <LineId Id="185" Count="3" />
-      <LineId Id="199" Count="2" />
-      <LineId Id="189" Count="1" />
+      <LineId Id="535" Count="94" />
       <LineId Id="99" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Cluster_Control.Get_All_RS_Done_Sts">
+      <LineId Id="6" Count="3" />
+      <LineId Id="5" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>
