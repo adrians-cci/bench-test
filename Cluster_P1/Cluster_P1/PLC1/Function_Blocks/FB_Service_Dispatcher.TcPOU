@@ -9,7 +9,7 @@ VAR_OUTPUT
 	o_service_assigned_sts : BOOL;
 END_VAR
 VAR
-	service_req_queue	: ARRAY [1..RS_NUMBER] OF ST_Service_Assignment;
+	service_req_queue	: ARRAY [1..rs_count] OF ST_Service_Assignment;
 	idx_queue			: UINT;
 	trig_service_assign		: R_TRIG;
 	trig_service_release	: R_TRIG;
@@ -21,7 +21,7 @@ END_VAR
     <Implementation>
       <ST><![CDATA[// Add to queue 
 
-FOR idx_queue := 1 TO RS_NUMBER DO
+FOR idx_queue := 1 TO rs_count DO
 	IF (i_service_req.request_cmd = E_Util_Service_Req.On)  THEN 
 		IF  (service_req_queue[idx_queue].rs_number = i_service_req.rs_number)  THEN
 			service_assign := FALSE;
@@ -32,7 +32,7 @@ FOR idx_queue := 1 TO RS_NUMBER DO
 	END_IF
 END_FOR
 
-FOR idx_queue := 1 TO RS_NUMBER DO
+FOR idx_queue := 1 TO rs_count DO
 	IF (i_service_req.request_cmd = E_Util_Service_Req.Off)  THEN 
 		IF  (service_req_queue[idx_queue].rs_number = i_service_req.rs_number)  THEN
 			service_release := TRUE;
@@ -51,7 +51,7 @@ trig_service_assign(CLK := service_assign);
 trig_service_release(CLK := service_release);
 
 IF trig_service_assign.Q THEN
-	FOR idx_queue := 1 TO RS_NUMBER DO
+	FOR idx_queue := 1 TO rs_count DO
 		IF service_req_queue[idx_queue].rs_number = i_service_req.rs_number THEN
 			EXIT;
 		ELSIF NOT service_req_queue[idx_queue].is_assigned AND  service_req_queue[idx_queue].rs_number <> i_service_req.rs_number   THEN 
@@ -64,7 +64,7 @@ END_IF
 
 // Remove from queue
 IF trig_service_release.Q THEN
-	FOR idx_queue := 1 TO RS_NUMBER DO
+	FOR idx_queue := 1 TO rs_count DO
 		IF service_req_queue[idx_queue].rs_number =  i_service_req.rs_number THEN
 			service_req_queue[idx_queue].rs_number := 0;
 			service_req_queue[idx_queue].is_assigned  := FALSE;
@@ -74,7 +74,7 @@ IF trig_service_release.Q THEN
 END_IF
 
 // Update queue
-FOR idx_queue := 1 TO RS_NUMBER-1 DO
+FOR idx_queue := 1 TO rs_count-1 DO
 	IF  NOT service_req_queue[idx_queue].is_assigned  THEN 
 		IF service_req_queue[idx_queue + 1].rs_number > 0 THEN 
 			service_req_queue[idx_queue] := service_req_queue[idx_queue + 1];
@@ -91,7 +91,7 @@ END_FOR
 
 
 // Activate Service -> Utilities 
-FOR idx_queue := 1 TO RS_NUMBER DO
+FOR idx_queue := 1 TO rs_count DO
 	IF service_req_queue[idx_queue].is_assigned THEN 
 		o_service_assigned_sts := TRUE;
 		EXIT;
@@ -106,7 +106,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR idx_queue := 1 TO RS_NUMBER DO
+        <ST><![CDATA[FOR idx_queue := 1 TO rs_count DO
 	service_req_queue[idx_queue].rs_number := 0;
 	service_req_queue[idx_queue].is_assigned  := FALSE;
 END_FOR]]></ST>

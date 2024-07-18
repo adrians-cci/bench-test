@@ -27,29 +27,29 @@ END_VAR
 VAR
 	
 	// from RS Controller 
-	adsorption_seq_sts  	AT %I*	: BYTE;
-	evac_seq_sts 			AT %I*	: BYTE;
-	desorption_seq_sts 		AT %I*	: BYTE;
-	cooling_seq_sts 		AT %I*	: BYTE;
-	airpress_seq_sts 		AT %I*	: BYTE;
+	in_adsorption_seq_sts  	AT %I*	: BYTE;
+	in_evac_seq_sts 		AT %I*	: BYTE;
+	in_desorption_seq_sts 	AT %I*	: BYTE;
+	in_cooling_seq_sts 		AT %I*	: BYTE;
+	in_airpress_seq_sts 	AT %I*	: BYTE;
 	
-	cooling_pump_req		AT %I*	: BYTE;  
-	deadair_pump_req		AT %I*	: BYTE;
-	steam_system_req		AT %I*	: BYTE;
-	purge_assist_req		AT %I*	: BYTE;
+	in_cooling_pump_req		AT %I*	: BYTE;  
+	in_deadair_pump_req		AT %I*	: BYTE;
+	in_steam_system_req		AT %I*	: BYTE;
+	in_purge_assist_req		AT %I*	: BYTE;
 	
-	error_sts				AT %I* 	: BYTE;
-	error_code1				AT %I*	: DWORD;
-	error_code2				AT %I*	: DWORD;
+	in_error_sts			AT %I* 	: BYTE;
+	in_error_code1			AT %I*	: DWORD;
+	in_error_code2			AT %I*	: DWORD;
 	
 	
 	// to RS Controller
-	seq_req 				AT %Q*	: BYTE;
+	out_seq_req 				AT %Q*	: BYTE;
 	
-	cooling_pump_sts 		AT %Q*	: BYTE;  // 1 = Run, 0 = Stop 
-	deadair_pump_sts		AT %Q*	: BYTE;
-	steam_system_sts		AT %Q*	: BYTE;
-	purge_assist_sts		AT %Q*	: BYTE;
+	out_cooling_pump_sts 		AT %Q*	: BYTE;  
+	out_deadair_pump_sts		AT %Q*	: BYTE;
+	out_steam_system_sts		AT %Q*	: BYTE;
+	out_purge_assist_sts		AT %Q*	: BYTE;
 	
 	
 	
@@ -58,33 +58,33 @@ END_VAR
     <Implementation>
       <ST><![CDATA[// Sequence Select + Run request to RS controller
 
-seq_req := TO_BYTE(i_seq_req);
+out_seq_req := TO_BYTE(i_seq_req);
 
 
 // Utilities Request to RS Copntroller 
 
-Set_Service_Sts ( i_service_sts := i_cooling_pump_sts,o_service_sts => cooling_pump_sts);
-Set_Service_Sts ( i_service_sts := i_deadair_pump_sts,o_service_sts => deadair_pump_sts);
-Set_Service_Sts ( i_service_sts := i_steam_system_sts,o_service_sts => steam_system_sts);
-Set_Service_Sts ( i_service_sts := i_purge_assist_sts,o_service_sts => purge_assist_sts);
+Set_Service_Sts ( i_service_sts := i_cooling_pump_sts,o_service_sts => out_cooling_pump_sts);
+Set_Service_Sts ( i_service_sts := i_deadair_pump_sts,o_service_sts => out_deadair_pump_sts);
+Set_Service_Sts ( i_service_sts := i_steam_system_sts,o_service_sts => out_steam_system_sts);
+Set_Service_Sts ( i_service_sts := i_purge_assist_sts,o_service_sts => out_purge_assist_sts);
 
 // Seq Status from RS controller 
 
-Get_Seq_Status(i_seq_sts := adsorption_seq_sts,o_seq_sts => o_adsorption_seq_sts);
-Get_Seq_Status(i_seq_sts := evac_seq_sts,o_seq_sts => o_evac_seq_sts);
-Get_Seq_Status(i_seq_sts := desorption_seq_sts,o_seq_sts => o_desorption_seq_sts);
-Get_Seq_Status(i_seq_sts := cooling_seq_sts,o_seq_sts => o_cooling_seq_sts);
-Get_Seq_Status(i_seq_sts := airpress_seq_sts,o_seq_sts => o_airpress_seq_sts);
+Get_Seq_Status(i_seq_sts := in_adsorption_seq_sts,o_seq_sts => o_adsorption_seq_sts);
+Get_Seq_Status(i_seq_sts := in_evac_seq_sts,o_seq_sts => o_evac_seq_sts);
+Get_Seq_Status(i_seq_sts := in_desorption_seq_sts,o_seq_sts => o_desorption_seq_sts);
+Get_Seq_Status(i_seq_sts := in_cooling_seq_sts,o_seq_sts => o_cooling_seq_sts);
+Get_Seq_Status(i_seq_sts := in_airpress_seq_sts,o_seq_sts => o_airpress_seq_sts);
 
 // Utilities Req from RS Controller 
 
-o_cooling_pump_req		:= cooling_pump_req;
-o_deadair_pump_req		:= deadair_pump_req;
-o_steam_system_req		:= steam_system_req;
-o_purge_assist_req		:= purge_assist_req;
+o_cooling_pump_req		:= in_cooling_pump_req;
+o_deadair_pump_req		:= in_deadair_pump_req;
+o_steam_system_req		:= in_steam_system_req;
+o_purge_assist_req		:= in_purge_assist_req;
 
 // Error mapping
-o_error_active := error_sts.1;
+o_error_active := in_error_sts.1;
 ]]></ST>
     </Implementation>
     <Method Name="Get_Seq_Status" Id="{4dbc3252-9aa5-422d-87bd-aedbcb4954a1}">
@@ -126,24 +126,7 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_ReactorSet">
-      <LineId Id="60" Count="0" />
-      <LineId Id="65" Count="0" />
-      <LineId Id="64" Count="0" />
-      <LineId Id="113" Count="1" />
-      <LineId Id="61" Count="0" />
-      <LineId Id="115" Count="0" />
-      <LineId Id="62" Count="0" />
-      <LineId Id="110" Count="2" />
-      <LineId Id="63" Count="0" />
-      <LineId Id="35" Count="2" />
-      <LineId Id="42" Count="3" />
-      <LineId Id="47" Count="0" />
-      <LineId Id="46" Count="0" />
-      <LineId Id="53" Count="3" />
-      <LineId Id="33" Count="0" />
-      <LineId Id="169" Count="0" />
-      <LineId Id="34" Count="0" />
-      <LineId Id="170" Count="0" />
+      <LineId Id="1531" Count="28" />
       <LineId Id="32" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet.Get_Seq_Status">

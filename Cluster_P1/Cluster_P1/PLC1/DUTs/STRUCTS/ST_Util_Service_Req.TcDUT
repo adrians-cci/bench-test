@@ -4,7 +4,7 @@
     <Declaration><![CDATA[TYPE ST_Util_Service_Req :
 STRUCT
 	rs_number 		: UINT;
-	request_cmd		: INT;  // ( dispatcher   :  0 = reset, 1 = assign/activate, 2 = release/deactivate )
+	request_cmd		: INT;  // (   0 = reset, 1 = assign/activate, 2 = release/deactivate )
 END_STRUCT
 END_TYPE
 ]]></Declaration>

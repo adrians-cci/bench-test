@@ -7,6 +7,9 @@ VAR_INPUT
 	i_activate_util			: BOOL;
 	i_shutdown_utilities 	: BOOL;
 	i_fault_reset			: BOOL;
+	
+	i_state_req				: INT;
+	
 	i_cooling_pump_req		: ST_Util_Service_Req;
 	i_deadair_pump_req		: ST_Util_Service_Req;
 	i_steam_system_req		: ST_Util_Service_Req;
@@ -16,16 +19,16 @@ VAR_OUTPUT
 	o_util_error			: BOOL;
 END_VAR
 VAR
-	warmup_sts 		AT %I* : ST_SeqSts;
-	activate_sts	AT %I* : ST_SeqSts;
-	shutdown_sts	AT %I* : ST_SeqSts;
-	error_sts		AT %I* : BOOL;
-	error_code		AT %I* : DWORD;
+	in_bop_warmup_sts 		AT %I* : ST_SeqSts;
+	in_bop_activate_sts		AT %I* : ST_SeqSts;
+	in_bop_shutdown_sts		AT %I* : ST_SeqSts;
+	in_bop_error_sts		AT %I* : BOOL;
+	in_bop_error_code		AT %I* : DWORD;
 	
 	comms_fault		: BOOL;
 	
-	state_cmd 		AT %Q* : BYTE; // 0 = Idle, 1 = warmup, 2 = activavte, 3 = shutdown 
-	reset_fault		AT %Q* : BOOL;
+	out_util_state_req 		AT %Q* : INT; // 0 = Idle, 1 = warmup, 2 = activavte, 3 = shutdown 
+	out_util_reset_fault	AT %Q* : BOOL;
 	
 	
 	
@@ -39,7 +42,7 @@ VAR
 	cooling_pump_dispatch : FB_Service_Dispatcher();
 	deadair_pump_dispatch : FB_Service_Dispatcher();
 	
-	seq_state : ( Idle := 0, Warmup := 1, Activate := 2, Shutdown := 3, Error) ;
+	util_state : ( Idle := 0, Warmup := 1, Activate := 2, Shutdown := 3, Error) ;
 	
 	cooling_pump_req : ST_Util_Service_Req;
 	
@@ -51,7 +54,26 @@ END_VAR
 
 // To make a FB_Util_Service_Control for shared and non-shared services 
 
-// Clear Queue if pump is faulted from utilities controller
+
+
+//IF util_dispatcher.o_cooling_pump_assigned AND NOT cooling_pump.o_service_req_sts.faulted THEN 
+//	cooling_pump.i_service_req.request_cmd := 1;
+//ELSIF NOT  util_dispatcher.o_cooling_pump_assigned  THEN
+//	cooling_pump.i_service_req.request_cmd := 2;
+//ELSIF i_cooling_pump_req.request_cmd = 0 AND cooling_pump.o_service_req_sts.faulted THEN 
+//	cooling_pump.i_service_req.request_cmd := 0;
+//END_IF
+
+
+]]></ST>
+    </Implementation>
+    <Method Name="CoolingPump_Control" Id="{87b36801-af68-47a8-9110-d4009490d768}">
+      <Declaration><![CDATA[METHOD CoolingPump_Control : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Clear Queue if pump is faulted from utilities controller
 IF NOT cooling_pump.o_service_sts.faulted AND NOT comms_fault AND  HMI.util_auto_mode THEN 
 	cooling_pump_req := i_cooling_pump_req;
 ELSE
@@ -60,14 +82,14 @@ END_IF
 
 
 // manage the cooling pump assignmnet queue based on request form reactor set controller
-cooling_pump_dispatch( i_service_req := i_cooling_pump_req);
+cooling_pump_dispatch( i_service_req := cooling_pump_req);
 
 
-IF HMI.util_auto_mode THEN 
+IF hmi.util_auto_mode THEN 
 	// set  the cooling pump on/off command based on dispacher assignnments
 	IF cooling_pump_dispatch.o_service_assigned_sts THEN 
 		cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.On;
-	ELSIF cooling_pump_dispatch.o_service_assigned_sts THEN
+	ELSIF NOT cooling_pump_dispatch.o_service_assigned_sts THEN
 		cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.Off;
 	END_IF
 
@@ -80,22 +102,9 @@ END_IF
 
 //  cooling pump ios ( cmd + sts )  mapping to/from utilities controller 
 cooling_pump();
-
-
-//IF util_dispatcher.o_cooling_pump_assigned AND NOT cooling_pump.o_service_req_sts.faulted THEN 
-//	cooling_pump.i_service_req.request_cmd := 1;
-//ELSIF NOT  util_dispatcher.o_cooling_pump_assigned  THEN
-//	cooling_pump.i_service_req.request_cmd := 2;
-//ELSIF i_cooling_pump_req.request_cmd = 0 AND cooling_pump.o_service_req_sts.faulted THEN 
-//	cooling_pump.i_service_req.request_cmd := 0;
-//END_IF
-
-
-deadair_pump_dispatch( i_service_req := i_deadair_pump_req);
-dead_air_pump();
-
 ]]></ST>
-    </Implementation>
+      </Implementation>
+    </Method>
     <Property Name="CoolingPump_Sts" Id="{7316fd9b-3061-4fa0-a714-ac480e11acfa}">
       <Declaration><![CDATA[PROPERTY CoolingPump_Sts : ST_Util_Service_Sts]]></Declaration>
       <Get Name="Get" Id="{d3c6616e-43cf-48e4-87e3-0a629123ca49}">
@@ -107,6 +116,18 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Method Name="DeadAirPump_Control" Id="{2dddd7cc-b65c-4e22-bf02-7de4b30df3b7}">
+      <Declaration><![CDATA[METHOD DeadAirPump_Control : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+deadair_pump_dispatch( i_service_req := i_deadair_pump_req);
+dead_air_pump();
+]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="DeadAirPump_Sts" Id="{f06135dc-afa2-4efa-8940-c4c64349210e}">
       <Declaration><![CDATA[PROPERTY DeadAirPump_Sts : ST_Util_Service_Sts]]></Declaration>
       <Get Name="Get" Id="{38a46abb-2a3d-4082-898e-ce5b5951812b}">
@@ -135,47 +156,47 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF i_shutdown_utilities THEN
-	seq_state := Shutdown;
+        <ST><![CDATA[IF i_state_req = E_Util_State_Cmd.Shutdown THEN
+	util_state := Shutdown;
 END_IF
 
-CASE seq_state OF 
+CASE util_state OF 
 	
 	Idle : 
-		IF i_init_utilities AND NOT error_sts THEN 
-			seq_state := Warmup;
-		ELSIF 	error_sts THEN 
-			seq_state := Error;
+		IF i_state_req = E_Util_State_Cmd.Warmup  AND NOT in_bop_error_sts THEN 
+			util_state := Warmup;
+		ELSIF 	in_bop_error_sts THEN 
+			util_state := Error;
 		END_IF
 	Warmup: 
-		state_cmd := TO_BYTE(Warmup);
-		IF NOT warmup_sts.error THEN 
-			IF warmup_sts.completed AND i_activate_util THEN 
-				seq_state := Activate;
+		out_util_state_req := Warmup;
+		IF NOT in_bop_warmup_sts.error THEN 
+			IF in_bop_warmup_sts.completed AND i_state_req = E_Util_State_Cmd.Activate THEN 
+				util_state := Activate;
 			END_IF
 		ELSE
-			seq_state := Error;
+			util_state := Error;
 		END_IF
 	Activate: 
-		state_cmd := TO_BYTE(Activate);
-		IF  activate_sts.error THEN 
-			seq_state := Error;
+		out_util_state_req := Activate;
+		IF  in_bop_activate_sts.error THEN 
+			util_state := Error;
 		END_IF
 		
 	Shutdown : 
-		state_cmd := TO_BYTE(Shutdown);
-		IF NOT shutdown_sts.error THEN 
-			IF shutdown_sts.completed THEN 
-				seq_state := Idle;
+		out_util_state_req := Shutdown;
+		IF NOT in_bop_shutdown_sts.error THEN 
+			IF in_bop_shutdown_sts.completed THEN 
+				util_state := Idle;
 			END_IF
 		ELSE
-			seq_state := Error;
+			util_state := Error;
 		END_IF
 	Error: 
 		IF i_fault_reset THEN 
-			reset_fault := TRUE;
-			IF NOT error_sts THEN
-				seq_state := Idle;
+			out_util_reset_fault := TRUE;
+			IF NOT in_bop_error_sts THEN
+				util_state := Idle;
 			END_IF
 		END_IF
 		
@@ -197,25 +218,21 @@ END_VAR
       <LineId Id="374" Count="0" />
       <LineId Id="429" Count="2" />
       <LineId Id="416" Count="0" />
-      <LineId Id="375" Count="4" />
-      <LineId Id="382" Count="0" />
-      <LineId Id="421" Count="0" />
-      <LineId Id="417" Count="0" />
-      <LineId Id="383" Count="1" />
-      <LineId Id="423" Count="0" />
-      <LineId Id="422" Count="0" />
-      <LineId Id="419" Count="0" />
-      <LineId Id="385" Count="4" />
-      <LineId Id="427" Count="1" />
-      <LineId Id="390" Count="2" />
-      <LineId Id="424" Count="2" />
-      <LineId Id="420" Count="0" />
-      <LineId Id="393" Count="10" />
-      <LineId Id="406" Count="4" />
+      <LineId Id="395" Count="8" />
+      <LineId Id="406" Count="0" />
+      <LineId Id="410" Count="0" />
       <LineId Id="142" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Utilities_Control.CoolingPump_Control">
+      <LineId Id="6" Count="28" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Utilities_Control.CoolingPump_Sts.Get">
       <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Utilities_Control.DeadAirPump_Control">
+      <LineId Id="6" Count="2" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Utilities_Control.DeadAirPump_Sts.Get">
       <LineId Id="2" Count="0" />

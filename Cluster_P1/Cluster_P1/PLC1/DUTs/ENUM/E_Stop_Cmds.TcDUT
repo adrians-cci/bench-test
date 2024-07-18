@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
-  <DUT Name="E_Cluster_State_Cmd" Id="{1b9102f1-1f0f-45a4-952d-da0fdfc2c421}">
+  <DUT Name="E_Stop_Cmds" Id="{2053f432-3167-47c9-9b78-33b40257e7a8}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 //{attribute 'strict'}
 {attribute 'to_string'}
 
-TYPE E_Cluster_State_Cmd :
+TYPE E_Stop_Cmds :
 (
-	Idle 		:= 0,
-	Warmup 		:= 1,
-	Cycling 	:= 2,
-	Shutdown	:= 3,
-	Reset_Fault := 4
+	Reset :=0,
+	Stop_Cycle,
+	Shutdown_Safe,
+	Shutdown_Evac,
+	Estop
 );
 END_TYPE
 ]]></Declaration>

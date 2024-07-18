@@ -8,7 +8,7 @@ VAR_GLOBAL
 
 	// Utilities HMI tags
 	util_auto_mode			: BOOL := TRUE;  // TRUE = auto mode, FALSE = manual mode 
-	util_cooling_pump_cmd 	: BYTE; // 0 = off, 1 = 0n 
+	util_cooling_pump_cmd 	: BYTE; // 0 = off, 1 = On , 2 = reset_fault
 	util_cooling_pump_sts 	: BYTE;
 	
 END_VAR]]></Declaration>
