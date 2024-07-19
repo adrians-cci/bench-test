@@ -67,6 +67,17 @@ END_VAR
 
 ]]></ST>
     </Implementation>
+    <Property Name="CoolingPump_Assigned_Sts" Id="{779fbffc-5bb8-48f2-a000-685aa64d8599}">
+      <Declaration><![CDATA[PROPERTY CoolingPump_Assigned_Sts : ARRAY[1..2] OF UINT;]]></Declaration>
+      <Get Name="Get" Id="{0e27d998-d7ce-4e5d-b03a-a81813c6f904}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CoolingPump_Assigned_Sts := cooling_pump_dispatch.o_shared_service_assigned_sts;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="CoolingPump_Control" Id="{87b36801-af68-47a8-9110-d4009490d768}">
       <Declaration><![CDATA[METHOD CoolingPump_Control : BOOL
 VAR_INPUT
@@ -82,14 +93,14 @@ END_IF
 
 
 // manage the cooling pump assignmnet queue based on request form reactor set controller
-cooling_pump_dispatch( i_service_req := cooling_pump_req);
+cooling_pump_dispatch( i_service_req := cooling_pump_req, i_shared_rs_count := 2);
 
 
 IF hmi.util_auto_mode THEN 
 	// set  the cooling pump on/off command based on dispacher assignnments
-	IF cooling_pump_dispatch.o_service_assigned_sts THEN 
+	IF cooling_pump_dispatch.o_service_req THEN 
 		cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.On;
-	ELSIF NOT cooling_pump_dispatch.o_service_assigned_sts THEN
+	ELSIF NOT cooling_pump_dispatch.o_service_req THEN
 		cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.Off;
 	END_IF
 
@@ -222,6 +233,9 @@ END_VAR
       <LineId Id="406" Count="0" />
       <LineId Id="410" Count="0" />
       <LineId Id="142" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Utilities_Control.CoolingPump_Assigned_Sts.Get">
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Utilities_Control.CoolingPump_Control">
       <LineId Id="6" Count="28" />

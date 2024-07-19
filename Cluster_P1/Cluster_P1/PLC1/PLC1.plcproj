@@ -42,7 +42,7 @@
     <Compile Include="DUTs\STRUCTS\ST_SeqSts.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\STRUCTS\ST_Service_Assignment.TcDUT">
+    <Compile Include="DUTs\STRUCTS\ST_Service_Assigned_Sts.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\STRUCTS\ST_Util_Service_Sts.TcDUT">

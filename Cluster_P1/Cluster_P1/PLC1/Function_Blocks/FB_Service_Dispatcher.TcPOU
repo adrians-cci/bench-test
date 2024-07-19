@@ -3,13 +3,15 @@
   <POU Name="FB_Service_Dispatcher" Id="{a567eb61-ac7e-400e-a3c0-e91bb0f7a48e}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Service_Dispatcher
 VAR_INPUT
-	i_service_req : ST_Util_Service_Req;
+	i_service_req 		: ST_Util_Service_Req;
+	i_shared_rs_count 	: UINT;
 END_VAR
 VAR_OUTPUT
-	o_service_assigned_sts : BOOL;
+	o_service_req					: BOOL;  // on/off request to utilities 
+	o_shared_service_assigned_sts	: ARRAY[1..2] OF UINT; // rs number that has been assigned to a service 
 END_VAR
 VAR
-	service_req_queue	: ARRAY [1..rs_count] OF ST_Service_Assignment;
+	service_req_queue	: ARRAY [1..rs_count] OF ST_Service_Assigned_Sts;
 	idx_queue			: UINT;
 	trig_service_assign		: R_TRIG;
 	trig_service_release	: R_TRIG;
@@ -88,17 +90,31 @@ FOR idx_queue := 1 TO rs_count-1 DO
 	END_IF
 END_FOR
 
+// Service on/off requet to Uitlities 
+
+o_service_req := service_req_queue[1].is_assigned ; // on request to utilities if queue pos #1 is populated / has a RS assigned 
 
 
-// Activate Service -> Utilities 
-FOR idx_queue := 1 TO rs_count DO
+// Service assigned sts to RS controller
+
+IF i_shared_rs_count = 2 THEN
+	FOR idx_queue := 1 TO i_shared_rs_count DO 
+		IF service_req_queue[idx_queue].is_assigned THEN 
+			o_shared_service_assigned_sts[idx_queue] := service_req_queue[idx_queue].rs_number;
+		ELSE
+			o_shared_service_assigned_sts[idx_queue] := 0;
+		END_IF
+	END_FOR
+ELSIF i_shared_rs_count = 1 THEN
 	IF service_req_queue[idx_queue].is_assigned THEN 
-		o_service_assigned_sts := TRUE;
-		EXIT;
+		o_shared_service_assigned_sts[1] := service_req_queue[1].rs_number;
 	ELSE
-		o_service_assigned_sts := FALSE;
+		o_shared_service_assigned_sts[1] := 0;
 	END_IF
-END_FOR]]></ST>
+END_IF
+
+
+]]></ST>
     </Implementation>
     <Method Name="Clear_Queue" Id="{ec07c837-9081-45a3-91d1-67ce24451c4a}">
       <Declaration><![CDATA[METHOD Clear_Queue : BOOL
@@ -113,28 +129,28 @@ END_FOR]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Service_Dispatcher">
-      <LineId Id="273" Count="0" />
-      <LineId Id="355" Count="1" />
-      <LineId Id="358" Count="0" />
-      <LineId Id="368" Count="0" />
-      <LineId Id="362" Count="0" />
-      <LineId Id="360" Count="0" />
-      <LineId Id="369" Count="0" />
-      <LineId Id="364" Count="0" />
-      <LineId Id="370" Count="0" />
-      <LineId Id="361" Count="0" />
-      <LineId Id="359" Count="0" />
-      <LineId Id="374" Count="9" />
-      <LineId Id="373" Count="0" />
-      <LineId Id="357" Count="0" />
-      <LineId Id="354" Count="0" />
-      <LineId Id="274" Count="1" />
-      <LineId Id="366" Count="1" />
-      <LineId Id="365" Count="0" />
-      <LineId Id="350" Count="0" />
-      <LineId Id="276" Count="43" />
-      <LineId Id="323" Count="0" />
-      <LineId Id="320" Count="2" />
+      <LineId Id="419" Count="68" />
+      <LineId Id="500" Count="0" />
+      <LineId Id="504" Count="0" />
+      <LineId Id="499" Count="0" />
+      <LineId Id="488" Count="0" />
+      <LineId Id="505" Count="0" />
+      <LineId Id="502" Count="0" />
+      <LineId Id="517" Count="0" />
+      <LineId Id="516" Count="0" />
+      <LineId Id="507" Count="0" />
+      <LineId Id="513" Count="1" />
+      <LineId Id="524" Count="1" />
+      <LineId Id="515" Count="0" />
+      <LineId Id="511" Count="0" />
+      <LineId Id="518" Count="0" />
+      <LineId Id="523" Count="0" />
+      <LineId Id="519" Count="0" />
+      <LineId Id="522" Count="0" />
+      <LineId Id="526" Count="1" />
+      <LineId Id="521" Count="0" />
+      <LineId Id="509" Count="0" />
+      <LineId Id="503" Count="0" />
       <LineId Id="60" Count="0" />
     </LineIds>
     <LineIds Name="FB_Service_Dispatcher.Clear_Queue">

@@ -8,6 +8,10 @@ VAR_INPUT
 	i_deadair_pump_sts 		: ST_Util_Service_Sts;
 	i_steam_system_sts 		: ST_Util_Service_Sts;
 	i_purge_assist_sts		: ST_Util_Service_Sts;	
+	i_cooling_pump_assigned : BOOL;
+	i_deadair_pump_assigned	: BOOL;
+	i_steam_system_assigned	: BOOL;
+	i_purge_assist_assigned	: BOOL;
 	
 END_VAR
 VAR_OUTPUT
@@ -51,6 +55,11 @@ VAR
 	out_steam_system_sts		AT %Q*	: BYTE;
 	out_purge_assist_sts		AT %Q*	: BYTE;
 	
+	out_cooling_pump_assigned 		AT %Q* : BOOL;
+	out_deadair_pump_assigned		AT %Q*: BOOL;
+	out_steam_system_assigned		AT %Q*: BOOL;
+	out_purge_assist_assigned		AT %Q*: BOOL;
+	
 	
 	
 END_VAR
@@ -60,13 +69,21 @@ END_VAR
 
 out_seq_req := TO_BYTE(i_seq_req);
 
+// Service Request Assigned Sts to RS Controller
 
-// Utilities Request to RS Copntroller 
+out_cooling_pump_assigned	:= i_cooling_pump_assigned;
+out_deadair_pump_assigned	:= i_deadair_pump_assigned;
+out_steam_system_assigned	:= i_steam_system_assigned;
+out_purge_assist_assigned	:= i_purge_assist_assigned;
+
+// Utilities Services Status  to RS Copntroller 
 
 Set_Service_Sts ( i_service_sts := i_cooling_pump_sts,o_service_sts => out_cooling_pump_sts);
 Set_Service_Sts ( i_service_sts := i_deadair_pump_sts,o_service_sts => out_deadair_pump_sts);
 Set_Service_Sts ( i_service_sts := i_steam_system_sts,o_service_sts => out_steam_system_sts);
 Set_Service_Sts ( i_service_sts := i_purge_assist_sts,o_service_sts => out_purge_assist_sts);
+
+//
 
 // Seq Status from RS controller 
 
@@ -126,7 +143,15 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_ReactorSet">
-      <LineId Id="1531" Count="28" />
+      <LineId Id="1531" Count="2" />
+      <LineId Id="1624" Count="0" />
+      <LineId Id="1534" Count="0" />
+      <LineId Id="1626" Count="3" />
+      <LineId Id="1625" Count="0" />
+      <LineId Id="1535" Count="6" />
+      <LineId Id="1623" Count="0" />
+      <LineId Id="1622" Count="0" />
+      <LineId Id="1542" Count="17" />
       <LineId Id="32" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet.Get_Seq_Status">

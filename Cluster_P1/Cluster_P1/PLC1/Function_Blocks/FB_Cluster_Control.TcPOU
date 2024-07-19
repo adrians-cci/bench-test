@@ -23,18 +23,30 @@ VAR
 	
 	stop_rs_cmd			: ARRAY[1..rs_count] OF  INT;
 	shutdown_util_cmd	: BOOL;
+	
+	cooling_pump_assigned_rs : ARRAY[1..2] OF UINT;
+	
+	sts_cycle : ST_SeqSts;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Shutdown AND  state_cluster <> Cycling THEN 
-	state_cluster := Shutdown;
+      <ST><![CDATA[IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Shutdown THEN 
+	IF  state_cluster =  Cycling AND Get_All_RS_Done_Sts() THEN 
+		state_cluster := Shutdown;
+	ELSIF state_cluster <>   Cycling THEN 
+		state_cluster := Shutdown;
+	END_IF
 END_IF
 
 CASE state_cluster OF 
 	
 	Idle : 
 		utilities_control.i_state_req := E_Cluster_State_Cmd.Idle;
+		sts_cycle.error := FALSE;
+		sts_cycle.started := FALSE;
 		IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Warmup THEN 
+			sts_cycle.completed := FALSE;
+			sts_cycle.started := TRUE;
 			state_cluster := Warmup;
 		END_IF
 		
@@ -62,8 +74,12 @@ CASE state_cluster OF
 	Cycling :
 	
 		FOR idx_rs := 1 TO rs_count DO 
+			
 			utilities_control.i_cooling_pump_req.rs_number := idx_rs;
+			
+						
 			reactor_set[idx_rs]( i_seq_req 				:= rs_control[idx_rs].SeqState_Sts,
+								 i_cooling_pump_assigned := (idx_rs = cooling_pump_assigned_rs[1]) OR  (idx_rs = cooling_pump_assigned_rs[2]),
 								 i_cooling_pump_sts 	:= utilities_control.CoolingPump_Sts,
 								 i_deadair_pump_sts 	:= utilities_control.DeadAirPump_Sts,
 								 i_steam_system_sts 	:= utilities_control.SteamSystem_Sts,
@@ -89,18 +105,17 @@ CASE state_cluster OF
 			utilities_control.CoolingPump_Control();
 			utilities_control.DeadAirPump_Control();
 			
+			cooling_pump_assigned_rs := utilities_control.CoolingPump_Assigned_Sts;
+			
 		END_FOR
 		
-		
-		IF  hmi.cluster_state_cmd = E_Cluster_State_Cmd.Shutdown AND Get_All_RS_Done_Sts() THEN 
-			state_cluster := Shutdown;
-		END_IF
 		
 	Shutdown : 
 		
 		utilities_control.i_state_req := E_Util_State_Cmd.Shutdown;
 		IF NOT utilities_control.in_bop_shutdown_sts.error THEN 
 			IF utilities_control.in_bop_shutdown_sts.completed THEN 
+				sts_cycle.completed := TRUE;
 				state_cluster := Idle;
 			END_IF
 		ELSE
@@ -108,14 +123,13 @@ CASE state_cluster OF
 		END_IF
 	
 	Error : 
-		
+		sts_cycle.completed := TRUE;
+		sts_cycle.error := TRUE;
 		IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Reset_Fault THEN 
 			utilities_control.i_state_req := E_Util_State_Cmd.Reset_Fault;
+			state_cluster := Idle;
 		END_IF
-		IF  NOT utilities_control.o_util_error THEN 
-				state_cluster := Idle;
-		END_IF
-		
+	
 		
 END_CASE
 
@@ -137,7 +151,25 @@ Get_All_RS_Done_Sts := rs_done;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Cluster_Control">
-      <LineId Id="1068" Count="93" />
+      <LineId Id="1203" Count="0" />
+      <LineId Id="1304" Count="0" />
+      <LineId Id="1204" Count="0" />
+      <LineId Id="1305" Count="0" />
+      <LineId Id="1311" Count="0" />
+      <LineId Id="1307" Count="0" />
+      <LineId Id="1205" Count="5" />
+      <LineId Id="1314" Count="1" />
+      <LineId Id="1211" Count="0" />
+      <LineId Id="1316" Count="1" />
+      <LineId Id="1212" Count="61" />
+      <LineId Id="1278" Count="5" />
+      <LineId Id="1318" Count="0" />
+      <LineId Id="1284" Count="7" />
+      <LineId Id="1319" Count="0" />
+      <LineId Id="1292" Count="1" />
+      <LineId Id="1320" Count="0" />
+      <LineId Id="1294" Count="0" />
+      <LineId Id="1298" Count="4" />
       <LineId Id="99" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.Get_All_RS_Done_Sts">

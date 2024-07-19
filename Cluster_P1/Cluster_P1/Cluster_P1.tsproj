@@ -49,7 +49,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{D86426BD-5570-4D01-8842-A79647151612}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{B3E0C17B-0CC1-8CF0-C595-D8721305F0E7}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{9A22562D-4849-0154-F110-3B443C22F857}">
 					<Name>PLC1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -229,6 +229,22 @@
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].out_cooling_pump_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].out_deadair_pump_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].out_steam_system_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].out_purge_assist_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.cluster_control.reactor_set[2].out_seq_req</Name>
 							<Comment><![CDATA[ to RS Controller]]></Comment>
 							<Type>BYTE</Type>
@@ -248,6 +264,22 @@
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[2].out_purge_assist_sts</Name>
 							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].out_cooling_pump_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].out_deadair_pump_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].out_steam_system_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].out_purge_assist_assigned</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.utilities_control.out_util_state_req</Name>
