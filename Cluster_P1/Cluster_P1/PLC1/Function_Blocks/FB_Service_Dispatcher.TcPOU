@@ -8,7 +8,7 @@ VAR_INPUT
 END_VAR
 VAR_OUTPUT
 	o_service_req					: BOOL;  // on/off request to utilities 
-	o_shared_service_assigned_sts	: ARRAY[1..2] OF UINT; // rs number that has been assigned to a service 
+	o_assigned_rs_number	: ARRAY[1..2] OF UINT; // rs number that has been assigned to a service 
 END_VAR
 VAR
 	service_req_queue	: ARRAY [1..rs_count] OF ST_Service_Assigned_Sts;
@@ -100,16 +100,16 @@ o_service_req := service_req_queue[1].is_assigned ; // on request to utilities i
 IF i_shared_rs_count = 2 THEN
 	FOR idx_queue := 1 TO i_shared_rs_count DO 
 		IF service_req_queue[idx_queue].is_assigned THEN 
-			o_shared_service_assigned_sts[idx_queue] := service_req_queue[idx_queue].rs_number;
+			o_assigned_rs_number[idx_queue] := service_req_queue[idx_queue].rs_number;
 		ELSE
-			o_shared_service_assigned_sts[idx_queue] := 0;
+			o_assigned_rs_number[idx_queue] := 0;
 		END_IF
 	END_FOR
 ELSIF i_shared_rs_count = 1 THEN
 	IF service_req_queue[idx_queue].is_assigned THEN 
-		o_shared_service_assigned_sts[1] := service_req_queue[1].rs_number;
+		o_assigned_rs_number[1] := service_req_queue[1].rs_number;
 	ELSE
-		o_shared_service_assigned_sts[1] := 0;
+		o_assigned_rs_number[1] := 0;
 	END_IF
 END_IF
 
@@ -129,28 +129,7 @@ END_FOR]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Service_Dispatcher">
-      <LineId Id="419" Count="68" />
-      <LineId Id="500" Count="0" />
-      <LineId Id="504" Count="0" />
-      <LineId Id="499" Count="0" />
-      <LineId Id="488" Count="0" />
-      <LineId Id="505" Count="0" />
-      <LineId Id="502" Count="0" />
-      <LineId Id="517" Count="0" />
-      <LineId Id="516" Count="0" />
-      <LineId Id="507" Count="0" />
-      <LineId Id="513" Count="1" />
-      <LineId Id="524" Count="1" />
-      <LineId Id="515" Count="0" />
-      <LineId Id="511" Count="0" />
-      <LineId Id="518" Count="0" />
-      <LineId Id="523" Count="0" />
-      <LineId Id="519" Count="0" />
-      <LineId Id="522" Count="0" />
-      <LineId Id="526" Count="1" />
-      <LineId Id="521" Count="0" />
-      <LineId Id="509" Count="0" />
-      <LineId Id="503" Count="0" />
+      <LineId Id="564" Count="92" />
       <LineId Id="60" Count="0" />
     </LineIds>
     <LineIds Name="FB_Service_Dispatcher.Clear_Queue">

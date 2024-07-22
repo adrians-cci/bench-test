@@ -3,7 +3,7 @@
   <POU Name="FB_Cluster_Control" Id="{6fd5e4a5-e99d-4b99-9ff7-8b5ec4c922f0}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Cluster_Control
 VAR_INPUT
-	i_rs_start_auto : ARRAY[1..rs_count] OF BOOL;
+	
 	i_rs_stop		: ARRAY[1..rs_count] OF BOOL;
 	
 END_VAR
@@ -21,7 +21,9 @@ VAR
 	{attribute 'to_string'}
 	state_cluster		: (Idle := 0, Warmup := 1, Ready := 2, Cycling := 3, Shutdown := 4, Error); 
 	
-	stop_rs_cmd			: ARRAY[1..rs_count] OF  INT;
+	rs_stop_cycle_cmd		: ARRAY[1..rs_count] OF  INT;
+	rs_start_cycle_cmd 		: ARRAY[1..rs_count] OF BOOL;
+	
 	shutdown_util_cmd	: BOOL;
 	
 	cooling_pump_assigned_rs : ARRAY[1..2] OF UINT;
@@ -33,7 +35,7 @@ END_VAR
       <ST><![CDATA[IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Shutdown THEN 
 	IF  state_cluster =  Cycling AND Get_All_RS_Done_Sts() THEN 
 		state_cluster := Shutdown;
-	ELSIF state_cluster <>   Cycling THEN 
+	ELSIF state_cluster <>  Cycling THEN 
 		state_cluster := Shutdown;
 	END_IF
 END_IF
@@ -75,7 +77,13 @@ CASE state_cluster OF
 	
 		FOR idx_rs := 1 TO rs_count DO 
 			
-			utilities_control.i_cooling_pump_req.rs_number := idx_rs;
+			IF hmi.cluster_rs_select_cmd[idx_rs] THEN 
+				IF  hmi.cluster_rs_start_cycle_cmd THEN 
+					rs_start_cycle_cmd[idx_rs] := TRUE;
+				ELSIF hmi.cluster_rs_stop_cycle_cmd > 0  THEN
+					rs_stop_cycle_cmd[idx_rs] := hmi.cluster_rs_stop_cycle_cmd;
+				END_IF
+			END_IF
 			
 						
 			reactor_set[idx_rs]( i_seq_req 				:= rs_control[idx_rs].SeqState_Sts,
@@ -96,16 +104,19 @@ CASE state_cluster OF
 								);
 			
 			rs_control[idx_rs]( i_rs_number := idx_rs,
-								i_start_cycle := i_rs_start_auto[idx_rs] AND NOT reactor_set[idx_rs].o_error_active,
+								i_start_cycle := rs_start_cycle_cmd[idx_rs] AND NOT reactor_set[idx_rs].o_error_active,
 								//i_stop_cmd := i_rs_stop[idx_rs],
-								io_stop_cmd := stop_rs_cmd[idx_rs]
+								io_stop_cmd := rs_stop_cycle_cmd[idx_rs]
 							  );
-							  
+						  
 			
+			utilities_control.i_cooling_pump_req.rs_number := idx_rs;
+			
+			cooling_pump_assigned_rs := utilities_control.CoolingPump_Assigned_RS;	
 			utilities_control.CoolingPump_Control();
-			utilities_control.DeadAirPump_Control();
 			
-			cooling_pump_assigned_rs := utilities_control.CoolingPump_Assigned_Sts;
+			utilities_control.DeadAirPump_Control();
+					
 			
 		END_FOR
 		
@@ -151,25 +162,7 @@ Get_All_RS_Done_Sts := rs_done;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Cluster_Control">
-      <LineId Id="1203" Count="0" />
-      <LineId Id="1304" Count="0" />
-      <LineId Id="1204" Count="0" />
-      <LineId Id="1305" Count="0" />
-      <LineId Id="1311" Count="0" />
-      <LineId Id="1307" Count="0" />
-      <LineId Id="1205" Count="5" />
-      <LineId Id="1314" Count="1" />
-      <LineId Id="1211" Count="0" />
-      <LineId Id="1316" Count="1" />
-      <LineId Id="1212" Count="61" />
-      <LineId Id="1278" Count="5" />
-      <LineId Id="1318" Count="0" />
-      <LineId Id="1284" Count="7" />
-      <LineId Id="1319" Count="0" />
-      <LineId Id="1292" Count="1" />
-      <LineId Id="1320" Count="0" />
-      <LineId Id="1294" Count="0" />
-      <LineId Id="1298" Count="4" />
+      <LineId Id="1909" Count="112" />
       <LineId Id="99" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.Get_All_RS_Done_Sts">

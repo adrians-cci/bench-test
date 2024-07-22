@@ -67,14 +67,14 @@ END_VAR
 
 ]]></ST>
     </Implementation>
-    <Property Name="CoolingPump_Assigned_Sts" Id="{779fbffc-5bb8-48f2-a000-685aa64d8599}">
-      <Declaration><![CDATA[PROPERTY CoolingPump_Assigned_Sts : ARRAY[1..2] OF UINT;]]></Declaration>
+    <Property Name="CoolingPump_Assigned_RS" Id="{779fbffc-5bb8-48f2-a000-685aa64d8599}">
+      <Declaration><![CDATA[PROPERTY CoolingPump_Assigned_RS : ARRAY[1..2] OF UINT;]]></Declaration>
       <Get Name="Get" Id="{0e27d998-d7ce-4e5d-b03a-a81813c6f904}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CoolingPump_Assigned_Sts := cooling_pump_dispatch.o_shared_service_assigned_sts;]]></ST>
+          <ST><![CDATA[CoolingPump_Assigned_RS := cooling_pump_dispatch.o_assigned_rs_number;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -100,16 +100,16 @@ IF hmi.util_auto_mode THEN
 	// set  the cooling pump on/off command based on dispacher assignnments
 	IF cooling_pump_dispatch.o_service_req THEN 
 		cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.On;
-	ELSIF NOT cooling_pump_dispatch.o_service_req THEN
+	ELSE
 		cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.Off;
-	END_IF
+	END_IF	
+ELSE
+	cooling_pump.i_service_req.request_cmd := hmi.util_cooling_pump_cmd;
+END_IF
 
-	IF i_cooling_pump_req.request_cmd = E_Util_Service_Req.Reset AND cooling_pump.o_service_sts.faulted THEN 
+IF ( i_cooling_pump_req.request_cmd = E_Util_Service_Req.Reset OR hmi.util_cooling_pump_cmd = E_Util_Service_Req.Reset) AND cooling_pump.o_service_sts.faulted THEN 
 		cooling_pump.i_service_req.request_cmd := i_cooling_pump_req.request_cmd;
 	END_IF
-ELSE
-	cooling_pump.i_service_req.request_cmd := HMI.util_cooling_pump_cmd;
-END_IF
 
 //  cooling pump ios ( cmd + sts )  mapping to/from utilities controller 
 cooling_pump();
@@ -234,11 +234,15 @@ END_VAR
       <LineId Id="410" Count="0" />
       <LineId Id="142" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Utilities_Control.CoolingPump_Assigned_Sts.Get">
+    <LineIds Name="FB_Utilities_Control.CoolingPump_Assigned_RS.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Utilities_Control.CoolingPump_Control">
-      <LineId Id="6" Count="28" />
+      <LineId Id="6" Count="18" />
+      <LineId Id="29" Count="2" />
+      <LineId Id="39" Count="2" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="32" Count="2" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Utilities_Control.CoolingPump_Sts.Get">

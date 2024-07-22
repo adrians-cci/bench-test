@@ -38,10 +38,10 @@ VAR_OUTPUT
 END_VAR
 VAR
 	// stateRS :  (Idle := 0,Adsorption := 1,DeadAirEvac := 2,SteamDesorption := 3,VacCooling := 4,AirRepress := 5 , Error);
-	seq_state 					: E_RS_SeqState := Idle;
+	cycle_state 				: E_RS_SeqState := Idle;
 	cycles_to_run 				: UINT;
 	cycles_completed			: UINT := 0 ;
-	trig_seq_start				: R_TRIG;
+	trig_start_cmd				: R_TRIG;
 	seq_state_first_transition	: BOOL;
 	trig_seqstate_first_run		: R_TRIG;
 	seq_single_selected			: BOOL;
@@ -52,123 +52,109 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
-
-CASE seq_state OF 
+      <ST><![CDATA[CASE cycle_state OF 
 	
 	Idle: 
-		 SeqEntry_Handler();
-		 trig_seq_start(CLK := i_start_cycle) ;
-		 IF trig_seq_start.Q THEN 
-			 SeqStart_Handler();
-			 SeqExit_Handler(i_current_state := Idle);	
+		 CycleEntry_Handler();
+		 trig_start_cmd(CLK := i_start_cycle) ;
+		 IF trig_start_cmd.Q THEN 
+			 CycleStart_Handler();
+			 CycleExit_Handler(i_current_state := Idle);	
 		 END_IF
 
 		 
 	DeadAirEvac :
-		SeqEntry_Handler();
+		CycleEntry_Handler();
 		IF NOT i_evac_seq_sts.error THEN 	
 			IF i_evac_seq_sts.completed THEN
-				SeqExit_Handler(i_current_state := DeadAirEvac);	
+				CycleExit_Handler(i_current_state := DeadAirEvac);	
 			END_IF
 		ELSE
-			SeqError_Handler();
+			CycleError_Handler();
 		END_IF
 	
 	SteamDesorption : 
-		SeqEntry_Handler();
+		CycleEntry_Handler();
 		IF NOT i_desorption_seq_sts.error THEN 	
 			IF i_desorption_seq_sts.completed THEN
-				SeqExit_Handler(i_current_state := SteamDesorption);	
+				CycleExit_Handler(i_current_state := SteamDesorption);	
 			END_IF
 		ELSE
-			SeqError_Handler();
+			CycleError_Handler();
 		END_IF
 	
 	VacCooling: 
-		SeqEntry_Handler();
+		CycleEntry_Handler();
 		IF NOT i_cooling_seq_sts.error THEN 	
 			IF i_cooling_seq_sts.completed THEN
-				SeqExit_Handler(i_current_state := VacCooling);	
+				CycleExit_Handler(i_current_state := VacCooling);	
 			END_IF
 		ELSE
-			SeqError_Handler();
+			CycleError_Handler();
 		END_IF
 	
 	AirRepress :
-		SeqEntry_Handler();
+		CycleEntry_Handler();
 		IF NOT i_airpress_seq_sts.error THEN 	
 			IF i_airpress_seq_sts.completed THEN
-				SeqExit_Handler(i_current_state := AirRepress);			
+				CycleExit_Handler(i_current_state := AirRepress);			
 			END_IF
 		ELSE
-			SeqError_Handler();
+			CycleError_Handler();
 		END_IF
 		
 			
 	Adsorption :
-		SeqEntry_Handler();
+		CycleEntry_Handler();
 		IF NOT i_adsorption_seq_sts.error THEN 	
 			IF i_adsorption_seq_sts.completed THEN
-				SeqExit_Handler(i_current_state := Adsorption);	
+				CycleExit_Handler(i_current_state := Adsorption);	
 			END_IF
 		ELSE
-			SeqError_Handler();
+			CycleError_Handler();
 		END_IF
 		
 	
 	Estop : 		
-		SeqEntry_Handler();
+		CycleEntry_Handler();
 		IF NOT i_estop_seq_sts.error THEN 	
 			IF i_estop_seq_sts.completed THEN
-				SeqExit_Handler(i_current_state := Estop);			
+				CycleExit_Handler(i_current_state := Estop);			
 			END_IF
 		ELSE
-			SeqError_Handler();
+			CycleError_Handler();
 		END_IF
 		
 	SafeShutdown : 		
-		SeqEntry_Handler();
+		CycleEntry_Handler();
 		IF NOT i_shutdown_seq_sts.error THEN 	
 			IF i_shutdown_seq_sts.completed THEN
-				SeqExit_Handler(i_current_state := SafeShutdown);
+				CycleExit_Handler(i_current_state := SafeShutdown);
 				shutdown_req := FALSE;			
 			END_IF
 		ELSE
-			SeqError_Handler();
+			CycleError_Handler();
 		END_IF
 		
 	Error : 
-		SeqEntry_Handler();
+		CycleEntry_Handler();
 		o_Error := TRUE;
 		o_Done := TRUE;
 		o_Started := FALSE;
 		shutdown_req := FALSE;
 		IF i_reset_fault THEN 
-			SeqExit_Handler(i_current_state := Error);	
+			CycleExit_Handler(i_current_state := Error);	
 		END_IF
 
 END_CASE
 
-SeqStop_Handler(i_current_state := seq_state );
+CycleStop_Handler(i_current_state := cycle_state );
 
-o_seqStart_req := seq_state;
+o_seqStart_req := cycle_state;
 ]]></ST>
     </Implementation>
-    <Method Name="Logger" Id="{20227f92-d2b3-4c3b-8917-6409e118b7dd}">
-      <Declaration><![CDATA[METHOD Logger : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Reactor Set : %s' ,strArg := TO_STRING(i_rs_number));
-ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Sequence : %s' ,strArg := TO_STRING(seq_state));
-ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Cycle Number : %s' ,strArg := TO_STRING(cycles_completed));
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="SeqEntry_Handler" Id="{cd70363c-611b-40f8-a07e-858595aafcb0}">
-      <Declaration><![CDATA[METHOD SeqEntry_Handler : BOOL
+    <Method Name="CycleEntry_Handler" Id="{cd70363c-611b-40f8-a07e-858595aafcb0}">
+      <Declaration><![CDATA[METHOD CycleEntry_Handler : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
@@ -183,19 +169,19 @@ seq_single_selected := FALSE;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="SeqError_Handler" Id="{cf16ac2e-ac1f-4245-af07-01d2c1d0d243}">
-      <Declaration><![CDATA[METHOD SeqError_Handler : BOOL
+    <Method Name="CycleError_Handler" Id="{cf16ac2e-ac1f-4245-af07-01d2c1d0d243}">
+      <Declaration><![CDATA[METHOD CycleError_Handler : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[seq_state_first_transition := FALSE;
 trig_seqstate_first_run(CLK := seq_state_first_transition) ;
-seq_state := Error;]]></ST>
+cycle_state := Error;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="SeqExit_Handler" Id="{cf7c1f98-3a99-4ade-b01c-6a2938e0076f}">
-      <Declaration><![CDATA[METHOD PRIVATE SeqExit_Handler : INT
+    <Method Name="CycleExit_Handler" Id="{cf7c1f98-3a99-4ade-b01c-6a2938e0076f}">
+      <Declaration><![CDATA[METHOD PRIVATE CycleExit_Handler : INT
 VAR_INPUT
 	i_current_state : E_RS_SeqState;
 END_VAR
@@ -210,17 +196,17 @@ ELSIF ((i_current_state = Adsorption) AND (cycles_completed = cycles_to_run)) OR
 	o_Done := TRUE;
 	o_Started := FALSE;
 	cycles_completed := 0 ;
-	seq_state := Idle;
+	cycle_state := Idle;
 ELSIF (i_current_state = DeadAirEvac)  AND shutdown_req THEN 
-	seq_state := SafeShutdown; 
+	cycle_state := SafeShutdown; 
 ELSIF ( i_current_state = Adsorption)  AND ( cycles_completed < cycles_to_run )  THEN 
-	seq_state := DeadAirEvac ;
+	cycle_state := DeadAirEvac ;
 	cycles_completed := cycles_completed + 1;	
 ELSIF (NOT ( i_current_state = Adsorption )) AND  (NOT ( i_current_state = Error)) THEN
-	seq_state := i_current_state + 1;
+	cycle_state := i_current_state + 1;
 ELSIF i_current_state = Error THEN
 	o_Error := FALSE;
-	seq_state := Idle ;	
+	cycle_state := Idle ;	
 END_IF
 
 
@@ -230,41 +216,77 @@ trig_seqstate_first_run(CLK := seq_state_first_transition) ;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="SeqStart_Handler" Id="{5e141aec-f26c-4d41-aa8b-42088dce7405}">
-      <Declaration><![CDATA[METHOD SeqStart_Handler : BOOL
+    <Method Name="CycleStart_Handler" Id="{5e141aec-f26c-4d41-aa8b-42088dce7405}">
+      <Declaration><![CDATA[METHOD CycleStart_Handler : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF i_seq_selection = 0 AND NOT (seq_state = Error) THEN 
+        <ST><![CDATA[
+IF i_seq_selection = 0 AND NOT (cycle_state = Error) THEN 
 	seq_single_selected := FALSE;	
-	seq_state := Idle;
+	cycle_state := Idle;
 ELSIF i_seq_selection = 2#11111 THEN
 	cycles_to_run := i_cycles_number;
 	seq_state_first_transition := FALSE;
 	seq_single_selected := FALSE;	
 	IF i_start_cycle_adsorption THEN 
-		seq_state := DeadAirEvac; 
+		cycle_state := DeadAirEvac; 
 	ELSE
-		seq_state := Adsorption;
+		cycle_state := Adsorption;
 	END_IF
 ELSE
 	seq_single_selected := TRUE;	
 	seq_state_first_transition := FALSE;
 	IF 	i_seq_selection = 2#00001 THEN
-		seq_state := DeadAirEvac;
+		cycle_state := DeadAirEvac;
 	ELSIF i_seq_selection = 2#00010 THEN
-		seq_state := SteamDesorption;
+		cycle_state := SteamDesorption;
 	ELSIF i_seq_selection = 2#00100 THEN
-		seq_state := VacCooling;
+		cycle_state := VacCooling;
 	ELSIF i_seq_selection = 2#01000 THEN
-		seq_state := AirRepress;
+		cycle_state := AirRepress;
 	ELSIF i_seq_selection = 2#10000 THEN
-		seq_state := Adsorption;
+		cycle_state := Adsorption;
 	ELSE
-		seq_state := Idle;
+		cycle_state := Idle;
 	END_IF
 END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CycleStop_Handler" Id="{60506867-404f-4b6c-b282-91a2e90d085c}">
+      <Declaration><![CDATA[METHOD CycleStop_Handler : BOOL
+VAR_INPUT
+	i_current_state : E_RS_SeqState;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[trig_stop_cmd( CLK := io_stop_cmd > 0);
+IF trig_stop_cmd.Q THEN 
+	IF io_stop_cmd = E_RS_Cycle_Stop_Cmds.Stop_Cycle THEN 
+		cycles_to_run := cycles_completed;	
+	ELSIF io_stop_cmd = E_RS_Cycle_Stop_Cmds.Shutdown_Safe THEN 
+		cycle_state := SafeShutdown;
+	ELSIF io_stop_cmd = E_RS_Cycle_Stop_Cmds.Shutdown_Evac THEN 
+		shutdown_req := TRUE;
+		cycle_state := DeadAirEvac;
+	ELSIF io_stop_cmd = E_RS_Cycle_Stop_Cmds.Estop THEN 
+		cycle_state := Estop;
+	END_IF
+	io_stop_cmd := 0;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Logger" Id="{20227f92-d2b3-4c3b-8917-6409e118b7dd}">
+      <Declaration><![CDATA[METHOD Logger : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Reactor Set : %s' ,strArg := TO_STRING(i_rs_number));
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Sequence : %s' ,strArg := TO_STRING(cycle_state));
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Cycle Number : %s' ,strArg := TO_STRING(cycles_completed));
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="SeqState_Sts" Id="{ffa55953-79d5-4cd3-a8bf-5e5ae75bb4a3}">
@@ -274,73 +296,15 @@ END_IF]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[SeqState_Sts := THIS^.seq_state;]]></ST>
+          <ST><![CDATA[SeqState_Sts := THIS^.cycle_state;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Method Name="SeqStop_Handler" Id="{60506867-404f-4b6c-b282-91a2e90d085c}">
-      <Declaration><![CDATA[METHOD SeqStop_Handler : BOOL
-VAR_INPUT
-	i_current_state : E_RS_SeqState;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[trig_stop_cmd( CLK := io_stop_cmd > 0);
-IF trig_stop_cmd.Q THEN 
-	IF io_stop_cmd = E_Stop_Cmds.Stop_Cycle THEN 
-		cycles_to_run := cycles_completed;	
-	ELSIF io_stop_cmd = E_Stop_Cmds.Shutdown_Safe THEN 
-		seq_state := SafeShutdown;
-	ELSIF io_stop_cmd = E_Stop_Cmds.Shutdown_Evac THEN 
-		shutdown_req := TRUE;
-		seq_state := DeadAirEvac;
-	ELSIF io_stop_cmd = E_Stop_Cmds.Estop THEN 
-		seq_state := Estop;
-	END_IF
-	io_stop_cmd := 0;
-END_IF]]></ST>
-      </Implementation>
-    </Method>
     <LineIds Name="FB_ReactorSet_Control">
-      <LineId Id="1166" Count="0" />
-      <LineId Id="1147" Count="0" />
-      <LineId Id="998" Count="3" />
-      <LineId Id="1003" Count="1" />
-      <LineId Id="1076" Count="0" />
-      <LineId Id="1008" Count="1" />
-      <LineId Id="1020" Count="0" />
-      <LineId Id="1168" Count="0" />
-      <LineId Id="1021" Count="38" />
-      <LineId Id="1177" Count="0" />
-      <LineId Id="1179" Count="8" />
-      <LineId Id="1178" Count="0" />
-      <LineId Id="1152" Count="0" />
-      <LineId Id="1060" Count="0" />
-      <LineId Id="1122" Count="0" />
-      <LineId Id="1127" Count="6" />
-      <LineId Id="1124" Count="0" />
-      <LineId Id="1134" Count="0" />
-      <LineId Id="1136" Count="0" />
-      <LineId Id="1138" Count="3" />
-      <LineId Id="1164" Count="0" />
-      <LineId Id="1142" Count="2" />
-      <LineId Id="1135" Count="0" />
-      <LineId Id="1121" Count="0" />
-      <LineId Id="1061" Count="4" />
-      <LineId Id="1163" Count="0" />
-      <LineId Id="1066" Count="0" />
-      <LineId Id="1069" Count="3" />
-      <LineId Id="1167" Count="0" />
-      <LineId Id="1165" Count="0" />
-      <LineId Id="1073" Count="0" />
-      <LineId Id="1075" Count="0" />
+      <LineId Id="1930" Count="98" />
       <LineId Id="9" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ReactorSet_Control.Logger">
-      <LineId Id="9" Count="1" />
-      <LineId Id="7" Count="1" />
-    </LineIds>
-    <LineIds Name="FB_ReactorSet_Control.SeqEntry_Handler">
+    <LineIds Name="FB_ReactorSet_Control.CycleEntry_Handler">
       <LineId Id="6" Count="0" />
       <LineId Id="8" Count="0" />
       <LineId Id="7" Count="0" />
@@ -348,11 +312,11 @@ END_IF]]></ST>
       <LineId Id="14" Count="1" />
       <LineId Id="5" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ReactorSet_Control.SeqError_Handler">
+    <LineIds Name="FB_ReactorSet_Control.CycleError_Handler">
       <LineId Id="6" Count="1" />
       <LineId Id="5" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ReactorSet_Control.SeqExit_Handler">
+    <LineIds Name="FB_ReactorSet_Control.CycleExit_Handler">
       <LineId Id="49" Count="0" />
       <LineId Id="24" Count="0" />
       <LineId Id="41" Count="1" />
@@ -375,7 +339,8 @@ END_IF]]></ST>
       <LineId Id="43" Count="0" />
       <LineId Id="22" Count="1" />
     </LineIds>
-    <LineIds Name="FB_ReactorSet_Control.SeqStart_Handler">
+    <LineIds Name="FB_ReactorSet_Control.CycleStart_Handler">
+      <LineId Id="48" Count="0" />
       <LineId Id="5" Count="0" />
       <LineId Id="42" Count="0" />
       <LineId Id="6" Count="0" />
@@ -398,15 +363,19 @@ END_IF]]></ST>
       <LineId Id="25" Count="0" />
       <LineId Id="7" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ReactorSet_Control.SeqState_Sts.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ReactorSet_Control.SeqStop_Handler">
+    <LineIds Name="FB_ReactorSet_Control.CycleStop_Handler">
       <LineId Id="8" Count="2" />
       <LineId Id="13" Count="3" />
       <LineId Id="22" Count="0" />
       <LineId Id="17" Count="4" />
       <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ReactorSet_Control.Logger">
+      <LineId Id="9" Count="1" />
+      <LineId Id="7" Count="1" />
+    </LineIds>
+    <LineIds Name="FB_ReactorSet_Control.SeqState_Sts.Get">
+      <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

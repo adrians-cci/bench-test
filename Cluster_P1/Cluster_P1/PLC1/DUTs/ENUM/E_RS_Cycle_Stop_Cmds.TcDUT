@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
-  <DUT Name="E_Stop_Cmds" Id="{2053f432-3167-47c9-9b78-33b40257e7a8}">
+  <DUT Name="E_RS_Cycle_Stop_Cmds" Id="{2053f432-3167-47c9-9b78-33b40257e7a8}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 //{attribute 'strict'}
 {attribute 'to_string'}
 
-TYPE E_Stop_Cmds :
+TYPE E_RS_Cycle_Stop_Cmds :
 (
 	Reset :=0,
 	Stop_Cycle,
