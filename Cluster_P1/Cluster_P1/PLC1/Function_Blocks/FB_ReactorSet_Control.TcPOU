@@ -148,7 +148,7 @@ END_VAR
 
 END_CASE
 
-CycleStop_Handler(i_current_state := cycle_state );
+CycleStop_Handler();
 
 o_seqStart_req := cycle_state;
 ]]></ST>
@@ -254,12 +254,7 @@ ELSE
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="CycleStop_Handler" Id="{60506867-404f-4b6c-b282-91a2e90d085c}">
-      <Declaration><![CDATA[METHOD CycleStop_Handler : BOOL
-VAR_INPUT
-	i_current_state : E_RS_SeqState;
-END_VAR
-]]></Declaration>
+    <Action Name="CycleStop_Handler" Id="{f9f5f94a-2cfe-414d-894b-6777ab546beb}">
       <Implementation>
         <ST><![CDATA[trig_stop_cmd( CLK := io_stop_cmd > 0);
 IF trig_stop_cmd.Q THEN 
@@ -276,7 +271,7 @@ IF trig_stop_cmd.Q THEN
 	io_stop_cmd := 0;
 END_IF]]></ST>
       </Implementation>
-    </Method>
+    </Action>
     <Method Name="Logger" Id="{20227f92-d2b3-4c3b-8917-6409e118b7dd}">
       <Declaration><![CDATA[METHOD Logger : BOOL
 VAR_INPUT
@@ -301,7 +296,7 @@ END_VAR
       </Get>
     </Property>
     <LineIds Name="FB_ReactorSet_Control">
-      <LineId Id="1930" Count="98" />
+      <LineId Id="2078" Count="98" />
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet_Control.CycleEntry_Handler">
@@ -364,11 +359,8 @@ END_VAR
       <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet_Control.CycleStop_Handler">
-      <LineId Id="8" Count="2" />
-      <LineId Id="13" Count="3" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="17" Count="4" />
-      <LineId Id="11" Count="0" />
+      <LineId Id="2" Count="12" />
+      <LineId Id="1" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet_Control.Logger">
       <LineId Id="9" Count="1" />

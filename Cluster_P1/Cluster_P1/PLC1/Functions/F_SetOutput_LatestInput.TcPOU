@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_SetOutput_LatestInput" Id="{4a8b17d3-5245-42cf-9772-23d214627896}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_SetOutput_LatestInput : REAL
+VAR_INPUT
+	in1 : REAL;
+	in2	: REAL;
+END_VAR
+VAR
+	in1_changed : R_TRIG;
+	in2_changed : R_TRIG;
+	
+	in_latest : REAL;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Rising edge detection for Input1
+in1_changed ( CLK := (in1 <> in2) AND (in1 <> in_latest)) ;
+// Rising edge detection for Input2
+in2_changed ( CLK := (in2 <> in1) AND (in2 <> in_latest)) ;
+
+// Determine which input has a rising edge
+IF in1_changed.Q THEN
+    in_latest := in1;
+ELSIF in2_changed.Q THEN
+    in_latest := in2;
+END_IF
+
+
+// Set the output to the latest input
+F_SetOutput_LatestInput := in_latest;]]></ST>
+    </Implementation>
+    <LineIds Name="F_SetOutput_LatestInput">
+      <LineId Id="25" Count="11" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

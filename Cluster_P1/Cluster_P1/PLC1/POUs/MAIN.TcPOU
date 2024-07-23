@@ -4,13 +4,26 @@
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
 	cluster_control : FB_Cluster_Control();
+	sita_out : REAL;
+	sita_in1 : REAL;
+	sita_in2 : REAL;
+	sita_setout : FB_SetOutput();
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[cluster_control();]]></ST>
+      <ST><![CDATA[cluster_control();
+
+//sita_out := F_SetOutput_LatestInput(in1 := TO_REAL(sita_in1),in2 := TO_REAL(sita_in2));
+
+
+sita_setout(io_in1 := sita_in1,io_in2 := sita_in2, o_set_value => sita_out);]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
       <LineId Id="2" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="13" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

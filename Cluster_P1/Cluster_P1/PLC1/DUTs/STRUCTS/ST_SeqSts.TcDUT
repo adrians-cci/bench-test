@@ -3,10 +3,10 @@
   <DUT Name="ST_SeqSts" Id="{3cccb815-bf5c-4022-b7df-33ab18217ab0}">
     <Declaration><![CDATA[TYPE ST_SeqSts :
 STRUCT
-	not_started : BOOL;
-	started		: BOOL;
-	completed	: BOOL;
-	error		: BOOL;
+	not_started : BIT;
+	started		: BIT;
+	completed	: BIT;
+	error		: BIT;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

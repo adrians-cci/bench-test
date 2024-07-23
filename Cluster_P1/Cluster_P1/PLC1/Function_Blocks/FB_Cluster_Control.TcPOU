@@ -78,11 +78,16 @@ CASE state_cluster OF
 		FOR idx_rs := 1 TO rs_count DO 
 			
 			IF hmi.cluster_rs_select_cmd[idx_rs] THEN 
-				IF  hmi.cluster_rs_start_cycle_cmd THEN 
+				IF hmi.cluster_rs_start_cycle_cmd THEN 
 					rs_start_cycle_cmd[idx_rs] := TRUE;
-				ELSIF hmi.cluster_rs_stop_cycle_cmd > 0  THEN
+				END_IF
+				IF hmi.cluster_rs_stop_cycle_cmd > 0  THEN
 					rs_stop_cycle_cmd[idx_rs] := hmi.cluster_rs_stop_cycle_cmd;
 				END_IF
+			ELSE
+				rs_start_cycle_cmd[idx_rs] := FALSE;
+				rs_stop_cycle_cmd[idx_rs] := 0;
+				
 			END_IF
 			
 						
@@ -144,6 +149,7 @@ CASE state_cluster OF
 		
 END_CASE
 
+utilities_control.CoolingPump_Control();
 //utilities_control();
 utilities_control.State_Machine();]]></ST>
     </Implementation>
@@ -162,7 +168,17 @@ Get_All_RS_Done_Sts := rs_done;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Cluster_Control">
-      <LineId Id="1909" Count="112" />
+      <LineId Id="1909" Count="45" />
+      <LineId Id="2057" Count="0" />
+      <LineId Id="2052" Count="0" />
+      <LineId Id="2058" Count="0" />
+      <LineId Id="1957" Count="2" />
+      <LineId Id="2054" Count="1" />
+      <LineId Id="2059" Count="0" />
+      <LineId Id="2056" Count="0" />
+      <LineId Id="1960" Count="59" />
+      <LineId Id="2051" Count="0" />
+      <LineId Id="2020" Count="1" />
       <LineId Id="99" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.Get_All_RS_Done_Sts">

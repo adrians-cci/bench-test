@@ -8,11 +8,11 @@
 TYPE E_RS_SeqState :
 (
 	Idle := 0,
-	Adsorption,
 	DeadAirEvac,
 	SteamDesorption,
 	VacCooling,
 	AirRepress,
+	Adsorption,
 	Estop,
 	SafeShutdown,
 	Error := 9

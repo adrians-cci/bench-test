@@ -46,6 +46,8 @@ VAR
 	
 	cooling_pump_req : ST_Util_Service_Req;
 	
+	cooling_pump_set_output : FB_SetOutput;
+	
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -82,6 +84,9 @@ END_VAR
       <Declaration><![CDATA[METHOD CoolingPump_Control : BOOL
 VAR_INPUT
 END_VAR
+VAR
+	service_req : REAL;
+END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Clear Queue if pump is faulted from utilities controller
@@ -93,24 +98,27 @@ END_IF
 
 
 // manage the cooling pump assignmnet queue based on request form reactor set controller
-cooling_pump_dispatch( i_service_req := cooling_pump_req, i_shared_rs_count := 2);
+cooling_pump_dispatch( i_service_req := i_cooling_pump_req, i_shared_rs_count := 2);
 
 
 IF hmi.util_auto_mode THEN 
 	// set  the cooling pump on/off command based on dispacher assignnments
 	IF cooling_pump_dispatch.o_service_req THEN 
-		cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.On;
+		service_req := E_Util_Service_Req.On;
 	ELSE
-		cooling_pump.i_service_req.request_cmd := E_Util_Service_Req.Off;
+		service_req := E_Util_Service_Req.Off;
 	END_IF	
-ELSE
-	cooling_pump.i_service_req.request_cmd := hmi.util_cooling_pump_cmd;
 END_IF
 
+
 IF ( i_cooling_pump_req.request_cmd = E_Util_Service_Req.Reset OR hmi.util_cooling_pump_cmd = E_Util_Service_Req.Reset) AND cooling_pump.o_service_sts.faulted THEN 
-		cooling_pump.i_service_req.request_cmd := i_cooling_pump_req.request_cmd;
+		service_req := i_cooling_pump_req.request_cmd;
 	END_IF
 
+	
+ cooling_pump_set_output(io_in1 := service_req, io_in2 := hmi.util_cooling_pump_cmd); 	
+ cooling_pump.i_service_req.request_cmd := TO_INT(cooling_pump_set_output.o_set_value);	
+	
 //  cooling pump ios ( cmd + sts )  mapping to/from utilities controller 
 cooling_pump();
 ]]></ST>
@@ -239,10 +247,16 @@ END_VAR
     </LineIds>
     <LineIds Name="FB_Utilities_Control.CoolingPump_Control">
       <LineId Id="6" Count="18" />
-      <LineId Id="29" Count="2" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="52" Count="0" />
       <LineId Id="39" Count="2" />
       <LineId Id="38" Count="0" />
-      <LineId Id="32" Count="2" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="33" Count="1" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Utilities_Control.CoolingPump_Sts.Get">

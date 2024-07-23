@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_State_IOs" Id="{743b422d-0aca-40cd-9426-4749e414f45b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_State_IOs
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	out_sts AT %Q* : BYTE;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <LineIds Name="FB_State_IOs">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_SetOutput" Id="{ce32a605-11a6-4d3e-b732-e238713e6430}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SetOutput
+VAR_IN_OUT
+	io_in1 	: REAL;
+	io_in2	: REAL;
+END_VAR
+VAR_OUTPUT
+	o_set_value : REAL;
+END_VAR
+VAR
+	in1_changed : BOOL;
+	in2_changed : BOOL;
+	
+	in1_prev : REAL;
+	in2_prev : REAL;
+	
+	in_latest : REAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Rising edge detection for Input1
+in1_changed := (io_in1 <> in1_prev ) ;
+// Rising edge detection for Input2
+in2_changed := (io_in2 <> in2_prev ) ;
+
+// Determine which input has a rising edge
+IF in1_changed THEN
+	in1_prev := io_in1;
+    in_latest := io_in1;
+	io_in2 := in_latest;
+	
+ELSIF in2_changed THEN	
+	in2_prev := io_in2;
+    in_latest := io_in2;
+	io_in1 := in_latest;
+	
+END_IF
+
+
+// Set the output to the latest input
+o_set_value := in_latest;]]></ST>
+    </Implementation>
+    <LineIds Name="FB_SetOutput">
+      <LineId Id="94" Count="6" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="112" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="104" Count="1" />
+      <LineId Id="109" Count="1" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
