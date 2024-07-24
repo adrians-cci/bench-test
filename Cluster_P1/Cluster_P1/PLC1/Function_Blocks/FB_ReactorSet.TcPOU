@@ -12,6 +12,7 @@ VAR_INPUT
 	i_deadair_pump_assigned	: BOOL;
 	i_steam_system_assigned	: BOOL;
 	i_purge_assist_assigned	: BOOL;
+	i_reset_fault			: BOOL;
 	
 END_VAR
 VAR_OUTPUT
@@ -42,7 +43,7 @@ VAR
 	in_steam_system_req		AT %I*	: BYTE;
 	in_purge_assist_req		AT %I*	: BYTE;
 	
-	in_error_sts			AT %I* 	: BYTE;
+	in_error_sts			AT %I* 	: BOOL;
 	in_error_code1			AT %I*	: DWORD;
 	in_error_code2			AT %I*	: DWORD;
 	
@@ -59,6 +60,9 @@ VAR
 	out_deadair_pump_assigned		AT %Q*: BOOL;
 	out_steam_system_assigned		AT %Q*: BOOL;
 	out_purge_assist_assigned		AT %Q*: BOOL;
+	
+	out_error_reset				AT %Q* : BOOL;
+	
 	
 	
 	
@@ -87,11 +91,11 @@ Set_Service_Sts ( i_service_sts := i_purge_assist_sts,o_service_sts => out_purge
 
 // Seq Status from RS controller 
 
-Get_Seq_Status(i_seq_sts := in_adsorption_seq_sts,o_seq_sts => o_adsorption_seq_sts);
-Get_Seq_Status(i_seq_sts := in_evac_seq_sts,o_seq_sts => o_evac_seq_sts);
-Get_Seq_Status(i_seq_sts := in_desorption_seq_sts,o_seq_sts => o_desorption_seq_sts);
-Get_Seq_Status(i_seq_sts := in_cooling_seq_sts,o_seq_sts => o_cooling_seq_sts);
-Get_Seq_Status(i_seq_sts := in_airpress_seq_sts,o_seq_sts => o_airpress_seq_sts);
+F_Get_Seq_Status(i_seq_sts := in_adsorption_seq_sts,o_seq_sts => o_adsorption_seq_sts);
+F_Get_Seq_Status(i_seq_sts := in_evac_seq_sts,o_seq_sts => o_evac_seq_sts);
+F_Get_Seq_Status(i_seq_sts := in_desorption_seq_sts,o_seq_sts => o_desorption_seq_sts);
+F_Get_Seq_Status(i_seq_sts := in_cooling_seq_sts,o_seq_sts => o_cooling_seq_sts);
+F_Get_Seq_Status(i_seq_sts := in_airpress_seq_sts,o_seq_sts => o_airpress_seq_sts);
 
 // Utilities Req from RS Controller 
 
@@ -100,28 +104,24 @@ o_deadair_pump_req		:= in_deadair_pump_req;
 o_steam_system_req		:= in_steam_system_req;
 o_purge_assist_req		:= in_purge_assist_req;
 
-// Error mapping
-o_error_active := in_error_sts.1;
+// Error mapping from RS Controller
+o_error_active := in_error_sts;
+
+// Error reset command to RS Controller
+out_error_reset := i_reset_fault;
 ]]></ST>
     </Implementation>
-    <Method Name="Get_Seq_Status" Id="{4dbc3252-9aa5-422d-87bd-aedbcb4954a1}">
-      <Declaration><![CDATA[METHOD Get_Seq_Status : BOOL
-VAR_INPUT
-	i_seq_sts : BYTE;
-END_VAR
-VAR_OUTPUT
-	o_seq_sts : ST_SeqSts;
+    <Property Name="Reset_Fault" Id="{5dc63ca5-d894-4224-9a66-7976dd1ee88e}">
+      <Declaration><![CDATA[PROPERTY Reset_Fault : BOOL]]></Declaration>
+      <Set Name="Set" Id="{2a8619fb-2f3c-44d9-8a80-ad7ac89ad13e}">
+        <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[
-
-o_seq_sts.not_started 		:= i_seq_sts = 0;
-o_seq_sts.started 			:= i_seq_sts = 1;
-o_seq_sts.completed 		:= i_seq_sts = 2;
-o_seq_sts.error 			:= i_seq_sts = 9;]]></ST>
-      </Implementation>
-    </Method>
+        <Implementation>
+          <ST><![CDATA[out_error_reset := Reset_Fault;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="Set_Service_Sts" Id="{7bc84eef-0834-4c67-8959-d790ac013a0b}">
       <Declaration><![CDATA[METHOD Set_Service_Sts : BOOL
 VAR_INPUT
@@ -152,11 +152,13 @@ END_IF]]></ST>
       <LineId Id="1623" Count="0" />
       <LineId Id="1622" Count="0" />
       <LineId Id="1542" Count="17" />
+      <LineId Id="1697" Count="0" />
+      <LineId Id="1696" Count="0" />
+      <LineId Id="1698" Count="0" />
       <LineId Id="32" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ReactorSet.Get_Seq_Status">
-      <LineId Id="10" Count="4" />
-      <LineId Id="5" Count="0" />
+    <LineIds Name="FB_ReactorSet.Reset_Fault.Set">
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet.Set_Service_Sts">
       <LineId Id="5" Count="0" />

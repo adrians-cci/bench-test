@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_Get_Seq_Status" Id="{a796d6b9-2886-4e9f-95be-12f80c6ae7f8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_Get_Seq_Status : BOOL
+VAR_INPUT
+	i_seq_sts : BYTE;
+END_VAR
+VAR_OUTPUT
+	o_seq_sts : ST_SeqSts;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[o_seq_sts.not_started 		:= i_seq_sts = 0;
+o_seq_sts.started 			:= i_seq_sts = 1;
+o_seq_sts.completed 		:= i_seq_sts = 2;
+o_seq_sts.error 			:= i_seq_sts = 9;]]></ST>
+    </Implementation>
+    <LineIds Name="F_Get_Seq_Status">
+      <LineId Id="16" Count="2" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

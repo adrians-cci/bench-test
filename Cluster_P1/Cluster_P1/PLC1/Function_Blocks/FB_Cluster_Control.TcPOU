@@ -2,13 +2,6 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="FB_Cluster_Control" Id="{6fd5e4a5-e99d-4b99-9ff7-8b5ec4c922f0}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Cluster_Control
-VAR_INPUT
-	
-	i_rs_stop		: ARRAY[1..rs_count] OF BOOL;
-	
-END_VAR
-VAR_OUTPUT
-END_VAR
 VAR
 	rs_control 			: ARRAY[1..rs_count] OF FB_ReactorSet_Control;
 	reactor_set			: ARRAY[1..rs_count] OF FB_ReactorSet;
@@ -21,7 +14,7 @@ VAR
 	{attribute 'to_string'}
 	state_cluster		: (Idle := 0, Warmup := 1, Ready := 2, Cycling := 3, Shutdown := 4, Error); 
 	
-	rs_stop_cycle_cmd		: ARRAY[1..rs_count] OF  INT;
+	rs_stop_cycle_cmd		: ARRAY[1..rs_count] OF  INT;  // 
 	rs_start_cycle_cmd 		: ARRAY[1..rs_count] OF BOOL;
 	
 	shutdown_util_cmd	: BOOL;
@@ -29,11 +22,14 @@ VAR
 	cooling_pump_assigned_rs : ARRAY[1..2] OF UINT;
 	
 	sts_cycle : ST_SeqSts;
+	
+	error_reset_cmd			: BOOL;
+	trigger_error_reset		: R_TRIG;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Shutdown THEN 
-	IF  state_cluster =  Cycling AND Get_All_RS_Done_Sts() THEN 
+	IF  state_cluster =  Cycling AND RSs_Done_Sts() THEN 
 		state_cluster := Shutdown;
 	ELSIF state_cluster <>  Cycling THEN 
 		state_cluster := Shutdown;
@@ -54,8 +50,8 @@ CASE state_cluster OF
 		
 	Warmup:	
 		utilities_control.i_state_req := E_Util_State_Cmd.Warmup;
-		IF NOT utilities_control.in_bop_warmup_sts.error  THEN 
-			IF utilities_control.in_bop_warmup_sts.completed THEN 
+		IF NOT utilities_control.o_bop_warmup_sts.error  THEN 
+			IF utilities_control.o_bop_warmup_sts.completed THEN 
 				state_cluster := Ready;
 			END_IF
 		ELSE
@@ -65,8 +61,8 @@ CASE state_cluster OF
 	Ready :
 		utilities_control.i_state_req := E_Util_State_Cmd.Activate;
 		
-		IF  NOT utilities_control.o_util_error AND NOT rs_error THEN
-			IF  utilities_control.in_bop_activate_sts.completed AND hmi.cluster_state_cmd = E_Cluster_State_Cmd.Cycling THEN 
+		IF  NOT utilities_control.o_bop_error AND NOT rs_error THEN
+			IF  utilities_control.o_bop_activate_sts.completed AND hmi.cluster_state_cmd = E_Cluster_State_Cmd.Cycling THEN 
 				state_cluster := Cycling;
 			END_IF
 		ELSE
@@ -77,26 +73,15 @@ CASE state_cluster OF
 	
 		FOR idx_rs := 1 TO rs_count DO 
 			
-			IF hmi.cluster_rs_select_cmd[idx_rs] THEN 
-				IF hmi.cluster_rs_start_cycle_cmd THEN 
-					rs_start_cycle_cmd[idx_rs] := TRUE;
-				END_IF
-				IF hmi.cluster_rs_stop_cycle_cmd > 0  THEN
-					rs_stop_cycle_cmd[idx_rs] := hmi.cluster_rs_stop_cycle_cmd;
-				END_IF
-			ELSE
-				rs_start_cycle_cmd[idx_rs] := FALSE;
-				rs_stop_cycle_cmd[idx_rs] := 0;
-				
-			END_IF
-			
-						
+			//  HMI Start/Stop cycles for the selected reactor sets
+			StartStop_RS_Cycle();								
 			reactor_set[idx_rs]( i_seq_req 				:= rs_control[idx_rs].SeqState_Sts,
-								 i_cooling_pump_assigned := (idx_rs = cooling_pump_assigned_rs[1]) OR  (idx_rs = cooling_pump_assigned_rs[2]),
+								 i_cooling_pump_assigned := (idx_rs = cooling_pump_assigned_rs[1]) OR (idx_rs = cooling_pump_assigned_rs[2]),
 								 i_cooling_pump_sts 	:= utilities_control.CoolingPump_Sts,
 								 i_deadair_pump_sts 	:= utilities_control.DeadAirPump_Sts,
 								 i_steam_system_sts 	:= utilities_control.SteamSystem_Sts,
 								 i_purge_assist_sts 	:= utilities_control.PurgeAssist_Sts,
+								 i_reset_fault			:= error_reset_cmd,
 								 o_adsorption_seq_sts 	=> rs_control[idx_rs].i_adsorption_seq_sts,
 								 o_airpress_seq_sts		=> rs_control[idx_rs].i_airpress_seq_sts,
 								 o_evac_seq_sts 		=> rs_control[idx_rs].i_evac_seq_sts,
@@ -110,17 +95,19 @@ CASE state_cluster OF
 			
 			rs_control[idx_rs]( i_rs_number := idx_rs,
 								i_start_cycle := rs_start_cycle_cmd[idx_rs] AND NOT reactor_set[idx_rs].o_error_active,
+								i_rs_error_active := reactor_set[idx_rs].o_error_active,
+								i_reset_fault := error_reset_cmd,
 								//i_stop_cmd := i_rs_stop[idx_rs],
 								io_stop_cmd := rs_stop_cycle_cmd[idx_rs]
 							  );
 						  
 			
-			utilities_control.i_cooling_pump_req.rs_number := idx_rs;
+			utilities_control.i_cooling_pump_req.rs_number := idx_rs;		
+			
+			utilities_control.CoolingPump_Control();
+			utilities_control.DeadAirPump_Control();
 			
 			cooling_pump_assigned_rs := utilities_control.CoolingPump_Assigned_RS;	
-			utilities_control.CoolingPump_Control();
-			
-			utilities_control.DeadAirPump_Control();
 					
 			
 		END_FOR
@@ -129,8 +116,8 @@ CASE state_cluster OF
 	Shutdown : 
 		
 		utilities_control.i_state_req := E_Util_State_Cmd.Shutdown;
-		IF NOT utilities_control.in_bop_shutdown_sts.error THEN 
-			IF utilities_control.in_bop_shutdown_sts.completed THEN 
+		IF NOT utilities_control.o_bop_shutdown_sts.error THEN 
+			IF utilities_control.o_bop_shutdown_sts.completed THEN 
 				sts_cycle.completed := TRUE;
 				state_cluster := Idle;
 			END_IF
@@ -141,20 +128,39 @@ CASE state_cluster OF
 	Error : 
 		sts_cycle.completed := TRUE;
 		sts_cycle.error := TRUE;
-		IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Reset_Fault THEN 
-			utilities_control.i_state_req := E_Util_State_Cmd.Reset_Fault;
+		IF error_reset_cmd THEN 
 			state_cluster := Idle;
-		END_IF
-	
-		
+		END_IF		
 END_CASE
 
 utilities_control.CoolingPump_Control();
-//utilities_control();
-utilities_control.State_Machine();]]></ST>
+utilities_control.State_Machine();
+utilities_control.GetSet_BOP_IOs();
+
+Reset_Error();]]></ST>
     </Implementation>
-    <Method Name="Get_All_RS_Done_Sts" Id="{7304ccc2-7947-447d-8057-95279c90ae71}">
-      <Declaration><![CDATA[METHOD Get_All_RS_Done_Sts : BOOL
+    <Method Name="Reset_Error" Id="{d4611145-198d-480f-b17a-d8311abf2820}">
+      <Declaration><![CDATA[METHOD Reset_Error : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+trigger_error_reset(CLK := hmi.cluster_reset_fault);
+error_reset_cmd :=  trigger_error_reset.Q;
+IF error_reset_cmd THEN
+	hmi.cluster_reset_fault := FALSE;
+END_IF	
+
+utilities_control.i_fault_reset := error_reset_cmd ;
+FOR idx_rs := 1 TO rs_count DO 
+	reactor_set[idx_rs].Reset_Fault := error_reset_cmd ;
+END_FOR
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RSs_Done_Sts" Id="{7304ccc2-7947-447d-8057-95279c90ae71}">
+      <Declaration><![CDATA[METHOD RSs_Done_Sts : BOOL
 VAR
 	rs_done : BOOL;
 END_VAR
@@ -164,25 +170,55 @@ END_VAR
 FOR idx_rs := 2 TO rs_count DO 
 	rs_done := rs_done AND rs_control[idx_rs].o_Done;
 END_FOR
-Get_All_RS_Done_Sts := rs_done;]]></ST>
+RSs_Done_Sts := rs_done;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StartStop_RS_Cycle" Id="{134fc351-a9d1-41fb-9147-529f7c79c136}">
+      <Declaration><![CDATA[METHOD StartStop_RS_Cycle : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF hmi.cluster_rs_select_cmd[idx_rs] THEN 
+	IF hmi.cluster_rs_start_cycle_cmd THEN 
+		rs_start_cycle_cmd[idx_rs] := TRUE;
+		hmi.cluster_rs_select_cmd[idx_rs] := FALSE;
+		hmi.cluster_rs_stop_cycle_cmd := 0;
+	END_IF
+	IF hmi.cluster_rs_stop_cycle_cmd > 0  THEN
+		rs_stop_cycle_cmd[idx_rs] := hmi.cluster_rs_stop_cycle_cmd;
+		hmi.cluster_rs_select_cmd[idx_rs] := FALSE;
+		hmi.cluster_rs_start_cycle_cmd := FALSE;
+	END_IF
+ELSE
+	rs_start_cycle_cmd[idx_rs] := FALSE;
+	rs_stop_cycle_cmd[idx_rs] := 0;
+	hmi.cluster_rs_stop_cycle_cmd := 0;
+	hmi.cluster_rs_start_cycle_cmd := FALSE;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Cluster_Control">
-      <LineId Id="1909" Count="45" />
-      <LineId Id="2057" Count="0" />
-      <LineId Id="2052" Count="0" />
-      <LineId Id="2058" Count="0" />
-      <LineId Id="1957" Count="2" />
-      <LineId Id="2054" Count="1" />
-      <LineId Id="2059" Count="0" />
-      <LineId Id="2056" Count="0" />
-      <LineId Id="1960" Count="59" />
-      <LineId Id="2051" Count="0" />
-      <LineId Id="2020" Count="1" />
-      <LineId Id="99" Count="0" />
+      <LineId Id="2255" Count="108" />
+      <LineId Id="2143" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Cluster_Control.Get_All_RS_Done_Sts">
+    <LineIds Name="FB_Cluster_Control.Reset_Error">
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="17" Count="2" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Cluster_Control.RSs_Done_Sts">
       <LineId Id="6" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Cluster_Control.StartStop_RS_Cycle">
+      <LineId Id="6" Count="15" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

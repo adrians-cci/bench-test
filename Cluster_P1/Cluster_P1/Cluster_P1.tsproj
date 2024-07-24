@@ -1,35 +1,5 @@
 <?xml version="1.0"?>
 <TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.55">
-	<DataTypes>
-		<DataType>
-			<Name GUID="{EBC9A402-F566-3442-4402-561B1FAA44A0}" AutoDeleteType="true">ST_SeqSts</Name>
-			<BitSize>8</BitSize>
-			<SubItem>
-				<Name>not_started</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
-				<BitSize>1</BitSize>
-				<BitOffs>0</BitOffs>
-			</SubItem>
-			<SubItem>
-				<Name>started</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
-				<BitSize>1</BitSize>
-				<BitOffs>1</BitOffs>
-			</SubItem>
-			<SubItem>
-				<Name>completed</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
-				<BitSize>1</BitSize>
-				<BitOffs>2</BitOffs>
-			</SubItem>
-			<SubItem>
-				<Name>error</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
-				<BitSize>1</BitSize>
-				<BitOffs>3</BitOffs>
-			</SubItem>
-		</DataType>
-	</DataTypes>
 	<Project ProjectGUID="{4BE36A0A-6791-4BF9-A597-DB53620C6D9B}" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
 			<Settings MaxCpus="20">
@@ -52,7 +22,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{D86426BD-5570-4D01-8842-A79647151612}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{3C1555A7-0999-754A-2A48-5AD03C39FAA3}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{022041D8-EC1F-F873-B138-33899E0F2B52}">
 					<Name>PLC1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -96,7 +66,7 @@
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[1].in_error_sts</Name>
-							<Type>BYTE</Type>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[1].in_error_code1</Name>
@@ -145,7 +115,7 @@
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[2].in_error_sts</Name>
-							<Type>BYTE</Type>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[2].in_error_code1</Name>
@@ -194,7 +164,7 @@
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[3].in_error_sts</Name>
-							<Type>BYTE</Type>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[3].in_error_code1</Name>
@@ -243,7 +213,7 @@
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[4].in_error_sts</Name>
-							<Type>BYTE</Type>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[4].in_error_code1</Name>
@@ -255,15 +225,15 @@
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.utilities_control.in_bop_warmup_sts</Name>
-							<Type GUID="{EBC9A402-F566-3442-4402-561B1FAA44A0}">ST_SeqSts</Type>
+							<Type>BYTE</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.utilities_control.in_bop_activate_sts</Name>
-							<Type GUID="{EBC9A402-F566-3442-4402-561B1FAA44A0}">ST_SeqSts</Type>
+							<Type>BYTE</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.utilities_control.in_bop_shutdown_sts</Name>
-							<Type GUID="{EBC9A402-F566-3442-4402-561B1FAA44A0}">ST_SeqSts</Type>
+							<Type>BYTE</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.utilities_control.in_bop_error_sts</Name>
@@ -346,6 +316,10 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].out_error_reset</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.cluster_control.reactor_set[2].out_seq_req</Name>
 							<Comment><![CDATA[ to RS Controller]]></Comment>
 							<Type>BYTE</Type>
@@ -380,6 +354,10 @@
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[2].out_purge_assist_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].out_error_reset</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -420,6 +398,10 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
+							<Name>MAIN.cluster_control.reactor_set[3].out_error_reset</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.cluster_control.reactor_set[4].out_seq_req</Name>
 							<Comment><![CDATA[ to RS Controller]]></Comment>
 							<Type>BYTE</Type>
@@ -454,6 +436,10 @@
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[4].out_purge_assist_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[4].out_error_reset</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -499,14 +485,66 @@
 				</Instance>
 			</Project>
 			<Project GUID="{E32EFE79-EF70-496B-98E4-072D842717DA}" Name="PLC_Utilities" PrjFilePath="PLC_Utilities\PLC_Utilities.plcproj" TmcFilePath="PLC_Utilities\PLC_Utilities.tmc" ReloadTmc="true" AmsPort="852" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC_Utilities\PLC_Utilities.tmc" TmcHash="{6E277F47-BC2C-016F-C262-D75A880D5470}">
+				<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC_Utilities\PLC_Utilities.tmc" TmcHash="{FBD8D54F-39C0-1E7A-AC28-6CFD83809254}">
 					<Name>PLC_Utilities Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="2" AreaNo="1">
 						<Name>PlcTask Outputs</Name>
 						<Var>
-							<Name>MAIN.warmup_sts.out_sts</Name>
+							<Name>MAIN.out_warmup_state_sts</Name>
 							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_activate_state_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_shutdown_state_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_error_sts</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_service1_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_service2_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_service3_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_service4_sts</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_service1_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_service2_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_service3_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_service4_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.out_heartbeat</Name>
+							<Type>BOOL</Type>
 						</Var>
 					</Vars>
 					<Contexts>
@@ -527,11 +565,4 @@
 			</Project>
 		</Plc>
 	</Project>
-	<Mappings>
-		<OwnerA Name="TIPC^PLC1^PLC1 Instance">
-			<OwnerB Name="TIPC^PLC_Utilities^PLC_Utilities Instance">
-				<Link VarA="PlcTask Inputs^MAIN.cluster_control.utilities_control.in_bop_warmup_sts" VarB="PlcTask Outputs^MAIN.warmup_sts.out_sts"/>
-			</OwnerB>
-		</OwnerA>
-	</Mappings>
 </TcSmProject>

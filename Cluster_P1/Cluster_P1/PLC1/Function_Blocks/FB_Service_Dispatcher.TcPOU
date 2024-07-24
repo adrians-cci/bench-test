@@ -90,7 +90,7 @@ FOR idx_queue := 1 TO rs_count-1 DO
 	END_IF
 END_FOR
 
-// Service on/off requet to Uitlities 
+// Service on/off requet to Utilities
 
 o_service_req := service_req_queue[1].is_assigned ; // on request to utilities if queue pos #1 is populated / has a RS assigned 
 

@@ -12,8 +12,8 @@ VAR_INPUT
 	i_start_cycle_adsorption: BOOL;
 	
 	i_reset_fault			: BOOL;
-	i_seq_selection			: BYTE;  // 1,2,4,8,16 ( bit 1,2,3,4,5 )
-	i_cycles_number			: UINT;
+	i_cycle_selection		: BYTE;  // 1,2,4,8,16 ( bit 1,2,3,4,5 )
+	i_cycles_count_to_run	: UINT;
 	
 	i_cooling_pump_number	: BYTE;
 	i_deadair_pump_numner	: BYTE;
@@ -223,30 +223,30 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[
-IF i_seq_selection = 0 AND NOT (cycle_state = Error) THEN 
+IF i_cycle_selection = 0 AND NOT (cycle_state = Error) THEN 
 	seq_single_selected := FALSE;	
 	cycle_state := Idle;
-ELSIF i_seq_selection = 2#11111 THEN
-	cycles_to_run := i_cycles_number;
+ELSIF i_cycle_selection = 2#11111 THEN
+	cycles_to_run := i_cycles_count_to_run;
 	seq_state_first_transition := FALSE;
 	seq_single_selected := FALSE;	
 	IF i_start_cycle_adsorption THEN 
-		cycle_state := DeadAirEvac; 
+		cycle_state := Adsorption; 
 	ELSE
-		cycle_state := Adsorption;
+		cycle_state := DeadAirEvac;
 	END_IF
 ELSE
 	seq_single_selected := TRUE;	
 	seq_state_first_transition := FALSE;
-	IF 	i_seq_selection = 2#00001 THEN
+	IF 	i_cycle_selection = 2#00001 THEN
 		cycle_state := DeadAirEvac;
-	ELSIF i_seq_selection = 2#00010 THEN
+	ELSIF i_cycle_selection = 2#00010 THEN
 		cycle_state := SteamDesorption;
-	ELSIF i_seq_selection = 2#00100 THEN
+	ELSIF i_cycle_selection = 2#00100 THEN
 		cycle_state := VacCooling;
-	ELSIF i_seq_selection = 2#01000 THEN
+	ELSIF i_cycle_selection = 2#01000 THEN
 		cycle_state := AirRepress;
-	ELSIF i_seq_selection = 2#10000 THEN
+	ELSIF i_cycle_selection = 2#10000 THEN
 		cycle_state := Adsorption;
 	ELSE
 		cycle_state := Idle;

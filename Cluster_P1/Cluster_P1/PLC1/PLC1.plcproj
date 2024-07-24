@@ -54,6 +54,9 @@
     <Compile Include="DUTs\UNIONS\U_SeqStart.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Functions\F_Get_Seq_Status.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Functions\F_SetOutput_LatestInput.TcPOU">
       <SubType>Code</SubType>
     </Compile>

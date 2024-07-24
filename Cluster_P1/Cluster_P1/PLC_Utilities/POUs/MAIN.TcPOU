@@ -3,11 +3,26 @@
   <POU Name="MAIN" Id="{29275dbf-fa6e-414e-9008-085e2326d27d}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
-	warmup_sts : FB_State_IOs;
+
+	out_warmup_state_sts 	AT %Q* 	: BYTE;
+	out_activate_state_sts 	AT %Q* 	: BYTE;
+	out_shutdown_state_sts 	AT %Q* 	: BYTE;
+	out_error_sts			AT %Q*	: BOOL;
+	out_error_code			AT %Q*	: DWORD;
+	out_service1_sts		AT %Q*  : BYTE;
+	out_service1_error_code AT %Q*	: DWORD;
+	out_service2_sts		AT %Q*	: BYTE;
+	out_service2_error_code AT %Q*	: DWORD;
+	out_service3_sts		AT %Q*	: BYTE;
+	out_service3_error_code AT %Q*	: DWORD;
+	out_service4_sts		AT %Q*	: BYTE;
+	out_service4_error_code AT %Q*	: DWORD;
+	out_heartbeat			AT %Q* 	: BOOL;
+	
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[warmup_sts();]]></ST>
+      <ST><![CDATA[]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
       <LineId Id="2" Count="0" />
