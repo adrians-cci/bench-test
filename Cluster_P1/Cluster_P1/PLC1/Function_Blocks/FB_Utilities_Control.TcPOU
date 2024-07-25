@@ -60,7 +60,7 @@ END_VAR
 ]]></ST>
     </Implementation>
     <Property Name="CoolingPump_Assigned_RS" Id="{779fbffc-5bb8-48f2-a000-685aa64d8599}">
-      <Declaration><![CDATA[PROPERTY CoolingPump_Assigned_RS : ARRAY[1..2] OF UINT;]]></Declaration>
+      <Declaration><![CDATA[PROPERTY CoolingPump_Assigned_RS : ARRAY[1..rs_count] OF UINT;]]></Declaration>
       <Get Name="Get" Id="{0e27d998-d7ce-4e5d-b03a-a81813c6f904}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -88,7 +88,7 @@ END_IF
 
 
 // manage the cooling pump assignmnet queue based on request form reactor set controller
-cooling_pump_dispatch( i_service_req := i_cooling_pump_req, i_shared_rs_count := 2);
+cooling_pump_dispatch( i_service_req := i_cooling_pump_req, i_shared_rs_count := 8, i_rs_module_constrain := FALSE);
 
 
 IF hmi.util_auto_mode THEN 

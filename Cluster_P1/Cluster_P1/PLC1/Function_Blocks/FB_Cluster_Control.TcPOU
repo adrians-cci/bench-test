@@ -19,8 +19,6 @@ VAR
 	
 	shutdown_util_cmd	: BOOL;
 	
-	cooling_pump_assigned_rs : ARRAY[1..2] OF UINT;
-	
 	sts_cycle : ST_SeqSts;
 	
 	error_reset_cmd			: BOOL;
@@ -76,7 +74,7 @@ CASE state_cluster OF
 			//  HMI Start/Stop cycles for the selected reactor sets
 			StartStop_RS_Cycle();								
 			reactor_set[idx_rs]( i_seq_req 				:= rs_control[idx_rs].SeqState_Sts,
-								 i_cooling_pump_assigned := (idx_rs = cooling_pump_assigned_rs[1]) OR (idx_rs = cooling_pump_assigned_rs[2]),
+								 i_cooling_pump_assigned := RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_rs_assigned_array := utilities_control.CoolingPump_Assigned_RS),
 								 i_cooling_pump_sts 	:= utilities_control.CoolingPump_Sts,
 								 i_deadair_pump_sts 	:= utilities_control.DeadAirPump_Sts,
 								 i_steam_system_sts 	:= utilities_control.SteamSystem_Sts,
@@ -105,10 +103,7 @@ CASE state_cluster OF
 			utilities_control.i_cooling_pump_req.rs_number := idx_rs;		
 			
 			utilities_control.CoolingPump_Control();
-			utilities_control.DeadAirPump_Control();
-			
-			cooling_pump_assigned_rs := utilities_control.CoolingPump_Assigned_RS;	
-					
+			utilities_control.DeadAirPump_Control();					
 			
 		END_FOR
 		
@@ -159,6 +154,25 @@ END_FOR
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="RS_ServiceAssiged_Sts" Id="{3527ea94-ee6b-4f47-9093-c04642fcb5e8}">
+      <Declaration><![CDATA[METHOD RS_ServiceAssiged_Sts : BOOL
+VAR_INPUT
+	i_rs_number : UINT;
+	i_rs_assigned_array : ARRAY[1..rs_count] OF UINT; 
+END_VAR
+VAR
+	idx_rs : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR idx_rs := 1 TO rs_count DO 
+	IF i_rs_number = i_rs_assigned_array[idx_rs] THEN
+		RS_ServiceAssiged_Sts := TRUE;
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="RSs_Done_Sts" Id="{7304ccc2-7947-447d-8057-95279c90ae71}">
       <Declaration><![CDATA[METHOD RSs_Done_Sts : BOOL
 VAR
@@ -199,7 +213,8 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Cluster_Control">
-      <LineId Id="2255" Count="108" />
+      <LineId Id="2255" Count="77" />
+      <LineId Id="2336" Count="27" />
       <LineId Id="2143" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.Reset_Error">
@@ -211,6 +226,14 @@ END_IF]]></ST>
       <LineId Id="24" Count="0" />
       <LineId Id="17" Count="2" />
       <LineId Id="16" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Cluster_Control.RS_ServiceAssiged_Sts">
+      <LineId Id="5" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="14" Count="0" />
       <LineId Id="12" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.RSs_Done_Sts">
