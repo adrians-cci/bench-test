@@ -75,6 +75,10 @@
     <Compile Include="Function_Blocks\FB_SetOutput.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Function_Blocks\FB_Utilities_Control_Old.TcPOU">
+      <SubType>Code</SubType>
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </Compile>
     <Compile Include="Function_Blocks\FB_Utilities_Control.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -83,6 +87,9 @@
       <ExcludeFromBuild>true</ExcludeFromBuild>
     </Compile>
     <Compile Include="Function_Blocks\FB_Utilities_Service.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function_Blocks\FB_Util_Service_Control.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GVLs\CONSTANTS.TcGVL">

@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Util_Service_Control" Id="{3b72b3e2-241a-42aa-99d1-cb01b638c9fd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Util_Service_Control
+
+VAR_INPUT
+	i_service_req					: ST_Util_Service_Req;	
+	i_manual_service_req			: REAL;
+END_VAR
+
+VAR
+shared_rs_count  		: UINT;
+module_rs_conflict		: BOOL;
+
+service_req 	: REAL;
+service_sts 	: ST_Util_Service_Sts;
+	
+dispatcher : FB_Service_Dispatcher();
+
+set_output : FB_SetOutput ;
+
+// IOs to Utilities PLC
+in_service_sts 			AT %I* : BYTE;
+in_service_error_code  	AT %I* : DWORD;
+	
+out_service_req 		AT %Q* : BYTE;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF (i_service_req.request_cmd = TO_UINT(E_Util_Service_Req.Reset) OR i_manual_service_req = E_Util_Service_Req.Reset) AND service_sts.faulted THEN 
+	service_req := E_Util_Service_Req.Reset;	
+ELSE 
+// manage the rs assignment queue based on request form reactor set controller, max number of RSs shared by the service and the number of RSs whithin the same module  
+	dispatcher( i_service_req := i_service_req,i_shared_rs_count := shared_rs_count, i_rs_module_constrain := module_rs_conflict);
+	IF dispatcher.o_service_req THEN 
+		service_req := E_Util_Service_Req.On;
+	ELSE
+		service_req := E_Util_Service_Req.Off;
+	END_IF		
+END_IF
+
+set_output(io_in1 := service_req, io_in2 := i_manual_service_req); 	
+service_req := TO_INT(set_output.o_set_value);
+
+IOs_Mapping();
+
+
+
+
+
+
+
+]]></ST>
+    </Implementation>
+    <Property Name="assigned_rs_number" Id="{cb48a67d-34a0-4a02-88d3-de619358623f}">
+      <Declaration><![CDATA[PROPERTY assigned_rs_number : ARRAY[1..rs_count] OF UINT]]></Declaration>
+      <Get Name="Get" Id="{07de3acf-4a17-4f28-a132-a7aae0f06387}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[assigned_rs_number := dispatcher.o_assigned_rs_number;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Clear_RS_Queue" Id="{112522e3-7923-4db0-b7d7-8ed3813f38ba}">
+      <Declaration><![CDATA[METHOD Clear_RS_Queue : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[dispatcher.Clear_Queue();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{ba60e78f-aa3f-4b45-b717-2f01a04f3ce6}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	shared_rs_count  		: UINT;
+	module_rs_conflict	: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.shared_rs_count := shared_rs_count;
+THIS^.module_rs_conflict := module_rs_conflict;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IOs_Mapping" Id="{c0397f18-21b5-4c02-a16c-313d04897135}">
+      <Declaration><![CDATA[METHOD IOs_Mapping : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[out_service_req := TO_BYTE(service_req);
+
+
+service_sts.idle 				:= in_service_sts = E_Util_Service_Sts.PowerUp;
+service_sts.ready 			:= in_service_sts = E_Util_Service_Sts.Ready;
+service_sts.running 			:= in_service_sts = E_Util_Service_Sts.Running;
+service_sts.faulted 			:= in_service_sts = E_Util_Service_Sts.Faulted;
+service_sts.error_code		:= in_service_error_code;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="op_sts" Id="{ad400a38-0bc4-4902-8f74-f5c7d8d83b87}">
+      <Declaration><![CDATA[PROPERTY op_sts : ST_Util_Service_Sts]]></Declaration>
+      <Get Name="Get" Id="{f71bbaee-e9ab-43f9-ac15-f740278d12fe}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[op_sts := service_sts ;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="FB_Util_Service_Control">
+      <LineId Id="133" Count="22" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service_Control.assigned_rs_number.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service_Control.Clear_RS_Queue">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service_Control.FB_init">
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service_Control.IOs_Mapping">
+      <LineId Id="6" Count="6" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service_Control.op_sts.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

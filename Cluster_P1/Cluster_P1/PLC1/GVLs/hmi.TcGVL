@@ -13,8 +13,25 @@ VAR_GLOBAL
 	// Utilities HMI tags
 	util_auto_mode			: BOOL := TRUE;  // TRUE = auto mode, FALSE = manual mode 
 	{attribute 'OPC.UA.DA' := '1'}  
-	util_cooling_pump_cmd 	: REAL; // 0 = off, 1 = On , 2 = reset_fault
-	util_cooling_pump_sts 	: INT;
+	
+	util_cooling_pump_cmd 	: UINT; // 0 = off, 1 = On , 2 = reset_fault
+	{attribute 'OPC.UA.DA' := '1'} 
+	util_cooling_pump_sts 	: UINT;
+	{attribute 'OPC.UA.DA' := '1'}  
+	util_dead_air_pump_cmd 	: UINT; // 0 = off, 1 = On , 2 = reset_fault
+	{attribute 'OPC.UA.DA' := '1'} 
+	util_dead_air_pump_sts 	: UINT;
+	{attribute 'OPC.UA.DA' := '1'}  
+	util_steam_system_cmd 	: UINT; // 0 = off, 1 = On , 2 = reset_fault
+	{attribute 'OPC.UA.DA' := '1'} 
+	util_steam_system_sts 	: UINT;
+	{attribute 'OPC.UA.DA' := '1'}  
+	util_purge_assist_cmd 	: UINT; // 0 = off, 1 = On , 2 = reset_fault
+	{attribute 'OPC.UA.DA' := '1'} 
+	util_purge_assist_sts 	: UINT;
+	
+	
+	
 	
 END_VAR]]></Declaration>
   </GVL>

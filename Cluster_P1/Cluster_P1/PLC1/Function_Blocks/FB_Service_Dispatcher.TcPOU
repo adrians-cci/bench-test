@@ -28,7 +28,7 @@ END_VAR
       <ST><![CDATA[// Add to queue 
 
 FOR idx_queue := 1 TO rs_count DO
-	IF (i_service_req.request_cmd = E_Util_Service_Req.On)  THEN 
+	IF (i_service_req.request_cmd = TO_UINT(E_Util_Service_Req.On))  THEN 
 		IF  (service_req_queue[idx_queue].rs_number = i_service_req.rs_number)  THEN
 			service_assign := FALSE;
 			EXIT;
@@ -39,7 +39,7 @@ FOR idx_queue := 1 TO rs_count DO
 END_FOR
 
 FOR idx_queue := 1 TO rs_count DO
-	IF (i_service_req.request_cmd = E_Util_Service_Req.Off)  THEN 
+	IF (i_service_req.request_cmd = TO_UINT(E_Util_Service_Req.Off))  THEN 
 		IF  (service_req_queue[idx_queue].rs_number = i_service_req.rs_number)  THEN
 			service_release := TRUE;
 			EXIT;

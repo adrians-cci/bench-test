@@ -22,7 +22,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{D86426BD-5570-4D01-8842-A79647151612}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{CE82EE6C-CF12-650B-F4E7-94639CACF476}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{7938D778-9C0E-51CB-2AF6-7ED37360E911}">
 					<Name>PLC1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -420,7 +420,44 @@
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
+							<Name>MAIN.cluster_control.utilities_control.cooling_pump.in_service_sts</Name>
+							<Comment><![CDATA[ IOs to Utilities PLC]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.cooling_pump.in_service_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.dead_air_pump.in_service_sts</Name>
+							<Comment><![CDATA[ IOs to Utilities PLC]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.dead_air_pump.in_service_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.steam_sytem.in_service_sts</Name>
+							<Comment><![CDATA[ IOs to Utilities PLC]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.steam_sytem.in_service_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.purge_assist.in_service_sts</Name>
+							<Comment><![CDATA[ IOs to Utilities PLC]]></Comment>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.purge_assist.in_service_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.cluster_control.utilities_control.in_bop_warmup_sts</Name>
+							<Comment><![CDATA[ BOP IOs]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
@@ -437,38 +474,6 @@
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.utilities_control.in_bop_error_code</Name>
-							<Type>DWORD</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.cooling_pump.in_service_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.cooling_pump.in_service_error_code</Name>
-							<Type>DWORD</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.dead_air_pump.in_service_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.dead_air_pump.in_service_error_code</Name>
-							<Type>DWORD</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.steam_sytem.in_service_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.steam_sytem.in_service_error_code</Name>
-							<Type>DWORD</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.purge_assist.in_service_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.purge_assist.in_service_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 					</Vars>
@@ -803,15 +808,6 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.out_util_state_req</Name>
-							<Comment><![CDATA[ 0 = Idle, 1 = warmup, 2 = activavte, 3 = shutdown ]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.out_util_reset_fault</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>MAIN.cluster_control.utilities_control.cooling_pump.out_service_req</Name>
 							<Type>BYTE</Type>
 						</Var>
@@ -826,6 +822,15 @@
 						<Var>
 							<Name>MAIN.cluster_control.utilities_control.purge_assist.out_service_req</Name>
 							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.out_util_state_req</Name>
+							<Comment><![CDATA[ 0 = Idle, 1 = warmup, 2 = activavte, 3 = shutdown ]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.utilities_control.out_util_reset_fault</Name>
+							<Type>BOOL</Type>
 						</Var>
 					</Vars>
 					<Contexts>
@@ -845,7 +850,7 @@
 				</Instance>
 			</Project>
 			<Project GUID="{E32EFE79-EF70-496B-98E4-072D842717DA}" Name="PLC_Utilities" PrjFilePath="PLC_Utilities\PLC_Utilities.plcproj" TmcFilePath="PLC_Utilities\PLC_Utilities.tmc" ReloadTmc="true" AmsPort="852" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC_Utilities\PLC_Utilities.tmc" TmcHash="{FBD8D54F-39C0-1E7A-AC28-6CFD83809254}">
+				<Instance Id="#x08502040" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC_Utilities\PLC_Utilities.tmc" TmcHash="{03151111-8770-1B14-DDCD-517B5A7B5805}">
 					<Name>PLC_Utilities Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="2" AreaNo="1">

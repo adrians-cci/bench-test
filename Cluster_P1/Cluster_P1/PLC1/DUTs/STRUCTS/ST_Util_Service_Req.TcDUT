@@ -4,7 +4,7 @@
     <Declaration><![CDATA[TYPE ST_Util_Service_Req :
 STRUCT
 	rs_number 		: UINT;
-	request_cmd		: INT;  // (   0 = release/off , 1 = assign/on )
+	request_cmd		: UINT;  // (   0 = release/off , 1 = assign/on )
 END_STRUCT
 END_TYPE
 ]]></Declaration>

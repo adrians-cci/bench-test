@@ -7,7 +7,8 @@ VAR
 	reactor_set			: ARRAY[1..rs_count] OF FB_ReactorSet;
 	rs_error			: BOOL;
 	
-	utilities_control 	: FB_Utilities_Control;
+	utilities_control 		: FB_Utilities_Control;
+	util_cooling_pump_req 	: ST_Util_Service_Req;
 	
 	idx_rs 				: UINT;
 	
@@ -73,22 +74,25 @@ CASE state_cluster OF
 			
 			//  HMI Start/Stop cycles for the selected reactor sets
 			StartStop_RS_Cycle();								
-			reactor_set[idx_rs]( i_seq_req 				:= rs_control[idx_rs].SeqState_Sts,
-								 i_cooling_pump_assigned := RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_rs_assigned_array := utilities_control.CoolingPump_Assigned_RS),
-								 i_cooling_pump_sts 	:= utilities_control.CoolingPump_Sts,
-								 i_deadair_pump_sts 	:= utilities_control.DeadAirPump_Sts,
-								 i_steam_system_sts 	:= utilities_control.SteamSystem_Sts,
-								 i_purge_assist_sts 	:= utilities_control.PurgeAssist_Sts,
-								 i_reset_fault			:= error_reset_cmd,
-								 o_adsorption_seq_sts 	=> rs_control[idx_rs].i_adsorption_seq_sts,
-								 o_airpress_seq_sts		=> rs_control[idx_rs].i_airpress_seq_sts,
-								 o_evac_seq_sts 		=> rs_control[idx_rs].i_evac_seq_sts,
-								 o_desorption_seq_sts 	=> rs_control[idx_rs].i_desorption_seq_sts,
-								 o_cooling_seq_sts		=> rs_control[idx_rs].i_cooling_seq_sts,
-								 o_cooling_pump_req		=> utilities_control.i_cooling_pump_req.request_cmd,
-								 o_deadair_pump_req		=> utilities_control.i_deadair_pump_req.request_cmd,
-								 o_steam_system_req		=> utilities_control.i_steam_system_req.request_cmd,
-								 o_purge_assist_req		=> utilities_control.i_purge_assist_req.request_cmd
+			reactor_set[idx_rs]( i_seq_req 					:= rs_control[idx_rs].SeqState_Sts,
+								 i_cooling_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.cooling_pump.assigned_rs_number),
+								 i_cooling_pump_sts 		:= utilities_control.cooling_pump.op_sts,
+								 i_deadair_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.dead_air_pump.assigned_rs_number),
+								 i_deadair_pump_sts 		:= utilities_control.dead_air_pump.op_sts,
+								 i_steam_system_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.steam_sytem.assigned_rs_number),
+								 i_steam_system_sts 		:= utilities_control.steam_sytem.op_sts,
+								 i_purge_assist_assigned 	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.purge_assist.assigned_rs_number),
+								 i_purge_assist_sts 		:= utilities_control.purge_assist.op_sts,
+								 i_reset_fault				:= error_reset_cmd,
+								 o_adsorption_seq_sts 		=> rs_control[idx_rs].i_adsorption_seq_sts,
+								 o_airpress_seq_sts			=> rs_control[idx_rs].i_airpress_seq_sts,
+								 o_evac_seq_sts 			=> rs_control[idx_rs].i_evac_seq_sts,
+								 o_desorption_seq_sts 		=> rs_control[idx_rs].i_desorption_seq_sts,
+								 o_cooling_seq_sts			=> rs_control[idx_rs].i_cooling_seq_sts,
+								 o_cooling_pump_req			=> utilities_control.i_cooling_pump_req,
+								 o_deadair_pump_req			=> utilities_control.i_deadair_pump_req,
+								 o_steam_system_req			=> utilities_control.i_steam_system_req,
+								 o_purge_assist_req			=> utilities_control.i_purge_assist_req
 								);
 			
 			rs_control[idx_rs]( i_rs_number := idx_rs,
@@ -100,11 +104,8 @@ CASE state_cluster OF
 							  );
 						  
 			
-			utilities_control.i_cooling_pump_req.rs_number := idx_rs;		
-			
-			utilities_control.CoolingPump_Control();
-			utilities_control.DeadAirPump_Control();					
-			
+			utilities_control(i_rs_number_service_req := idx_rs);		
+	
 		END_FOR
 		
 		
@@ -128,12 +129,30 @@ CASE state_cluster OF
 		END_IF		
 END_CASE
 
-utilities_control.CoolingPump_Control();
-utilities_control.State_Machine();
-utilities_control.GetSet_BOP_IOs();
+
+utilities_control ();
 
 Reset_Error();]]></ST>
     </Implementation>
+    <Method Name="Get_RS_ServiceAssiged_Sts" Id="{3527ea94-ee6b-4f47-9093-c04642fcb5e8}">
+      <Declaration><![CDATA[METHOD Get_RS_ServiceAssiged_Sts : BOOL
+VAR_INPUT
+	i_rs_number : UINT;
+	i_assigned_rs_list : ARRAY[1..rs_count] OF UINT; 
+END_VAR
+VAR
+	idx_rs : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR idx_rs := 1 TO rs_count DO 
+	IF i_rs_number = i_assigned_rs_list[idx_rs] THEN
+		Get_RS_ServiceAssiged_Sts := TRUE;
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="Reset_Error" Id="{d4611145-198d-480f-b17a-d8311abf2820}">
       <Declaration><![CDATA[METHOD Reset_Error : BOOL
 VAR_INPUT
@@ -152,25 +171,6 @@ FOR idx_rs := 1 TO rs_count DO
 	reactor_set[idx_rs].Reset_Fault := error_reset_cmd ;
 END_FOR
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="RS_ServiceAssiged_Sts" Id="{3527ea94-ee6b-4f47-9093-c04642fcb5e8}">
-      <Declaration><![CDATA[METHOD RS_ServiceAssiged_Sts : BOOL
-VAR_INPUT
-	i_rs_number : UINT;
-	i_rs_assigned_array : ARRAY[1..rs_count] OF UINT; 
-END_VAR
-VAR
-	idx_rs : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[FOR idx_rs := 1 TO rs_count DO 
-	IF i_rs_number = i_rs_assigned_array[idx_rs] THEN
-		RS_ServiceAssiged_Sts := TRUE;
-		EXIT;
-	END_IF
-END_FOR]]></ST>
       </Implementation>
     </Method>
     <Method Name="RSs_Done_Sts" Id="{7304ccc2-7947-447d-8057-95279c90ae71}">
@@ -213,9 +213,16 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Cluster_Control">
-      <LineId Id="2255" Count="77" />
-      <LineId Id="2336" Count="27" />
+      <LineId Id="3028" Count="104" />
       <LineId Id="2143" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Cluster_Control.Get_RS_ServiceAssiged_Sts">
+      <LineId Id="5" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="12" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.Reset_Error">
       <LineId Id="5" Count="0" />
@@ -226,14 +233,6 @@ END_IF]]></ST>
       <LineId Id="24" Count="0" />
       <LineId Id="17" Count="2" />
       <LineId Id="16" Count="0" />
-      <LineId Id="12" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Cluster_Control.RS_ServiceAssiged_Sts">
-      <LineId Id="5" Count="0" />
-      <LineId Id="11" Count="0" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="15" Count="0" />
-      <LineId Id="14" Count="0" />
       <LineId Id="12" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.RSs_Done_Sts">
