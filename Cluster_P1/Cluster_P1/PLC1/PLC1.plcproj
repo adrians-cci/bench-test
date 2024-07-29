@@ -24,7 +24,7 @@
     <Compile Include="DUTs\ENUM\E_Util_State_Cmd.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ENUM\E_RS_SeqState.TcDUT">
+    <Compile Include="DUTs\ENUM\E_TVSA_Cycles.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\ENUM\E_Cluster_State_Cmd.TcDUT">

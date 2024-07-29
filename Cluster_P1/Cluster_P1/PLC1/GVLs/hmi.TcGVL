@@ -9,6 +9,8 @@ VAR_GLOBAL
 	cluster_rs_stop_cycle_cmd	: INT; 							// 1 = stop cycle, 2 = shutdown safe, 3 = shutdown evac, 4 = estop 
 	cluster_rs_start_cycle_cmd	: BOOL;							// 1 = start cycle 
 	cluster_reset_fault			: BOOL;							// reset cluster fault fault 
+	cluster_rs_cycles			: ARRAY [1..rs_count] OF UINT;  // cycle to run : 12345,1,2,3,4,5
+	clsuter_rs_cycles_number	: ARRAY [1..rs_count] OF UINT;  // number of cycles to run 
 
 	// Utilities HMI tags
 	util_auto_mode			: BOOL := TRUE;  // TRUE = auto mode, FALSE = manual mode 

@@ -8,12 +8,15 @@ VAR_INPUT
 	i_manual_service_req			: REAL;
 END_VAR
 
+VAR_OUTPUT
+	o_service_sts 	: ST_Util_Service_Sts;
+END_VAR
+
 VAR
 shared_rs_count  		: UINT;
 module_rs_conflict		: BOOL;
 
 service_req 	: REAL;
-service_sts 	: ST_Util_Service_Sts;
 	
 dispatcher : FB_Service_Dispatcher();
 
@@ -27,11 +30,11 @@ out_service_req 		AT %Q* : BYTE;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF (i_service_req.request_cmd = TO_UINT(E_Util_Service_Req.Reset) OR i_manual_service_req = E_Util_Service_Req.Reset) AND service_sts.faulted THEN 
+      <ST><![CDATA[IF (i_service_req.request_cmd = TO_UINT(E_Util_Service_Req.Reset) OR i_manual_service_req = E_Util_Service_Req.Reset) AND o_service_sts.faulted THEN 
 	service_req := E_Util_Service_Req.Reset;	
 ELSE 
 // manage the rs assignment queue based on request form reactor set controller, max number of RSs shared by the service and the number of RSs whithin the same module  
-	dispatcher( i_service_req := i_service_req,i_shared_rs_count := shared_rs_count, i_rs_module_constrain := module_rs_conflict);
+	dispatcher( i_service_req := i_service_req,i_shared_rs := shared_rs_count, i_rs_module_constrain := module_rs_conflict);
 	IF dispatcher.o_service_req THEN 
 		service_req := E_Util_Service_Req.On;
 	ELSE
@@ -93,26 +96,16 @@ END_VAR
         <ST><![CDATA[out_service_req := TO_BYTE(service_req);
 
 
-service_sts.idle 				:= in_service_sts = E_Util_Service_Sts.PowerUp;
-service_sts.ready 			:= in_service_sts = E_Util_Service_Sts.Ready;
-service_sts.running 			:= in_service_sts = E_Util_Service_Sts.Running;
-service_sts.faulted 			:= in_service_sts = E_Util_Service_Sts.Faulted;
-service_sts.error_code		:= in_service_error_code;]]></ST>
+o_service_sts.idle 			:= in_service_sts = E_Util_Service_Sts.PowerUp;
+o_service_sts.ready 			:= in_service_sts = E_Util_Service_Sts.Ready;
+o_service_sts.running 		:= in_service_sts = E_Util_Service_Sts.Running;
+o_service_sts.faulted 		:= in_service_sts = E_Util_Service_Sts.Faulted;
+o_service_sts.error_code		:= in_service_error_code;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="op_sts" Id="{ad400a38-0bc4-4902-8f74-f5c7d8d83b87}">
-      <Declaration><![CDATA[PROPERTY op_sts : ST_Util_Service_Sts]]></Declaration>
-      <Get Name="Get" Id="{f71bbaee-e9ab-43f9-ac15-f740278d12fe}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[op_sts := service_sts ;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <LineIds Name="FB_Util_Service_Control">
-      <LineId Id="133" Count="22" />
+      <LineId Id="215" Count="13" />
+      <LineId Id="232" Count="8" />
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="FB_Util_Service_Control.assigned_rs_number.Get">
@@ -128,9 +121,6 @@ END_VAR
     <LineIds Name="FB_Util_Service_Control.IOs_Mapping">
       <LineId Id="6" Count="6" />
       <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Util_Service_Control.op_sts.Get">
-      <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

@@ -3,7 +3,7 @@
   <POU Name="FB_ReactorSet" Id="{8e27e1de-b4c9-47f4-af94-ac0054b8b104}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ReactorSet
 VAR_INPUT
-	i_seq_req 				: E_RS_SeqState;
+	i_cycle_req 			: E_RS_Cycles;
 	i_cooling_pump_sts 		: ST_Util_Service_Sts;
 	i_deadair_pump_sts 		: ST_Util_Service_Sts;
 	i_steam_system_sts 		: ST_Util_Service_Sts;
@@ -71,7 +71,7 @@ END_VAR
     <Implementation>
       <ST><![CDATA[// Sequence Select + Run request to RS controller
 
-out_seq_req := TO_BYTE(i_seq_req);
+out_seq_req := TO_BYTE(i_cycle_req);
 
 // Service Request Assigned Sts to RS Controller
 

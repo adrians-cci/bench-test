@@ -32,16 +32,17 @@ VAR
 	cooling_pump	: FB_Util_Service_Control(shared_rs_count := rs_count, module_rs_conflict := FALSE);
 	dead_air_pump	: FB_Util_Service_Control(shared_rs_count := 1, module_rs_conflict := FALSE);
 	steam_sytem 	: FB_Util_Service_Control(shared_rs_count := 2, module_rs_conflict := TRUE);
-	purge_assist 	: FB_Util_Service_Control(shared_rs_count := rs_count, module_rs_conflict := FALSE);;
+	purge_assist 	: FB_Util_Service_Control(shared_rs_count := rs_count, module_rs_conflict := FALSE);
 		
 	comms_fault		: BOOL;
+	service_fault	: BOOL;
 	
 	// BOP IOs
 	
 	in_bop_warmup_sts 		AT %I* : BYTE;
 	in_bop_activate_sts		AT %I* : BYTE;
 	in_bop_shutdown_sts		AT %I* : BYTE;
-	in_bop_error_sts		AT %I* : BOOL;
+	in_bop_error			AT %I* : BOOL;
 	in_bop_error_code		AT %I* : DWORD;
 	
 
@@ -51,17 +52,22 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
-IF i_state_req = E_Util_State_Cmd.Shutdown THEN
+      <ST><![CDATA[IF i_state_req = E_Util_State_Cmd.Shutdown THEN
 	util_state := Shutdown;
 END_IF
+
+IF in_bop_error OR service_fault THEN
+	util_state := Error;
+END_IF
+
+
 
 CASE util_state OF 
 	
 	Idle : 
-		IF i_state_req = E_Util_State_Cmd.Warmup  AND NOT in_bop_error_sts THEN 
+		IF i_state_req = E_Util_State_Cmd.Warmup  AND NOT in_bop_error THEN 
 			util_state := Warmup;
-		ELSIF 	in_bop_error_sts THEN 
+		ELSIF 	in_bop_error THEN 
 			util_state := Error;
 		END_IF
 	Warmup: 
@@ -89,13 +95,13 @@ CASE util_state OF
 			util_state := Error;
 		END_IF
 	Error: 
+		cooling_pump.Clear_RS_Queue();
+		dead_air_pump.Clear_RS_Queue();
+		steam_sytem.Clear_RS_Queue();
+		purge_assist.Clear_RS_Queue();	
 		IF i_fault_reset THEN 
 			out_util_reset_fault := TRUE;
-			cooling_pump.Clear_RS_Queue();
-			dead_air_pump.Clear_RS_Queue();
-			steam_sytem.Clear_RS_Queue();
-			purge_assist.Clear_RS_Queue();	
-			IF NOT in_bop_error_sts THEN
+			IF NOT in_bop_error THEN
 				util_state := Idle;
 			END_IF
 		END_IF
@@ -121,6 +127,9 @@ purge_assist_req.rs_number := i_rs_number_service_req;
 purge_assist( i_service_req := purge_assist_req, i_manual_service_req := hmi.util_purge_assist_cmd); 
 
 
+service_fault := cooling_pump.o_service_sts.faulted OR dead_air_pump.o_service_sts.faulted OR steam_sytem.o_service_sts.faulted OR purge_assist.o_service_sts.faulted ;
+
+
 GetSet_BOP_IOs();]]></ST>
     </Implementation>
     <Method Name="GetSet_BOP_IOs" Id="{00be6315-8e6e-4aab-a723-480e44106748}">
@@ -136,33 +145,21 @@ F_Get_Seq_Status( i_seq_sts := in_bop_warmup_sts, o_seq_sts => o_bop_warmup_sts)
 F_Get_Seq_Status( i_seq_sts := in_bop_activate_sts, o_seq_sts => o_bop_activate_sts);
 F_Get_Seq_Status( i_seq_sts := in_bop_shutdown_sts, o_seq_sts => o_bop_shutdown_sts);
 
-o_bop_error := in_bop_error_sts;
+o_bop_error := in_bop_error;
 ]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Utilities_Control">
-      <LineId Id="489" Count="0" />
-      <LineId Id="592" Count="38" />
-      <LineId Id="686" Count="0" />
-      <LineId Id="688" Count="2" />
-      <LineId Id="631" Count="4" />
-      <LineId Id="406" Count="0" />
-      <LineId Id="667" Count="0" />
-      <LineId Id="685" Count="0" />
-      <LineId Id="668" Count="0" />
-      <LineId Id="666" Count="0" />
-      <LineId Id="671" Count="0" />
-      <LineId Id="659" Count="0" />
-      <LineId Id="675" Count="0" />
-      <LineId Id="677" Count="1" />
-      <LineId Id="676" Count="0" />
-      <LineId Id="680" Count="2" />
-      <LineId Id="679" Count="0" />
-      <LineId Id="674" Count="0" />
-      <LineId Id="683" Count="1" />
-      <LineId Id="673" Count="0" />
-      <LineId Id="672" Count="0" />
-      <LineId Id="410" Count="0" />
+      <LineId Id="793" Count="2" />
+      <LineId Id="865" Count="0" />
+      <LineId Id="864" Count="0" />
+      <LineId Id="868" Count="0" />
+      <LineId Id="867" Count="0" />
+      <LineId Id="796" Count="65" />
+      <LineId Id="871" Count="1" />
+      <LineId Id="862" Count="0" />
+      <LineId Id="873" Count="0" />
+      <LineId Id="863" Count="0" />
       <LineId Id="142" Count="0" />
     </LineIds>
     <LineIds Name="FB_Utilities_Control.GetSet_BOP_IOs">

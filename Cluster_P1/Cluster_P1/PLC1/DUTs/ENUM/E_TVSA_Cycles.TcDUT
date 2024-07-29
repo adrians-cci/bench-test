@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
-  <DUT Name="E_RS_SeqState" Id="{385ae84b-766b-4002-b912-752d54a20d2d}">
+  <DUT Name="E_RS_Cycles" Id="{385ae84b-766b-4002-b912-752d54a20d2d}">
     <Declaration><![CDATA[//{attribute 'qualified_only'}
 //{attribute 'strict'}
 {attribute 'to_string'}
 
-TYPE E_RS_SeqState :
+TYPE E_RS_Cycles :
 (
 	Idle := 0,
 	DeadAirEvac,

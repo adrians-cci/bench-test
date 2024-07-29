@@ -13,14 +13,14 @@ VAR
 	idx_rs 				: UINT;
 	
 	{attribute 'to_string'}
-	state_cluster		: (Idle := 0, Warmup := 1, Ready := 2, Cycling := 3, Shutdown := 4, Error); 
+	seq_state		: (Idle := 0, Warmup := 1, Ready := 2, Cycling := 3, Shutdown := 4, Error); 
 	
 	rs_stop_cycle_cmd		: ARRAY[1..rs_count] OF  INT;  // 
 	rs_start_cycle_cmd 		: ARRAY[1..rs_count] OF BOOL;
 	
 	shutdown_util_cmd	: BOOL;
 	
-	sts_cycle : ST_SeqSts;
+	seq_sts : ST_SeqSts;
 	
 	error_reset_cmd			: BOOL;
 	trigger_error_reset		: R_TRIG;
@@ -28,33 +28,33 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Shutdown THEN 
-	IF  state_cluster =  Cycling AND RSs_Done_Sts() THEN 
-		state_cluster := Shutdown;
-	ELSIF state_cluster <>  Cycling THEN 
-		state_cluster := Shutdown;
+	IF  seq_state =  Cycling AND RSs_CycleDone() THEN 
+		seq_state := Shutdown;
+	ELSIF seq_state <>  Cycling THEN 
+		seq_state := Shutdown;
 	END_IF
 END_IF
 
-CASE state_cluster OF 
+CASE seq_state OF 
 	
 	Idle : 
 		utilities_control.i_state_req := E_Cluster_State_Cmd.Idle;
-		sts_cycle.error := FALSE;
-		sts_cycle.started := FALSE;
+		seq_sts.error := FALSE;
+		seq_sts.started := FALSE;
 		IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Warmup THEN 
-			sts_cycle.completed := FALSE;
-			sts_cycle.started := TRUE;
-			state_cluster := Warmup;
+			seq_sts.completed := FALSE;
+			seq_sts.started := TRUE;
+			seq_state := Warmup;
 		END_IF
 		
 	Warmup:	
 		utilities_control.i_state_req := E_Util_State_Cmd.Warmup;
 		IF NOT utilities_control.o_bop_warmup_sts.error  THEN 
 			IF utilities_control.o_bop_warmup_sts.completed THEN 
-				state_cluster := Ready;
+				seq_state := Ready;
 			END_IF
 		ELSE
-			state_cluster := Error;
+			seq_state := Error;
 		END_IF		
 		
 	Ready :
@@ -62,75 +62,37 @@ CASE state_cluster OF
 		
 		IF  NOT utilities_control.o_bop_error AND NOT rs_error THEN
 			IF  utilities_control.o_bop_activate_sts.completed AND hmi.cluster_state_cmd = E_Cluster_State_Cmd.Cycling THEN 
-				state_cluster := Cycling;
+				seq_state := Cycling;
 			END_IF
 		ELSE
-			state_cluster := Error;
+			seq_state := Error;
 		END_IF
 		
 	Cycling :
 	
-		FOR idx_rs := 1 TO rs_count DO 
-			
-			//  HMI Start/Stop cycles for the selected reactor sets
-			StartStop_RS_Cycle();								
-			reactor_set[idx_rs]( i_seq_req 					:= rs_control[idx_rs].SeqState_Sts,
-								 i_cooling_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.cooling_pump.assigned_rs_number),
-								 i_cooling_pump_sts 		:= utilities_control.cooling_pump.op_sts,
-								 i_deadair_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.dead_air_pump.assigned_rs_number),
-								 i_deadair_pump_sts 		:= utilities_control.dead_air_pump.op_sts,
-								 i_steam_system_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.steam_sytem.assigned_rs_number),
-								 i_steam_system_sts 		:= utilities_control.steam_sytem.op_sts,
-								 i_purge_assist_assigned 	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.purge_assist.assigned_rs_number),
-								 i_purge_assist_sts 		:= utilities_control.purge_assist.op_sts,
-								 i_reset_fault				:= error_reset_cmd,
-								 o_adsorption_seq_sts 		=> rs_control[idx_rs].i_adsorption_seq_sts,
-								 o_airpress_seq_sts			=> rs_control[idx_rs].i_airpress_seq_sts,
-								 o_evac_seq_sts 			=> rs_control[idx_rs].i_evac_seq_sts,
-								 o_desorption_seq_sts 		=> rs_control[idx_rs].i_desorption_seq_sts,
-								 o_cooling_seq_sts			=> rs_control[idx_rs].i_cooling_seq_sts,
-								 o_cooling_pump_req			=> utilities_control.i_cooling_pump_req,
-								 o_deadair_pump_req			=> utilities_control.i_deadair_pump_req,
-								 o_steam_system_req			=> utilities_control.i_steam_system_req,
-								 o_purge_assist_req			=> utilities_control.i_purge_assist_req
-								);
-			
-			rs_control[idx_rs]( i_rs_number := idx_rs,
-								i_start_cycle := rs_start_cycle_cmd[idx_rs] AND NOT reactor_set[idx_rs].o_error_active,
-								i_rs_error_active := reactor_set[idx_rs].o_error_active,
-								i_reset_fault := error_reset_cmd,
-								//i_stop_cmd := i_rs_stop[idx_rs],
-								io_stop_cmd := rs_stop_cycle_cmd[idx_rs]
-							  );
-						  
-			
-			utilities_control(i_rs_number_service_req := idx_rs);		
-	
-		END_FOR
-		
+			seq_state := Cycling;
 		
 	Shutdown : 
 		
 		utilities_control.i_state_req := E_Util_State_Cmd.Shutdown;
 		IF NOT utilities_control.o_bop_shutdown_sts.error THEN 
 			IF utilities_control.o_bop_shutdown_sts.completed THEN 
-				sts_cycle.completed := TRUE;
-				state_cluster := Idle;
+				seq_sts.completed := TRUE;
+				seq_state := Idle;
 			END_IF
 		ELSE
-			state_cluster := Error;	
+			seq_state := Error;	
 		END_IF
 	
 	Error : 
-		sts_cycle.completed := TRUE;
-		sts_cycle.error := TRUE;
+		seq_sts.completed := TRUE;
+		seq_sts.error := TRUE;
 		IF error_reset_cmd THEN 
-			state_cluster := Idle;
+			seq_state := Idle;
 		END_IF		
 END_CASE
 
-
-utilities_control ();
+RS_Utilities_Control();
 
 Reset_Error();]]></ST>
     </Implementation>
@@ -173,8 +135,48 @@ END_FOR
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="RSs_Done_Sts" Id="{7304ccc2-7947-447d-8057-95279c90ae71}">
-      <Declaration><![CDATA[METHOD RSs_Done_Sts : BOOL
+    <Action Name="RS_Utilities_Control" Id="{d0d19daf-04f7-4aba-8241-5978479178c1}">
+      <Implementation>
+        <ST><![CDATA[FOR idx_rs := 1 TO rs_count DO 
+			
+			StartStop_RS_Cycle();
+			
+			reactor_set[idx_rs]( i_cycle_req 				:= rs_control[idx_rs].Active_Cycle,
+								 i_cooling_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.cooling_pump.assigned_rs_number),
+								 i_cooling_pump_sts 		:= utilities_control.cooling_pump.o_service_sts,
+								 i_deadair_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.dead_air_pump.assigned_rs_number),
+								 i_deadair_pump_sts 		:= utilities_control.dead_air_pump.o_service_sts,
+								 i_steam_system_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.steam_sytem.assigned_rs_number),
+								 i_steam_system_sts 		:= utilities_control.steam_sytem.o_service_sts,
+								 i_purge_assist_assigned 	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.purge_assist.assigned_rs_number),
+								 i_purge_assist_sts 		:= utilities_control.purge_assist.o_service_sts,
+								 i_reset_fault				:= error_reset_cmd,
+								 o_adsorption_seq_sts 		=> rs_control[idx_rs].i_adsorption_seq_sts,
+								 o_airpress_seq_sts			=> rs_control[idx_rs].i_airpress_seq_sts,
+								 o_evac_seq_sts 			=> rs_control[idx_rs].i_evac_seq_sts,
+								 o_desorption_seq_sts 		=> rs_control[idx_rs].i_desorption_seq_sts,
+								 o_cooling_seq_sts			=> rs_control[idx_rs].i_cooling_seq_sts,
+								 o_cooling_pump_req			=> utilities_control.i_cooling_pump_req,
+								 o_deadair_pump_req			=> utilities_control.i_deadair_pump_req,
+								 o_steam_system_req			=> utilities_control.i_steam_system_req,
+								 o_purge_assist_req			=> utilities_control.i_purge_assist_req );
+			
+			rs_control[idx_rs]( i_rs_number				:= idx_rs,
+								i_cycle_selection 		:= hmi.cluster_rs_cycles[idx_rs],
+								i_cycles_number_to_run 	:= hmi.clsuter_rs_cycles_number[idx_rs],
+								i_start_cycle 			:= rs_start_cycle_cmd[idx_rs] AND NOT reactor_set[idx_rs].o_error_active,
+								i_rs_error_active 		:= reactor_set[idx_rs].o_error_active,
+								i_reset_fault 			:= error_reset_cmd,
+								io_stop_cycle 			:= rs_stop_cycle_cmd[idx_rs]);
+						  
+			
+			utilities_control(i_rs_number_service_req := idx_rs);		
+END_FOR
+		]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="RSs_CycleDone" Id="{7304ccc2-7947-447d-8057-95279c90ae71}">
+      <Declaration><![CDATA[METHOD RSs_CycleDone : BOOL
 VAR
 	rs_done : BOOL;
 END_VAR
@@ -184,7 +186,7 @@ END_VAR
 FOR idx_rs := 2 TO rs_count DO 
 	rs_done := rs_done AND rs_control[idx_rs].o_Done;
 END_FOR
-RSs_Done_Sts := rs_done;]]></ST>
+RSs_CycleDone := rs_done;]]></ST>
       </Implementation>
     </Method>
     <Method Name="StartStop_RS_Cycle" Id="{134fc351-a9d1-41fb-9147-529f7c79c136}">
@@ -193,27 +195,30 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF hmi.cluster_rs_select_cmd[idx_rs] THEN 
-	IF hmi.cluster_rs_start_cycle_cmd THEN 
+        <ST><![CDATA[IF hmi.cluster_rs_start_cycle_cmd THEN 
+	IF hmi.cluster_rs_cycles[idx_rs] > 0 THEN  
 		rs_start_cycle_cmd[idx_rs] := TRUE;
-		hmi.cluster_rs_select_cmd[idx_rs] := FALSE;
 		hmi.cluster_rs_stop_cycle_cmd := 0;
+	ELSE
+		rs_start_cycle_cmd[idx_rs] := FALSE;
 	END_IF
-	IF hmi.cluster_rs_stop_cycle_cmd > 0  THEN
+ELSIF hmi.cluster_rs_stop_cycle_cmd > 0  THEN
+	IF hmi.cluster_rs_select_cmd[idx_rs] THEN 
 		rs_stop_cycle_cmd[idx_rs] := hmi.cluster_rs_stop_cycle_cmd;
 		hmi.cluster_rs_select_cmd[idx_rs] := FALSE;
 		hmi.cluster_rs_start_cycle_cmd := FALSE;
 	END_IF
-ELSE
-	rs_start_cycle_cmd[idx_rs] := FALSE;
-	rs_stop_cycle_cmd[idx_rs] := 0;
-	hmi.cluster_rs_stop_cycle_cmd := 0;
-	hmi.cluster_rs_start_cycle_cmd := FALSE;
-END_IF]]></ST>
+END_IF
+
+
+
+
+]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Cluster_Control">
-      <LineId Id="3028" Count="104" />
+      <LineId Id="3713" Count="42" />
+      <LineId Id="3760" Count="23" />
       <LineId Id="2143" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.Get_RS_ServiceAssiged_Sts">
@@ -235,13 +240,32 @@ END_IF]]></ST>
       <LineId Id="16" Count="0" />
       <LineId Id="12" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Cluster_Control.RSs_Done_Sts">
+    <LineIds Name="FB_Cluster_Control.RS_Utilities_Control">
+      <LineId Id="146" Count="22" />
+      <LineId Id="170" Count="6" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="180" Count="3" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Cluster_Control.RSs_CycleDone">
       <LineId Id="6" Count="3" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.StartStop_RS_Cycle">
-      <LineId Id="6" Count="15" />
-      <LineId Id="5" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="45" Count="2" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="39" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>
