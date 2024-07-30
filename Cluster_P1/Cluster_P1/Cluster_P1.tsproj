@@ -22,7 +22,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{D86426BD-5570-4D01-8842-A79647151612}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{7A335EF3-06DD-1686-F802-C2D0340FAC6B}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{90AADB33-A73F-58FC-F3A0-AC1070E35CFB}">
 					<Name>PLC1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -31,6 +31,10 @@
 							<Name>MAIN.cluster_control.reactor_set[1].in_adsorption_seq_sts</Name>
 							<Comment><![CDATA[ from RS Controller ]]></Comment>
 							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[1].in_adsorptio_error_code</Name>
+							<Type>DWORD</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[1].in_evac_seq_sts</Name>
@@ -82,6 +86,10 @@
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
+							<Name>MAIN.cluster_control.reactor_set[2].in_adsorptio_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.cluster_control.reactor_set[2].in_evac_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
@@ -129,6 +137,10 @@
 							<Name>MAIN.cluster_control.reactor_set[3].in_adsorption_seq_sts</Name>
 							<Comment><![CDATA[ from RS Controller ]]></Comment>
 							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[3].in_adsorptio_error_code</Name>
+							<Type>DWORD</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[3].in_evac_seq_sts</Name>
@@ -180,6 +192,10 @@
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
+							<Name>MAIN.cluster_control.reactor_set[4].in_adsorptio_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.cluster_control.reactor_set[4].in_evac_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
@@ -227,6 +243,10 @@
 							<Name>MAIN.cluster_control.reactor_set[5].in_adsorption_seq_sts</Name>
 							<Comment><![CDATA[ from RS Controller ]]></Comment>
 							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[5].in_adsorptio_error_code</Name>
+							<Type>DWORD</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[5].in_evac_seq_sts</Name>
@@ -278,6 +298,10 @@
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
+							<Name>MAIN.cluster_control.reactor_set[6].in_adsorptio_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.cluster_control.reactor_set[6].in_evac_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
@@ -327,6 +351,10 @@
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
+							<Name>MAIN.cluster_control.reactor_set[7].in_adsorptio_error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.cluster_control.reactor_set[7].in_evac_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
@@ -374,6 +402,10 @@
 							<Name>MAIN.cluster_control.reactor_set[8].in_adsorption_seq_sts</Name>
 							<Comment><![CDATA[ from RS Controller ]]></Comment>
 							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.cluster_control.reactor_set[8].in_adsorptio_error_code</Name>
+							<Type>DWORD</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.cluster_control.reactor_set[8].in_evac_seq_sts</Name>

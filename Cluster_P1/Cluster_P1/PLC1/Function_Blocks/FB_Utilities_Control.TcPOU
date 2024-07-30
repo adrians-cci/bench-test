@@ -15,9 +15,9 @@ END_VAR
 
 VAR_OUTPUT
 	o_bop_error				: BOOL;
-	o_bop_warmup_sts		: ST_SeqSts;
-	o_bop_activate_sts		: ST_SeqSts;
-	o_bop_shutdown_sts		: ST_SeqSts;
+	o_bop_warmup_sts		: ST_Sequence_Sts;
+	o_bop_activate_sts		: ST_Sequence_Sts;
+	o_bop_shutdown_sts		: ST_Sequence_Sts;
 END_VAR
 
 VAR

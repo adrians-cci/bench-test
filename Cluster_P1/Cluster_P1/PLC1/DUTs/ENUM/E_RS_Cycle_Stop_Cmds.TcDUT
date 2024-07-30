@@ -7,7 +7,7 @@
 
 TYPE E_RS_Cycle_Stop_Cmds :
 (
-	Reset :=0,
+	Clear :=0,
 	Stop_Cycle,
 	Shutdown_Safe,
 	Shutdown_Evac,

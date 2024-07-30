@@ -12,27 +12,35 @@ VAR_INPUT
 	i_deadair_pump_assigned	: BOOL;
 	i_steam_system_assigned	: BOOL;
 	i_purge_assist_assigned	: BOOL;
-	i_reset_fault			: BOOL;
 	
 END_VAR
 VAR_OUTPUT
-	o_adsorption_seq_sts 	: ST_SeqSts;
-	o_evac_seq_sts 			: ST_SeqSts;
-	o_desorption_seq_sts 	: ST_SeqSts;
-	o_cooling_seq_sts 		: ST_SeqSts;
-	o_airpress_seq_sts 		: ST_SeqSts;
+	o_adsorption_seq_sts 	: ST_Sequence_Sts;
+	o_evac_seq_sts 			: ST_Sequence_Sts;
+	o_desorption_seq_sts 	: ST_Sequence_Sts;
+	o_cooling_seq_sts 		: ST_Sequence_Sts;
+	o_airpress_seq_sts 		: ST_Sequence_Sts;
 	
 	o_cooling_pump_req		: BYTE;  
 	o_deadair_pump_req		: BYTE;
 	o_steam_system_req		: BYTE;
 	o_purge_assist_req		: BYTE;
 	
-	o_error_active			: BOOL;
+	o_error_active				: BOOL;
+	o_error_code				: DWORD;
+	o_error_code_evac			: DWORD;
+	o_error_code_desorption		: DWORD;
+	o_error_code_cooling		: DWORD;
+	o_error_code_repress		: DWORD;
+	o_error_code_adsorption		: DWORD;
+	
+	
 END_VAR
 VAR
 	
 	// from RS Controller 
 	in_adsorption_seq_sts  	AT %I*	: BYTE;
+	in_adsorptio_error_code AT %I*	: DWORD;
 	in_evac_seq_sts 		AT %I*	: BYTE;
 	in_desorption_seq_sts 	AT %I*	: BYTE;
 	in_cooling_seq_sts 		AT %I*	: BYTE;
@@ -62,6 +70,8 @@ VAR
 	out_purge_assist_assigned		AT %Q*: BOOL;
 	
 	out_error_reset				AT %Q* : BOOL;
+	
+				
 	
 	
 	
@@ -107,8 +117,6 @@ o_purge_assist_req		:= in_purge_assist_req;
 // Error mapping from RS Controller
 o_error_active := in_error_sts;
 
-// Error reset command to RS Controller
-out_error_reset := i_reset_fault;
 ]]></ST>
     </Implementation>
     <Property Name="Reset_Fault" Id="{5dc63ca5-d894-4224-9a66-7976dd1ee88e}">
@@ -153,8 +161,6 @@ END_IF]]></ST>
       <LineId Id="1622" Count="0" />
       <LineId Id="1542" Count="17" />
       <LineId Id="1697" Count="0" />
-      <LineId Id="1696" Count="0" />
-      <LineId Id="1698" Count="0" />
       <LineId Id="32" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet.Reset_Fault.Set">

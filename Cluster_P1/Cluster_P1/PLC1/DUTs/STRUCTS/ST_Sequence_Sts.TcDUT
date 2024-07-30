@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
-  <DUT Name="ST_SeqSts" Id="{3cccb815-bf5c-4022-b7df-33ab18217ab0}">
-    <Declaration><![CDATA[TYPE ST_SeqSts :
+  <DUT Name="ST_Sequence_Sts" Id="{3cccb815-bf5c-4022-b7df-33ab18217ab0}">
+    <Declaration><![CDATA[TYPE ST_Sequence_Sts :
 STRUCT
 	not_started : BIT;
 	started		: BIT;

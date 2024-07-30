@@ -3,17 +3,20 @@
   <GVL Name="hmi" Id="{fb6420d3-9b8f-4ffe-9f53-5cc89f5363d0}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL
-	// Cluster HMI tags
-	cluster_state_cmd			: BYTE; 						// 0 = Idle, 1 = warmup, 2 = cycle, 3 = shutdown, 4 = reset_fault
-	cluster_rs_select_cmd		: ARRAY [1..rs_count] OF BOOL;  // rs to be started /stopped
-	cluster_rs_stop_cycle_cmd	: INT; 							// 1 = stop cycle, 2 = shutdown safe, 3 = shutdown evac, 4 = estop 
-	cluster_rs_start_cycle_cmd	: BOOL;							// 1 = start cycle 
-	cluster_reset_fault			: BOOL;							// reset cluster fault fault 
-	cluster_rs_cycles			: ARRAY [1..rs_count] OF UINT;  // cycle to run : 12345,1,2,3,4,5
-	clsuter_rs_cycles_number	: ARRAY [1..rs_count] OF UINT;  // number of cycles to run 
+	// Cluster HMI tags - Commnads/Config
+	cluster_state_cmd					: BYTE; 									// 0 = Idle, 1 = warmup, 2 = cycle, 3 = shutdown, 4 = reset_fault
+	cluster_rs_select_cmd				: ARRAY [1..rs_count] OF BOOL;  			// rs to be started /stopped
+	cluster_rs_stop_cycle_cmd			: INT; 										// 1 = stop cycle, 2 = shutdown safe, 3 = shutdown evac, 4 = estop 
+	cluster_rs_start_cycle_cmd			: BOOL;										// 1 = start cycle 
+	cluster_reset_fault_cmd				: BOOL;										// reset cluster fault
+	cluster_rs_cycles_cfg				: ARRAY [1..rs_count] OF UINT;  			// cycle to run : 12345 = Full TVSA , 1 = Evac, 2 = Desorp ,3 = Cooling ,4 = Repres ,5 = Adsorp
+	clsuter_rs_number_of_cycles_cfg		: ARRAY [1..rs_count] OF UINT;  			// number of cycles to run 
+	// Cluster HMI Tags - Status
+	cluster_rs_control_active_cycle_sts : ARRAY [1..rs_count] OF STRING;
+	cluster_active_state_sts			: STRING;
 
 	// Utilities HMI tags
-	util_auto_mode			: BOOL := TRUE;  // TRUE = auto mode, FALSE = manual mode 
+	util_auto_mode_cmd		: BOOL := TRUE;  // TRUE = auto mode, FALSE = manual mode 
 	{attribute 'OPC.UA.DA' := '1'}  
 	
 	util_cooling_pump_cmd 	: UINT; // 0 = off, 1 = On , 2 = reset_fault

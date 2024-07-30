@@ -6,7 +6,7 @@ VAR_INPUT
 	i_seq_sts : BYTE;
 END_VAR
 VAR_OUTPUT
-	o_seq_sts : ST_SeqSts;
+	o_seq_sts : ST_Sequence_Sts;
 END_VAR
 ]]></Declaration>
     <Implementation>

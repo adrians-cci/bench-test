@@ -15,19 +15,20 @@ VAR
 	{attribute 'to_string'}
 	seq_state		: (Idle := 0, Warmup := 1, Ready := 2, Cycling := 3, Shutdown := 4, Error); 
 	
-	rs_stop_cycle_cmd		: ARRAY[1..rs_count] OF  INT;  // 
+	rs_stop_cycle_cmd		: ARRAY[1..rs_count] OF  INT;  
 	rs_start_cycle_cmd 		: ARRAY[1..rs_count] OF BOOL;
 	
 	shutdown_util_cmd	: BOOL;
 	
-	seq_sts : ST_SeqSts;
+	seq_sts : ST_Sequence_Sts;
 	
 	error_reset_cmd			: BOOL;
 	trigger_error_reset		: R_TRIG;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Shutdown THEN 
+      <ST><![CDATA[// Cluster Shutdown 
+IF hmi.cluster_state_cmd = E_Cluster_State_Cmd.Shutdown THEN 
 	IF  seq_state =  Cycling AND RSs_CycleDone() THEN 
 		seq_state := Shutdown;
 	ELSIF seq_state <>  Cycling THEN 
@@ -35,6 +36,8 @@ END_VAR
 	END_IF
 END_IF
 
+
+// Cluster States 
 CASE seq_state OF 
 	
 	Idle : 
@@ -92,9 +95,19 @@ CASE seq_state OF
 		END_IF		
 END_CASE
 
+
+// Reactor Sets and Utilities Cycles Control 
 RS_Utilities_Control();
 
-Reset_Error();]]></ST>
+// Error Reset Handling 
+Reset_Error();
+
+// HMI 
+FOR idx_rs := 1 TO rs_count DO
+	hmi.cluster_rs_control_active_cycle_sts[idx_rs] := TO_STRING(rs_control[idx_rs].Active_Cycle);	
+END_FOR
+hmi.cluster_active_state_sts := TO_STRING(seq_state);
+]]></ST>
     </Implementation>
     <Method Name="Get_RS_ServiceAssiged_Sts" Id="{3527ea94-ee6b-4f47-9093-c04642fcb5e8}">
       <Declaration><![CDATA[METHOD Get_RS_ServiceAssiged_Sts : BOOL
@@ -107,7 +120,9 @@ VAR
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR idx_rs := 1 TO rs_count DO 
+        <ST><![CDATA[// TRUE if the RS is assigned to an utilities service 
+
+FOR idx_rs := 1 TO rs_count DO 
 	IF i_rs_number = i_assigned_rs_list[idx_rs] THEN
 		Get_RS_ServiceAssiged_Sts := TRUE;
 		EXIT;
@@ -121,25 +136,33 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[
-trigger_error_reset(CLK := hmi.cluster_reset_fault);
-error_reset_cmd :=  trigger_error_reset.Q;
-IF error_reset_cmd THEN
-	hmi.cluster_reset_fault := FALSE;
-END_IF	
+        <ST><![CDATA[//trigger_error_reset(CLK := hmi.cluster_reset_fault);
+//error_reset_cmd :=  trigger_error_reset.Q;
 
-utilities_control.i_fault_reset := error_reset_cmd ;
+//IF error_reset_cmd THEN
+//	hmi.cluster_reset_fault := FALSE;
+//END_IF	
+
+//utilities_control.i_fault_reset := error_reset_cmd ;
+//FOR idx_rs := 1 TO rs_count DO 
+//	reactor_set[idx_rs].Reset_Fault := error_reset_cmd ;
+//END_FOR
+
+
+utilities_control.i_fault_reset := hmi.cluster_reset_fault_cmd ;
 FOR idx_rs := 1 TO rs_count DO 
-	reactor_set[idx_rs].Reset_Fault := error_reset_cmd ;
+	reactor_set[idx_rs].Reset_Fault := hmi.cluster_reset_fault_cmd;
+	rs_control[idx_rs].i_reset_fault := hmi.cluster_reset_fault_cmd;
 END_FOR
+hmi.cluster_reset_fault_cmd := FALSE;
 ]]></ST>
       </Implementation>
     </Method>
     <Action Name="RS_Utilities_Control" Id="{d0d19daf-04f7-4aba-8241-5978479178c1}">
       <Implementation>
-        <ST><![CDATA[FOR idx_rs := 1 TO rs_count DO 
-			
-			StartStop_RS_Cycle();
+        <ST><![CDATA[StartStop_RS_Cycle();
+
+FOR idx_rs := 1 TO rs_count DO 
 			
 			reactor_set[idx_rs]( i_cycle_req 				:= rs_control[idx_rs].Active_Cycle,
 								 i_cooling_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.cooling_pump.assigned_rs_number),
@@ -150,7 +173,6 @@ END_FOR
 								 i_steam_system_sts 		:= utilities_control.steam_sytem.o_service_sts,
 								 i_purge_assist_assigned 	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := utilities_control.purge_assist.assigned_rs_number),
 								 i_purge_assist_sts 		:= utilities_control.purge_assist.o_service_sts,
-								 i_reset_fault				:= error_reset_cmd,
 								 o_adsorption_seq_sts 		=> rs_control[idx_rs].i_adsorption_seq_sts,
 								 o_airpress_seq_sts			=> rs_control[idx_rs].i_airpress_seq_sts,
 								 o_evac_seq_sts 			=> rs_control[idx_rs].i_evac_seq_sts,
@@ -162,15 +184,16 @@ END_FOR
 								 o_purge_assist_req			=> utilities_control.i_purge_assist_req );
 			
 			rs_control[idx_rs]( i_rs_number				:= idx_rs,
-								i_cycle_selection 		:= hmi.cluster_rs_cycles[idx_rs],
-								i_cycles_number_to_run 	:= hmi.clsuter_rs_cycles_number[idx_rs],
-								i_start_cycle 			:= rs_start_cycle_cmd[idx_rs] AND NOT reactor_set[idx_rs].o_error_active,
+								io_cycle_selection 		:= hmi.cluster_rs_cycles_cfg[idx_rs],
+								io_cycles_number_to_run := hmi.clsuter_rs_number_of_cycles_cfg[idx_rs],
+								io_start_cycle 			:= rs_start_cycle_cmd[idx_rs],
 								i_rs_error_active 		:= reactor_set[idx_rs].o_error_active,
-								i_reset_fault 			:= error_reset_cmd,
 								io_stop_cycle 			:= rs_stop_cycle_cmd[idx_rs]);
 						  
 			
-			utilities_control(i_rs_number_service_req := idx_rs);		
+			utilities_control(i_rs_number_service_req := idx_rs);	
+
+	
 END_FOR
 		]]></ST>
       </Implementation>
@@ -191,24 +214,47 @@ RSs_CycleDone := rs_done;]]></ST>
     </Method>
     <Method Name="StartStop_RS_Cycle" Id="{134fc351-a9d1-41fb-9147-529f7c79c136}">
       <Declaration><![CDATA[METHOD StartStop_RS_Cycle : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
+VAR
+	idx_rs 				: UINT;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF hmi.cluster_rs_start_cycle_cmd THEN 
-	IF hmi.cluster_rs_cycles[idx_rs] > 0 THEN  
+        <ST><![CDATA[// HMI Start Commands
+IF hmi.cluster_rs_start_cycle_cmd THEN 
+	FOR idx_rs := 1 TO rs_count DO
 		rs_start_cycle_cmd[idx_rs] := TRUE;
-		hmi.cluster_rs_stop_cycle_cmd := 0;
-	ELSE
-		rs_start_cycle_cmd[idx_rs] := FALSE;
-	END_IF
-ELSIF hmi.cluster_rs_stop_cycle_cmd > 0  THEN
-	IF hmi.cluster_rs_select_cmd[idx_rs] THEN 
-		rs_stop_cycle_cmd[idx_rs] := hmi.cluster_rs_stop_cycle_cmd;
-		hmi.cluster_rs_select_cmd[idx_rs] := FALSE;
-		hmi.cluster_rs_start_cycle_cmd := FALSE;
-	END_IF
+	END_FOR
+	hmi.cluster_rs_start_cycle_cmd := FALSE;
+	hmi.cluster_rs_stop_cycle_cmd := 0;
 END_IF
+
+// HMI Stop Command (Cycle Stop, Shutdown, Shutdown Evac, Estop) 
+IF hmi.cluster_rs_stop_cycle_cmd > 0 THEN
+	FOR idx_rs := 1 TO rs_count DO
+		rs_stop_cycle_cmd[idx_rs] := hmi.cluster_rs_stop_cycle_cmd;
+	END_FOR
+	hmi.cluster_rs_stop_cycle_cmd := 0;
+	hmi.cluster_rs_start_cycle_cmd := FALSE;
+END_IF
+
+// Reactor Set Errors Stop Commands
+
+FOR idx_rs := 1 TO rs_count DO
+	IF reactor_set[idx_rs].o_adsorption_seq_sts.error THEN
+		IF  reactor_set[idx_rs].o_error_code_adsorption.0 THEN 
+			rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Estop;
+		END_IF
+	ELSE
+		rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Clear;
+	END_IF
+	IF reactor_set[idx_rs].o_evac_seq_sts.error THEN
+		IF reactor_set[idx_rs].o_error_code_evac.0 OR reactor_set[idx_rs].o_error_code_evac.1 THEN
+			rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Shutdown_Safe;
+		END_IF
+	ELSE
+		rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Clear;
+	END_IF
+END_FOR
+
 
 
 
@@ -217,11 +263,14 @@ END_IF
       </Implementation>
     </Method>
     <LineIds Name="FB_Cluster_Control">
-      <LineId Id="3713" Count="42" />
-      <LineId Id="3760" Count="23" />
+      <LineId Id="3817" Count="71" />
+      <LineId Id="3892" Count="0" />
       <LineId Id="2143" Count="0" />
+      <LineId Id="3898" Count="5" />
+      <LineId Id="3897" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.Get_RS_ServiceAssiged_Sts">
+      <LineId Id="24" Count="1" />
       <LineId Id="5" Count="0" />
       <LineId Id="11" Count="0" />
       <LineId Id="13" Count="0" />
@@ -230,21 +279,13 @@ END_IF
       <LineId Id="12" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.Reset_Error">
-      <LineId Id="5" Count="0" />
-      <LineId Id="9" Count="0" />
-      <LineId Id="20" Count="1" />
-      <LineId Id="23" Count="0" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="24" Count="0" />
-      <LineId Id="17" Count="2" />
-      <LineId Id="16" Count="0" />
-      <LineId Id="12" Count="0" />
+      <LineId Id="37" Count="18" />
+      <LineId Id="34" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.RS_Utilities_Control">
-      <LineId Id="146" Count="22" />
-      <LineId Id="170" Count="6" />
-      <LineId Id="178" Count="0" />
-      <LineId Id="180" Count="3" />
+      <LineId Id="368" Count="12" />
+      <LineId Id="382" Count="14" />
+      <LineId Id="398" Count="6" />
       <LineId Id="1" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.RSs_CycleDone">
@@ -252,17 +293,34 @@ END_IF
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.StartStop_RS_Cycle">
-      <LineId Id="25" Count="0" />
-      <LineId Id="29" Count="0" />
-      <LineId Id="34" Count="0" />
-      <LineId Id="32" Count="0" />
-      <LineId Id="50" Count="1" />
-      <LineId Id="33" Count="0" />
-      <LineId Id="44" Count="0" />
-      <LineId Id="48" Count="0" />
-      <LineId Id="45" Count="2" />
-      <LineId Id="30" Count="0" />
-      <LineId Id="49" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="66" Count="1" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="76" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="72" Count="1" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="74" Count="1" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="84" Count="1" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="97" Count="1" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="94" Count="1" />
+      <LineId Id="99" Count="3" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="57" Count="0" />
       <LineId Id="42" Count="1" />
       <LineId Id="40" Count="1" />
       <LineId Id="39" Count="0" />
