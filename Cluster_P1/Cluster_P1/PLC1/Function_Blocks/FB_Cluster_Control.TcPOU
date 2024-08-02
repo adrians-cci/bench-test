@@ -24,6 +24,8 @@ VAR
 	
 	error_reset_cmd			: BOOL;
 	trigger_error_reset		: R_TRIG;
+	
+	auto_mode				: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -63,7 +65,7 @@ CASE seq_state OF
 	Ready :
 		utilities_control.i_state_req := E_Util_State_Cmd.Activate;
 		
-		IF  NOT utilities_control.o_bop_error AND NOT rs_error THEN
+		IF  NOT utilities_control.o_bop_error_critical AND NOT rs_error THEN
 			IF  utilities_control.o_bop_activate_sts.completed AND hmi.cluster_state_cmd = E_Cluster_State_Cmd.Cycling THEN 
 				seq_state := Cycling;
 			END_IF
@@ -102,7 +104,18 @@ RS_Utilities_Control();
 // Error Reset Handling 
 Reset_Error();
 
-// HMI 
+// ==============  HMI ===================
+
+// HMI auto/manual
+IF hmi.cluster_auto_mode_cmd THEN 
+	auto_mode := TRUE;
+	hmi.cluster_auto_mode_cmd := FALSE;
+ELSIF hmi.cluster_manual_mode_cmd THEN 
+	auto_mode := FALSE;
+	hmi.cluster_manual_mode_cmd := FALSE;
+END_IF
+
+// Cycle Stauts to HMI 
 FOR idx_rs := 1 TO rs_count DO
 	hmi.cluster_rs_control_active_cycle_sts[idx_rs] := TO_STRING(rs_control[idx_rs].Active_Cycle);	
 END_FOR
@@ -195,6 +208,9 @@ FOR idx_rs := 1 TO rs_count DO
 
 	
 END_FOR
+
+utilities_control.State_Control();
+
 		]]></ST>
       </Implementation>
     </Action>
@@ -219,54 +235,50 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[// HMI Start Commands
-IF hmi.cluster_rs_start_cycle_cmd THEN 
-	FOR idx_rs := 1 TO rs_count DO
-		rs_start_cycle_cmd[idx_rs] := TRUE;
-	END_FOR
+IF hmi.cluster_rs_start_cycle_cmd THEN
+   IF auto_mode THEN 
+		FOR idx_rs := 1 TO rs_count DO
+			IF NOT rs_control[idx_rs].o_Started AND NOT rs_control[idx_rs].o_Error THEN
+				rs_start_cycle_cmd[idx_rs] := TRUE;
+			END_IF
+		END_FOR
+	END_IF
 	hmi.cluster_rs_start_cycle_cmd := FALSE;
 	hmi.cluster_rs_stop_cycle_cmd := 0;
 END_IF
+
+
+
+// Reactor Set Errors Stop Commands Requests  + HMI Stop req ( auto mode only) 
+IF auto_mode THEN 
+	FOR idx_rs := 1 TO rs_count DO
+		IF NOT rs_control[idx_rs].o_Stopping THEN 
+			IF reactor_set[idx_rs].o_error_estop_req OR utilities_control.o_bop_error_critical THEN   // RS error  + BOP Error -> Estop Request 
+				rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Estop;
+			ELSIF reactor_set[idx_rs].o_error_shutdown_req THEN
+				rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Shutdown_Safe;			// RS errror -> Shutdown Safe Req
+			ELSIF hmi.cluster_rs_stop_cycle_cmd > 0 THEN
+				rs_stop_cycle_cmd[idx_rs] := hmi.cluster_rs_stop_cycle_cmd;					// HMI Request 
+			ELSE
+				rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Clear;
+			END_IF
+		END_IF
+	END_FOR
+END_IF
+
 
 // HMI Stop Command (Cycle Stop, Shutdown, Shutdown Evac, Estop) 
-IF hmi.cluster_rs_stop_cycle_cmd > 0 THEN
-	FOR idx_rs := 1 TO rs_count DO
-		rs_stop_cycle_cmd[idx_rs] := hmi.cluster_rs_stop_cycle_cmd;
-	END_FOR
+IF hmi.cluster_rs_stop_cycle_cmd > 0  THEN
 	hmi.cluster_rs_stop_cycle_cmd := 0;
 	hmi.cluster_rs_start_cycle_cmd := FALSE;
 END_IF
-
-// Reactor Set Errors Stop Commands
-
-FOR idx_rs := 1 TO rs_count DO
-	IF reactor_set[idx_rs].o_adsorption_seq_sts.error THEN
-		IF  reactor_set[idx_rs].o_error_code_adsorption.0 THEN 
-			rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Estop;
-		END_IF
-	ELSE
-		rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Clear;
-	END_IF
-	IF reactor_set[idx_rs].o_evac_seq_sts.error THEN
-		IF reactor_set[idx_rs].o_error_code_evac.0 OR reactor_set[idx_rs].o_error_code_evac.1 THEN
-			rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Shutdown_Safe;
-		END_IF
-	ELSE
-		rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Clear;
-	END_IF
-END_FOR
-
-
-
 
 
 ]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Cluster_Control">
-      <LineId Id="3817" Count="71" />
-      <LineId Id="3892" Count="0" />
-      <LineId Id="2143" Count="0" />
-      <LineId Id="3898" Count="5" />
+      <LineId Id="3944" Count="90" />
       <LineId Id="3897" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.Get_RS_ServiceAssiged_Sts">
@@ -283,9 +295,7 @@ END_FOR
       <LineId Id="34" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.RS_Utilities_Control">
-      <LineId Id="368" Count="12" />
-      <LineId Id="382" Count="14" />
-      <LineId Id="398" Count="6" />
+      <LineId Id="408" Count="37" />
       <LineId Id="1" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.RSs_CycleDone">
@@ -295,33 +305,37 @@ END_FOR
     <LineIds Name="FB_Cluster_Control.StartStop_RS_Cycle">
       <LineId Id="62" Count="0" />
       <LineId Id="55" Count="0" />
+      <LineId Id="123" Count="0" />
       <LineId Id="63" Count="0" />
-      <LineId Id="66" Count="1" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="126" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="124" Count="0" />
       <LineId Id="59" Count="0" />
       <LineId Id="68" Count="0" />
       <LineId Id="60" Count="0" />
       <LineId Id="76" Count="0" />
-      <LineId Id="69" Count="0" />
-      <LineId Id="56" Count="0" />
-      <LineId Id="72" Count="1" />
-      <LineId Id="70" Count="0" />
-      <LineId Id="74" Count="1" />
       <LineId Id="71" Count="0" />
       <LineId Id="78" Count="0" />
       <LineId Id="77" Count="0" />
-      <LineId Id="84" Count="1" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="110" Count="0" />
       <LineId Id="87" Count="0" />
-      <LineId Id="92" Count="0" />
-      <LineId Id="86" Count="0" />
-      <LineId Id="93" Count="0" />
-      <LineId Id="97" Count="1" />
-      <LineId Id="88" Count="0" />
-      <LineId Id="94" Count="1" />
-      <LineId Id="99" Count="3" />
+      <LineId Id="92" Count="1" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="112" Count="1" />
+      <LineId Id="101" Count="1" />
       <LineId Id="96" Count="0" />
+      <LineId Id="111" Count="0" />
       <LineId Id="83" Count="0" />
+      <LineId Id="107" Count="0" />
       <LineId Id="57" Count="0" />
-      <LineId Id="42" Count="1" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="114" Count="1" />
+      <LineId Id="121" Count="1" />
+      <LineId Id="43" Count="0" />
       <LineId Id="40" Count="1" />
       <LineId Id="39" Count="0" />
     </LineIds>

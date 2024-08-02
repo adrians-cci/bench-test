@@ -14,7 +14,8 @@ VAR_INPUT
 END_VAR
 
 VAR_OUTPUT
-	o_bop_error				: BOOL;
+	o_bop_error_critical	: BOOL;
+	o_bop_error_warning		: BOOL;
 	o_bop_warmup_sts		: ST_Sequence_Sts;
 	o_bop_activate_sts		: ST_Sequence_Sts;
 	o_bop_shutdown_sts		: ST_Sequence_Sts;
@@ -22,7 +23,7 @@ END_VAR
 
 VAR
 	
-	util_state : ( Idle := 0, Warmup := 1, Activate := 2, Shutdown := 3, Error); 
+	util_state : ( Idle := 0, Warmup := 1, Ready := 2, Shutdown := 3, Error := 4); 
 	
 	cooling_pump_req		: ST_Util_Service_Req;
 	deadair_pump_req		: ST_Util_Service_Req;
@@ -37,13 +38,15 @@ VAR
 	comms_fault		: BOOL;
 	service_fault	: BOOL;
 	
+	
 	// BOP IOs
 	
 	in_bop_warmup_sts 		AT %I* : BYTE;
 	in_bop_activate_sts		AT %I* : BYTE;
 	in_bop_shutdown_sts		AT %I* : BYTE;
 	in_bop_error			AT %I* : BOOL;
-	in_bop_error_code		AT %I* : DWORD;
+	in_bop_error_code1		AT %I* : DWORD;
+	in_bop_error_code2		AT %I* : DWORD;
 	
 
 	out_util_state_req 		AT %Q* : INT; // 0 = Idle, 1 = warmup, 2 = activavte, 3 = shutdown 
@@ -52,62 +55,7 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF i_state_req = E_Util_State_Cmd.Shutdown THEN
-	util_state := Shutdown;
-END_IF
-
-IF in_bop_error OR service_fault THEN
-	util_state := Error;
-END_IF
-
-
-
-CASE util_state OF 
-	
-	Idle : 
-		IF i_state_req = E_Util_State_Cmd.Warmup  AND NOT in_bop_error THEN 
-			util_state := Warmup;
-		ELSIF 	in_bop_error THEN 
-			util_state := Error;
-		END_IF
-	Warmup: 
-		out_util_state_req := Warmup;
-		IF NOT o_bop_warmup_sts.error THEN 
-			IF o_bop_warmup_sts.completed AND i_state_req = E_Util_State_Cmd.Activate THEN 
-				util_state := Activate;
-			END_IF
-		ELSE
-			util_state := Error;
-		END_IF
-	Activate: 
-		out_util_state_req := Activate;
-		IF  o_bop_activate_sts.error THEN 
-			util_state := Error;
-		END_IF
-		
-	Shutdown : 
-		out_util_state_req := Shutdown;
-		IF NOT o_bop_shutdown_sts.error THEN 
-			IF o_bop_shutdown_sts.completed THEN 
-				util_state := Idle;
-			END_IF
-		ELSE
-			util_state := Error;
-		END_IF
-	Error: 
-		cooling_pump.Clear_RS_Queue();
-		dead_air_pump.Clear_RS_Queue();
-		steam_sytem.Clear_RS_Queue();
-		purge_assist.Clear_RS_Queue();	
-		IF i_fault_reset THEN 
-			out_util_reset_fault := TRUE;
-			IF NOT in_bop_error THEN
-				util_state := Idle;
-			END_IF
-		END_IF
-		
-END_CASE
-
+      <ST><![CDATA[
 
 
 cooling_pump_req.request_cmd := i_cooling_pump_req;
@@ -145,17 +93,77 @@ F_Get_Seq_Status( i_seq_sts := in_bop_warmup_sts, o_seq_sts => o_bop_warmup_sts)
 F_Get_Seq_Status( i_seq_sts := in_bop_activate_sts, o_seq_sts => o_bop_activate_sts);
 F_Get_Seq_Status( i_seq_sts := in_bop_shutdown_sts, o_seq_sts => o_bop_shutdown_sts);
 
-o_bop_error := in_bop_error;
+o_bop_error_critical := in_bop_error AND in_bop_error_code1.0 AND in_bop_error_code2.3 ; // TBD for adding more erros to the list of critical errors 
+o_bop_error_warning  := in_bop_error AND in_bop_error_code1.1 AND in_bop_error_code2.1 ; // TBD to add more errors to the list of warnings 
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="State_Control" Id="{6629a0ba-fc2c-48a2-b7ca-51ab0906ac6b}">
+      <Declaration><![CDATA[METHOD State_Control : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF i_state_req = E_Util_State_Cmd.Shutdown THEN
+	util_state := Shutdown;
+END_IF
+
+IF in_bop_error OR service_fault THEN
+	util_state := Error;
+END_IF
+
+
+
+CASE util_state OF 
+	
+	Idle : 
+		IF i_state_req = E_Util_State_Cmd.Warmup  AND NOT in_bop_error THEN 
+			util_state := Warmup;
+		ELSIF 	in_bop_error THEN 
+			util_state := Error;
+		END_IF
+	Warmup: 
+		out_util_state_req := Warmup;
+		IF NOT o_bop_warmup_sts.error THEN 
+			IF o_bop_warmup_sts.completed AND i_state_req = E_Util_State_Cmd.Activate THEN 
+				util_state := Ready;
+			END_IF
+		ELSE
+			util_state := Error;
+		END_IF
+	Ready: 
+		out_util_state_req := Ready;
+		IF  o_bop_activate_sts.error THEN 
+			util_state := Error;
+		END_IF
+		
+	Shutdown : 
+		out_util_state_req := Shutdown;
+		IF NOT o_bop_shutdown_sts.error THEN 
+			IF o_bop_shutdown_sts.completed THEN 
+				util_state := Idle;
+			END_IF
+		ELSE
+			util_state := Error;
+		END_IF
+	Error: 
+		cooling_pump.Clear_RS_Queue();
+		dead_air_pump.Clear_RS_Queue();
+		steam_sytem.Clear_RS_Queue();
+		purge_assist.Clear_RS_Queue();	
+		IF i_fault_reset THEN 
+			out_util_reset_fault := TRUE;
+			IF NOT in_bop_error THEN
+				util_state := Idle;
+			END_IF
+		END_IF
+		
+END_CASE
 ]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Utilities_Control">
-      <LineId Id="793" Count="2" />
-      <LineId Id="865" Count="0" />
-      <LineId Id="864" Count="0" />
-      <LineId Id="868" Count="0" />
-      <LineId Id="867" Count="0" />
-      <LineId Id="796" Count="65" />
+      <LineId Id="844" Count="17" />
       <LineId Id="871" Count="1" />
       <LineId Id="862" Count="0" />
       <LineId Id="873" Count="0" />
@@ -164,6 +172,11 @@ o_bop_error := in_bop_error;
     </LineIds>
     <LineIds Name="FB_Utilities_Control.GetSet_BOP_IOs">
       <LineId Id="6" Count="7" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Utilities_Control.State_Control">
+      <LineId Id="6" Count="54" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>
