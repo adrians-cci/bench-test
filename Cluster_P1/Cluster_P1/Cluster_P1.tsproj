@@ -22,914 +22,710 @@
 		</System>
 		<Plc>
 			<Project GUID="{D86426BD-5570-4D01-8842-A79647151612}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{E4746BA6-2552-78D5-44ED-32ADF5188CF7}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{9CC7C6EA-7325-9F41-C883-337E3ECA32B7}">
 					<Name>PLC1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
 						<Name>PlcTask Inputs</Name>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_adsorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_adsorption_seq_sts</Name>
 							<Comment><![CDATA[ from RS Controller ]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_adsorptio_error_code</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_adsorptio_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_evac_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_evac_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_desorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_desorption_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_cooling_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_cooling_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_airpress_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_airpress_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_cooling_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_cooling_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_deadair_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_deadair_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_steam_system_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_steam_system_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_purge_assist_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_purge_assist_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_error_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_error_sts</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_error_code1</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_error_code1</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_error_code2</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_error_code2</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_error_shutdown_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_error_shutdown_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].in_error_estop_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].in_error_estop_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_adsorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_adsorption_seq_sts</Name>
 							<Comment><![CDATA[ from RS Controller ]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_adsorptio_error_code</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_adsorptio_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_evac_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_evac_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_desorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_desorption_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_cooling_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_cooling_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_airpress_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_airpress_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_cooling_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_cooling_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_deadair_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_deadair_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_steam_system_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_steam_system_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_purge_assist_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_purge_assist_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_error_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_error_sts</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_error_code1</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_error_code1</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_error_code2</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_error_code2</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_error_shutdown_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_error_shutdown_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].in_error_estop_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].in_error_estop_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_adsorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_adsorption_seq_sts</Name>
 							<Comment><![CDATA[ from RS Controller ]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_adsorptio_error_code</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_adsorptio_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_evac_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_evac_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_desorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_desorption_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_cooling_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_cooling_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_airpress_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_airpress_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_cooling_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_cooling_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_deadair_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_deadair_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_steam_system_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_steam_system_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_purge_assist_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_purge_assist_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_error_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_error_sts</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_error_code1</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_error_code1</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_error_code2</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_error_code2</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_error_shutdown_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_error_shutdown_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].in_error_estop_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].in_error_estop_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_adsorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_adsorption_seq_sts</Name>
 							<Comment><![CDATA[ from RS Controller ]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_adsorptio_error_code</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_adsorptio_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_evac_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_evac_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_desorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_desorption_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_cooling_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_cooling_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_airpress_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_airpress_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_cooling_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_cooling_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_deadair_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_deadair_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_steam_system_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_steam_system_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_purge_assist_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_purge_assist_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_error_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_error_sts</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_error_code1</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_error_code1</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_error_code2</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_error_code2</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_error_shutdown_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_error_shutdown_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].in_error_estop_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].in_error_estop_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_adsorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_adsorption_seq_sts</Name>
 							<Comment><![CDATA[ from RS Controller ]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_adsorptio_error_code</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_adsorptio_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_evac_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_evac_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_desorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_desorption_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_cooling_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_cooling_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_airpress_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_airpress_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_cooling_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_cooling_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_deadair_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_deadair_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_steam_system_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_steam_system_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_purge_assist_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_purge_assist_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_error_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_error_sts</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_error_code1</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_error_code1</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_error_code2</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_error_code2</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_error_shutdown_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_error_shutdown_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].in_error_estop_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].in_error_estop_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_adsorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_adsorption_seq_sts</Name>
 							<Comment><![CDATA[ from RS Controller ]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_adsorptio_error_code</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_adsorptio_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_evac_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_evac_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_desorption_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_desorption_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_cooling_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_cooling_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_airpress_seq_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_airpress_seq_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_cooling_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_cooling_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_deadair_pump_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_deadair_pump_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_steam_system_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_steam_system_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_purge_assist_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_purge_assist_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_error_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_error_sts</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_error_code1</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_error_code1</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_error_code2</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_error_code2</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_error_shutdown_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_error_shutdown_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].in_error_estop_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].in_error_estop_req</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_adsorption_seq_sts</Name>
-							<Comment><![CDATA[ from RS Controller ]]></Comment>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_adsorptio_error_code</Name>
-							<Type>DWORD</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_evac_seq_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_desorption_seq_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_cooling_seq_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_airpress_seq_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_cooling_pump_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_deadair_pump_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_steam_system_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_purge_assist_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_error_sts</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_error_code1</Name>
-							<Type>DWORD</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_error_code2</Name>
-							<Type>DWORD</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_error_shutdown_req</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].in_error_estop_req</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_adsorption_seq_sts</Name>
-							<Comment><![CDATA[ from RS Controller ]]></Comment>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_adsorptio_error_code</Name>
-							<Type>DWORD</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_evac_seq_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_desorption_seq_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_cooling_seq_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_airpress_seq_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_cooling_pump_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_deadair_pump_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_steam_system_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_purge_assist_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_error_sts</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_error_code1</Name>
-							<Type>DWORD</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_error_code2</Name>
-							<Type>DWORD</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_error_shutdown_req</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].in_error_estop_req</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.cooling_pump.in_service_sts</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.cooling_pump.in_service_sts</Name>
 							<Comment><![CDATA[ IOs to Utilities PLC]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.cooling_pump.in_service_error_code</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.cooling_pump.in_service_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.dead_air_pump.in_service_sts</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.dead_air_pump.in_service_sts</Name>
 							<Comment><![CDATA[ IOs to Utilities PLC]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.dead_air_pump.in_service_error_code</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.dead_air_pump.in_service_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.steam_sytem.in_service_sts</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.steam_sytem.in_service_sts</Name>
 							<Comment><![CDATA[ IOs to Utilities PLC]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.steam_sytem.in_service_error_code</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.steam_sytem.in_service_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.purge_assist.in_service_sts</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.purge_assist.in_service_sts</Name>
 							<Comment><![CDATA[ IOs to Utilities PLC]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.purge_assist.in_service_error_code</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.purge_assist.in_service_error_code</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.in_bop_warmup_sts</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.in_bop_warmup_sts</Name>
 							<Comment><![CDATA[ BOP IOs]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.in_bop_activate_sts</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.in_bop_activate_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.in_bop_shutdown_sts</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.in_bop_shutdown_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.in_bop_error</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.in_bop_error</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.in_bop_error_code1</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.in_bop_error_code1</Name>
 							<Type>DWORD</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.in_bop_error_code2</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.in_bop_error_code2</Name>
 							<Type>DWORD</Type>
 						</Var>
 					</Vars>
 					<Vars VarGrpType="2" AreaNo="1">
 						<Name>PlcTask Outputs</Name>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].out_seq_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].out_seq_req</Name>
 							<Comment><![CDATA[ to RS Controller]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].out_cooling_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].out_cooling_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].out_deadair_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].out_deadair_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].out_steam_system_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].out_steam_system_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].out_purge_assist_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].out_purge_assist_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].out_cooling_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].out_cooling_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].out_deadair_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].out_deadair_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].out_steam_system_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].out_steam_system_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].out_purge_assist_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].out_purge_assist_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[1].out_error_reset</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[1].out_error_reset</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].out_seq_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].out_seq_req</Name>
 							<Comment><![CDATA[ to RS Controller]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].out_cooling_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].out_cooling_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].out_deadair_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].out_deadair_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].out_steam_system_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].out_steam_system_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].out_purge_assist_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].out_purge_assist_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].out_cooling_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].out_cooling_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].out_deadair_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].out_deadair_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].out_steam_system_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].out_steam_system_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].out_purge_assist_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].out_purge_assist_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[2].out_error_reset</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[2].out_error_reset</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].out_seq_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].out_seq_req</Name>
 							<Comment><![CDATA[ to RS Controller]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].out_cooling_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].out_cooling_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].out_deadair_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].out_deadair_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].out_steam_system_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].out_steam_system_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].out_purge_assist_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].out_purge_assist_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].out_cooling_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].out_cooling_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].out_deadair_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].out_deadair_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].out_steam_system_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].out_steam_system_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].out_purge_assist_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].out_purge_assist_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[3].out_error_reset</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[3].out_error_reset</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].out_seq_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].out_seq_req</Name>
 							<Comment><![CDATA[ to RS Controller]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].out_cooling_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].out_cooling_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].out_deadair_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].out_deadair_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].out_steam_system_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].out_steam_system_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].out_purge_assist_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].out_purge_assist_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].out_cooling_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].out_cooling_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].out_deadair_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].out_deadair_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].out_steam_system_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].out_steam_system_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].out_purge_assist_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].out_purge_assist_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[4].out_error_reset</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[4].out_error_reset</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].out_seq_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].out_seq_req</Name>
 							<Comment><![CDATA[ to RS Controller]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].out_cooling_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].out_cooling_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].out_deadair_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].out_deadair_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].out_steam_system_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].out_steam_system_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].out_purge_assist_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].out_purge_assist_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].out_cooling_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].out_cooling_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].out_deadair_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].out_deadair_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].out_steam_system_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].out_steam_system_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].out_purge_assist_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].out_purge_assist_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[5].out_error_reset</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[5].out_error_reset</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].out_seq_req</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].out_seq_req</Name>
 							<Comment><![CDATA[ to RS Controller]]></Comment>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].out_cooling_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].out_cooling_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].out_deadair_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].out_deadair_pump_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].out_steam_system_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].out_steam_system_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].out_purge_assist_sts</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].out_purge_assist_sts</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].out_cooling_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].out_cooling_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].out_deadair_pump_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].out_deadair_pump_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].out_steam_system_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].out_steam_system_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].out_purge_assist_assigned</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].out_purge_assist_assigned</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[6].out_error_reset</Name>
+							<Name>MAIN.cluster_control.fb_reactor_set[6].out_error_reset</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].out_seq_req</Name>
-							<Comment><![CDATA[ to RS Controller]]></Comment>
+							<Name>MAIN.cluster_control.fb_utilities_control.cooling_pump.out_service_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].out_cooling_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.dead_air_pump.out_service_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].out_deadair_pump_sts</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.steam_sytem.out_service_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].out_steam_system_sts</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.purge_assist.out_service_req</Name>
 							<Type>BYTE</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].out_purge_assist_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].out_cooling_pump_assigned</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].out_deadair_pump_assigned</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].out_steam_system_assigned</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].out_purge_assist_assigned</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[7].out_error_reset</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].out_seq_req</Name>
-							<Comment><![CDATA[ to RS Controller]]></Comment>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].out_cooling_pump_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].out_deadair_pump_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].out_steam_system_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].out_purge_assist_sts</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].out_cooling_pump_assigned</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].out_deadair_pump_assigned</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].out_steam_system_assigned</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].out_purge_assist_assigned</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.reactor_set[8].out_error_reset</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.cooling_pump.out_service_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.dead_air_pump.out_service_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.steam_sytem.out_service_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.purge_assist.out_service_req</Name>
-							<Type>BYTE</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.cluster_control.utilities_control.out_util_state_req</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.out_util_state_req</Name>
 							<Comment><![CDATA[ 0 = Idle, 1 = warmup, 2 = activavte, 3 = shutdown ]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.cluster_control.utilities_control.out_util_reset_fault</Name>
+							<Name>MAIN.cluster_control.fb_utilities_control.out_util_reset_fault</Name>
 							<Type>BOOL</Type>
 						</Var>
 					</Vars>

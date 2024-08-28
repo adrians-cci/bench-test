@@ -4,7 +4,7 @@
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL
 	// Cluster HMI tags - Commnads/Config
-	cluster_auto_mode_cmd					: BOOL;								
+	cluster_auto_mode_cmd				: BOOL;								
 	cluster_manual_mode_cmd					: BOOL;
 	cluster_state_cmd					: BYTE; 									// 0 = Idle, 1 = warmup, 2 = cycle, 3 = shutdown, 4 = reset_fault
 	cluster_rs_select_cmd				: ARRAY [1..rs_count] OF BOOL;  			// rs to be started /stopped
@@ -18,9 +18,9 @@ VAR_GLOBAL
 	cluster_active_state_sts			: STRING;
 
 	// Utilities HMI tags
+	{attribute 'OPC.UA.DA' := '1'} 
 	util_auto_mode_cmd		: BOOL := TRUE;  // TRUE = auto mode, FALSE = manual mode 
 	{attribute 'OPC.UA.DA' := '1'}  
-	
 	util_cooling_pump_cmd 	: UINT; // 0 = off, 1 = On , 2 = reset_fault
 	{attribute 'OPC.UA.DA' := '1'} 
 	util_cooling_pump_sts 	: UINT;
@@ -36,10 +36,6 @@ VAR_GLOBAL
 	util_purge_assist_cmd 	: UINT; // 0 = off, 1 = On , 2 = reset_fault
 	{attribute 'OPC.UA.DA' := '1'} 
 	util_purge_assist_sts 	: UINT;
-	
-	
-	
-	
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

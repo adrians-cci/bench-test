@@ -12,6 +12,7 @@ VAR_INPUT
 	i_deadair_pump_assigned	: BOOL;
 	i_steam_system_assigned	: BOOL;
 	i_purge_assist_assigned	: BOOL;
+	i_reset_fault			: BOOL;
 	
 END_VAR
 VAR_OUTPUT
@@ -76,7 +77,7 @@ VAR
 	out_steam_system_assigned		AT %Q*: BOOL;
 	out_purge_assist_assigned		AT %Q*: BOOL;
 	
-	out_error_reset				AT %Q* : BOOL;
+	out_error_reset					AT %Q* : BOOL;
 		
 	
 END_VAR
@@ -85,6 +86,10 @@ END_VAR
       <ST><![CDATA[// Sequence Select + Run request to RS controller
 
 out_seq_req := TO_BYTE(i_cycle_req);
+
+// Fault Reset to RS Controller
+
+out_error_reset := i_reset_fault;
 
 // Service Request Assigned Sts to RS Controller
 
@@ -126,17 +131,6 @@ o_error_estop_req := in_error_estop_req;
 
 ]]></ST>
     </Implementation>
-    <Property Name="Reset_Fault" Id="{5dc63ca5-d894-4224-9a66-7976dd1ee88e}">
-      <Declaration><![CDATA[PROPERTY Reset_Fault : BOOL]]></Declaration>
-      <Set Name="Set" Id="{2a8619fb-2f3c-44d9-8a80-ad7ac89ad13e}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[out_error_reset := Reset_Fault;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <Method Name="Set_Service_Sts" Id="{7bc84eef-0834-4c67-8959-d790ac013a0b}">
       <Declaration><![CDATA[METHOD Set_Service_Sts : BOOL
 VAR_INPUT
@@ -159,6 +153,10 @@ END_IF]]></ST>
     </Method>
     <LineIds Name="FB_ReactorSet">
       <LineId Id="1531" Count="2" />
+      <LineId Id="1866" Count="0" />
+      <LineId Id="1865" Count="0" />
+      <LineId Id="1868" Count="0" />
+      <LineId Id="1867" Count="0" />
       <LineId Id="1624" Count="0" />
       <LineId Id="1534" Count="0" />
       <LineId Id="1626" Count="3" />
@@ -172,9 +170,6 @@ END_IF]]></ST>
       <LineId Id="1783" Count="1" />
       <LineId Id="1697" Count="0" />
       <LineId Id="32" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ReactorSet.Reset_Fault.Set">
-      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet.Set_Service_Sts">
       <LineId Id="5" Count="0" />

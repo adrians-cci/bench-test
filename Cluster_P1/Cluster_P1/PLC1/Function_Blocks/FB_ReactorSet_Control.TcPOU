@@ -45,7 +45,7 @@ VAR
 	cycle_single_selected		: BOOL;
 	
 	trig_stop_cmd				: R_TRIG;
-	shutdown_evac_req				: BOOL := FALSE;
+	shutdown_evac_req			: BOOL := FALSE;
 	
 END_VAR
 ]]></Declaration>
@@ -153,14 +153,14 @@ CycleStop_Handler();
 
 ]]></ST>
     </Implementation>
-    <Property Name="Active_Cycle" Id="{ffa55953-79d5-4cd3-a8bf-5e5ae75bb4a3}">
-      <Declaration><![CDATA[PROPERTY Active_Cycle : E_RS_Cycles]]></Declaration>
+    <Property Name="active_cycle" Id="{ffa55953-79d5-4cd3-a8bf-5e5ae75bb4a3}">
+      <Declaration><![CDATA[PROPERTY active_cycle : E_RS_Cycles]]></Declaration>
       <Get Name="Get" Id="{5a4664fc-b280-4b10-b244-81551fe54593}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Active_Cycle := cycle_state;]]></ST>
+          <ST><![CDATA[active_cycle := cycle_state;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -178,9 +178,7 @@ IF trig_cycle_first_run.Q THEN
 END_IF
 
 
-
-
-o_Stopping := i_current_state = Estop OR i_current_state = SafeShutdown;]]></ST>
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="CycleError_Handler" Id="{cf16ac2e-ac1f-4245-af07-01d2c1d0d243}">
@@ -300,7 +298,9 @@ IF trig_stop_cmd.Q THEN
 		cycle_state := Estop;
 	END_IF
 	io_stop_cycle := 0;
-END_IF]]></ST>
+END_IF
+
+o_Stopping := cycle_state = Estop OR cycle_state = SafeShutdown;]]></ST>
       </Implementation>
     </Action>
     <Method Name="Logger" Id="{20227f92-d2b3-4c3b-8917-6409e118b7dd}">
@@ -320,15 +320,14 @@ ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Cycle Number : %s' ,s
       <LineId Id="2678" Count="98" />
       <LineId Id="9" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ReactorSet_Control.Active_Cycle.Get">
+    <LineIds Name="FB_ReactorSet_Control.active_cycle.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet_Control.CycleEntry_Handler">
       <LineId Id="19" Count="0" />
       <LineId Id="6" Count="1" />
       <LineId Id="9" Count="1" />
-      <LineId Id="26" Count="1" />
-      <LineId Id="25" Count="0" />
+      <LineId Id="26" Count="0" />
       <LineId Id="15" Count="0" />
       <LineId Id="24" Count="0" />
     </LineIds>
@@ -386,6 +385,8 @@ ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Cycle Number : %s' ,s
     <LineIds Name="FB_ReactorSet_Control.CycleStop_Handler">
       <LineId Id="2" Count="12" />
       <LineId Id="1" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="15" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet_Control.Logger">
       <LineId Id="9" Count="1" />

@@ -3,7 +3,7 @@
   <GVL Name="CONSTANTS" Id="{4c0d8cd1-005d-4e3a-9512-f66f848aabc8}">
     <Declaration><![CDATA[
 VAR_GLOBAL CONSTANT
-	rs_count	: UINT := 8;
+	rs_count	: UINT := 6;
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>
