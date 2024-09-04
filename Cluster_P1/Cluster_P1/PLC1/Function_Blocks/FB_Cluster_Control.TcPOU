@@ -4,7 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Cluster_Control
 VAR
 	fb_rs_control 			: ARRAY[1..rs_count] OF FB_ReactorSet_Control;
-	fb_reactor_set			: ARRAY[1..rs_count] OF FB_ReactorSet;
+	//fb_reactor_set			: ARRAY[1..rs_count] OF FB_ReactorSet;
 	rs_error				: BOOL;
 	
 	fb_utilities_control 	: FB_Utilities_Control;
@@ -177,7 +177,7 @@ END_VAR
 
 fb_utilities_control.i_fault_reset := hmi.cluster_reset_fault_cmd ;
 FOR idx_rs := 1 TO rs_count DO 
-	fb_reactor_set[idx_rs].i_reset_fault := hmi.cluster_reset_fault_cmd;
+//	fb_reactor_set[idx_rs].i_fault_reset := hmi.cluster_reset_fault_cmd;
 	fb_rs_control[idx_rs].i_reset_fault  := hmi.cluster_reset_fault_cmd;
 END_FOR
 hmi.cluster_reset_fault_cmd := FALSE;
@@ -190,34 +190,60 @@ hmi.cluster_reset_fault_cmd := FALSE;
 
 FOR idx_rs := 1 TO rs_count DO 
 			
-			fb_reactor_set[idx_rs]( i_cycle_req 				:= fb_rs_control[idx_rs].Active_Cycle,
-								 i_cooling_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.cooling_pump.assigned_rs_number),
-								 i_cooling_pump_sts 		:= fb_utilities_control.cooling_pump.o_service_sts,
-								 i_deadair_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.dead_air_pump.assigned_rs_number),
-								 i_deadair_pump_sts 		:= fb_utilities_control.dead_air_pump.o_service_sts,
-								 i_steam_system_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.steam_sytem.assigned_rs_number),
-								 i_steam_system_sts 		:= fb_utilities_control.steam_sytem.o_service_sts,
-								 i_purge_assist_assigned 	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.purge_assist.assigned_rs_number),
-								 i_purge_assist_sts 		:= fb_utilities_control.purge_assist.o_service_sts,
-								 o_adsorption_seq_sts 		=> fb_rs_control[idx_rs].i_adsorption_seq_sts,
-								 o_airpress_seq_sts			=> fb_rs_control[idx_rs].i_airpress_seq_sts,
-								 o_evac_seq_sts 			=> fb_rs_control[idx_rs].i_evac_seq_sts,
-								 o_desorption_seq_sts 		=> fb_rs_control[idx_rs].i_desorption_seq_sts,
-								 o_cooling_seq_sts			=> fb_rs_control[idx_rs].i_cooling_seq_sts,
-								 o_cooling_pump_req			=> fb_utilities_control.i_cooling_pump_req,
-								 o_deadair_pump_req			=> fb_utilities_control.i_deadair_pump_req,
-								 o_steam_system_req			=> fb_utilities_control.i_steam_system_req,
-								 o_purge_assist_req			=> fb_utilities_control.i_purge_assist_req );
+//			fb_reactor_set[idx_rs]( i_cycle_req 				:= fb_rs_control[idx_rs].Active_Cycle,
+//								 i_cooling_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.cooling_pump.assigned_rs_number),
+//								 i_cooling_pump_sts 		:= fb_utilities_control.cooling_pump.o_service_sts,
+//								 i_deadair_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.dead_air_pump.assigned_rs_number),
+//								 i_deadair_pump_sts 		:= fb_utilities_control.dead_air_pump.o_service_sts,
+//								 i_steam_system_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.steam_sytem.assigned_rs_number),
+//								 i_steam_system_sts 		:= fb_utilities_control.steam_sytem.o_service_sts,
+//								 i_purge_assist_assigned 	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.purge_assist.assigned_rs_number),
+//								 i_purge_assist_sts 		:= fb_utilities_control.purge_assist.o_service_sts,
+//								 o_adsorption_seq_sts 		=> fb_rs_control[idx_rs].i_adsorption_seq_sts,
+//								 o_airpress_seq_sts			=> fb_rs_control[idx_rs].i_airpress_seq_sts,
+//								 o_evac_seq_sts 			=> fb_rs_control[idx_rs].i_evac_seq_sts,
+//								 o_desorption_seq_sts 		=> fb_rs_control[idx_rs].i_desorption_seq_sts,
+//								 o_cooling_seq_sts			=> fb_rs_control[idx_rs].i_cooling_seq_sts,
+//								 o_cooling_pump_req			=> fb_utilities_control.i_cooling_pump_req,
+//								 o_deadair_pump_req			=> fb_utilities_control.i_deadair_pump_req,
+//								 o_steam_system_req			=> fb_utilities_control.i_steam_system_req,
+//								 o_purge_assist_req			=> fb_utilities_control.i_purge_assist_req );
+
+//			fb_rs_control[idx_rs]( 	i_rs_number				:= idx_rs,
+//									io_cycle_selection 		:= hmi.cluster_rs_cycles_cfg[idx_rs],
+//									io_cycles_number_to_run := hmi.clsuter_rs_number_of_cycles_cfg[idx_rs],
+//									io_start_cycle 			:= rs_start_cycle_cmd[idx_rs],
+//									i_rs_error_active 		:= fb_reactor_set[idx_rs].o_error_active,
+//									io_stop_cycle 			:= rs_stop_cycle_cmd[idx_rs]);
+									
 			
-			fb_rs_control[idx_rs]( i_rs_number				:= idx_rs,
+			
+						  
+							
+								
+//			fb_utilities_control(i_rs_number_service_req := idx_rs);	
+
+
+		fb_rs_control[idx_rs]( 	i_rs_number				:= idx_rs,
 								io_cycle_selection 		:= hmi.cluster_rs_cycles_cfg[idx_rs],
 								io_cycles_number_to_run := hmi.clsuter_rs_number_of_cycles_cfg[idx_rs],
-								io_start_cycle 			:= rs_start_cycle_cmd[idx_rs],
-								i_rs_error_active 		:= fb_reactor_set[idx_rs].o_error_active,
-								io_stop_cycle 			:= rs_stop_cycle_cmd[idx_rs]);
-						  
+								io_start_cycle 			:= rs_start_cycle_cmd[idx_rs],						
+								io_stop_cycle 			:= rs_stop_cycle_cmd[idx_rs],
+								i_cooling_pump_assigned := Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.cooling_pump.assigned_rs_number),
+								i_cooling_pump_sts 		:= fb_utilities_control.cooling_pump.o_service_sts,
+								i_deadair_pump_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.dead_air_pump.assigned_rs_number),
+								i_deadair_pump_sts 		:= fb_utilities_control.dead_air_pump.o_service_sts,
+								i_steam_system_assigned	:= Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.steam_sytem.assigned_rs_number),
+								i_steam_system_sts 		:= fb_utilities_control.steam_sytem.o_service_sts,
+								i_purge_assist_assigned := Get_RS_ServiceAssiged_Sts(i_rs_number := idx_rs, i_assigned_rs_list := fb_utilities_control.purge_assist.assigned_rs_number),
+								i_purge_assist_sts 		:= fb_utilities_control.purge_assist.o_service_sts,
+								o_cooling_pump_req		=> fb_utilities_control.i_cooling_pump_req,
+								o_deadair_pump_req		=> fb_utilities_control.i_deadair_pump_req,
+								o_steam_system_req		=> fb_utilities_control.i_steam_system_req,
+								o_purge_assist_req		=> fb_utilities_control.i_purge_assist_req);
+								
+		fb_utilities_control(i_rs_number_service_req := idx_rs);
 			
-			fb_utilities_control(i_rs_number_service_req := idx_rs);	
 
 	
 END_FOR
@@ -252,9 +278,9 @@ END_IF
 IF cluster_auto_mode THEN 
 	FOR idx_rs := 1 TO rs_count DO
 		IF NOT fb_rs_control[idx_rs].o_Stopping THEN 
-			IF fb_reactor_set[idx_rs].o_error_estop_req OR fb_utilities_control.o_bop_error_critical THEN   // RS error  + BOP Error -> Estop Request 
+			IF fb_rs_control[idx_rs].fbRS.o_error_estop_req OR fb_utilities_control.o_bop_error_critical THEN   // RS error  + BOP Error -> Estop Request 
 				rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Estop;
-			ELSIF fb_reactor_set[idx_rs].o_error_shutdown_req THEN
+			ELSIF fb_rs_control[idx_rs].fbRS.o_error_shutdown_req THEN
 				rs_stop_cycle_cmd[idx_rs] := E_RS_Cycle_Stop_Cmds.Shutdown_Safe;			// RS errror -> Shutdown Safe Req
 			ELSIF hmi.cluster_rs_stop_cycle_cmd > 0 THEN
 				rs_stop_cycle_cmd[idx_rs] := hmi.cluster_rs_stop_cycle_cmd;					// HMI Request 
@@ -294,13 +320,26 @@ END_IF
       <LineId Id="12" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.Reset_Error">
-      <LineId Id="37" Count="14" />
-      <LineId Id="59" Count="0" />
-      <LineId Id="53" Count="2" />
+      <LineId Id="63" Count="18" />
       <LineId Id="34" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.RS_Utilities_Control">
-      <LineId Id="408" Count="37" />
+      <LineId Id="408" Count="21" />
+      <LineId Id="452" Count="1" />
+      <LineId Id="432" Count="4" />
+      <LineId Id="448" Count="2" />
+      <LineId Id="437" Count="1" />
+      <LineId Id="447" Count="0" />
+      <LineId Id="439" Count="0" />
+      <LineId Id="456" Count="5" />
+      <LineId Id="455" Count="0" />
+      <LineId Id="464" Count="0" />
+      <LineId Id="466" Count="5" />
+      <LineId Id="465" Count="0" />
+      <LineId Id="476" Count="2" />
+      <LineId Id="475" Count="0" />
+      <LineId Id="472" Count="2" />
+      <LineId Id="440" Count="5" />
       <LineId Id="1" Count="0" />
     </LineIds>
     <LineIds Name="FB_Cluster_Control.StartStop_RS_Cycle">

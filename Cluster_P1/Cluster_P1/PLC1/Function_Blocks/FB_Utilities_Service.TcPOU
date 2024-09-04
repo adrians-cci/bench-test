@@ -22,7 +22,7 @@ END_VAR
 
 
 o_service_sts.idle 				:= in_service_sts = E_Util_Service_Sts.PowerUp;
-o_service_sts.ready 			:= in_service_sts = E_Util_Service_Sts.Ready;
+o_service_sts.ready 			:= in_service_sts = E_Util_Service_Sts.Active;
 o_service_sts.running 			:= in_service_sts = E_Util_Service_Sts.Running;
 o_service_sts.faulted 			:= in_service_sts = E_Util_Service_Sts.Faulted;
 o_service_sts.error_code		:= in_service_error_code;

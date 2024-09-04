@@ -17,15 +17,25 @@ VAR_INPUT
 	i_reset_fault			: BOOL;
 	//i_cycle_selection		: UINT;  // 12345,1,2,3,4,5
 
-	i_adsorption_seq_sts 	: ST_Sequence_Sts;
-	i_evac_seq_sts 			: ST_Sequence_Sts;
-	i_desorption_seq_sts 	: ST_Sequence_Sts;
-	i_cooling_seq_sts 		: ST_Sequence_Sts;
-	i_airpress_seq_sts 		: ST_Sequence_Sts;
-	i_estop_seq_sts			: ST_Sequence_Sts;
-	i_shutdown_seq_sts		: ST_Sequence_Sts;
+//	i_adsorption_seq_sts 	: ST_Sequence_Sts;
+//	i_evac_seq_sts 			: ST_Sequence_Sts;
+//	i_desorption_seq_sts 	: ST_Sequence_Sts;
+//	i_cooling_seq_sts 		: ST_Sequence_Sts;
+//	i_airpress_seq_sts 		: ST_Sequence_Sts;
+//	i_estop_seq_sts			: ST_Sequence_Sts;
+//	i_shutdown_seq_sts		: ST_Sequence_Sts;
 	
-	i_rs_error_active		: BOOL;
+//	i_rs_error_active		: BOOL;
+	
+	//Utilities Services Status
+	i_cooling_pump_sts 		: ST_Util_Service_Sts;
+	i_deadair_pump_sts 		: ST_Util_Service_Sts;
+	i_steam_system_sts 		: ST_Util_Service_Sts;
+	i_purge_assist_sts		: ST_Util_Service_Sts;	
+	i_cooling_pump_assigned : BOOL;
+	i_deadair_pump_assigned	: BOOL;
+	i_steam_system_assigned	: BOOL;
+	i_purge_assist_assigned	: BOOL;
 	
 END_VAR
 VAR_OUTPUT
@@ -33,6 +43,12 @@ VAR_OUTPUT
 	o_Started 				: BOOL;
 	o_Done 					: BOOL;
 	o_Stopping				: BOOL;
+	
+	// RS to Utilities Request
+	o_cooling_pump_req		: BYTE;  
+	o_deadair_pump_req		: BYTE;
+	o_steam_system_req		: BYTE;
+	o_purge_assist_req		: BYTE;
 END_VAR
 VAR
 
@@ -46,11 +62,24 @@ VAR
 	
 	trig_stop_cmd				: R_TRIG;
 	shutdown_evac_req			: BOOL := FALSE;
+	fbRS						: FB_ReactorSet;
+	
+	adsorption_seq_sts 		: ST_Sequence_Sts;
+	evac_seq_sts 			: ST_Sequence_Sts;
+	desorption_seq_sts 		: ST_Sequence_Sts;
+	cooling_seq_sts 		: ST_Sequence_Sts;
+	airpress_seq_sts 		: ST_Sequence_Sts;
+	estop_seq_sts			: ST_Sequence_Sts;
+	shutdown_seq_sts		: ST_Sequence_Sts;
+	
+	rs_error_active			: BOOL;
 	
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[ 
+      <ST><![CDATA[
+// State Machine
+ 
 CycleStart_Handler();
 
 
@@ -65,8 +94,8 @@ CASE cycle_state OF
 		 
 	DeadAirEvac :
 		CycleEntry_Handler(i_current_state := DeadAirEvac);
-		IF NOT i_evac_seq_sts.error THEN 	
-			IF i_evac_seq_sts.completed THEN
+		IF NOT evac_seq_sts.error THEN 	
+			IF evac_seq_sts.completed THEN
 				CycleNext_Handler(i_current_state := DeadAirEvac);	
 			END_IF
 		ELSE
@@ -75,8 +104,8 @@ CASE cycle_state OF
 	
 	SteamDesorption : 
 		CycleEntry_Handler(i_current_state := SteamDesorption);
-		IF NOT i_desorption_seq_sts.error THEN 	
-			IF i_desorption_seq_sts.completed THEN
+		IF NOT desorption_seq_sts.error THEN 	
+			IF desorption_seq_sts.completed THEN
 				CycleNext_Handler(i_current_state := SteamDesorption);	
 			END_IF
 		ELSE
@@ -85,8 +114,8 @@ CASE cycle_state OF
 	
 	VacCooling: 
 		CycleEntry_Handler(i_current_state := VacCooling);
-		IF NOT i_cooling_seq_sts.error THEN 	
-			IF i_cooling_seq_sts.completed THEN
+		IF NOT cooling_seq_sts.error THEN 	
+			IF cooling_seq_sts.completed THEN
 				CycleNext_Handler(i_current_state := VacCooling);	
 			END_IF
 		ELSE
@@ -95,8 +124,8 @@ CASE cycle_state OF
 	
 	AirRepress :
 		CycleEntry_Handler(i_current_state := AirRepress);
-		IF NOT i_airpress_seq_sts.error THEN 	
-			IF i_airpress_seq_sts.completed THEN
+		IF NOT airpress_seq_sts.error THEN 	
+			IF airpress_seq_sts.completed THEN
 				CycleNext_Handler(i_current_state := AirRepress);			
 			END_IF
 		ELSE
@@ -106,8 +135,8 @@ CASE cycle_state OF
 			
 	Adsorption :
 		CycleEntry_Handler(i_current_state := Adsorption);
-		IF NOT i_adsorption_seq_sts.error THEN 	
-			IF i_adsorption_seq_sts.completed THEN
+		IF NOT adsorption_seq_sts.error THEN 	
+			IF adsorption_seq_sts.completed THEN
 				CycleNext_Handler(i_current_state := Adsorption);	
 			END_IF
 		ELSE
@@ -117,8 +146,8 @@ CASE cycle_state OF
 	
 	Estop : 		
 		CycleEntry_Handler(i_current_state := Estop);
-		IF NOT i_estop_seq_sts.error THEN 	
-			IF i_estop_seq_sts.completed THEN
+		IF NOT estop_seq_sts.error THEN 	
+			IF estop_seq_sts.completed THEN
 				CycleNext_Handler(i_current_state := Estop);			
 			END_IF
 		ELSE
@@ -127,8 +156,8 @@ CASE cycle_state OF
 		
 	SafeShutdown : 		
 		CycleEntry_Handler(i_current_state := SafeShutdown);
-		IF NOT i_shutdown_seq_sts.error THEN 	
-			IF i_shutdown_seq_sts.completed THEN
+		IF NOT shutdown_seq_sts.error THEN 	
+			IF shutdown_seq_sts.completed THEN
 				CycleNext_Handler(i_current_state := SafeShutdown);
 				shutdown_evac_req := FALSE;			
 			END_IF
@@ -150,6 +179,35 @@ END_CASE
 
 
 CycleStop_Handler();
+
+
+
+// Reactor Set IOs Control 
+
+fbRS(i_cycle_req 				:= active_cycle,
+	 i_fault_reset				:= i_reset_fault,
+	 i_cooling_pump_assigned 	:= i_cooling_pump_assigned,
+	 i_cooling_pump_sts 		:= i_cooling_pump_sts,
+	 i_deadair_pump_assigned	:= i_deadair_pump_assigned,
+	 i_deadair_pump_sts 		:= i_deadair_pump_sts,
+	 i_steam_system_assigned	:= i_steam_system_assigned,
+	 i_steam_system_sts 		:= i_steam_system_sts,
+	 i_purge_assist_assigned 	:= i_purge_assist_assigned,
+	 i_purge_assist_sts 		:= i_purge_assist_sts,
+	 o_adsorption_seq_sts 		=> adsorption_seq_sts,
+	 o_airpress_seq_sts			=> airpress_seq_sts,
+	 o_evac_seq_sts 			=> evac_seq_sts,
+	 o_desorption_seq_sts 		=> desorption_seq_sts,
+	 o_cooling_seq_sts			=> cooling_seq_sts,
+	 o_estop_seq_sts			=> estop_seq_sts,
+	 o_shutdown_seq_sts			=> shutdown_seq_sts,
+	 o_cooling_pump_req			=> o_cooling_pump_req,
+	 o_deadair_pump_req			=> o_deadair_pump_req,
+	 o_steam_system_req			=> o_steam_system_req,
+	 o_purge_assist_req			=> o_purge_assist_req,
+	 o_error_active				=> rs_error_active );
+
+
 
 ]]></ST>
     </Implementation>
@@ -316,8 +374,24 @@ ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Cycle Number : %s' ,s
       </Implementation>
     </Method>
     <LineIds Name="FB_ReactorSet_Control">
+      <LineId Id="2829" Count="1" />
       <LineId Id="2674" Count="1" />
-      <LineId Id="2678" Count="98" />
+      <LineId Id="2678" Count="97" />
+      <LineId Id="2826" Count="0" />
+      <LineId Id="2831" Count="1" />
+      <LineId Id="2827" Count="0" />
+      <LineId Id="2834" Count="1" />
+      <LineId Id="2886" Count="0" />
+      <LineId Id="2869" Count="6" />
+      <LineId Id="2868" Count="0" />
+      <LineId Id="2844" Count="4" />
+      <LineId Id="2884" Count="1" />
+      <LineId Id="2849" Count="2" />
+      <LineId Id="2833" Count="0" />
+      <LineId Id="2889" Count="0" />
+      <LineId Id="2828" Count="0" />
+      <LineId Id="2825" Count="0" />
+      <LineId Id="2776" Count="0" />
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet_Control.active_cycle.Get">

@@ -23,17 +23,17 @@ END_VAR
 
 VAR
 	
-	util_state : ( Idle := 0, Warmup := 1, Ready := 2, Shutdown := 3, Error := 4); 
+	util_state : ( Idle := 0, Warmup := 1, Active := 2, Shutdown := 3, Error := 4); 
 	
 	cooling_pump_req		: ST_Util_Service_Req;
 	deadair_pump_req		: ST_Util_Service_Req;
 	steam_system_req		: ST_Util_Service_Req;
 	purge_assist_req		: ST_Util_Service_Req;	
 	
-	cooling_pump	: FB_Util_Service_Control(shared_rs_count := rs_count, module_rs_conflict := FALSE);
-	dead_air_pump	: FB_Util_Service_Control(shared_rs_count := 1, module_rs_conflict := FALSE);
-	steam_sytem 	: FB_Util_Service_Control(shared_rs_count := 2, module_rs_conflict := TRUE);
-	purge_assist 	: FB_Util_Service_Control(shared_rs_count := rs_count, module_rs_conflict := FALSE);
+	cooling_pump	: FB_Util_Service_Control(shared_rs_count := rs_count, module_rs_constrain := FALSE, manual_control_only := FALSE);
+	dead_air_pump	: FB_Util_Service_Control(shared_rs_count := 1,		   module_rs_constrain := FALSE, manual_control_only := FALSE);
+	steam_sytem 	: FB_Util_Service_Control(shared_rs_count := 2, 	   module_rs_constrain := TRUE,  manual_control_only := TRUE);
+	purge_assist 	: FB_Util_Service_Control(shared_rs_count := rs_count, module_rs_constrain := FALSE, manual_control_only := FALSE);
 		
 	comms_fault		: BOOL;
 	service_fault	: BOOL;
@@ -56,29 +56,38 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[
-
+// Services FBds calls
 
 cooling_pump_req.request_cmd := i_cooling_pump_req;
 cooling_pump_req.rs_number := i_rs_number_service_req;
-cooling_pump( i_service_req := cooling_pump_req, i_manual_service_req := hmi.util_cooling_pump_cmd); 
+cooling_pump( i_service_req := cooling_pump_req, i_manual_service_req := hmi.util_cooling_pump_cmd,i_auto_mode := hmi.util_auto_mode_cmd);
 
 deadair_pump_req.request_cmd := i_deadair_pump_req;
 deadair_pump_req.rs_number := i_rs_number_service_req;
-dead_air_pump( i_service_req := deadair_pump_req, i_manual_service_req := hmi.util_dead_air_pump_cmd); 
+dead_air_pump( i_service_req := deadair_pump_req, i_manual_service_req := hmi.util_dead_air_pump_cmd,i_auto_mode := hmi.util_auto_mode_cmd); 
 
 steam_system_req.request_cmd := i_steam_system_req;
 steam_system_req.rs_number := i_rs_number_service_req;
-steam_sytem( i_service_req := steam_system_req, i_manual_service_req := hmi.util_steam_system_cmd); 
+steam_sytem( i_service_req := steam_system_req, i_manual_service_req := hmi.util_steam_system_cmd,i_auto_mode := hmi.util_auto_mode_cmd); 
+//steam_sytem( i_manual_service_req := hmi.util_steam_system_cmd,i_auto_mode := hmi.util_auto_mode_cmd,i_auto_mode := hmi.util_auto_mode_cmd); 
 
 purge_assist_req.request_cmd := i_purge_assist_req;
 purge_assist_req.rs_number := i_rs_number_service_req;
 purge_assist( i_service_req := purge_assist_req, i_manual_service_req := hmi.util_purge_assist_cmd); 
 
+// IOs parsing 
+
+GetSet_BOP_IOs();
+
+// Erros Handling 
+
+o_bop_error_critical := in_bop_error AND in_bop_error_code1.0 AND in_bop_error_code2.3 ; // TBD for adding more erros to the list of critical errors 
+o_bop_error_warning  := in_bop_error AND in_bop_error_code1.1 AND in_bop_error_code2.1 ; // TBD to add more errors to the list of warnings 
 
 service_fault := cooling_pump.o_service_sts.faulted OR dead_air_pump.o_service_sts.faulted OR steam_sytem.o_service_sts.faulted OR purge_assist.o_service_sts.faulted ;
 
 
-GetSet_BOP_IOs();]]></ST>
+]]></ST>
     </Implementation>
     <Method Name="GetSet_BOP_IOs" Id="{00be6315-8e6e-4aab-a723-480e44106748}">
       <Declaration><![CDATA[METHOD GetSet_BOP_IOs : BOOL
@@ -93,8 +102,7 @@ F_Get_Seq_Status( i_seq_sts := in_bop_warmup_sts, o_seq_sts => o_bop_warmup_sts)
 F_Get_Seq_Status( i_seq_sts := in_bop_activate_sts, o_seq_sts => o_bop_activate_sts);
 F_Get_Seq_Status( i_seq_sts := in_bop_shutdown_sts, o_seq_sts => o_bop_shutdown_sts);
 
-o_bop_error_critical := in_bop_error AND in_bop_error_code1.0 AND in_bop_error_code2.3 ; // TBD for adding more erros to the list of critical errors 
-o_bop_error_warning  := in_bop_error AND in_bop_error_code1.1 AND in_bop_error_code2.1 ; // TBD to add more errors to the list of warnings 
+
 ]]></ST>
       </Implementation>
     </Method>
@@ -126,13 +134,13 @@ CASE util_state OF
 		out_util_state_req := Warmup;
 		IF NOT o_bop_warmup_sts.error THEN 
 			IF o_bop_warmup_sts.completed AND i_state_req = E_Util_State_Cmd.Activate THEN 
-				util_state := Ready;
+				util_state := Active;
 			END_IF
 		ELSE
 			util_state := Error;
 		END_IF
-	Ready: 
-		out_util_state_req := Ready;
+	Active: 
+		out_util_state_req := E_Util_Service_Sts.Active;
 		IF  o_bop_activate_sts.error THEN 
 			util_state := Error;
 		END_IF
@@ -163,15 +171,26 @@ END_CASE
       </Implementation>
     </Method>
     <LineIds Name="FB_Utilities_Control">
-      <LineId Id="844" Count="17" />
-      <LineId Id="871" Count="1" />
+      <LineId Id="844" Count="4" />
+      <LineId Id="928" Count="0" />
+      <LineId Id="850" Count="7" />
+      <LineId Id="926" Count="0" />
+      <LineId Id="858" Count="3" />
+      <LineId Id="985" Count="1" />
+      <LineId Id="988" Count="0" />
+      <LineId Id="987" Count="0" />
+      <LineId Id="981" Count="0" />
+      <LineId Id="871" Count="0" />
+      <LineId Id="983" Count="1" />
+      <LineId Id="982" Count="0" />
+      <LineId Id="872" Count="0" />
       <LineId Id="862" Count="0" />
       <LineId Id="873" Count="0" />
       <LineId Id="863" Count="0" />
       <LineId Id="142" Count="0" />
     </LineIds>
     <LineIds Name="FB_Utilities_Control.GetSet_BOP_IOs">
-      <LineId Id="6" Count="7" />
+      <LineId Id="6" Count="6" />
       <LineId Id="17" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>

@@ -12,7 +12,7 @@ VAR_INPUT
 	i_deadair_pump_assigned	: BOOL;
 	i_steam_system_assigned	: BOOL;
 	i_purge_assist_assigned	: BOOL;
-	i_reset_fault			: BOOL;
+	i_fault_reset			: BOOL;
 	
 END_VAR
 VAR_OUTPUT
@@ -21,6 +21,8 @@ VAR_OUTPUT
 	o_desorption_seq_sts 	: ST_Sequence_Sts;
 	o_cooling_seq_sts 		: ST_Sequence_Sts;
 	o_airpress_seq_sts 		: ST_Sequence_Sts;
+	o_estop_seq_sts 		: ST_Sequence_Sts;
+	o_shutdown_seq_sts 		: ST_Sequence_Sts;
 	
 	o_cooling_pump_req		: BYTE;  
 	o_deadair_pump_req		: BYTE;
@@ -44,11 +46,12 @@ VAR
 	
 	// from RS Controller 
 	in_adsorption_seq_sts  	AT %I*	: BYTE;
-	in_adsorptio_error_code AT %I*	: DWORD;
 	in_evac_seq_sts 		AT %I*	: BYTE;
 	in_desorption_seq_sts 	AT %I*	: BYTE;
 	in_cooling_seq_sts 		AT %I*	: BYTE;
 	in_airpress_seq_sts 	AT %I*	: BYTE;
+	in_estop_seq_sts 		AT %I*	: BYTE;
+	in_shutdown_seq_sts 	AT %I*	: BYTE;
 	
 	in_cooling_pump_req		AT %I*	: BYTE;  
 	in_deadair_pump_req		AT %I*	: BYTE;
@@ -65,7 +68,7 @@ VAR
 	
 	
 	// to RS Controller
-	out_seq_req 				AT %Q*	: BYTE;
+	out_cycle_req 				AT %Q*	: BYTE;
 	
 	out_cooling_pump_sts 		AT %Q*	: BYTE;  
 	out_deadair_pump_sts		AT %Q*	: BYTE;
@@ -85,11 +88,11 @@ END_VAR
     <Implementation>
       <ST><![CDATA[// Sequence Select + Run request to RS controller
 
-out_seq_req := TO_BYTE(i_cycle_req);
+out_cycle_req := TO_BYTE(i_cycle_req);
 
 // Fault Reset to RS Controller
 
-out_error_reset := i_reset_fault;
+out_error_reset := i_fault_reset;
 
 // Service Request Assigned Sts to RS Controller
 
@@ -114,6 +117,8 @@ F_Get_Seq_Status(i_seq_sts := in_evac_seq_sts,o_seq_sts => o_evac_seq_sts);
 F_Get_Seq_Status(i_seq_sts := in_desorption_seq_sts,o_seq_sts => o_desorption_seq_sts);
 F_Get_Seq_Status(i_seq_sts := in_cooling_seq_sts,o_seq_sts => o_cooling_seq_sts);
 F_Get_Seq_Status(i_seq_sts := in_airpress_seq_sts,o_seq_sts => o_airpress_seq_sts);
+F_Get_Seq_Status(i_seq_sts := in_estop_seq_sts,o_seq_sts => o_estop_seq_sts);
+F_Get_Seq_Status(i_seq_sts := in_shutdown_seq_sts,o_seq_sts => o_shutdown_seq_sts);
 
 // Utilities Req from RS Controller 
 
@@ -152,23 +157,7 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_ReactorSet">
-      <LineId Id="1531" Count="2" />
-      <LineId Id="1866" Count="0" />
-      <LineId Id="1865" Count="0" />
-      <LineId Id="1868" Count="0" />
-      <LineId Id="1867" Count="0" />
-      <LineId Id="1624" Count="0" />
-      <LineId Id="1534" Count="0" />
-      <LineId Id="1626" Count="3" />
-      <LineId Id="1625" Count="0" />
-      <LineId Id="1535" Count="6" />
-      <LineId Id="1623" Count="0" />
-      <LineId Id="1622" Count="0" />
-      <LineId Id="1542" Count="17" />
-      <LineId Id="1782" Count="0" />
-      <LineId Id="1781" Count="0" />
-      <LineId Id="1783" Count="1" />
-      <LineId Id="1697" Count="0" />
+      <LineId Id="2037" Count="47" />
       <LineId Id="32" Count="0" />
     </LineIds>
     <LineIds Name="FB_ReactorSet.Set_Service_Sts">
