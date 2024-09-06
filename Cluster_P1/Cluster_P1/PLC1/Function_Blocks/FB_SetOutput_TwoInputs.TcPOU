@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
-  <POU Name="FB_SetOutput" Id="{ce32a605-11a6-4d3e-b732-e238713e6430}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_SetOutput
+  <POU Name="FB_SetOutput_TwoInputs" Id="{ce32a605-11a6-4d3e-b732-e238713e6430}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SetOutput_TwoInputs
 VAR_IN_OUT
 	io_in1 	: REAL;
 	io_in2	: REAL;
@@ -40,7 +40,7 @@ END_IF
 // Set the output to the latest input
 o_set_value := in_latest;]]></ST>
     </Implementation>
-    <LineIds Name="FB_SetOutput">
+    <LineIds Name="FB_SetOutput_TwoInputs">
       <LineId Id="94" Count="6" />
       <LineId Id="118" Count="0" />
       <LineId Id="101" Count="0" />

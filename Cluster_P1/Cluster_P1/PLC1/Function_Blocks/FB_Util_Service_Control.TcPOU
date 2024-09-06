@@ -23,7 +23,7 @@ VAR
 		
 	fb_dispatcher 			: FB_Service_Dispatcher;
 	
-	fb_service_cmd 			: FB_SetOutput ;
+	fb_service_cmd 			: FB_SetOutput_TwoInputs ;
 	
 	// IOs to Utilities PLC
 	in_service_sts 			AT %I* : BYTE;
@@ -33,13 +33,7 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[//IF (i_service_req.request_cmd = TO_UINT(E_Util_Service_Req.Reset) OR i_manual_service_req = E_Util_Service_Req.Reset) AND o_service_sts.faulted THEN 
-//	service_req := E_Util_Service_Req.Reset;	
-//ELSE 
-//// manage the rs assignment queue based on request form reactor set controller, max number of RSs shared by the service and the number of RSs whithin the same module that can sahre the same service 
-//	fb_dispatcher( i_service_req := i_service_req,i_shared_rs := shared_rs_count, i_rs_module_constrain := module_rs_constrain, o_service_req => service_req_dispatcher);	
-//END_IF
-
+      <ST><![CDATA[
 IF o_service_sts.faulted THEN 
 	fb_dispatcher.Clear_Queue();
 	service_req := 0;
@@ -58,10 +52,6 @@ ELSE
 		END_IF
 	END_IF
 END_IF
-
-
-//fb_service_cmd(io_in1 := service_req_dispatcher, io_in2 := i_manual_service_req); 	
-//service_req := TO_INT(fb_service_cmd.o_set_value);
 
 IOs_Mapping();
 
@@ -124,7 +114,8 @@ o_service_sts.error_code	:= in_service_error_code;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Util_Service_Control">
-      <LineId Id="541" Count="37" />
+      <LineId Id="547" Count="18" />
+      <LineId Id="570" Count="8" />
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="FB_Util_Service_Control.assigned_rs_number.Get">

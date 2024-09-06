@@ -7,7 +7,7 @@ VAR
 	sita_out : REAL;
 	sita_in1 : REAL;
 	sita_in2 : REAL;
-	sita_setout : FB_SetOutput();
+	sita_setout : FB_SetOutput_TwoInputs();
 END_VAR
 ]]></Declaration>
     <Implementation>

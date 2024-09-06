@@ -10,23 +10,10 @@ VAR_IN_OUT
 END_VAR
 
 VAR_INPUT
-	i_rs_number 			: UINT;
+	i_rs_number 				: UINT;
+	i_start_cycle_adsorption	: BOOL;
+	i_reset_fault				: BOOL;
 
-	i_start_cycle_adsorption: BOOL;
-	
-	i_reset_fault			: BOOL;
-	//i_cycle_selection		: UINT;  // 12345,1,2,3,4,5
-
-//	i_adsorption_seq_sts 	: ST_Sequence_Sts;
-//	i_evac_seq_sts 			: ST_Sequence_Sts;
-//	i_desorption_seq_sts 	: ST_Sequence_Sts;
-//	i_cooling_seq_sts 		: ST_Sequence_Sts;
-//	i_airpress_seq_sts 		: ST_Sequence_Sts;
-//	i_estop_seq_sts			: ST_Sequence_Sts;
-//	i_shutdown_seq_sts		: ST_Sequence_Sts;
-	
-//	i_rs_error_active		: BOOL;
-	
 	//Utilities Services Status
 	i_cooling_pump_sts 		: ST_Util_Service_Sts;
 	i_deadair_pump_sts 		: ST_Util_Service_Sts;
@@ -180,8 +167,6 @@ END_CASE
 
 CycleStop_Handler();
 
-
-
 // Reactor Set IOs Control 
 
 fbRS(i_cycle_req 				:= active_cycle,
@@ -311,20 +296,6 @@ IF trig_start_cmd.Q THEN
 	ELSIF io_cycle_selection >= 1 AND io_cycle_selection <=5 THEN
 		cycle_single_selected := TRUE;
 		cycle_state := TO_INT(io_cycle_selection);
-////		cycle_first_entry := FALSE;
-//		IF 	io_cycle_selection = 1 THEN
-//			cycle_state := DeadAirEvac;
-//		ELSIF io_cycle_selection = 2 THEN
-//			cycle_state := SteamDesorption;
-//		ELSIF io_cycle_selection = 3 THEN
-//			cycle_state := VacCooling;
-//		ELSIF io_cycle_selection = 4 THEN
-//			cycle_state := AirRepress;
-//		ELSIF io_cycle_selection = 5 THEN
-//			cycle_state := Adsorption;
-//		ELSE
-//			cycle_state := Idle;
-//		END_IF
 	END_IF
 	
 	o_Done := FALSE;
@@ -377,9 +348,7 @@ ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Cycle Number : %s' ,s
       <LineId Id="2829" Count="1" />
       <LineId Id="2674" Count="1" />
       <LineId Id="2678" Count="97" />
-      <LineId Id="2826" Count="0" />
-      <LineId Id="2831" Count="1" />
-      <LineId Id="2827" Count="0" />
+      <LineId Id="2826" Count="1" />
       <LineId Id="2834" Count="1" />
       <LineId Id="2886" Count="0" />
       <LineId Id="2869" Count="6" />
@@ -443,7 +412,6 @@ ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN,msgFmtStr := 'Cycle Number : %s' ,s
       <LineId Id="35" Count="0" />
       <LineId Id="2" Count="13" />
       <LineId Id="56" Count="0" />
-      <LineId Id="16" Count="13" />
       <LineId Id="1" Count="0" />
       <LineId Id="42" Count="0" />
       <LineId Id="45" Count="1" />

@@ -69,19 +69,11 @@
     <Compile Include="Function_Blocks\FB_ReactorSet_Control.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Function_Blocks\FB_SetOutput.TcPOU">
+    <Compile Include="Function_Blocks\FB_SetOutput_TwoInputs.TcPOU">
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Function_Blocks\FB_Utilities_Control_Old.TcPOU">
-      <SubType>Code</SubType>
-      <ExcludeFromBuild>true</ExcludeFromBuild>
     </Compile>
     <Compile Include="Function_Blocks\FB_Utilities_Control.TcPOU">
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Function_Blocks\FB_Utilities_Dispatcher.TcPOU">
-      <SubType>Code</SubType>
-      <ExcludeFromBuild>true</ExcludeFromBuild>
     </Compile>
     <Compile Include="Function_Blocks\FB_Utilities_Service.TcPOU">
       <SubType>Code</SubType>
