@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{bb0bb8c9-51d4-4604-868f-f5d016f9a231}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	Counter:DINT;
+	FB_DataToFile:FB_DataToFileEx; //This is the function block. It must be in the variable declarion window.
+	xStartRecording:BOOL;
+	xRecordOnce:BOOL;
+	FileRoot:STRING:='C:\Users\asita\OneDrive - CarbonCapture Inc\Documents\Training\Beckhoff\';
+	sHeader : STRING(600);
+	dataColumns : ARRAY[1..3] OF STRING;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//sHeader := 'Column1,Column2,Column3,Column4,Column5,Column6,Column7,Column8,Column9,Column10,Column11,Column12,Column13,Column15,Column15,Column16,Column17,Column18,Column19,Column20,Column21,Column22,Column23,Column24,Column25,Column26,Column27,Column28,Column29,Column30,$L';
+sHeader := 'Column1,Column2,Column3,$L';
+//This must be called every PLC scan.
+FB_DataToFile(
+	sFileRoot:=FileRoot , 
+	sFileName:='MyLogFile.csv' , 
+	sHeader:= ADR(sHeader),
+	sHeaderLenght := SIZEOF(sHeader), 
+	sFileNameHistory:='MyLogfileOld.csv' , 
+	sNetID := '',
+	udiErrId=> , 
+	xBusy=> , 
+	xError=> );
+
+//Use Methods to write to file. Method places data into buffer. FB_DataToFile cyclic call saves data to file.
+
+//TEST or TRY   /////   xStartRecording OR xRecordOnce to see it work!
+IF xStartRecording OR xRecordOnce THEN
+	xRecordOnce:=FALSE;
+	Counter:=Counter+1;
+	dataColumns[1] := 'Hello World';
+	dataColumns[2] := DINT_TO_STRING(Counter); 
+	dataColumns[3] := DINT_TO_STRING(Counter); 
+	
+//	FB_DataToFile.M_LogAsCsv_30column('Hello World', DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),
+//									  DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),
+//									  DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),
+//									  DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),DINT_TO_STRING(Counter),
+//									  DINT_TO_STRING(Counter),DINT_TO_STRING(Counter));
+	FB_DataToFile.M_LogAsCsv(s_columns := dataColumns);
+
+END_IF
+
+//Optional. For creating any type of file other then CSV.
+//FB_DataToFile.M_LogString(CONCAT(CONCAT('Hello World ', DINT_TO_STRING(Counter)),'$L')); //$L is a line feed
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="130" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="63" Count="3" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="68" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="108" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="133" Count="3" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="123" Count="3" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="112" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
