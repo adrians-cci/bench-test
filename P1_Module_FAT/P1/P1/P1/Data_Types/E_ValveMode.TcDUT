@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <DUT Name="E_ValveMode" Id="{1e3da7c5-769f-426c-b97b-c7cdf4992477}">
+    <Declaration><![CDATA[// E_ValveMode
+// Rev 1.0 - October 15, 2024
+
+TYPE E_ValveMode :
+(
+	eClear						:= 0,
+	eTransit,
+	eError
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

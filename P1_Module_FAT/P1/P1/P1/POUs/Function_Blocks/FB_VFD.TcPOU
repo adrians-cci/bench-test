@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_VFD" Id="{0291da2f-90dc-4ea7-b9a9-d22be33c2b55}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_VFD
+VAR_INPUT
+	Enable_Vfd															: BOOL;
+	Fault_Reset															: BOOL;
+	Rpm																	: REAL;
+	Minimum_Speed														: REAL		:= 0;
+	Maximum_Speed														: REAL		:= 1800;
+	StatusWord															: WORD;
+END_VAR
+VAR_OUTPUT
+	ControlWord															: WORD;
+	TargetRpm															: WORD;
+	Ready																: BOOL;
+	Error																: BOOL;
+END_VAR
+VAR
+	rtrigClear															: R_TRIG;
+	rtrigReady															: R_TRIG;
+	rtrigRun															: R_TRIG;
+	tonReady															: TON;
+	tonRun																: TON;
+	rRpm																: REAL;
+	bEnabled															: BOOL;
+	
+	VFD_OFF																: WORD										:= 0;
+	VFD_CLEAR															: WORD										:= 6;
+	VFD_READY															: WORD										:= 7;
+	VFD_RUN																: WORD										:= 15;
+	VFD_FAULTED															: WORD										:= 8;
+	VFD_RESET															: WORD										:= 128;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// FB_VFD
+// Rev 1.0 - June 22, 2024
+
+rRpm 																	:= Rpm;
+
+bEnabled																:= Enable_Vfd;
+IF rRpm = 0 THEN
+	bEnabled															:= FALSE;											// Turn output off if rpm is 0
+ELSIF rRpm > Maximum_Speed THEN
+	rRpm																:= Maximum_Speed;
+ELSIF rRpm < Minimum_Speed THEN
+	rRpm																:= Minimum_Speed;
+END_IF
+
+rtrigClear(CLK:= bEnabled);
+IF rtrigClear.Q THEN
+	ControlWord															:= VFD_CLEAR;
+END_IF
+
+rtrigReady(CLK:= tonReady.Q);
+IF rtrigReady.Q THEN
+	ControlWord															:= VFD_READY;
+END_IF
+tonReady(IN:= ControlWord = VFD_CLEAR, PT:= T#100MS);
+
+rtrigRun(CLK:= tonRun.Q);
+IF rtrigRun.Q THEN
+	ControlWord															:= VFD_RUN;
+END_IF
+tonRun(IN:= ControlWord = VFD_READY, PT:= T#100MS);
+
+IF NOT bEnabled AND NOT Fault_Reset THEN
+	ControlWord															:= VFD_OFF;
+	rtrigReady(CLK:= FALSE);
+END_IF
+
+IF Error AND Fault_Reset THEN
+	ControlWord															:= VFD_RESET;
+END_IF
+
+Ready																	:= ControlWord = VFD_READY OR ControlWord = VFD_RUN OR Enable_Vfd;
+TargetRpm																:= SEL(Ready, 0, REAL_TO_WORD(rRpm));
+
+Error																	:= (StatusWord AND VFD_FAULTED) > 0;
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_VFD">
+      <LineId Id="10" Count="2" />
+      <LineId Id="15" Count="40" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

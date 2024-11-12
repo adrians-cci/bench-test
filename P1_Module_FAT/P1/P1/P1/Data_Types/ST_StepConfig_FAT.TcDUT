@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_StepConfig_FAT" Id="{2cf81feb-8ed4-4677-af74-8b7c3a75033b}">
+    <Declaration><![CDATA[TYPE ST_StepConfig_FAT :
+STRUCT
+	{attribute 'json' := 'react_pres'}
+	react_press : REAL;
+	{attribute 'json' := 'sorbent_temp'}
+	sorbent_temp : REAL;
+	{attribute 'json' := 'SP_1'}
+	sp_1 : REAL;
+	{attribute 'json' := 'SP_2'}
+	sp_2 : REAL;
+	{attribute 'json' := 'SP_3'}
+	sp_3 : REAL;
+	{attribute 'json' := 'SP_4'}
+	sp_4 : REAL;
+	{attribute 'json' := 'V_1'}
+	valve_1 : STRING;
+	{attribute 'json' := 'V_2'}
+	valve_2 : STRING;
+	{attribute 'json' := 'V_3'}
+	valve_3 : STRING;
+	{attribute 'json' := 'V_4'}
+	valve_4 : STRING;
+	{attribute 'json' := 'C_1'}
+	check_1 : STRING;
+	{attribute 'json' := 'C_2'}
+	check_2 : STRING;
+	{attribute 'json' := 'C_3'}
+	check_3 : STRING;
+	{attribute 'json' := 'C_4'}
+	check_4 : STRING;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <GVL Name="Global_Constants" Id="{03afaff9-f39f-4674-851a-eb9c50317218}">
+    <Declaration><![CDATA[// P1 - Global_Constants
+// Rev 1.0 - November 2, 2024
+
+VAR_GLOBAL CONSTANT
+	
+	_IDLE																: BYTE		:= 0;
+	_STARTED															: BYTE		:= 1;
+	_COMPLETED															: BYTE		:= 2;
+	_ERROR																: BYTE		:= 9;
+	
+	_OPEN																: INT 		:= 100;
+	_CLOSE																: INT		:= 0;
+	
+	_TEMP_VALID_TIME													: INT		:= 30;
+	_VALVE_CHECK_TIME													: INT		:= 3000;
+
+	_SECONDS															: REAL		:= 1000;
+	_MINUTES															: REAL		:= 60000;
+	
+	_PERCENT_FACTOR														: REAL		:= 327.67;		// Factor to convert input to output percentage
+	_VALVE_CLOSED														: INT		:= 3;
+	_VALVE_OPEN															: INT		:= 95;
+
+	_FAN_SPEED_MAX														: REAL		:= 1765;		// Maximum Fan RPM
+	_FAN_SPEED_MIN														: REAL		:= 300;			// Minimum Fan RPM
+	_FAN_ON																: REAL		:= 100;
+	_FAN_START_TIME														: TIME		:= T#10S; 
+	
+	_DOOR_LATCH_CLOSE_TIME												: TIME		:= T#2S;
+
+	_FAN_DELAY_TIME														: INT		:= 2000;
+	_STOPPING_TIME														: REAL		:= 2000;
+
+(*
+	_DRAIN_TIME															: TIME		:= T#3S;
+	_PUMP_SPEED_MAX														: REAL		:= 3540;		// Maximum Pump RPM
+	_PUMP_SPEED_MIN														: REAL		:= 200;			// Minimum Pump RPM
+	_FAN_RS_DELAY_TIME													: INT		:= 10000;
+	_PAUSE_TIME															: REAL		:= 2000;
+	_VALVE_TIME															: REAL		:= 3000;
+	_FAN_SHUTDOWN_TIME													: REAL		:= 10000;
+	_VALVE_INCREMENT_TIME												: REAL		:= 250;			// Time period for incremental change in valve position (mSecs)
+	_VALVE_CLOSED														: INT		:= 3;
+	_VALVE_OPEN															: INT		:= 95;
+*)	
+	_CURRENT_480_FACTOR													: REAL		:= 218.44;      // = 32767 counts / 150 amps
+	_VOLTAGE_480_FACTOR													: REAL		:= 65.53;		// 0 - 500 VAC 
+	_FAN_RPM_FACTOR														: REAL		:= 17.65;		// Factor to convert fan percent input to rpm output (max rpm / 100)
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

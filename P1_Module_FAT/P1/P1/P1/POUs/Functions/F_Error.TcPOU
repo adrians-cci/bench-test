@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <POU Name="F_Error" Id="{adab9405-bb83-4095-bfe1-ac83aa121e65}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_Error : DWORD
+VAR_INPUT
+	Error_Code															: DWORD;
+	Error_On															: BOOL;
+	Error																: INT;
+END_VAR
+VAR
+	Error_Bit															: DWORD;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_Error - If Error is true, Error_Code is 
+// Rev 1.0 - September 24, 2024
+
+Error_Bit																:= LREAL_TO_DWORD(EXPT(2, Error));
+F_Error																	:= SEL(Error_On, Error_Code AND NOT Error_Bit, Error_Code OR Error_Bit);
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_Error">
+      <LineId Id="28" Count="1" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="19" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

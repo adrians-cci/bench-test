@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="FAT" Id="{8f9ffcca-b24a-43b6-9e7c-ab3672e43a23}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	st_steam_desorption : ST_Seq_FAT;  // structure that parses the json file
+	st_steam_desorption_result : ST_SeqResult_FAT;
+	json_file_path : STRING(255) := 'C:/Users/asita/Documents/Steam_Desorption_FAT_Nominal.json';
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

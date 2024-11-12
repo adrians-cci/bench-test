@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <POU Name="FB_Door_Closed" Id="{d0accfa4-cabd-4169-9cf7-6cf08415fcc9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Door_Closed
+VAR_INPUT
+	valve																: BOOL;
+	limit_switch														: BOOL;
+END_VAR
+VAR_OUTPUT
+	door_closed															: BOOL;
+END_VAR
+VAR
+	ton1																: TON;
+	rtrig1																: R_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// FB_Door_Closed
+// Rev 1.0 - November 2, 2024
+
+ton1(IN:= valve AND limit_switch, PT:= _DOOR_LATCH_CLOSE_TIME);
+rtrig1(CLK:= ton1.Q);
+IF rtrig1.Q THEN
+	door_closed															:= TRUE;
+ELSIF NOT valve THEN
+	door_closed															:= FALSE;
+END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Door_Closed">
+      <LineId Id="23" Count="2" />
+      <LineId Id="10" Count="6" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

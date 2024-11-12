@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <GVL Name="Global_Variables" Id="{4557a8c3-046b-4b11-be20-54f3797f9da8}">
+    <Declaration><![CDATA[// P1 - Global_Variables
+// Rev 1.0 - October 23, 2024
+
+VAR_GLOBAL
+	grDoorDelay															: REAL;
+	grValveDelay														: REAL;
+	grSteamControlValveDelay											: REAL;
+	grClampDelay														: REAL;
+	
+	gbReset																: BOOL;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

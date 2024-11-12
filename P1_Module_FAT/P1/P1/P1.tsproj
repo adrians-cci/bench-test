@@ -1,0 +1,2481 @@
+<?xml version="1.0"?>
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.55">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-000300000015}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..20] OF BYTE</Name>
+			<BitSize>168</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>21</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002100000015}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..20] OF BOOL</Name>
+			<BitSize>168</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>21</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{B8AE9AEF-888A-D4DD-A17A-D75577E1E11C}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..20] OF BYTE</Name>
+			<BitSize>168</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>21</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{3A016E18-3EDD-F3CD-FB0C-88D416835136}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..10] OF DWORD</Name>
+			<BitSize>352</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000007}">DWORD</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>11</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{C323C256-4723-4247-9503-3EA317FD30AA}" PersistentType="true">Utility_Status</Name>
+			<Comment><![CDATA[ P1 - STRUCT - Utility_Status
+ Rev 1.0 - September 6, 2024]]></Comment>
+			<BitSize>32</BitSize>
+			<SubItem>
+				<Name>vac_cooling_pump</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>dead_air_pump</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>steam_system</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>16</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>purge_assist</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>24</BitOffs>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{21A7919A-4043-F440-C8C8-5BBC42090C1F}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{101CD51F-E404-48E9-9BBD-44F608BC2D52}" PersistentType="true">State_Status</Name>
+			<Comment><![CDATA[ P1 - STRUCT - State_Status
+ Rev 1.0 - September 6, 2024]]></Comment>
+			<BitSize>352</BitSize>
+			<SubItem>
+				<Name>idle</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>air_repress</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>air_repress_error_code</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000007}">DWORD</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>adsorption</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>adsorption_error_code</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000007}">DWORD</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>dead_air_evac</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>dead_air_evac_error_code</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000007}">DWORD</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>160</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>steam_desorption</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>192</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>steam_desorption_error_code</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000007}">DWORD</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>224</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>vacuum_cooling</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>256</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>vacuum_cooling_error_code</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000007}">DWORD</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>288</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>estop</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>320</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>shutdown</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>328</BitOffs>
+			</SubItem>
+			<Hides>
+				<Hide GUID="{CFF183E6-CA01-CE4C-64F2-E902D0A4F7D2}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+	<Project ProjectGUID="{0BEE7899-8E73-4750-8744-CBD31A76207C}" Target64Bit="true" ShowHideConfigurations="#x6">
+		<System>
+			<Settings MaxCpus="20">
+				<Cpu CpuId="3"/>
+				<Cpu CpuId="19"/>
+			</Settings>
+			<Licenses>
+				<Target>
+					<ManualSelect>{BDCC0070-42D5-49AE-ABF1-1D4434813D60}</ManualSelect>
+				</Target>
+			</Licenses>
+			<Tasks>
+				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
+					<Name>PlcTask</Name>
+				</Task>
+			</Tasks>
+		</System>
+		<Plc>
+			<Project GUID="{A8C2B32E-D9EE-48EA-9640-BB5A97C9560A}" Name="P1" PrjFilePath="P1\P1.plcproj" TmcFilePath="P1\P1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="P1\P1.tmc" TmcHash="{4324AC66-DFAC-EA18-FA7B-77D173F94943}">
+					<Name>P1 Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Vars VarGrpType="1">
+						<Name>PlcTask Inputs</Name>
+						<Var>
+							<Name>P_Module.u_vac_cooling_pump_status</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.u_dead_air_pump_status</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.u_steam_system_status</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.u_purge_assist_status</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.u_instrument_air_status</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.u_module_generic_byte</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.steam_bypass_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV08</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.steam_bypass_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV08</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.directive</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_vac_cooling_pump_service_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_dead_air_pump_service_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_steam_system_service_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_purge_assist_service_assigned</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_error_reset</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx01_TT01</Name>
+							<Comment><![CDATA[ <summary>inlet top left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx01_TT01_error</Name>
+							<Comment><![CDATA[ <summary>inlet top left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx01_TT02</Name>
+							<Comment><![CDATA[ <summary>inlet top right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx01_TT02_error</Name>
+							<Comment><![CDATA[ <summary>inlet top right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx01_TT03</Name>
+							<Comment><![CDATA[ <summary>inlet bottom left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx01_TT03_error</Name>
+							<Comment><![CDATA[ <summary>inlet bottom left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx01_TT04</Name>
+							<Comment><![CDATA[ <summary>inlet bottom right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx01_TT04_error</Name>
+							<Comment><![CDATA[ <summary>inlet bottom right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx03_TT01</Name>
+							<Comment><![CDATA[ <summary>outlet top left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx03_TT01_error</Name>
+							<Comment><![CDATA[ <summary>outlet top left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx03_TT02</Name>
+							<Comment><![CDATA[ <summary>outlet top right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx03_TT02_error</Name>
+							<Comment><![CDATA[ <summary>outlet top right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx03_TT03</Name>
+							<Comment><![CDATA[ <summary>outlet bottom left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx03_TT03_error</Name>
+							<Comment><![CDATA[ <summary>outlet bottom left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx03_TT04</Name>
+							<Comment><![CDATA[ <summary>outlet bottom right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.xx03_TT04_error</Name>
+							<Comment><![CDATA[ <summary>outlet bottom right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_left_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_left_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_right_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_right_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_left_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_left_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_right_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_right_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_left_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_right_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_left_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_right_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.TT06</Name>
+							<Comment><![CDATA[ <summary>outlet line temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.TT06_error</Name>
+							<Comment><![CDATA[ <summary>outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.fan_vfd_status</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.fan_vfd_velocity</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.fan_vfd_ecat_state</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.fan_vfd_current</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>DINT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx01_TT01</Name>
+							<Comment><![CDATA[ <summary>inlet top left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx01_TT01_error</Name>
+							<Comment><![CDATA[ <summary>inlet top left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx01_TT02</Name>
+							<Comment><![CDATA[ <summary>inlet top right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx01_TT02_error</Name>
+							<Comment><![CDATA[ <summary>inlet top right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx01_TT03</Name>
+							<Comment><![CDATA[ <summary>inlet bottom left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx01_TT03_error</Name>
+							<Comment><![CDATA[ <summary>inlet bottom left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx01_TT04</Name>
+							<Comment><![CDATA[ <summary>inlet bottom right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx01_TT04_error</Name>
+							<Comment><![CDATA[ <summary>inlet bottom right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx03_TT01</Name>
+							<Comment><![CDATA[ <summary>outlet top left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx03_TT01_error</Name>
+							<Comment><![CDATA[ <summary>outlet top left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx03_TT02</Name>
+							<Comment><![CDATA[ <summary>outlet top right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx03_TT02_error</Name>
+							<Comment><![CDATA[ <summary>outlet top right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx03_TT03</Name>
+							<Comment><![CDATA[ <summary>outlet bottom left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx03_TT03_error</Name>
+							<Comment><![CDATA[ <summary>outlet bottom left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx03_TT04</Name>
+							<Comment><![CDATA[ <summary>outlet bottom right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.xx03_TT04_error</Name>
+							<Comment><![CDATA[ <summary>outlet bottom right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_left_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_left_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_right_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_right_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_left_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_left_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_right_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_right_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_left_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_right_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_left_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_right_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.TT06</Name>
+							<Comment><![CDATA[ <summary>outlet line temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.TT06_error</Name>
+							<Comment><![CDATA[ <summary>outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.fan_vfd_status</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.fan_vfd_velocity</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.fan_vfd_ecat_state</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.fan_vfd_current</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>DINT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx01_TT01</Name>
+							<Comment><![CDATA[ <summary>inlet top left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx01_TT01_error</Name>
+							<Comment><![CDATA[ <summary>inlet top left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx01_TT02</Name>
+							<Comment><![CDATA[ <summary>inlet top right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx01_TT02_error</Name>
+							<Comment><![CDATA[ <summary>inlet top right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx01_TT03</Name>
+							<Comment><![CDATA[ <summary>inlet bottom left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx01_TT03_error</Name>
+							<Comment><![CDATA[ <summary>inlet bottom left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx01_TT04</Name>
+							<Comment><![CDATA[ <summary>inlet bottom right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx01_TT04_error</Name>
+							<Comment><![CDATA[ <summary>inlet bottom right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx03_TT01</Name>
+							<Comment><![CDATA[ <summary>outlet top left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx03_TT01_error</Name>
+							<Comment><![CDATA[ <summary>outlet top left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx03_TT02</Name>
+							<Comment><![CDATA[ <summary>outlet top right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx03_TT02_error</Name>
+							<Comment><![CDATA[ <summary>outlet top right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx03_TT03</Name>
+							<Comment><![CDATA[ <summary>outlet bottom left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx03_TT03_error</Name>
+							<Comment><![CDATA[ <summary>outlet bottom left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx03_TT04</Name>
+							<Comment><![CDATA[ <summary>outlet bottom right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.xx03_TT04_error</Name>
+							<Comment><![CDATA[ <summary>outlet bottom right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_left_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_left_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_right_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_right_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_left_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_left_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_right_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_right_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_left_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_right_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_left_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_right_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.TT06</Name>
+							<Comment><![CDATA[ <summary>outlet line temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.TT06_error</Name>
+							<Comment><![CDATA[ <summary>outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.fan_vfd_status</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.fan_vfd_velocity</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.fan_vfd_ecat_state</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.fan_vfd_current</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>DINT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx01_TT01</Name>
+							<Comment><![CDATA[ <summary>inlet top left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx01_TT01_error</Name>
+							<Comment><![CDATA[ <summary>inlet top left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx01_TT02</Name>
+							<Comment><![CDATA[ <summary>inlet top right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx01_TT02_error</Name>
+							<Comment><![CDATA[ <summary>inlet top right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx01_TT03</Name>
+							<Comment><![CDATA[ <summary>inlet bottom left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx01_TT03_error</Name>
+							<Comment><![CDATA[ <summary>inlet bottom left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx01_TT04</Name>
+							<Comment><![CDATA[ <summary>inlet bottom right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx01_TT04_error</Name>
+							<Comment><![CDATA[ <summary>inlet bottom right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx03_TT01</Name>
+							<Comment><![CDATA[ <summary>outlet top left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx03_TT01_error</Name>
+							<Comment><![CDATA[ <summary>outlet top left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx03_TT02</Name>
+							<Comment><![CDATA[ <summary>outlet top right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx03_TT02_error</Name>
+							<Comment><![CDATA[ <summary>outlet top right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx03_TT03</Name>
+							<Comment><![CDATA[ <summary>outlet bottom left temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx03_TT03_error</Name>
+							<Comment><![CDATA[ <summary>outlet bottom left temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx03_TT04</Name>
+							<Comment><![CDATA[ <summary>outlet bottom right temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.xx03_TT04_error</Name>
+							<Comment><![CDATA[ <summary>outlet bottom right temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_left_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_left_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_right_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_right_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_left_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_left_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_right_closed_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_right_open_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_left_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_right_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_left_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_right_clamps_extended_ls</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-ZS03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.TT06</Name>
+							<Comment><![CDATA[ <summary>outlet line temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.TT06_error</Name>
+							<Comment><![CDATA[ <summary>outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.fan_vfd_status</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.fan_vfd_velocity</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.fan_vfd_ecat_state</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.fan_vfd_current</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>DINT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.PDT03</Name>
+							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.PDT03_error</Name>
+							<Comment><![CDATA[ <summary>fanter diff pres</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.PT01</Name>
+							<Comment><![CDATA[ <summary>Reactor Pressure</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.PT01_error</Name>
+							<Comment><![CDATA[ <summary>Reactor Pressure</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.AT03</Name>
+							<Comment><![CDATA[ <summary>Outlet CO2</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.AT03_Error</Name>
+							<Comment><![CDATA[ <summary>Outlet CO2</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.AT04</Name>
+							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.AT04_error</Name>
+							<Comment><![CDATA[ <summary>Outlet H2O</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.circuit_breaker_no_feedback</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.circuit_breaker_nc_feedback</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.PCV_01_position</Name>
+							<Comment><![CDATA[ <summary>rs steam control valve</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.repres_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.repres_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.dead_air_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.dead_air_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.purge_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV05</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.purge_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV05</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.cooling_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV06</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.cooling_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV06</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.steam_header_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV07</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.steam_header_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV07</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.AT01_error</Name>
+							<Comment><![CDATA[ <summary>Inlet CO2</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.AT01</Name>
+							<Comment><![CDATA[ <summary>Inlet CO2</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.AT02_error</Name>
+							<Comment><![CDATA[ <summary>Inlet H2O</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.AT02</Name>
+							<Comment><![CDATA[ <summary>Inlet H2O</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.AT04_error</Name>
+							<Comment><![CDATA[ <summary>Outlet H2O</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.AT04</Name>
+							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.PT02_error</Name>
+							<Comment><![CDATA[ <summary>steam manifold line pres</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.PT02</Name>
+							<Comment><![CDATA[ <summary>steam manifold line pres</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.PDT01_error</Name>
+							<Comment><![CDATA[ <summary>filter diff pres</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.PDT01</Name>
+							<Comment><![CDATA[ <summary>filter diff pres</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.PDT02</Name>
+							<Comment><![CDATA[ <summary>sorbent diff pres</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.PDT02_error</Name>
+							<Comment><![CDATA[ <summary>sorbent diff pres</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.TT05</Name>
+							<Comment><![CDATA[ <summary>reactor_wall_temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.TT05_error</Name>
+							<Comment><![CDATA[ <summary>reactor_wall_temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.TT10</Name>
+							<Comment><![CDATA[ <summary>steam temp near rs1</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.TT10_error</Name>
+							<Comment><![CDATA[ <summary>steam temp near rs1</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.TT11</Name>
+							<Comment><![CDATA[ <summary>inlet_air_temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.TT11_error</Name>
+							<Comment><![CDATA[ <summary>inlet_air_temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.l1_current_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.l2_current_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.IT_01</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.IT_02</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.l3_current_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.l1_volatge_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.IT_03</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.VT_01</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.l2_volatge_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.l3_volatge_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.VT_02</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.VT_03</Name>
+							<Type>INT</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" AreaNo="1">
+						<Name>PlcTask Outputs</Name>
+						<Var>
+							<Name>P_Module.m_error_code</Name>
+							<Comment><![CDATA[ EAP Variables]]></Comment>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_vac_cooling_pump_service_request</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_dead_air_pump_service_request</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_steam_system_service_request</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_purge_assist_service_request</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_idle</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_air_repres</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_adsorption</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_dead_air_evac</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_steam_desorption</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_vacuum_cooling</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_shutdown</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_shutdown_evac</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_estop</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_error_step</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_error_code_1</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.rs_error_code_2</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_left_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_right_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_left_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_right_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_left_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_right_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_left_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_right_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_left_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02_XV01_SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_right_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_left_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.inlet_door_right_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01_SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_left_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_right_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_left_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.outlet_door_right_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.fan_vfd_control</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r1.fan_vfd_target_vel</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_left_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_right_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_left_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_right_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_left_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_right_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_left_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_right_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_left_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02_XV01_SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_right_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_left_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.inlet_door_right_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01_SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_left_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_right_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_left_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.outlet_door_right_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.fan_vfd_control</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r2.fan_vfd_target_vel</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_left_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_right_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_left_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_right_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_left_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_right_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_left_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_right_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_left_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02_XV01_SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_right_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_left_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.inlet_door_right_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01_SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_left_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_right_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_left_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.outlet_door_right_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.fan_vfd_control</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r3.fan_vfd_target_vel</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.error_code</Name>
+							<Type>DWORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_left_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_right_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_left_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_right_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_left_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_right_actuator_open_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_left_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_right_actuator_close_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_left_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02_XV01_SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_right_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_left_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV01-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.inlet_door_right_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV01_SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_left_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_right_clamps_extend_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_left_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx02-XV03-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.outlet_door_right_clamps_retract_solenoid_valve</Name>
+							<Comment><![CDATA[ <summary>xx01-XV03-SV02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.fan_vfd_control</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.r4.fan_vfd_target_vel</Name>
+							<Comment><![CDATA[ <summary>VFD01</summary>]]></Comment>
+							<Type>WORD</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.fan_diff_pres_off</Name>
+							<Comment><![CDATA[ <summary>PDT03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.fan_diff_pres_sv01</Name>
+							<Comment><![CDATA[ <summary>R1_PDT03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.fan_diff_pres_sv02</Name>
+							<Comment><![CDATA[ <summary>R2_PDT03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.fan_diff_pres_sv03</Name>
+							<Comment><![CDATA[ <summary>R3_PDT03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.fan_diff_pres_sv04</Name>
+							<Comment><![CDATA[ <summary>R4_PDT03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.outlet_co2_off</Name>
+							<Comment><![CDATA[ <summary>AT03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.outlet_co2_sv01</Name>
+							<Comment><![CDATA[ <summary>R1_AT03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.outlet_co2_sv02</Name>
+							<Comment><![CDATA[ <summary>R2_AT03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.outlet_co2_sv03</Name>
+							<Comment><![CDATA[ <summary>R3_AT03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.outlet_co2_sv04</Name>
+							<Comment><![CDATA[ <summary>R4_AT03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.AT03_pump</Name>
+							<Comment><![CDATA[ <summary>Inlet CO2 pump</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.AT03_sol</Name>
+							<Comment><![CDATA[ <summary>Outlet CO2 solenoid</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.PWR_01</Name>
+							<Comment><![CDATA[ <summary>power_cmd</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.PCV_01</Name>
+							<Comment><![CDATA[ <summary>rs steam control valve</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.XV_02</Name>
+							<Comment><![CDATA[ <summary>repres valve</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.XV_04</Name>
+							<Comment><![CDATA[ <summary>dead air valve</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.XV_05</Name>
+							<Comment><![CDATA[ <summary>purge valve</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.XV_06</Name>
+							<Comment><![CDATA[ <summary>cooling valve</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.rs1.XV_07</Name>
+							<Comment><![CDATA[ <summary>steam header valve</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.XV_08</Name>
+							<Comment><![CDATA[ <summary>steam_bypass_valve</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.AT01_pump</Name>
+							<Comment><![CDATA[ <summary>Inlet CO2 pump</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_Module.AT01_sol</Name>
+							<Comment><![CDATA[ <summary>Inlet CO2 solenoid</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+					</Vars>
+					<UnrestoredVarLinks ImportTime="2024-10-22T12:30:25">
+						<OwnerA Name="InputDst" Prefix="TIPC^P1^P1 Instance" Type="1">
+							<OwnerB Name="TIID^Device 2 (EtherCAT Automation Protocol)^Box 1 (Subscriber)">
+								<Link VarA="P_Module.rs1.rs_dead_air_pump_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS1_Bools^Inputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs1.rs_purge_assist_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS1_Bools^Inputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs1.rs_steam_system_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS1_Bools^Inputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs1.rs_vac_cooling_pump_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS1_Bools^Inputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_dead_air_pump_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Inputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_purge_assist_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Inputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_steam_system_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Inputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_vac_cooling_pump_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Inputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_dead_air_pump_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Inputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_purge_assist_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Inputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_steam_system_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Inputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_vac_cooling_pump_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Inputs^VarData[0]" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+					</UnrestoredVarLinks>
+					<UnrestoredVarLinks ImportTime="2024-10-31T08:59:01">
+						<OwnerA Name="OutputSrc" Prefix="TIPC^P1^P1 Instance" Type="2">
+							<OwnerB Name="TIID^Device 2 (EtherCAT Automation Protocol)^Box 2 (Publisher)">
+								<Link VarA="P_Module.rs1.rs_error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS1_Dwords^Outputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS2_Dwords^Outputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS3_Dwords^Outputs^VarData[0]" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+					</UnrestoredVarLinks>
+					<UnrestoredVarLinks ImportTime="2024-11-05T19:13:56">
+						<OwnerA Name="InputDst" Prefix="TIPC^P1^P1 Instance" Type="1">
+							<OwnerB Name="TIID^Device 2 (EtherCAT Automation Protocol)^Box 1 (Subscriber)">
+								<Link VarA="P_Module.rs2.directive" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS2_Bytes^Inputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_dead_air_pump_service_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Inputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_purge_assist_service_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Inputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_steam_system_service_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Inputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_vac_cooling_pump_service_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Inputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.directive" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS3_Bytes^Inputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_dead_air_pump_service_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Inputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_purge_assist_service_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Inputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_steam_system_service_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Inputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_vac_cooling_pump_service_assigned" TypeA="BOOL" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Inputs^VarData[0]" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+						<OwnerA Name="OutputSrc" Prefix="TIPC^P1^P1 Instance" Type="2">
+							<OwnerB Name="TIID^Device 2 (EtherCAT Automation Protocol)^Box 2 (Publisher)">
+								<Link VarA="P_Module.rs2.r1.error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS2_Dwords^Outputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.r2.error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS2_Dwords^Outputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.r3.error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS2_Dwords^Outputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.r4.error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS2_Dwords^Outputs^VarData[4]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_adsorption" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS2_Bytes^Outputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_air_repres" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS2_Bytes^Outputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_dead_air_evac" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS2_Bytes^Outputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_dead_air_pump_service_request" TypeA="BOOL" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Outputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_estop" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS2_Bytes^Outputs^VarData[6]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_idle" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS2_Bytes^Outputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_purge_assist_service_request" TypeA="BOOL" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Outputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_shutdown" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS2_Bytes^Outputs^VarData[7]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_shutdown_evac" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS2_Bytes^Outputs^VarData[8]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_steam_desorption" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS2_Bytes^Outputs^VarData[4]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_steam_system_service_request" TypeA="BOOL" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Outputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_vac_cooling_pump_service_request" TypeA="BOOL" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS2_Bools^Outputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs2.rs_vacuum_cooling" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS2_Bytes^Outputs^VarData[5]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.r1.error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS3_Dwords^Outputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.r2.error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS3_Dwords^Outputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.r3.error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS3_Dwords^Outputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.r4.error_code" TypeA="DWORD" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000007}" VarB="RS3_Dwords^Outputs^VarData[4]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_adsorption" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS3_Bytes^Outputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_air_repres" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS3_Bytes^Outputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_dead_air_evac" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS3_Bytes^Outputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_dead_air_pump_service_request" TypeA="BOOL" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Outputs^VarData[1]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_estop" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS3_Bytes^Outputs^VarData[6]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_idle" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS3_Bytes^Outputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_purge_assist_service_request" TypeA="BOOL" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Outputs^VarData[3]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_shutdown" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS3_Bytes^Outputs^VarData[7]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_shutdown_evac" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS3_Bytes^Outputs^VarData[8]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_steam_desorption" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS3_Bytes^Outputs^VarData[4]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_steam_system_service_request" TypeA="BOOL" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Outputs^VarData[2]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_vac_cooling_pump_service_request" TypeA="BOOL" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000030}" VarB="RS3_Bools^Outputs^VarData[0]" RestoreInfo="ANotFound"/>
+								<Link VarA="P_Module.rs3.rs_vacuum_cooling" TypeA="BYTE" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="RS3_Bytes^Outputs^VarData[5]" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+					</UnrestoredVarLinks>
+					<Contexts>
+						<Context>
+							<Id>0</Id>
+							<Name>PlcTask</Name>
+							<ManualConfig>
+								<OTCID>#x02010030</OTCID>
+							</ManualConfig>
+							<Priority>20</Priority>
+							<CycleTime>10000000</CycleTime>
+						</Context>
+					</Contexts>
+					<TaskPouOids>
+						<TaskPouOid Prio="20" OTCID="#x08502001"/>
+					</TaskPouOids>
+				</Instance>
+			</Project>
+		</Plc>
+		<Io>
+			<Device Id="2" Disabled="true" DevType="112" AmsPort="28674" AmsNetId="10.0.2.15.2.1" RemoteName="Device 2 (EtherCAT Automation Protocol)">
+				<Name>Device 2 (EtherCAT Automation Protocol)</Name>
+				<AddressInfo>
+					<Pnp>
+						<DeviceDesc>LAN1 (TwinCAT-Intel PCI Ethernet Adapter (Gigabit) </DeviceDesc>
+						<DeviceName>\DEVICE\{DFBA8783-41FA-42FA-8368-22197C43B9E0}</DeviceName>
+						<DeviceData>000105893a1f</DeviceData>
+					</Pnp>
+				</AddressInfo>
+				<Image Id="2" AddrType="1" ImageType="3">
+					<Name>Image</Name>
+				</Image>
+				<Box Id="1" BoxType="9052">
+					<Name>Box 1 (Subscriber)</Name>
+					<ImageId>100</ImageId>
+					<Vars VarGrpType="1">
+						<Name>Inputs</Name>
+						<Var BoxStateVariable="true">
+							<Name>FrameState</Name>
+							<Type>UINT</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2">
+						<Name>Outputs</Name>
+						<Var BoxStateVariable="true">
+							<Name>FrameCtrl</Name>
+							<Type>UINT</Type>
+						</Var>
+					</Vars>
+					<Eap Publisher="0a2146730201">
+						<EapVar Id="2" NvId="1" NvLength="21">
+							<Name>RS1_Bytes</Name>
+							<ImageId>98</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Invalid hash value received
+0x0002 = Invalid variable length received
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>16</BitOffs>
+								</Var>
+								<Var>
+									<Name>Quality</Name>
+									<Comment><![CDATA[Duration the variable is not refreshed (in 100µs)]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>32</BitOffs>
+								</Var>
+								<Var>
+									<Name>CycleIndex</Name>
+									<Comment><![CDATA[Incremented each publisher cycle]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>48</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{18071995-0000-0000-0000-000300000015}">ARRAY [0..20] OF BYTE</Type>
+									<BitOffs>64</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Ignore hash value
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>16</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="1" NvId="2" NvLength="21">
+							<Name>RS1_Bools</Name>
+							<ImageId>98</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Invalid hash value received
+0x0002 = Invalid variable length received
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>232</BitOffs>
+								</Var>
+								<Var>
+									<Name>Quality</Name>
+									<Comment><![CDATA[Duration the variable is not refreshed (in 100µs)]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>248</BitOffs>
+								</Var>
+								<Var>
+									<Name>CycleIndex</Name>
+									<Comment><![CDATA[Incremented each publisher cycle]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>264</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{18071995-0000-0000-0000-002100000015}">ARRAY [0..20] OF BOOL</Type>
+									<BitOffs>280</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Ignore hash value
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>32</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="3" NvId="3" NvLength="21">
+							<Name>RS2_Bytes</Name>
+							<ImageId>98</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Invalid hash value received
+0x0002 = Invalid variable length received
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>448</BitOffs>
+								</Var>
+								<Var>
+									<Name>Quality</Name>
+									<Comment><![CDATA[Duration the variable is not refreshed (in 100µs)]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>464</BitOffs>
+								</Var>
+								<Var>
+									<Name>CycleIndex</Name>
+									<Comment><![CDATA[Incremented each publisher cycle]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>480</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{18071995-0000-0000-0000-000300000015}">ARRAY [0..20] OF BYTE</Type>
+									<BitOffs>496</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Ignore hash value
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>48</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="4" NvId="4" NvLength="21">
+							<Name>RS2_Bools</Name>
+							<ImageId>98</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Invalid hash value received
+0x0002 = Invalid variable length received
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>664</BitOffs>
+								</Var>
+								<Var>
+									<Name>Quality</Name>
+									<Comment><![CDATA[Duration the variable is not refreshed (in 100µs)]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>680</BitOffs>
+								</Var>
+								<Var>
+									<Name>CycleIndex</Name>
+									<Comment><![CDATA[Incremented each publisher cycle]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>696</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{18071995-0000-0000-0000-002100000015}">ARRAY [0..20] OF BOOL</Type>
+									<BitOffs>712</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Ignore hash value
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>64</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="5" NvId="5" NvLength="21">
+							<Name>RS3_Bytes</Name>
+							<ImageId>98</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Invalid hash value received
+0x0002 = Invalid variable length received
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>880</BitOffs>
+								</Var>
+								<Var>
+									<Name>Quality</Name>
+									<Comment><![CDATA[Duration the variable is not refreshed (in 100µs)]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>896</BitOffs>
+								</Var>
+								<Var>
+									<Name>CycleIndex</Name>
+									<Comment><![CDATA[Incremented each publisher cycle]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>912</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{18071995-0000-0000-0000-000300000015}">ARRAY [0..20] OF BYTE</Type>
+									<BitOffs>928</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Ignore hash value
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>80</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="6" NvId="6" NvLength="21">
+							<Name>RS3_Bools</Name>
+							<ImageId>98</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Invalid hash value received
+0x0002 = Invalid variable length received
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1096</BitOffs>
+								</Var>
+								<Var>
+									<Name>Quality</Name>
+									<Comment><![CDATA[Duration the variable is not refreshed (in 100µs)]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1112</BitOffs>
+								</Var>
+								<Var>
+									<Name>CycleIndex</Name>
+									<Comment><![CDATA[Incremented each publisher cycle]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1128</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{18071995-0000-0000-0000-002100000015}">ARRAY [0..20] OF BOOL</Type>
+									<BitOffs>1144</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Ignore hash value
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>96</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="8" NvId="7" NvLength="21">
+							<Name>Module_Bytes</Name>
+							<ImageId>98</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Invalid hash value received
+0x0002 = Invalid variable length received
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1312</BitOffs>
+								</Var>
+								<Var>
+									<Name>Quality</Name>
+									<Comment><![CDATA[Duration the variable is not refreshed (in 100µs)]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1328</BitOffs>
+								</Var>
+								<Var>
+									<Name>CycleIndex</Name>
+									<Comment><![CDATA[Incremented each publisher cycle]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1344</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{18071995-0000-0000-0000-000300000015}">ARRAY [0..20] OF BYTE</Type>
+									<BitOffs>1360</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Ignore hash value
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>112</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+					</Eap>
+				</Box>
+				<Box Id="2" BoxType="9051">
+					<Name>Box 2 (Publisher)</Name>
+					<ImageId>99</ImageId>
+					<Vars VarGrpType="1">
+						<Name>Inputs</Name>
+						<Var BoxStateVariable="true">
+							<Name>FrameState</Name>
+							<Comment><![CDATA[0x0001 = Not sent (frame skipped)
+0x0002 = Error (frame oversized)
+0x0004 = Subscriber missing (Unicast only)
+]]></Comment>
+							<Type>UINT</Type>
+							<BitOffs>1528</BitOffs>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2">
+						<Name>Outputs</Name>
+						<Var BoxStateVariable="true">
+							<Name>FrameCtrl</Name>
+							<Comment><![CDATA[0x0001 = Disable sending
+0x0002 = Remove destination MAC from ARP cache
+]]></Comment>
+							<Type>UINT</Type>
+							<BitOffs>128</BitOffs>
+						</Var>
+					</Vars>
+					<Eap InOut="1" Publisher="0a2146730201" ArpRetryInterval="1000">
+						<EapVar Id="1" VarInOut="1" NvId="1" NvLength="21">
+							<Name>RS1_Bytes</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1544</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>144</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{B8AE9AEF-888A-D4DD-A17A-D75577E1E11C}">ARRAY [0..20] OF BYTE</Type>
+									<BitOffs>160</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="2" VarInOut="1" NvId="2" NvLength="21">
+							<Name>RS1_Bools</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1560</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>328</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{18071995-0000-0000-0000-002100000015}">ARRAY [0..20] OF BOOL</Type>
+									<BitOffs>344</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="3" VarInOut="1" NvId="3" NvLength="44">
+							<Name>RS1_Dwords</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1576</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>512</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{3A016E18-3EDD-F3CD-FB0C-88D416835136}">ARRAY [0..10] OF DWORD</Type>
+									<BitOffs>528</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="4" VarInOut="1" NvId="4" NvLength="21">
+							<Name>RS2_Bytes</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1592</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>880</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{B8AE9AEF-888A-D4DD-A17A-D75577E1E11C}">ARRAY [0..20] OF BYTE</Type>
+									<BitOffs>896</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="5" VarInOut="1" NvId="5" NvLength="21">
+							<Name>RS2_Bools</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1608</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1064</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{18071995-0000-0000-0000-002100000015}">ARRAY [0..20] OF BOOL</Type>
+									<BitOffs>1080</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="6" VarInOut="1" NvId="6" NvLength="44">
+							<Name>RS2_Dwords</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1624</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1248</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{3A016E18-3EDD-F3CD-FB0C-88D416835136}">ARRAY [0..10] OF DWORD</Type>
+									<BitOffs>1264</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="7" VarInOut="1" NvId="7" NvLength="21">
+							<Name>RS3_Bytes</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1640</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1616</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{B8AE9AEF-888A-D4DD-A17A-D75577E1E11C}">ARRAY [0..20] OF BYTE</Type>
+									<BitOffs>1632</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="8" VarInOut="1" NvId="8" NvLength="21">
+							<Name>RS3_Bools</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1656</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1800</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{18071995-0000-0000-0000-002100000015}">ARRAY [0..20] OF BOOL</Type>
+									<BitOffs>1816</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="9" VarInOut="1" NvId="9" NvLength="44">
+							<Name>RS3_Dwords</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1672</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>1984</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type GUID="{3A016E18-3EDD-F3CD-FB0C-88D416835136}">ARRAY [0..10] OF DWORD</Type>
+									<BitOffs>2000</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+					</Eap>
+				</Box>
+				<Ethernet DeviceDesc="LAN1 (TwinCAT-Intel PCI Ethernet Adapter (Gigabit) V2)"/>
+				<Eap EapDeviceGuid="{F195DD38-6A55-4266-AC02-A07E03E916B7}"/>
+			</Device>
+		</Io>
+	</Project>
+	<Mappings>
+		<OwnerA Name="TIPC^P1^P1 Instance">
+			<OwnerB Name="TIID^Device 2 (EtherCAT Automation Protocol)">
+				<Link VarA="PlcTask Inputs^P_Module.rs1.r1.fan_vfd_status" VarB="Inputs^DevState"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 2 (EtherCAT Automation Protocol)^Box 1 (Subscriber)">
+				<Link VarA="PlcTask Inputs^P_Module.rs1.directive" VarB="RS1_Bytes^Inputs^VarData[0]"/>
+				<Link VarA="PlcTask Inputs^P_Module.rs1.rs_dead_air_pump_service_assigned" VarB="RS1_Bools^Inputs^VarData[1]"/>
+				<Link VarA="PlcTask Inputs^P_Module.rs1.rs_purge_assist_service_assigned" VarB="RS1_Bools^Inputs^VarData[3]"/>
+				<Link VarA="PlcTask Inputs^P_Module.rs1.rs_steam_system_service_assigned" VarB="RS1_Bools^Inputs^VarData[2]"/>
+				<Link VarA="PlcTask Inputs^P_Module.rs1.rs_vac_cooling_pump_service_assigned" VarB="RS1_Bools^Inputs^VarData[0]"/>
+				<Link VarA="PlcTask Inputs^P_Module.u_dead_air_pump_status" VarB="Module_Bytes^Inputs^VarData[1]"/>
+				<Link VarA="PlcTask Inputs^P_Module.u_module_generic_byte" VarB="Module_Bytes^Inputs^VarData[4]"/>
+				<Link VarA="PlcTask Inputs^P_Module.u_purge_assist_status" VarB="Module_Bytes^Inputs^VarData[3]"/>
+				<Link VarA="PlcTask Inputs^P_Module.u_steam_system_status" VarB="Module_Bytes^Inputs^VarData[2]"/>
+				<Link VarA="PlcTask Inputs^P_Module.u_vac_cooling_pump_status" VarB="Module_Bytes^Inputs^VarData[0]"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 2 (EtherCAT Automation Protocol)^Box 2 (Publisher)">
+				<Link VarA="PlcTask Outputs^P_Module.rs1.r1.error_code" VarB="RS1_Dwords^Outputs^VarData[1]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.r2.error_code" VarB="RS1_Dwords^Outputs^VarData[2]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.r3.error_code" VarB="RS1_Dwords^Outputs^VarData[3]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.r4.error_code" VarB="RS1_Dwords^Outputs^VarData[4]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_adsorption" VarB="RS1_Bytes^Outputs^VarData[2]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_air_repres" VarB="RS1_Bytes^Outputs^VarData[1]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_dead_air_evac" VarB="RS1_Bytes^Outputs^VarData[3]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_dead_air_pump_service_request" VarB="RS1_Bools^Outputs^VarData[1]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_estop" VarB="RS1_Bytes^Outputs^VarData[6]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_idle" VarB="RS1_Bytes^Outputs^VarData[0]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_purge_assist_service_request" VarB="RS1_Bools^Outputs^VarData[3]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_shutdown" VarB="RS1_Bytes^Outputs^VarData[7]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_shutdown_evac" VarB="RS1_Bytes^Outputs^VarData[8]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_steam_desorption" VarB="RS1_Bytes^Outputs^VarData[4]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_steam_system_service_request" VarB="RS1_Bools^Outputs^VarData[2]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_vac_cooling_pump_service_request" VarB="RS1_Bools^Outputs^VarData[0]"/>
+				<Link VarA="PlcTask Outputs^P_Module.rs1.rs_vacuum_cooling" VarB="RS1_Bytes^Outputs^VarData[5]"/>
+			</OwnerB>
+		</OwnerA>
+	</Mappings>
+</TcSmProject>

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <POU Name="F_Error_Check" Id="{fbff525d-4e2f-4095-9d4a-02c0960437a2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_Error_Check : INT
+VAR_INPUT
+	ErrorCode															: DWORD;
+	Error																: INT;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_Error_Check
+// Rev 1.0 - October 9, 2024
+
+
+F_Error_Check															:= SEL((ErrorCode AND LREAL_TO_DWORD(EXPT(2, Error))) > 0, 0, DWORD_TO_INT(ErrorCode));
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_Error_Check">
+      <LineId Id="27" Count="1" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="10" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

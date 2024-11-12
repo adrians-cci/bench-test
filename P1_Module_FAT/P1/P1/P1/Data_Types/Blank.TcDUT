@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <DUT Name="Blank" Id="{d9fafee2-97c9-4451-ad9d-ad3a6c3d8935}">
+    <Declaration><![CDATA[// P1 - STRUCT - 
+// Rev 1.0 - Sepember 6, 2024
+
+TYPE Blank : 
+	STRUCT
+		cooling_pump : BYTE;
+		dead_air_pump : BYTE;
+		steam_system : BYTE;
+		purge_assist : BYTE;
+		test : BYTE;
+	END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <GVL Name="Set_Points_Interlocks" Id="{63d64ecd-c038-4308-a8cc-5e0ff120c785}">
+    <Declaration><![CDATA[// P1 - Set_Points_Interlocks
+// Rev 1.0 - October 31, 2024
+
+VAR_GLOBAL PERSISTENT
+	
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	IL_repres_valve_steam_valve_or										: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_acceptable_reactor_pressure										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_cooling_acceptable_pressure										: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_cooling_target_pressure											: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_clamp_extend_retract_duration									: REAL		:= 6;	
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_door_open_close_duration											: REAL		:= 30;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_door_close_retries_before_error									: INT		:= 3;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_door_close_reset_duration										: REAL		:= 5;
+	{attribute 'OPC.UA.DA' := '1'}	
+	SP_evacuation_leak_test_acceptable_leak								: REAL		:= 0.2;
+	{attribute 'OPC.UA.DA' := '1'}	
+	SP_evacuation_leak_test_active										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}	
+	SP_evacuation_leak_test_duration									: REAL		:= 60;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_evacuation_target_pressure										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_cooling_duration											: REAL;			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_desorption_sorbent_temperature							: REAL;			
+	{attribute 'OPC.UA.DA' := '1'}	
+	SP_maximum_evac_storage_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}	
+	SP_maximum_evac_storage_temperature									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_evacuation_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_inlet_air_temperature_during_adsorption					: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_inlet_air_temperature									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_pressure_for_steam_introduction							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	IL_maximum_pressure_for_steam_introduction_or						: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	IL_maximum_pressure_for_steam_introduction_or_status				: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_reactor_pressure											: REAL		:= 1.07;
+	{attribute 'OPC.UA.DA' := '1'}
+	IL_maximum_reactor_pressure_or										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	IL_maximum_reactor_pressure_or_status								: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_reasonable_sorbent_TC_reading							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_sorbent_temperature										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	IL_maximum_sorbent_temperature_or									: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	IL_maximum_sorbent_temperature_or_status							: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_sorbent_temperature_for_dead_air_line					: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	IL_maximum_sorbent_temperature_for_dead_air_line_or					: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	IL_maximum_sorbent_temperature_for_dead_air_line_or_status			: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_sorbent_temperature_for_repressurization					: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	IL_maximum_sorbent_temperature_for_repressurization_or				: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	IL_maximum_sorbent_temperature_for_repressurization_or_status		: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_steam_repressurization_duration							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_minimum_evacuation_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_minimum_inlet_air_temperature									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_minimum_reasonable_sorbent_TC_reading							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_purge_duration													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_control_valve_open_close_duration							: REAL		:= 20;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_control_valve_slow_move_increment							: REAL		:= 0.5;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_control_valve_slow_move_full_open							: REAL		:= 15;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_purge_target_pressure											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_repressurization_target_pressure							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_sufficient_desorption_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_target_temperature								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_valve_open_close_duration										: REAL		:= 4;
+
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

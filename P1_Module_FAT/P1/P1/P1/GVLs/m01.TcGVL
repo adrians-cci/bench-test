@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="m01" Id="{c4108b33-0e93-4411-a939-370aee4e5743}">
+    <Declaration><![CDATA[// P1 - m01
+// Rev 1.0 - June 20, 2024
+
+{attribute 'qualified_only'}
+VAR_GLOBAL
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	plc_version															: STRING;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	ts_Cycle_Mode														: STRING;		// Starts process based on each character in integer format
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_HMI_Active														: BOOL;			// An HMI program is running and communicating
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Acknowledge_Alarm												: BOOL;			// Clears current alarm
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Clear_Alarm_All													: BOOL;			// Clears current alarm
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Cancel_Cycle														: BOOL;			// Complete current cycle then stop
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Stop_Process														: BOOL;			// Stop current process immediately
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Reset_Process													: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Alarm_Active														: BOOL;			// An alarm is active
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ts_Alarm															: STRING;		// Active alarm string
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ts_User_Message														: STRING;		// Message corresponding to active alarm
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ti_Alarm_Severity													: INT;			// Alarm level (not implemented)	
+	{attribute 'OPC.UA.DA' := '1'}  
+	processAlarms														: ARRAY[0.._ALARM_COUNT] OF STRING;
+	{attribute 'OPC.UA.DA' := '1'}  
+	processAlarmsMessage												: ARRAY[0.._ALARM_COUNT] OF STRING;
+					
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Auto_Mode_On														: BOOL;			// Machine is currently in auto mode
+
+	
+	
+	/// SET POINTS
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_target_temperature								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_inlet_air_temperature_during_adsorption					: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_sorbent_temperature_during_desorption					: REAL;			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_minimum_reasonable_sorbent_TC_reading							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_reasonable_sorbent_TC_reading							: REAL;
+
+
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_sorbent_hightemp_startco2analyzer						: REAL;		
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_outletco2_highlimit									: REAL;		
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_repres_preslimit_clampsretract									: REAL;		
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_clampsretract_timedelay											: REAL;		
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_repres_pres_highlimit											: REAL;		
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_doorsopenclose_timedelay											: REAL;		
+
+
+	
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_duration												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_valve_max_retries										: INT;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_valve_rotational_velocity								: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_ambient_pressure													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_cycle_start_offset_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_dead_time_in_cycle_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_desired_cycle_count												: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_evacuation_duration												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_evacuation_ideal_pressure										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_evacuation_unacceptable_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_include_reactor_set_1_in_process									: BOOL;					
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_include_reactor_set_2_in_process									: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_include_reactor_set_3_in_process									: BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_initial_maximum_steam_valve_percent_open							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_initial_steam_purge_reactor_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_leak_test_duration												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_desorption_starting_pressure								: REAL;							
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_safe_reactor_steam_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_target_sorbent_temperature_during_purge					: REAL;												// PS 04_25_24			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_target_steam_pressure									: REAL;			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_minimum_desired_inlet_co2_concentration_during_adsorption		: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_minimum_inlet_air_temperature_during_adsorption					: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_high_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_high_temperature								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_low_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_low_temperature								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_percent_from_steam_purge_target_pressure							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_percent_of_ambient_pressure										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_reactor_set_1_vfd_percent										: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_reactor_set_2_vfd_percent										: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_reactor_set_3_vfd_percent										: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_repressurization_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_start_steam_purge_reactor_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_pressure_control_valve_initial_opening_duration			: REAL;					
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_pressurization_and_purge_duration							: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_purge_pressure												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_purge_pressure_decrease									: REAL;												// PS 04_25_24
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_target_desorption_starting_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_target_duration_from_adsorption_start_until_sorbent_cool			: REAL;							
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_target_pressure_change											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_unacceptable_duration_from_adsorption_start_until_sorbent_cool	: REAL;					
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_unacceptable_pressure_change										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_undesirable_duration_from_adsorption_start_until_sorbent_cool	: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_assisted_purge											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_duration											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_target_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_unacceptable_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_unacceptable_temperature							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_extend_wallace_clamp_duration									: REAL;
+			
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_HighestReal" Id="{b94a2a17-5817-4fff-a828-daa4594d4b03}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_HighestReal : REAL
+VAR_INPUT
+	Value1																: REAL;
+	Value2																: REAL;
+	Value3																: REAL;
+	Value4																: REAL;
+END_VAR
+VAR
+	rValue																: REAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_HighestReal
+// Rev 1.0 - April 25, 2024
+
+rValue																		:= SEL(Value1 > Value2, Value2, Value1);
+rValue																		:= SEL(rValue > Value3, Value3, rValue);
+F_HighestReal																:= SEL(rValue > Value4, Value4, rValue);
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_HighestReal">
+      <LineId Id="26" Count="5" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

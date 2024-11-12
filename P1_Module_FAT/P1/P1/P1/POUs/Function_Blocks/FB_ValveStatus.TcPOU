@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <POU Name="FB_ValveStatus" Id="{76d79f8f-73a0-45fe-9bcd-f6c727219450}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ValveStatus
+VAR_INPUT
+	Input																: BOOL;
+	Open																: BOOL;
+	Closed																: BOOL;
+	Delay																: REAL;
+END_VAR
+VAR_OUTPUT
+	Status																: INT;
+END_VAR
+VAR
+	Timer																: TON;
+	LastInput															: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// FB_ValveStatus
+// Rev 1.0 - October 22, 2024
+
+IF Input <> LastInput THEN
+	LastInput															:= Input;
+	Timer(IN:= FALSE);
+END_IF
+IF (Input AND NOT Open) OR (NOT Input AND NOT Closed) THEN
+	Timer(IN:= TRUE, PT:= REAL_TO_TIME(Delay));
+	IF Timer.Q THEN
+		Status															:= 2;
+	ELSE
+		Status															:= 1;
+	END_IF
+ELSE
+	Status																:= 0;
+END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_ValveStatus">
+      <LineId Id="15" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="18" Count="7" />
+      <LineId Id="27" Count="1" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

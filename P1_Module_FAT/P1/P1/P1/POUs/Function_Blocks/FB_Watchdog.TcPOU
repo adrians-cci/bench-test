@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <POU Name="FB_Watchdog" Id="{a95f6afd-dd7d-4f6b-b97e-d8a0bd1c3640}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Watchdog
+VAR_INPUT
+	i_receiving_plc 		: BOOL;  // TRUE if not the initiating  PLC 
+	i_auto_reset_enabled	: BOOL;
+	i_reset_error 			: BOOL;
+	i_timeout	 			: REAL;	
+END_VAR
+VAR_OUTPUT
+	o_error		: BOOL;
+END_VAR
+VAR
+	in_watchdog 		AT %I* : BOOL;  // from remote PLC
+	out_watchdog		AT %I* : BOOL;  // to Remote PLC 
+	tmrTimeout			: TON;
+	error_reset_trig	: R_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[error_reset_trig(CLK := i_reset_error);
+
+IF i_receiving_plc THEN 
+	tmrTimeout(IN:= out_watchdog = NOT in_watchdog,PT := TO_TIME(i_timeout * 1000));
+ELSE
+	tmrTimeout(IN:= out_watchdog = in_watchdog,PT := TO_TIME(i_timeout * 1000));
+END_IF
+
+IF i_auto_reset_enabled THEN 
+	o_error := tmrTimeout.Q;
+ELSE
+	IF tmrTimeout.Q THEN
+		o_error := TRUE;
+	END_IF
+	IF error_reset_trig.Q THEN
+		o_error := FALSE;
+	END_IF
+END_IF
+
+IF i_receiving_plc THEN 
+	out_watchdog := NOT in_watchdog;
+ELSE
+	out_watchdog := in_watchdog;
+END_IF
+
+
+
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Watchdog">
+      <LineId Id="3" Count="28" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

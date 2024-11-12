@@ -1,0 +1,964 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <POU Name="FB_Reactor" Id="{836b6da6-d2aa-4614-8f2c-cbaf594cee66}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Reactor
+VAR_INPUT
+	unit																: INT;
+	reset																: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	open_inlet_doors													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	close_inlet_doors													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	open_outlet_doors													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	close_outlet_doors													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	extend_inlet_clamps													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	retract_inlet_clamps												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	extend_outlet_clamps												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	retract_outlet_clamps												: BOOL;
+	
+    /// <summary>VFD01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_vfd																: REAL;
+END_VAR
+VAR_OUTPUT
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	error_code													AT %Q*	: DWORD;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	sorbent_low_temp													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	sorbent_high_temp													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	sorbent_average_temp												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_cooling_high_temp_count										: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	adsorption_high_temp_count											: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	desorption_high_temp_count											: INT;
+
+    /// <summary>TT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_line_temp													: REAL;						
+    /// <summary>TT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	{attribute 'OPC.UA.DA.Access' := '1'}  				        	  
+	outlet_line_temp_error												: BOOL;
+
+    /// <summary>VFD01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_error														: BOOL;
+    /// <summary>VFD01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_run_error														: BOOL;
+    /// <summary>VFD01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_running															: BOOL;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_doors_closed_status											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_doors_close_error												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_doors_closed_or												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_doors_closed_or_status										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_doors_open_status												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_doors_open_error												: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_doors_closed_status											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_doors_close_error											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_doors_closed_or												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_doors_closed_or_status										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_doors_open_status											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_doors_open_error												: BOOL;
+	
+	doors_closed_status													: BOOL;
+	doors_open_status													: BOOL;
+	
+	doors_open_error													: BOOL;
+	doors_close_error													: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_clamps_extended_status										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_clamps_extend_error											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_clamps_retracted_status										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_clamps_retracted_or											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_clamps_retracted_or_status									: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_clamps_retract_error											: BOOL;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_clamps_extended_status										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_clamps_extend_error											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_clamps_retracted_status										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_clamps_retracted_or											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_clamps_retracted_or_status									: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_clamps_retract_error											: BOOL;
+
+	inlet_clamps_extend_door_open_error									: BOOL;
+	outlet_clamps_extend_door_open_error								: BOOL;
+	clamps_extend_door_open_error										: BOOL;
+
+	clamps_extended_status												: BOOL;
+	clamps_retracted_status												: BOOL;
+
+	clamps_extend_error													: BOOL;
+	clamps_retract_error												: BOOL;
+END_VAR
+VAR
+	fbFan																: FB_VFD();
+	
+	fbInletDoorLeftClosed												: FB_Door_Closed();
+	fbInletDoorRightClosed												: FB_Door_Closed();
+	fbOutletDoorLeftClosed												: FB_Door_Closed();
+	fbOutletDoorRightClosed												: FB_Door_Closed();
+
+	rtrigSorbentErrorCheck												: R_TRIG;
+	rtrigExtendInletClamps												: R_TRIG;
+	rtrigExtendOutletClamps												: R_TRIG;
+
+	tonFanStart															: TON;
+	tonFanRunError														: TON;
+	tonInletDoorsOpenError												: TON;
+	tonInletDoorsCloseError												: TON;
+	tonOutletDoorsOpenError												: TON;
+	tonOutletDoorsCloseError											: TON;
+	tonInletClampsExtendError											: TON;
+	tonInletClampsRetractError											: TON;
+	tonOutletClampsExtendError											: TON;
+	tonOutletClampsRetractError											: TON;
+	tonInletDoorCloseReset												: TON;
+	tonOutletDoorCloseReset												: TON;
+	
+	rRpm																: REAL;
+	rRpmOld																: REAL		:= 0;
+	rTempTotal															: REAL;
+	rTempSP																: REAL;
+	rMin																: REAL;
+	rMax																: REAL;
+	
+	byteReactor															: BYTE;
+	
+	i																	: INT;
+	iInletAirSetpoint													: INT		:= 0;
+	iTempCount															: INT;
+	iHighTempCount														: INT;
+	iInletCloseCount													: INT;
+	iOutletCloseCount													: INT;
+	iInletCount															: ARRAY [0..3] OF INT;
+	iOutletCount														: ARRAY [0..3] OF INT;
+
+	bFanRunError														: BOOL;
+	bCloseInletDoorsReset												: BOOL;
+	bCloseOutletDoorsReset												: BOOL;
+	bOpenInletDoors														: BOOL;
+	bOpenOutletDoors													: BOOL;
+	
+    /// <summary>xx01-TT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_top_left_temp													: REAL;						
+    /// <summary>xx01-TT01</summary>
+	inlet_top_left_temp_error 											: BOOL;
+    /// <summary>inlet top left temp</summary>
+	xx01_TT01													AT %I*	: INT;
+    /// <summary>inlet top left temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	xx01_TT01_error												AT %I*	: BOOL;
+    /// <summary>xx01-TT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_top_left_temp_error_or										: BOOL;
+
+    /// <summary>xx01-TT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_top_right_temp												: REAL;
+    /// <summary>xx01-TT02</summary>
+	inlet_top_right_temp_error 											: BOOL;
+    /// <summary>inlet top right temp</summary>
+	xx01_TT02													AT %I*	: INT;
+    /// <summary>inlet top right temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	{attribute 'OPC.UA.DA.Access' := '1'}  				        	  
+	xx01_TT02_error												AT %I*	: BOOL;
+    /// <summary>xx01-TT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	inlet_top_right_temp_error_or										: BOOL;
+
+    /// <summary>xx01-TT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_bottom_left_temp												: REAL;						
+    /// <summary>xx01-TT03</summary>
+	inlet_bottom_left_temp_error 										: BOOL;
+    /// <summary>inlet bottom left temp</summary>
+	xx01_TT03													AT %I*	: INT;
+    /// <summary>inlet bottom left temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	{attribute 'OPC.UA.DA.Access' := '1'}  				        	  
+	xx01_TT03_error												AT %I*	: BOOL;
+    /// <summary>xx01-TT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	inlet_bottom_left_temp_error_or										: BOOL;
+	
+    /// <summary>xx01-TT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_bottom_right_temp												: REAL;						
+    /// <summary>xx01-TT04</summary>
+	inlet_bottom_right_temp_error										: BOOL;
+    /// <summary>inlet bottom right temp</summary>
+	xx01_TT04													AT %I*	: INT;
+    /// <summary>inlet bottom right temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	{attribute 'OPC.UA.DA.Access' := '1'}  				        	  
+	xx01_TT04_error												AT %I*	: BOOL;
+    /// <summary>xx01-TT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	inlet_bottom_right_temp_error_or									: BOOL;
+
+    /// <summary>xx03-TT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_top_left_temp												: REAL;						
+    /// <summary>xx03-TT01</summary>
+	outlet_top_left_temp_error 											: BOOL;
+    /// <summary>outlet top left temp</summary>
+	xx03_TT01													AT %I*	: INT;
+    /// <summary>outlet top left temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	{attribute 'OPC.UA.DA.Access' := '1'}  				        	  
+	xx03_TT01_error												AT %I*	: BOOL;
+    /// <summary>xx03-TT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	outlet_top_left_temp_error_or										: BOOL;
+	
+    /// <summary>xx03-TT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_top_right_temp												: REAL;
+    /// <summary>xx03-TT02</summary>
+	outlet_top_right_temp_error 										: BOOL;
+    /// <summary>outlet top right temp</summary>
+	xx03_TT02													AT %I*	: INT;
+    /// <summary>outlet top right temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	{attribute 'OPC.UA.DA.Access' := '1'}  				        	  
+	xx03_TT02_error												AT %I*	: BOOL;
+    /// <summary>xx03-TT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	outlet_top_right_temp_error_or										: BOOL;
+	
+    /// <summary>xx03-TT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_bottom_left_temp												: REAL;						
+    /// <summary>xx03-TT03</summary>
+	outlet_bottom_left_temp_error 										: BOOL;
+    /// <summary>outlet bottom left temp</summary>
+	xx03_TT03													AT %I*	: INT;
+    /// <summary>outlet bottom left temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	{attribute 'OPC.UA.DA.Access' := '1'}  				        	  
+	xx03_TT03_error												AT %I*	: BOOL;
+    /// <summary>xx03-TT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	outlet_bottom_left_temp_error_or									: BOOL;
+	
+    /// <summary>xx03-TT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_bottom_right_temp											: REAL;						
+    /// <summary>xx03-TT04</summary>
+	outlet_bottom_right_temp_error										: BOOL;
+    /// <summary>outlet bottom right temp</summary>
+	xx03_TT04													AT %I*	: INT;
+    /// <summary>outlet bottom right temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	{attribute 'OPC.UA.DA.Access' := '1'}  				        	  
+	xx03_TT04_error												AT %I*	: BOOL;
+    /// <summary>xx03-TT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	outlet_bottom_right_temp_error_or									: BOOL;
+
+    /// <summary>xx02-XV01-SV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_left_actuator_open_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx01-XV01-SV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_right_actuator_open_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx02-XV01-SV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_left_actuator_close_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx01-XV01-SV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_right_actuator_close_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx02-XV03-SV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_left_actuator_open_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx01-XV03-SV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_right_actuator_open_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx02-XV03-SV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_left_actuator_close_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx01-XV03-SV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_right_actuator_close_solenoid_valve				AT %Q*	: BOOL;
+
+    /// <summary>xx02_XV01_SV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_left_clamps_extend_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx01-XV01-SV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_right_clamps_extend_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx02-XV01-SV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_left_clamps_retract_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx01-XV01_SV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_right_clamps_retract_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx02-XV03-SV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_left_clamps_extend_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx01-XV03-SV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_right_clamps_extend_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx02-XV03-SV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_left_clamps_retract_solenoid_valve				AT %Q*	: BOOL;
+    /// <summary>xx01-XV03-SV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_right_clamps_retract_solenoid_valve				AT %Q*	: BOOL;
+
+    /// <summary>xx02-XV01-ZS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_left_closed_ls									AT %I*	: BOOL;
+    /// <summary>xx02-XV01-ZS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_left_closed												: BOOL;
+    /// <summary>xx02-XV01-ZS02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_left_open_ls										AT %I*	: BOOL;
+    /// <summary>xx01-XV01-ZS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_right_closed_ls									AT %I*	: BOOL;
+    /// <summary>xx01-XV01-ZS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_right_closed												: BOOL;
+    /// <summary>xx01-XV01-ZS02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_right_open_ls									AT %I*	: BOOL;
+
+    /// <summary>xx02-XV03-ZS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_left_closed_ls									AT %I*	: BOOL;
+    /// <summary>xx02-XV03-ZS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_left_closed												: BOOL;
+    /// <summary>xx02-XV03-ZS02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_left_open_ls									AT %I*	: BOOL;
+    /// <summary>xx01-XV03-ZS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_right_closed_ls									AT %I*	: BOOL;
+    /// <summary>xx01-XV03-ZS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_right_closed											: BOOL;
+    /// <summary>xx01-XV03-ZS02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_right_open_ls									AT %I*	: BOOL;
+	
+    /// <summary>xx02-XV01-ZS03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_left_clamps_extended_ls							AT %I*	: BOOL;
+    /// <summary>xx01-XV01-ZS03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_right_clamps_extended_ls							AT %I*	: BOOL;
+    /// <summary>xx02-XV03-ZS03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_left_clamps_extended_ls							AT %I*	: BOOL;
+    /// <summary>xx01-XV03-ZS03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_right_clamps_extended_ls						AT %I*	: BOOL;
+	
+    /// <summary>outlet line temp</summary>
+	TT06														AT %I*	: INT;
+    /// <summary>outlet line temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	{attribute 'OPC.UA.DA.Access' := '1'}  				        	  
+	TT06_error													AT %I*	: BOOL;
+    /// <summary>TT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				            	
+	outlet_line_temp_error_or											: BOOL;
+
+    /// <summary>VFD01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_vfd_enable														: BOOL :=  TRUE;
+    /// <summary>VFD01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_vfd_reset														: BOOL;
+    /// <summary>VFD01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_enabled														: BOOL;
+    /// <summary>VFD01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_output														: REAL;
+    /// <summary>VFD01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_current_amps												: REAL;
+    /// <summary>VFD01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_output_current												: REAL;
+    /// <summary>VFD01</summary>
+	fan_vfd_control												AT %Q*	: WORD;
+    /// <summary>VFD01</summary>
+	fan_vfd_target_vel											AT %Q*	: WORD;
+    /// <summary>VFD01</summary>
+	fan_vfd_status												AT %I*	: WORD;
+    /// <summary>VFD01</summary>
+	fan_vfd_velocity											AT %I*	: WORD;
+    /// <summary>VFD01</summary>
+	fan_vfd_ecat_state											AT %I*  : BOOL;
+    /// <summary>VFD01</summary>
+	fan_vfd_current												AT %I*	: DINT;
+END_VAR
+
+VAR PERSISTENT
+    /// <summary>xx01_TT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	xx01_TT01_offset													: REAL		:= 0;
+    /// <summary>xx01_TT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	xx01_TT02_offset													: REAL		:= 0;
+    /// <summary>xx01_TT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	xx01_TT03_offset													: REAL		:= 0;
+    /// <summary>xx01_TT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	xx01_TT04_offset													: REAL		:= 0;
+    /// <summary>xx03_TT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	xx03_TT01_offset													: REAL		:= 0;
+    /// <summary>xx03_TT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	xx03_TT02_offset													: REAL		:= 0;
+    /// <summary>xx03_TT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	xx03_TT03_offset													: REAL		:= 0;
+    /// <summary>xx03_TT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	xx03_TT04_offset													: REAL		:= 0;
+    /// <summary>TT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	TT06_offset															: REAL		:= 0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// P1 - FB_Reactor
+// Rev 1.0 - November 2, 2024
+
+IF reset THEN
+	inlet_clamps_extend_door_open_error									:= FALSE;
+	outlet_clamps_extend_door_open_error								:= FALSE;
+	IF inlet_clamps_extend_error THEN
+		inlet_door_left_clamps_extend_solenoid_valve					:= FALSE;
+		inlet_door_right_clamps_extend_solenoid_valve					:= FALSE;
+	END_IF
+	IF outlet_clamps_extend_error THEN
+		outlet_door_left_clamps_extend_solenoid_valve					:= FALSE;
+		outlet_door_right_clamps_extend_solenoid_valve					:= FALSE;
+	END_IF
+	IF inlet_clamps_retract_error THEN
+		inlet_door_left_clamps_retract_solenoid_valve					:= FALSE;
+		inlet_door_right_clamps_retract_solenoid_valve					:= FALSE;
+	END_IF
+	IF outlet_clamps_retract_error THEN
+		outlet_door_left_clamps_retract_solenoid_valve					:= FALSE;
+		outlet_door_right_clamps_retract_solenoid_valve					:= FALSE;
+	END_IF
+	inlet_doors_close_error												:= FALSE;
+	outlet_doors_close_error											:= FALSE;
+	inlet_doors_open_error												:= FALSE;
+	outlet_doors_open_error												:= FALSE;
+	bOpenInletDoors														:= FALSE;
+	bOpenOutletDoors													:= FALSE;
+END_IF
+
+outlet_line_temp														:= F_Temperature(TT06, TT06_offset);
+outlet_line_temp_error													:= TT06_error AND NOT outlet_line_temp_error_or;
+error_code																:= F_Error(error_code, outlet_line_temp_error, errOutletLineTemp);
+
+// SORBENT TEMPERATURE HANDLING
+rtrigSorbentErrorCheck(CLK:= MAIN.bHalfSecondPulse);
+IF rtrigSorbentErrorCheck.Q THEN
+	A_Sorbent_Temperatures();
+END_IF
+
+// CLAMPS & DOORS
+inlet_clamps_extended_status		  									:= inlet_door_left_clamps_extended_ls AND inlet_door_right_clamps_extended_ls;
+inlet_clamps_retracted_status		 									:= NOT inlet_door_left_clamps_extended_ls AND NOT inlet_door_right_clamps_extended_ls;
+outlet_clamps_extended_status		 									:= outlet_door_left_clamps_extended_ls AND outlet_door_right_clamps_extended_ls;
+outlet_clamps_retracted_status											:= NOT outlet_door_left_clamps_extended_ls AND NOT outlet_door_right_clamps_extended_ls;
+clamps_extended_status													:= inlet_clamps_extended_status AND outlet_clamps_extended_status;
+clamps_retracted_status													:= inlet_clamps_retracted_status AND outlet_clamps_retracted_status;
+
+fbInletDoorLeftClosed(valve:= inlet_door_left_actuator_close_solenoid_valve, limit_switch:= inlet_door_left_closed_ls, door_closed=> inlet_door_left_closed);
+fbInletDoorRightClosed(valve:= inlet_door_right_actuator_close_solenoid_valve, limit_switch:= inlet_door_right_closed_ls, door_closed=> inlet_door_right_closed);
+fbOutletDoorLeftClosed(valve:= outlet_door_left_actuator_close_solenoid_valve, limit_switch:= outlet_door_left_closed_ls, door_closed=> outlet_door_left_closed);
+fbOutletDoorRightClosed(valve:= outlet_door_right_actuator_close_solenoid_valve, limit_switch:= outlet_door_right_closed_ls, door_closed=> outlet_door_right_closed);
+
+
+inlet_doors_closed_status												:= inlet_door_left_closed AND inlet_door_right_closed;
+inlet_doors_open_status													:= inlet_door_left_open_ls AND inlet_door_right_open_ls;
+inlet_doors_closed_or_status											:= inlet_doors_closed_or;
+outlet_doors_closed_status	  											:= outlet_door_left_closed AND outlet_door_right_closed;
+outlet_doors_open_status												:= outlet_door_left_open_ls AND outlet_door_right_open_ls;
+outlet_doors_closed_or_status											:= outlet_doors_closed_or;
+doors_closed_status														:= inlet_doors_closed_status AND outlet_doors_closed_status;
+doors_open_status														:= inlet_doors_open_status AND outlet_doors_open_status;
+
+rtrigExtendInletClamps(CLK:= extend_inlet_clamps);
+IF rtrigExtendInletClamps.Q THEN
+	inlet_clamps_extend_door_open_error									:= NOT inlet_doors_closed_status AND NOT inlet_doors_closed_or;
+END_IF
+error_code																:= F_Error(error_code, inlet_clamps_extend_door_open_error, errInletDoorsNotClosedForClamps);
+
+IF extend_inlet_clamps AND (inlet_doors_closed_status OR inlet_doors_closed_or) THEN
+	inlet_door_left_clamps_retract_solenoid_valve						:= FALSE;
+	inlet_door_right_clamps_retract_solenoid_valve						:= FALSE;
+	inlet_door_left_clamps_extend_solenoid_valve						:= TRUE;
+	inlet_door_right_clamps_extend_solenoid_valve						:= TRUE;
+ELSIF retract_inlet_clamps THEN
+	inlet_door_left_clamps_extend_solenoid_valve						:= FALSE;
+	inlet_door_right_clamps_extend_solenoid_valve						:= FALSE;
+	inlet_door_left_clamps_retract_solenoid_valve						:= TRUE;
+	inlet_door_right_clamps_retract_solenoid_valve						:= TRUE;
+END_IF
+extend_inlet_clamps														:= FALSE;
+retract_inlet_clamps													:= FALSE;
+
+rtrigExtendOutletClamps(CLK:= extend_outlet_clamps);
+IF rtrigExtendOutletClamps.Q THEN
+	outlet_clamps_extend_door_open_error								:= NOT outlet_doors_closed_status AND NOT outlet_doors_closed_or;
+END_IF
+error_code																:= F_Error(error_code, outlet_clamps_extend_door_open_error, errOutletDoorsNotClosedForClamps);
+
+IF extend_outlet_clamps AND (outlet_doors_closed_status OR outlet_doors_closed_or) THEN
+	outlet_door_left_clamps_retract_solenoid_valve						:= FALSE;                                                  
+	outlet_door_right_clamps_retract_solenoid_valve						:= FALSE;                                                  
+	outlet_door_left_clamps_extend_solenoid_valve						:= TRUE;                                                      
+	outlet_door_right_clamps_extend_solenoid_valve						:= TRUE;                                                      
+ELSIF retract_outlet_clamps THEN
+	outlet_door_left_clamps_extend_solenoid_valve						:= FALSE;
+	outlet_door_right_clamps_extend_solenoid_valve						:= FALSE;
+	outlet_door_left_clamps_retract_solenoid_valve						:= TRUE;
+	outlet_door_right_clamps_retract_solenoid_valve						:= TRUE;
+END_IF
+extend_outlet_clamps													:= FALSE;
+retract_outlet_clamps													:= FALSE;
+
+clamps_extend_door_open_error											:= inlet_clamps_extend_door_open_error OR outlet_clamps_extend_door_open_error;
+
+tonInletClampsExtendError(IN:= inlet_door_left_clamps_extend_solenoid_valve AND inlet_door_right_clamps_extend_solenoid_valve AND NOT inlet_clamps_extended_status, PT:= REAL_TO_TIME(grClampDelay));
+tonInletClampsRetractError(IN:= inlet_door_left_clamps_retract_solenoid_valve AND inlet_door_right_clamps_retract_solenoid_valve AND NOT inlet_clamps_retracted_status, PT:= REAL_TO_TIME(grClampDelay));
+tonOutletClampsExtendError(IN:= outlet_door_left_clamps_extend_solenoid_valve AND outlet_door_right_clamps_extend_solenoid_valve AND NOT outlet_clamps_extended_status, PT:= REAL_TO_TIME(grClampDelay));
+tonOutletClampsRetractError(IN:= outlet_door_left_clamps_retract_solenoid_valve AND outlet_door_right_clamps_retract_solenoid_valve AND NOT outlet_clamps_retracted_status, PT:= REAL_TO_TIME(grClampDelay));
+
+inlet_clamps_extend_error												:= tonInletClampsExtendError.Q;
+error_code																:= F_Error(error_code, inlet_clamps_extend_error, errInletClampsExtend);
+inlet_clamps_retract_error												:= tonInletClampsRetractError.Q;
+error_code																:= F_Error(error_code, inlet_clamps_retract_error, errInletClampsRetract);
+outlet_clamps_extend_error												:= tonOutletClampsExtendError.Q;
+error_code																:= F_Error(error_code, outlet_clamps_extend_error, errOutletClampsExtend);
+outlet_clamps_retract_error												:= tonOutletClampsRetractError.Q;
+error_code																:= F_Error(error_code, outlet_clamps_retract_error, errOutletClampsRetract);
+
+clamps_extend_error														:= inlet_clamps_extend_error OR outlet_clamps_extend_error;
+clamps_retract_error													:= inlet_clamps_retract_error OR outlet_clamps_retract_error;
+
+inlet_clamps_retracted_or_status										:= inlet_clamps_retracted_or;
+IF inlet_clamps_retracted_status OR inlet_clamps_retracted_or THEN
+	IF close_inlet_doors THEN
+		inlet_door_left_actuator_open_solenoid_valve					:= FALSE;
+		inlet_door_right_actuator_open_solenoid_valve					:= FALSE;
+		inlet_door_left_actuator_close_solenoid_valve					:= TRUE;
+		inlet_door_right_actuator_close_solenoid_valve					:= TRUE;
+		bOpenInletDoors													:= FALSE;;
+	ELSIF open_inlet_doors THEN
+		inlet_door_left_actuator_close_solenoid_valve					:= FALSE;
+		inlet_door_right_actuator_close_solenoid_valve					:= FALSE;
+		inlet_door_left_actuator_open_solenoid_valve					:= TRUE;
+		inlet_door_right_actuator_open_solenoid_valve					:= TRUE;
+		bOpenInletDoors													:= TRUE;
+	END_IF
+END_IF
+open_inlet_doors														:= FALSE;
+close_inlet_doors														:= FALSE;
+error_code																:= F_Error(error_code, NOT inlet_clamps_retracted_status AND NOT inlet_clamps_retracted_or, errInletClampsNotRetractedForDoors);
+
+outlet_clamps_retracted_or_status										:= outlet_clamps_retracted_or;
+IF outlet_clamps_retracted_status OR outlet_clamps_retracted_or THEN
+	IF close_outlet_doors THEN
+		outlet_door_left_actuator_open_solenoid_valve					:= FALSE;
+		outlet_door_right_actuator_open_solenoid_valve					:= FALSE;
+		outlet_door_left_actuator_close_solenoid_valve					:= TRUE;
+		outlet_door_right_actuator_close_solenoid_valve					:= TRUE;
+		bOpenOutletDoors												:= FALSE;
+	ELSIF open_outlet_doors THEN
+		outlet_door_left_actuator_close_solenoid_valve					:= FALSE;
+		outlet_door_right_actuator_close_solenoid_valve					:= FALSE;
+		outlet_door_left_actuator_open_solenoid_valve					:= TRUE;
+		outlet_door_right_actuator_open_solenoid_valve					:= TRUE;
+		bOpenOutletDoors												:= TRUE;
+	END_IF
+END_IF
+open_outlet_doors														:= FALSE;
+close_outlet_doors														:= FALSE;
+error_code																:= F_Error(error_code, NOT outlet_clamps_retracted_status AND NOT outlet_clamps_retracted_or, errOutletClampsNotRetractedForDoors);
+
+
+tonInletDoorsCloseError(IN:= inlet_door_left_actuator_close_solenoid_valve AND inlet_door_right_actuator_close_solenoid_valve AND NOT inlet_doors_closed_status, PT:= REAL_TO_TIME(grDoorDelay));
+IF tonInletDoorsCloseError.Q THEN
+	iInletCloseCount													:= iInletCloseCount + 1;
+	IF iInletCloseCount >= SP_door_close_retries_before_error THEN
+		iInletCloseCount												:= 0;
+		bCloseInletDoorsReset											:= FALSE;
+		inlet_doors_close_error											:= TRUE;
+		inlet_door_left_actuator_close_solenoid_valve					:= FALSE;
+		inlet_door_right_actuator_close_solenoid_valve					:= FALSE;
+	ELSE
+		bCloseInletDoorsReset											:= TRUE;
+		open_inlet_doors												:= TRUE;
+	END_IF
+END_IF
+error_code																:= F_Error(error_code, inlet_doors_close_error, errInletDoorsClose);
+
+tonInletDoorCloseReset(IN:= bCloseInletDoorsReset, PT:= REAL_TO_TIME(SP_door_close_reset_duration * _SECONDS));
+IF tonInletDoorCloseReset.Q THEN
+	bCloseInletDoorsReset												:= FALSE;
+	close_inlet_doors													:= TRUE;
+END_IF
+
+tonInletDoorsOpenError(IN:= bOpenInletDoors AND NOT inlet_doors_open_status, PT:= REAL_TO_TIME(grDoorDelay));
+IF tonInletDoorsOpenError.Q THEN
+	inlet_doors_open_error												:= TRUE;
+	inlet_door_left_actuator_open_solenoid_valve						:= FALSE;
+	inlet_door_right_actuator_open_solenoid_valve						:= FALSE;
+END_IF
+error_code																:= F_Error(error_code, inlet_doors_open_error, errInletDoorsOpen);
+
+tonOutletDoorsCloseError(IN:= outlet_door_left_actuator_close_solenoid_valve AND outlet_door_right_actuator_close_solenoid_valve AND NOT outlet_doors_closed_status, PT:= REAL_TO_TIME(grDoorDelay));
+IF tonOutletDoorsCloseError.Q THEN
+	iOutletCloseCount													:= iOutletCloseCount + 1;
+	IF iOutletCloseCount >= SP_door_close_retries_before_error THEN
+		iOutletCloseCount												:= 0;
+		bCloseOutletDoorsReset											:= FALSE;
+		outlet_doors_close_error										:= TRUE;
+		outlet_door_left_actuator_close_solenoid_valve					:= FALSE;
+		outlet_door_right_actuator_close_solenoid_valve					:= FALSE;
+	ELSE
+		bCloseOutletDoorsReset											:= TRUE;
+		open_outlet_doors												:= TRUE;
+	END_IF
+END_IF
+error_code																:= F_Error(error_code, outlet_doors_close_error, errOutletDoorsClose);
+
+tonOutletDoorCloseReset(IN:= bCloseOutletDoorsReset, PT:= REAL_TO_TIME(SP_door_close_reset_duration * _SECONDS));
+IF tonOutletDoorCloseReset.Q THEN
+	bCloseOutletDoorsReset												:= FALSE;
+	close_outlet_doors													:= TRUE;
+END_IF
+
+tonOutletDoorsOpenError(IN:= bOpenOutletDoors AND NOT outlet_doors_open_status, PT:= REAL_TO_TIME(grDoorDelay));
+IF tonOutletDoorsOpenError.Q THEN
+	outlet_doors_open_error												:= TRUE;
+	outlet_door_left_actuator_open_solenoid_valve						:= FALSE;
+	outlet_door_right_actuator_open_solenoid_valve						:= FALSE;
+END_IF
+error_code																:= F_Error(error_code, outlet_doors_open_error, errOutletDoorsOpen);
+
+doors_open_error														:= inlet_doors_open_error OR outlet_doors_open_error;
+doors_close_error														:= inlet_doors_close_error OR outlet_doors_close_error;
+
+// FAN
+tonFanStart(IN:= fan_vfd <> rRpmOld, PT:= INT_TO_TIME((unit - 1) * _FAN_DELAY_TIME));
+IF tonFanStart.Q OR fan_vfd = 0 THEN
+	rRpmOld																:= fan_vfd;
+	rRpm																:= fan_vfd * _FAN_RPM_FACTOR;
+END_IF
+fbFan(	Enable_Vfd														:= NOT fan_vfd_ecat_state AND fan_vfd_enable,
+		Fault_Reset														:= fan_vfd_reset, 
+		Rpm																:= rRpm, 
+		Minimum_Speed													:= _FAN_SPEED_MIN,
+		Maximum_Speed													:= _FAN_SPEED_MAX, 
+		StatusWord														:= fan_vfd_status, 
+		ControlWord														=> fan_vfd_control, 
+		TargetRpm														=> fan_vfd_target_vel, 
+		Ready															=> fan_vfd_enabled,
+		Error															=> fan_vfd_error);
+		
+fan_vfd_output															:= WORD_TO_REAL(fan_vfd_velocity) / _FAN_RPM_FACTOR;
+fan_running																:= fan_vfd_velocity > _FAN_ON;
+fan_vfd_current_amps													:= DINT_TO_REAL(fan_vfd_current) / 100;
+fan_vfd_reset															:= FALSE;
+
+
+tonFanRunError(IN:= rRPM > 0, PT:= _FAN_START_TIME);
+fan_run_error															:= tonFanRunError.Q AND NOT fan_running;
+error_code																:= F_Error(error_code, fan_vfd_error, errFanVFD);
+error_code																:= F_Error(error_code, fan_run_error, errFanRun);
+]]></ST>
+    </Implementation>
+    <Action Name="A_Sorbent_Temperatures" Id="{f771aa08-e052-43ad-91d4-8d07159f2bb3}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reator.A_Sorbent_Temperatures
+// Rev 1.0 - October 16, 2024
+
+sorbent_low_temp														:= 1000;
+sorbent_high_temp														:= -1000;
+
+rTempTotal																:= 0;
+iTempCount																:= 0;
+
+inlet_top_left_temp														:= M_Temperature(xx01_TT01, xx01_TT01_offset, xx01_TT01_error, inlet_top_left_temp_error_or, iInletCount[0], inlet_top_left_temp_error, sorbent_low_temp, sorbent_high_temp, rTempTotal, iTempCount);
+inlet_top_right_temp													:= M_Temperature(xx01_TT02, xx01_TT02_offset, xx01_TT02_error, inlet_top_right_temp_error_or, iInletCount[1], inlet_top_right_temp_error, sorbent_low_temp, sorbent_high_temp, rTempTotal, iTempCount);
+inlet_bottom_left_temp													:= M_Temperature(xx01_TT03, xx01_TT03_offset, xx01_TT03_error, inlet_bottom_left_temp_error_or, iInletCount[2], inlet_bottom_left_temp_error, sorbent_low_temp, sorbent_high_temp, rTempTotal, iTempCount);
+inlet_bottom_right_temp													:= M_Temperature(xx01_TT04, xx01_TT04_offset, xx01_TT04_error, inlet_bottom_right_temp_error_or, iInletCount[3], inlet_bottom_right_temp_error, sorbent_low_temp, sorbent_high_temp, rTempTotal, iTempCount);
+
+outlet_top_left_temp													:= M_Temperature(xx03_TT01, xx03_TT01_offset, xx03_TT01_error, outlet_top_left_temp_error_or, iOutletCount[0], outlet_top_left_temp_error, sorbent_low_temp, sorbent_high_temp, rTempTotal, iTempCount);
+outlet_top_right_temp													:= M_Temperature(xx03_TT02, xx03_TT02_offset, xx03_TT02_error, outlet_top_right_temp_error_or, iOutletCount[1], outlet_top_right_temp_error, sorbent_low_temp, sorbent_high_temp, rTempTotal, iTempCount);
+outlet_bottom_left_temp													:= M_Temperature(xx03_TT03, xx03_TT03_offset, xx03_TT03_error, outlet_bottom_left_temp_error_or, iOutletCount[2], outlet_bottom_left_temp_error, sorbent_low_temp, sorbent_high_temp, rTempTotal, iTempCount);
+outlet_bottom_right_temp												:= M_Temperature(xx03_TT04, xx03_TT04_offset, xx03_TT04_error, outlet_bottom_right_temp_error_or, iOutletCount[3], outlet_bottom_right_temp_error, sorbent_low_temp, sorbent_high_temp, rTempTotal, iTempCount);
+
+error_code																:= F_Error(error_code, inlet_top_left_temp_error, errInletTopLeftTemp);
+error_code																:= F_Error(error_code, inlet_top_right_temp_error, errInletTopRightTemp);
+error_code																:= F_Error(error_code, inlet_bottom_left_temp_error, errInletBottomLeftTemp);
+error_code																:= F_Error(error_code, inlet_bottom_right_temp_error, errInletBottomRightTemp);
+error_code																:= F_Error(error_code, outlet_top_left_temp_error, errOutletTopLeftTemp);
+error_code																:= F_Error(error_code, outlet_top_right_temp_error, errOutletTopRightTemp);
+error_code																:= F_Error(error_code, outlet_bottom_left_temp_error, errOutletBottomLeftTemp);
+error_code																:= F_Error(error_code, outlet_bottom_right_temp_error, errOutletBottomRightTemp);
+
+sorbent_average_temp													:= SEL(iTempCount > 0, 0, rTempTotal / iTempCount);
+
+FOR i:= 0 TO 3 DO
+	iInletCount[i]														:= iInletCount[i] + 1;
+	IF iInletCount[i] > _TEMP_VALID_TIME THEN
+		iInletCount[i]													:= _TEMP_VALID_TIME;
+	END_IF
+	iOutletCount[i]														:= iOutletCount[i] + 1;
+	IF iOutletCount[i] > _TEMP_VALID_TIME THEN
+		iOutletCount[i]													:= _TEMP_VALID_TIME;
+	END_IF
+END_FOR
+
+iHighTempCount															:= 0;
+rMin																	:= SP_minimum_reasonable_sorbent_TC_reading;
+rMax																	:= SP_maximum_reasonable_sorbent_TC_reading;
+IF iInletAirSetpoint = 0 THEN
+	rTempSP																:= SP_vacuum_cooling_target_temperature;
+ELSIF iInletAirSetpoint = 1 THEN
+	rTempSP																:= SP_maximum_inlet_air_temperature_during_adsorption;
+ELSE
+	rTempSP																:= SP_maximum_desorption_sorbent_temperature;
+END_IF
+
+iHighTempCount															:= M_Temp_Check(xx01_TT01_Error, inlet_top_left_temp, rTempSP, rMin, rMax, iInletCount[0], iHighTempCount);
+iHighTempCount															:= M_Temp_Check(xx01_TT02_Error, inlet_top_right_temp, rTempSP, rMin, rMax, iInletCount[1], iHighTempCount);
+iHighTempCount															:= M_Temp_Check(xx01_TT03_Error, inlet_bottom_left_temp, rTempSP, rMin, rMax, iInletCount[2], iHighTempCount);
+iHighTempCount															:= M_Temp_Check(xx01_TT04_Error, inlet_bottom_right_temp, rTempSP, rMin, rMax, iInletCount[3], iHighTempCount);
+iHighTempCount															:= M_Temp_Check(xx03_TT01_Error, outlet_top_left_temp, rTempSP, rMin, rMax, iOutletCount[0], iHighTempCount);
+iHighTempCount															:= M_Temp_Check(xx03_TT02_Error, outlet_top_right_temp, rTempSP, rMin, rMax, iOutletCount[1], iHighTempCount);
+iHighTempCount															:= M_Temp_Check(xx03_TT03_Error, outlet_bottom_left_temp, rTempSP, rMin, rMax, iOutletCount[2], iHighTempCount);
+iHighTempCount															:= M_Temp_Check(xx03_TT04_Error, outlet_bottom_right_temp, rTempSP, rMin, rMax, iOutletCount[3], iHighTempCount);
+
+IF iInletAirSetpoint = 0 THEN
+	vacuum_cooling_high_temp_count										:= iHighTempCount;
+ELSIF iInletAirSetpoint = 1 THEN
+	adsorption_high_temp_count											:= iHighTempCount;
+ELSE
+	desorption_high_temp_count											:= iHighTempCount;
+END_IF
+iInletAirSetpoint														:= SEL(iInletAirSetpoint = 2, iInletAirSetpoint + 1, 0);;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="M_Temp_Check" Id="{19b365eb-8f11-4605-a852-1305c6be52b5}">
+      <Declaration><![CDATA[METHOD M_Temp_Check : INT
+VAR_INPUT
+	Error																: BOOL;
+	Temp																: REAL;
+	Setpoint															: REAL;
+	Minimum																: REAL;
+	Maximum																: REAL;
+END_VAR
+VAR_IN_OUT
+	Count																: INT;
+	HighTempCount														: INT;
+END_VAR
+VAR
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// FB_Temp_Check
+// Rev 1.0 - September 5, 2024
+
+IF Error OR Temp < Minimum OR Temp > Maximum THEN
+	Count																:= 0;
+ELSIF Temp > Setpoint THEN
+	HighTempCount														:= HighTempCount + 1;
+END_IF
+M_Temp_Check															:= HighTempCount;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Temperature" Id="{b267b9e3-3daa-4e88-945f-8760f21f4c52}">
+      <Declaration><![CDATA[METHOD M_Temperature : REAL
+VAR_INPUT
+	Temp																: INT;
+	Offset																: REAL;
+	ErrorIn																: BOOL;
+	ErrorOR																: BOOL;
+	Count																: INT;
+END_VAR
+VAR_IN_OUT
+	Error																: BOOL;
+	Low																	: REAL;
+	High																: REAL;
+	Total																: REAL;
+	Counter																: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// M_Temperature
+// Rev 1.0 - October 16, 2024
+
+M_Temperature															:= F_Temperature(Temp, Offset);
+Error																	:= (ErrorIn OR Count < _TEMP_VALID_TIME) AND NOT ErrorOR;
+IF NOT ErrorIn THEN
+	Low																	:= F_LowestReal(M_Temperature, Low);
+	High																:= F_HighestReal(M_Temperature, High, 0, 0);
+	Total																:= Total + M_Temperature;
+	Counter																:= Counter + 1;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Reactor">
+      <LineId Id="15816" Count="46" />
+      <LineId Id="17167" Count="0" />
+      <LineId Id="16582" Count="0" />
+      <LineId Id="17169" Count="2" />
+      <LineId Id="16620" Count="0" />
+      <LineId Id="15863" Count="138" />
+      <LineId Id="16003" Count="60" />
+      <LineId Id="14743" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor.A_Sorbent_Temperatures">
+      <LineId Id="2" Count="8" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="339" Count="2" />
+      <LineId Id="337" Count="0" />
+      <LineId Id="342" Count="3" />
+      <LineId Id="352" Count="8" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="95" Count="6" />
+      <LineId Id="350" Count="0" />
+      <LineId Id="347" Count="2" />
+      <LineId Id="102" Count="11" />
+      <LineId Id="351" Count="0" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="320" Count="6" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="247" Count="7" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor.M_Temp_Check">
+      <LineId Id="6" Count="1" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="9" Count="4" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor.M_Temperature">
+      <LineId Id="17" Count="9" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="27" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

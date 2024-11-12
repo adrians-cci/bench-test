@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_SeqSteps_FAT" Id="{a106552e-96a1-4677-bafa-951badc6379a}">
+    <Declaration><![CDATA[TYPE ST_SeqSteps_FAT :
+STRUCT
+	{attribute 'json' := 'Summary'}
+	summary : STRING(255);
+	{attribute 'json' := 'Config'}
+	config : ST_StepConfig_FAT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

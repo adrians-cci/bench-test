@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Utility" Id="{da1c2008-5bc5-4778-ba94-6685c420b974}">
+    <Declaration><![CDATA[// P1 - STRUCT - Utility
+// Rev 1.0 - June 22, 2024
+
+TYPE Utility :
+STRUCT
+
+	utility_error														: STRING;
+	os_air_unsafe_temp													: BOOL;
+	
+	auto_mode_on														: BOOL;
+	drainage_on															: BOOL;
+	
+	product_condensate_drum_lsl											: BOOL;
+	product_condensate_drum_lsh											: BOOL;
+	condensate_collection_tank_lsl										: BOOL;
+	condensate_collection_tank_lsh										: BOOL;
+	
+	boiler_package														: BOOL;
+	boiler_ready														: BOOL;
+	product_condensate_pump												: BOOL;
+	condensate_collection_tank_pump										: BOOL;
+	product_condenser													: BOOL;
+	dead_air_vacuum_pump												: BOOL;
+	product_blower														: BOOL;
+	instrument_air_compressor											: BOOL;
+	dead_air_line_co2_pump												: BOOL;
+	dead_air_line_co2_sol												: BOOL;
+	
+	dead_air_line_co2													: REAL;
+	dead_air_line_co2_error												: BOOL;
+	product_outlet_co2													: REAL;
+	product_outlet_co2_error											: BOOL;
+	product_outlet_h2o													: REAL;
+	product_outlet_h2o_error											: BOOL;
+	product_outlet_o2													: REAL;
+	product_outlet_o2_error												: BOOL;
+	condensate_collection_tank_ph										: REAL;
+	condensate_collection_tank_ph_error									: BOOL;
+	condensate_collection_tank_o2										: REAL;
+	condensate_collection_tank_o2_error									: BOOL;
+	condensate_collection_tank_turbidity								: REAL;
+	condensate_collection_tank_turbidity_error							: BOOL;
+
+	dead_air_flow														: REAL;
+	dead_air_flow_error													: BOOL;
+	product_outlet_volumetric_flow										: REAL;
+	product_outlet_volumetric_flow_error								: BOOL;
+	product_outlet_mass_flow											: REAL;
+	product_outlet_mass_flow_error										: BOOL;
+	product_condenser_pump_outlet_liquid_flow							: REAL;
+	product_condenser_pump_outlet_liquid_flow_error						: BOOL;
+	tap_water_to_boiler_flow											: REAL;
+	tap_water_to_boiler_flow_error										: BOOL;
+	steam_header_flow													: REAL;
+	steam_header_flow_error												: BOOL;
+	condensate_collection_tank_flow										: REAL;
+	condensate_collection_tank_flow_error								: BOOL;
+
+	product_condensate_drum_level										: REAL;
+	product_condensate_drum_level_error									: BOOL;
+	condensate_collection_tank_level									: REAL;
+	condensate_collection_tank_level_error								: BOOL;
+
+	dead_air_line_pres													: REAL;
+	dead_air_line_pres_error											: BOOL;
+	purge_product_line_pres												: REAL;
+	purge_product_line_pres_error										: BOOL;
+	pre_condenser_line_pres												: REAL;
+	pre_condenser_line_pres_error										: BOOL;
+	post_condenser_line_pres											: REAL;
+	post_condenser_line_pres_error										: BOOL;
+	product_vacuum_pres													: REAL;
+	product_vacuum_pres_error											: BOOL;
+	product_outlet_pres													: REAL;
+	product_outlet_pres_error											: BOOL;
+	boiler_outlet_pres													: REAL;
+	boiler_outlet_pres_error											: BOOL;
+	instrument_air_comp_pres											: REAL;
+	instrument_air_comp_pres_error										: BOOL;
+	instrument_air_comp_pres_interlock									: INT;
+	
+	purge_product_line_temp												: REAL;
+	purge_product_line_temp_error										: BOOL;
+	pre_condenser_line_temp												: REAL;
+	pre_condenser_line_temp_error										: BOOL;
+	post_condenser_line_temp											: REAL;
+	post_condenser_line_temp_error										: BOOL;
+	product_outlet_temp													: REAL;
+	product_outlet_temp_error											: BOOL;
+	product_condenser_pump_outlet_temp									: REAL;
+	product_condenser_pump_outlet_temp_error							: BOOL;
+	boiler_outlet_temp													: REAL;
+	boiler_outlet_temp_error											: BOOL;
+	condensate_collection_tank_temp										: REAL;
+	condensate_collection_tank_temp_error								: BOOL;
+	condensate_collection_tank_outlet_line_temp							: REAL;
+	condensate_collection_tank_outlet_line_temp_error					: BOOL;
+	instrument_air_comp_temp											: REAL;
+	instrument_air_comp_temp_error										: BOOL;
+	instrument_air_comp_temp_interlock									: INT;
+	
+	/// <summary>XV01</summary>
+	cooling_line_pre_condenser_valve									: BOOL;
+    /// <summary>XV01</summary>
+	cooling_line_pre_condenser_valve_clear								: BOOL;
+
+	/// <summary>XV-02</summary>
+	purge_product_pre_condenser_valve									: BOOL;
+	/// <summary>XV-02</summary>
+	purge_product_pre_condenser_valve_clear								: BOOL;
+
+    /// <summary>XV03</summary>
+	product_vacuum_pump_isolation_valve									: BOOL;
+    /// <summary>XV03</summary>
+	product_vacuum_pump_isolation_valve_clear							: BOOL;
+    /// <summary>XV03</summary>
+	product_vacuum_pump_isolation_valve_closed							: BOOL;
+	
+	product_vacuum_bypass_valve											: BOOL;
+	product_vacuum_bypass_valve_clear									: BOOL;
+	
+    /// <summary>XV-05</summary>
+	product_vacuum_outlet_isolation_valve								: BOOL;
+    /// <summary>XV-05</summary>
+	product_vacuum_outlet_isolation_valve_clear							: BOOL;
+
+	product_condensate_drain_valve										: BOOL;
+	
+	steam_bypass_valve													: BOOL;
+	steam_bypass_valve_clear											: BOOL;
+	
+	condensate_collection_tank_pump_outlet_valve						: BOOL;
+	condensate_collection_tank_pump_outlet_valve_clear					: BOOL;
+	
+    /// <summary>PCV-01</summary>
+	product_vacuum_backfeed_valve_open									: BOOL;
+    /// <summary>PCV-01</summary>
+	product_vacuum_backfeed_valve_closed								: BOOL;
+    /// <summary>PCV-01</summary>
+	product_vacuum_backfeed_valve										: REAL;
+    /// <summary>PCV-01</summary>
+	product_vacuum_backfeed_valve_setpoint								: REAL;
+    /// <summary>PCV-01</summary>
+	product_vacuum_backfeed_valve_mode									: INT;								
+	
+    /// <summary>P-02</summary>
+	product_vacuum_pump_vfd												: REAL;
+	product_vacuum_pump_vfd_output										: REAL;
+	product_vacuum_pump_radiator										: BOOL;
+	product_blower_vfd													: REAL;
+	product_blower_vfd_output											: REAL;
+	
+	steam_header_volume_total_enable									: BOOL;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

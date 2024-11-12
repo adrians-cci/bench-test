@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="P_Alarms" Id="{56f47440-efa2-4751-966b-4271c6919b2d}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_Alarms
+VAR
+	i																	: INT;
+	alarm_number 														: INT;
+	sitaBits 															: DWORD;
+	sitaAlarm 															: STRING;
+	sitaMsg 															: STRING;
+	sitaTmr 															: STRING;
+	sitaRTrig 															: R_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// P_Alarms
+// Rev 1.0 - June 21, 2024
+
+FOR i := 1 TO alarm_number DO 
+	IF gsAlarms[i] <> '' THEN 
+		m01.ts_Alarm													:= gsAlarms[i];
+		m01.ts_User_Message												:= gsMessages[i];
+		m01.tb_Alarm_Active												:= TRUE;
+		EXIT ;
+	END_IF
+END_FOR
+
+
+IF m01.tb_Acknowledge_Alarm THEN
+	FOR i := 1 TO alarm_number DO 
+		IF gsAlarms[i] <> '' THEN                     	    	
+			gsAlarms[i] 												:= '';
+			gsMessages[i]												:= '';
+			EXIT;
+		END_IF
+	END_FOR
+	m01.tb_Acknowledge_Alarm := FALSE;                                	    		
+END_IF                                      	    	
+
+IF m01.tb_Clear_Alarm_All THEN
+	FOR i := 1 TO alarm_number DO                      	    	
+		gsAlarms[i] 													:= '';
+		gsMessages[i]													:= '';	
+		m01.tb_Clear_Alarm_All											:= FALSE;		
+	END_FOR                                 	    	
+END_IF
+
+giAlarmCount := M_GetAlarmsCount(); 
+
+IF giAlarmCount = 0 THEN
+	m01.ts_Alarm														:= '';
+	m01.ts_User_Message													:= '';
+	m01.tb_Alarm_Active													:= FALSE;
+	alarm_number														:= 0;
+END_IF
+                                            	    	
+FOR i := 1 TO _ALARM_COUNT DO 
+	m01.processAlarms[i] 												:= gsAlarms[i];
+	m01.processAlarmsMessage[i] 										:= gsMessages[i];
+END_FOR
+
+sitaRTrig(CLK := sitaBits.0);
+IF sitaRTrig.Q THEN 
+	M_Add_Alarm('UnitTest-',sitaAlarm,sitaMsg);
+	sitaBits.0 															:= FALSE;
+END_IF
+]]></ST>
+    </Implementation>
+    <Method Name="M_Add_Alarm" Id="{66526b1d-0749-4f08-a303-13d0af43abef}">
+      <Declaration><![CDATA[METHOD M_Add_Alarm 			: BOOL
+VAR_INPUT
+	Unit																: STRING;
+	Alarm																: STRING;
+	Message																: STRING;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// P_Alarms.M_Add_Alarm
+// Rev 1.0 - January 31, 2024
+
+IF alarm_number < _ALARM_COUNT THEN
+	alarm_number													:= alarm_number + 1;
+	gsMessages[alarm_number]										:= Message;
+	gsAlarms[alarm_number]											:= CONCAT(Unit, Alarm);
+END_IF
+M_Add_Alarm															:= TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Check_Error" Id="{9d58ba4b-30a7-44c4-9692-8522afffef86}">
+      <Declaration><![CDATA[METHOD M_Check_Error : BOOL
+VAR_INPUT
+	Error_In															: BOOL;
+	Latch																: BOOL;
+	Unit																: STRING;
+	Alarm																: STRING;
+	Message																: STRING;
+END_VAR
+VAR
+	Error_Out															: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// P_Alarms.M_Check_Error
+// Rev 1.0 - March 20, 2024
+
+IF m01.tb_Auto_Mode_On THEN
+
+	Error_Out																:= Latch;
+	IF Error_In THEN
+		IF NOT Error_Out THEN
+			Error_Out														:= TRUE;
+			P_Alarms.M_Add_Alarm(Unit, Alarm, Message);
+		END_IF
+	ELSE
+		Error_Out															:= FALSE;
+	END_IF
+	M_Check_Error															:= Error_Out;
+
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_GetAlarmsCount" Id="{d77900e0-7fec-4e80-84f8-4e0fef630e52}">
+      <Declaration><![CDATA[METHOD M_GetAlarmsCount : INT
+VAR
+	alarmCount 															: INT := 0 ;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// P_Alarms.M_GetAlarmsCount
+// Rev 1.0 - March 20, 2024
+
+FOR i := 0 TO alarm_number DO 
+	IF gsAlarms[i] <> '' THEN 
+		alarmCount 														:= alarmCount + 1;
+	END_IF
+END_FOR
+M_GetAlarmsCount 														:= alarmCount;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="P_Alarms">
+      <LineId Id="3" Count="1" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="5" Count="46" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="64" Count="0" />
+    </LineIds>
+    <LineIds Name="P_Alarms.M_Add_Alarm">
+      <LineId Id="3" Count="1" />
+      <LineId Id="6" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="P_Alarms.M_Check_Error">
+      <LineId Id="3" Count="1" />
+      <LineId Id="27" Count="1" />
+      <LineId Id="5" Count="10" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="P_Alarms.M_GetAlarmsCount">
+      <LineId Id="13" Count="2" />
+      <LineId Id="4" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

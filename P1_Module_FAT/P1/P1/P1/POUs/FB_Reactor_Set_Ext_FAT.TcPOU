@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Reactor_Set_Ext_FAT" Id="{df9eef0f-6051-440c-9027-049bdb3cca1d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Reactor_Set_Ext_FAT EXTENDS FB_Reactor_Set
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	fb_ReadJsonFAT : FB_ReadWrite_Json;
+	sita_bit1 : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fb_ReadJsonFAT(
+		i_ExecuteRead := sita_bit1,
+		i_Json_FilePath := FAT.json_file_path,
+		i_JsonStructure := 'FAT.st_steam_desorption');
+
+//Steam_Desorption_FAT();	
+
+SUPER^();
+
+
+
+	]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Reactor_Set_Ext_FAT">
+      <LineId Id="9" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="22" Count="2" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

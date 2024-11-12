@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <DUT Name="E_Errors_Reactor" Id="{d07b4ce5-0484-4bcf-8c66-8a689de6fc9a}">
+    <Declaration><![CDATA[// P1 - E_Errors_Reactor
+// Rev 1.0 - October 15, 2024
+
+TYPE E_Errors_Reactor :
+(
+	errInletDoorsClose						:= 0,
+	errOutletDoorsClose,	
+	errInletDoorsOpen,
+	errOutletDoorsOpen,	
+	errInletClampsRetract,	
+	errOutletClampsRetract,
+	errInletClampsExtend,
+	errOutletClampsExtend,	
+	errOutletLineTemp,
+	errInletTopLeftTemp,		
+	errInletTopRightTemp,	
+	errInletBottomLeftTemp,	
+	errInletBottomRightTemp,	
+	errOutletTopLeftTemp,
+	errOutletTopRightTemp,	
+	errOutletBottomLeftTemp,	
+	errOutletBottomRightTemp,
+	errInletDoorsNotClosedForClamps,
+	errOutletDoorsNotClosedForClamps,
+	errInletClampsNotRetractedForDoors,
+	errOutletClampsNotRetractedForDoors,
+	errFanVFD,
+	errFanRun
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

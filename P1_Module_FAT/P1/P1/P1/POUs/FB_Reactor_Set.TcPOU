@@ -1,0 +1,2297 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Reactor_Set" Id="{468d7ad3-5dee-4c93-9f2b-36bd0a2c9c73}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Reactor_Set
+VAR_INPUT
+	reactor_set															: INT;
+END_VAR
+VAR_OUTPUT
+	bReset																: BOOL;
+END_VAR
+VAR
+	/// EAP Variables
+	power_up															: BYTE :=1;
+	
+	directive													AT %I*	: BYTE;	
+	
+	rs_vac_cooling_pump_service_assigned						AT %I*	: BOOL;
+	rs_dead_air_pump_service_assigned							AT %I*	: BOOL;
+	rs_steam_system_service_assigned							AT %I*	: BOOL;
+	rs_purge_assist_service_assigned							AT %I*	: BOOL;
+	rs_error_reset												AT %I*	: BOOL;
+
+	rs_vac_cooling_pump_service_request							AT %Q*	: BOOL;
+	rs_dead_air_pump_service_request							AT %Q*	: BOOL;
+	rs_steam_system_service_request								AT %Q*	: BOOL;
+	rs_purge_assist_service_request								AT %Q*	: BOOL;
+
+	rs_idle														AT %Q*	: BYTE;
+	rs_air_repres												AT %Q*	: BYTE;
+	rs_adsorption												AT %Q*	: BYTE;
+	rs_dead_air_evac											AT %Q*	: BYTE;
+	rs_steam_desorption											AT %Q*	: BYTE;
+	rs_vacuum_cooling											AT %Q*	: BYTE;
+	rs_shutdown													AT %Q*	: BYTE;
+	rs_shutdown_evac											AT %Q*	: BYTE;
+	rs_estop													AT %Q*	: BYTE;
+	
+	rs_error_step												AT %Q*	: DWORD;
+	rs_error_code_1												AT %Q*	: DWORD;
+	rs_error_code_2												AT %Q*	: DWORD;
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	eState																: E_MachineState;
+	
+	r1																	: FB_Reactor();
+	r2																	: FB_Reactor();
+	r3																	: FB_Reactor();
+	r4																	: FB_Reactor();
+	
+	fbRepresValve														: FB_ValveStatus();
+	fbDeadAirValve														: FB_ValveStatus();
+	fbPurgeValve														: FB_ValveStatus();
+	fbCoolingValve														: FB_ValveStatus();
+	fbSteamHeaderValve													: FB_ValveStatus();
+	fbSteamControlValve													: FB_ValveStatus();
+
+	fbSteamControlValveOp												: FB_ValveControl();
+	
+	rtrigDirectiveChange												: R_TRIG;
+	rtrigReset															: R_TRIG;
+
+	tonTimer1															: TON;
+	//tonTimer2															: TON;
+	
+	i																	: INT;
+	iDirective															: INT;
+	
+	rFanSpeed															: REAL;
+	rTime1																: REAL;
+	rTime2																: REAL;
+	rSorbentHighTemp													: REAL;
+	rEvacLeakTestInitialPressure										: REAL;
+	rSteamControlValveControlPoint										: REAL;
+	rSteamControlValveSlowMoveIncrement									: REAL		:= 0.5;
+	rSteamControlValveSlowMoveFullOpen									: REAL		:= 15;
+
+	bSteamControlValveControlPointError									: BOOL;	
+	bError																: BOOL;
+	bTimer1																: BOOL;
+	bResetFanSpeed														: BOOL;
+	bFanError															: BOOL;
+	bFansRunning														: BOOL;
+	bVacCoolingPumpServiceAssigned										: BOOL;
+	bDeadAirPumpServiceAssigned											: BOOL;
+	bSteamSystemServiceAssigned											: BOOL;
+	bPurgeAssistServiceAssigned											: BOOL;
+	bCoolingFailedFirstTry												: BOOL;
+	
+	bILDeadAirValveSorbentTempOK										: BOOL;
+	bILSteamHeaderValvePresOK											: BOOL;
+	bILRepresValveSorbentTempOK											: BOOL;
+	bILReactorPresOK													: BOOL;
+	bILSorbentTempOK													: BOOL;
+	bILRepresValveSteamValveOK											: BOOL;
+	
+	bCloseAllValves														: BOOL;
+	bAllValvesClear														: BOOL;
+	bValveError															: BOOL;
+	
+	bOpenAllDoors														: BOOL;
+	bCloseAllDoors														: BOOL;
+	bAllDoorsOpen														: BOOL;
+	bAllDoorsClosed														: BOOL;
+	
+	bExtendAllClamps													: BOOL;
+	bRetractAllClamps													: BOOL;
+	bAllClampsExtended													: BOOL;
+	bAllClampsRetracted													: BOOL;
+	
+	bAllDoorsOpenError													: BOOL;
+	bAllDoorsCloseError													: BOOL;
+	bAllClampsRetractError												: BOOL;
+	bAllClampsExtendError												: BOOL;
+	
+	bPriorDirective														: BYTE;
+	
+    /// <summary>PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_diff_pres														: REAL;
+    /// <summary>PDT03</summary>
+	fan_diff_pres_error													: BOOL;
+    /// <summary>fan diff pres</summary>
+	PDT03														AT %I*	: INT;
+    /// <summary>fanter diff pres</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PDT03_error													AT %I*	: BOOL;
+    /// <summary>PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_error_or												: BOOL;
+	
+    /// <summary>PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_off											AT %Q*	: BOOL;
+	rtrigPDT03Off														: R_TRIG;
+    /// <summary>R1_PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_sv01											AT %Q*	: BOOL;
+	rtrigPDT03SV01														: R_TRIG;
+    /// <summary>R2_PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_sv02											AT %Q*	: BOOL;
+	rtrigPDT03SV02														: R_TRIG;
+    /// <summary>R3_PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_sv03											AT %Q*	: BOOL;
+	rtrigPDT03SV03														: R_TRIG;
+    /// <summary>R4_PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_sv04											AT %Q*	: BOOL;
+	rtrigPDT03SV04														: R_TRIG;
+
+	/// <summary>PT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_pres														: REAL;
+    /// <summary>PT01</summary>
+	reactor_pres_error													: BOOL;
+    /// <summary>Reactor Pressure</summary>
+	PT01														AT %I*	: INT;
+    /// <summary>Reactor Pressure</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PT01_error													AT %I*	: BOOL;
+    /// <summary>PT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_pres_error_or												: BOOL;
+
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2															: REAL;
+    /// <summary>AT03</summary>
+	outlet_co2_error													: BOOL;
+    /// <summary>Outlet CO2</summary>
+	AT03														AT %I*	: INT;
+    /// <summary>Outlet CO2</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT03_Error													AT %I*	: BOOL;
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_error_or													: BOOL;
+	
+     /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_off												AT %Q*	: BOOL;
+	rtrigAT03Off														: R_TRIG;
+    /// <summary>R1_AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_sv01												AT %Q*	: BOOL;
+	rtrigAT03SV01														: R_TRIG;
+    /// <summary>R2_AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_sv02												AT %Q*	: BOOL;
+	rtrigAT03SV02														: R_TRIG;
+    /// <summary>R3_AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_sv03												AT %Q*	: BOOL;
+	rtrigAT03SV03														: R_TRIG;
+    /// <summary>R4_AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_sv04												AT %Q*	: BOOL;
+	rtrigAT03SV04														: R_TRIG;
+
+   /// <summary>AI04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_h2o															: REAL;
+    /// <summary>AI04</summary>
+	outlet_h2o_error													: BOOL;
+    /// <summary>Outlet H20</summary>
+	AT04														AT %I*	: INT;
+    /// <summary>Outlet H2O</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT04_error													AT %I*	: BOOL;
+    /// <summary>AT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_error_or													: BOOL;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	remaining_time														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	current_step														: INT;
+
+    /// <summary>AT03 pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_pump														: BOOL;
+    /// <summary>AT03 pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2_pump_cmd_status											: BOOL;
+    /// <summary>Inlet CO2 pump</summary>
+	AT03_pump													AT %Q*	: BOOL;
+    /// <summary>AT03 solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_sol														: BOOL;
+    /// <summary>AT03 solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2_sol_cmd_status											: BOOL;
+    /// <summary>Outlet CO2 solenoid</summary>
+	AT03_sol													AT %Q*	: BOOL;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ti_Total_Cycle_Count												: DINT; 
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ti_Cycle_Count														: INT; 
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tr_Remaining_Time													: REAL;
+
+    /// <summary>PWR-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	power_control														: BOOL;
+    /// <summary>PWR-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	power_control_status												: BOOL;
+    /// <summary>power_cmd</summary>
+	PWR_01														AT %Q*	: BOOL;
+	circuit_breaker_no_feedback									AT %I*	: BOOL;
+	circuit_breaker_nc_feedback									AT %I*	: BOOL;
+	
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_control_valve													: REAL;
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_control_valve_setpoint										: REAL;
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_control_valve_control_point_error								: BOOL;
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_control_valve_status											: INT;
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_control_valve_position										: REAL;
+    /// <summary>rs steam control valve</summary>
+	PCV_01														AT %Q*	: INT;
+    /// <summary>rs steam control valve</summary>
+	PCV_01_position												AT %I*	: INT;
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_control_valve_closed											: BOOL;
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_control_valve_open											: BOOL;
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_control_valve_mode											: INT;			
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_control_valve_current_mode									: INT;			
+    /// <summary>PCV01</summary>
+	steam_control_valve_kp												: REAL		:= 0.01; 
+    /// <summary>PCV01</summary>
+	steam_control_valve_ki												: REAL		:= 0.01;
+    /// <summary>PCV01</summary>
+	steam_control_valve_loop_time										: REAL		:= 2000;
+    /// <summary>PCV01</summary>
+	steam_control_valve_iband											: REAL		:= 6;
+    /// <summary>PCV01</summary>
+	steam_control_valve_base											: INT		:= 13110;
+    /// <summary>PCV01</summary>
+	steam_control_valve_base_adjust										: INT		:= 10;
+		                                	        	
+    /// <summary>XV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	repres_valve														: BOOL;
+    /// <summary>XV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repres_valve_open_cmd_status										: BOOL;
+    /// <summary>XV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repres_valve_open											AT %I*	: BOOL;
+    /// <summary>XV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repres_valve_closed											AT %I*	: BOOL;
+    /// <summary>repres valve</summary>
+	XV_02														AT %Q*	: BOOL;
+    /// <summary>XV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repres_valve_status													: INT;
+	
+    /// <summary>XV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_valve														: BOOL;
+    /// <summary>XV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_valve_open_cmd_status										: BOOL;
+    /// <summary>XV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_valve_open											AT %I*	: BOOL;
+    /// <summary>XV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_valve_closed										AT %I*	: BOOL;
+    /// <summary>dead air valve</summary>
+	XV_04														AT %Q*	: BOOL;
+    /// <summary>XV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_valve_status												: INT;
+	
+    /// <summary>XV05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	purge_valve															: BOOL;
+    /// <summary>XV05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_valve_open_cmd_status											: BOOL;
+    /// <summary>XV05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_valve_open											AT %I*	: BOOL;
+    /// <summary>XV05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_valve_closed											AT %I*	: BOOL;
+    /// <summary>purge valve</summary>
+	XV_05														AT %Q*	: BOOL;
+    /// <summary>XV05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_valve_status													: INT;
+	
+    /// <summary>XV06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cooling_valve														: BOOL;
+    /// <summary>XV06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_valve_open_cmd_status										: BOOL;
+    /// <summary>XV06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_valve_open											AT %I*	: BOOL;
+    /// <summary>XV06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_valve_closed										AT %I*	: BOOL;
+    /// <summary>cooling valve</summary>
+	XV_06														AT %Q*	: BOOL;
+    /// <summary>XV06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_valve_status												: INT;
+	
+    /// <summary>XV07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_header_valve													: BOOL;
+    /// <summary>XV07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_header_valve_open_cmd_status									: BOOL;
+    /// <summary>XV07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_header_valve_open										AT %I*	: BOOL;
+    /// <summary>XV07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_header_valve_closed									AT %I*	: BOOL;
+    /// <summary>steam header valve</summary>
+	XV_07														AT %Q*	: BOOL;
+    /// <summary>XV07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_header_valve_status											: INT;
+
+END_VAR
+
+VAR PERSISTENT
+	
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_low														: REAL	:= 0;
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_high														: REAL	:= 2000;
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_min														: REAL	:= 5;
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_offset													: REAL	:= 0;
+
+    /// <summary>PT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_set_pres_low												: REAL	:= 0;
+    /// <summary>PT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_set_pres_high												: REAL	:= 2000;
+    /// <summary>PT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_set_pres_min												: REAL	:= 5;
+    /// <summary>PT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_set_pres_offset												: REAL	:= 0;
+
+    /// <summary>PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_low													: REAL	:= 0;
+    /// <summary>PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_high													: REAL	:= 1.5;
+    /// <summary>PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_min													: REAL	:= 0.02;
+    /// <summary>PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_offset												: REAL	:= 0;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// P1 - FB_Reactor_Set
+// Rev 1.0 - October 31, 2024
+
+bReset																	:= FALSE;
+rtrigReset(CLK:= rs_error_reset);
+IF rtrigReset.Q THEN
+	bReset																:= TRUE;
+	A_EAP_Reset();
+END_IF
+
+r1(unit	:= 1, reset	:= bReset);
+r2(unit	:= 2, reset	:= bReset);
+r3(unit	:= 3, reset	:= bReset);
+r4(unit := 4, reset	:= bReset);
+
+rs_error_code_1															:= SEL(bReset, rs_error_code_1, 0);
+
+A_IO_ReactorSet();
+
+rtrigDirectiveChange(CLK:= directive <> bPriorDirective);
+IF rtrigDirectiveChange.Q THEN
+	A_Eap_Reset();
+	iDirective															:= BYTE_TO_INT(directive);
+	estate																:= iDirective;
+	current_step														:= 1;
+	bPriorDirective														:= directive;
+END_IF
+
+CASE eState OF
+	
+	eIdle:
+		rs_idle															:= _STARTED;
+		current_step													:= 0;
+		
+	eDeadAirEvacuation:
+		A_Process_Dead_Air_Evacuation();
+
+	eSteamDesorption:
+	
+	Steam_Desorption_FAT(i_Execute := TRUE);
+	A_Process_Steam_Desorption();
+		
+	eVacuumCooling:
+		A_Process_Vacuum_Cooling();
+		
+	eAirRepressurization:
+		A_Process_Air_Repressurization();
+		
+	eAdsorption:
+		A_Process_Adsorption_1();
+		
+	eShutdown:
+		A_Shutdown();
+
+	eShutdownEvac:
+		A_Shutdown_Evac();
+
+	eEmergencyStop:
+		A_Shutdown_Estop_1();
+
+END_CASE
+
+remaining_time															:= 0;
+IF eState > eIdle THEN
+	IF bTimer1 THEN
+		remaining_time													:= rTime1 - TIME_TO_REAL(tonTimer1.ET);
+	//ELSIF bTimer2 THEN
+		//remaining_time													:= rTime2 - TIME_TO_REAL(tonTimer2.ET);
+	END_IF
+END_IF
+
+tonTimer1(IN:= bTimer1, PT:= REAL_TO_TIME(rTime1));
+//tonTimer2(IN:= bTimer2, PT:= REAL_TO_TIME(rTime2));
+
+
+// FAT Tests
+
+]]></ST>
+    </Implementation>
+    <Action Name="A_EAP_Reset" Id="{0dbcb2f7-e4a4-40b8-8807-7ed3a1095350}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_EAP_Reset
+// Rev 1.0 - October 22, 2024
+
+rs_idle																	:= _IDLE;
+rs_air_repres															:= _IDLE;
+rs_adsorption															:= _IDLE;
+rs_dead_air_evac														:= _IDLE;
+rs_steam_desorption														:= _IDLE;
+rs_vacuum_cooling														:= _IDLE;
+rs_shutdown																:= _IDLE;
+rs_shutdown_evac														:= _IDLE;
+rs_estop																:= _IDLE;
+
+A_EAP_Services_Reset();]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_EAP_Services_Check" Id="{672f8917-74aa-481b-a867-95f407b1e112}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_EAP_Services_Check
+// Rev 1.0 - October 31, 2024
+
+IF bPurgeAssistServiceAssigned AND NOT rs_purge_assist_service_assigned THEN
+	rs_error_code_1														:= F_Error(rs_error_code_1, TRUE, errPurgeAssistServiceAssignmentLost);
+	M_Step(98);
+ELSIF bVacCoolingPumpServiceAssigned AND NOT rs_vac_cooling_pump_service_assigned THEN
+	rs_error_code_1														:= F_Error(rs_error_code_1, TRUE, errVacCoolingPumpServiceAssignmentLost);
+	M_Step(98);
+ELSIF bSteamSystemServiceAssigned AND NOT rs_steam_system_service_assigned THEN
+	rs_error_code_1														:= F_Error(rs_error_code_1, TRUE, errSteamSystemServiceAssignmentLost);
+	M_Step(98);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_EAP_Services_Reset" Id="{22c9ff40-efa5-4aa8-8bc4-8ea5b00437e6}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_EAP_Services_Reset
+// Rev 1.0 - October 22, 2024
+
+rs_vac_cooling_pump_service_request										:= FALSE;
+rs_dead_air_pump_service_request										:= FALSE;
+rs_steam_system_service_request											:= FALSE;
+rs_purge_assist_service_request											:= FALSE;
+bVacCoolingPumpServiceAssigned											:= FALSE;
+bDeadAirPumpServiceAssigned												:= FALSE;
+bSteamSystemServiceAssigned												:= FALSE;
+bPurgeAssistServiceAssigned												:= FALSE;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_IO_ReactorSet" Id="{e2a41b31-88bf-4ad6-a54a-bbda713b6940}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_IO_ReactorSet
+// Rev 1.0 - October 31, 2024
+
+IL_maximum_sorbent_temperature_for_repressurization_or_status			:= IL_maximum_sorbent_temperature_for_repressurization_or;
+IL_maximum_sorbent_temperature_for_dead_air_line_or_status				:= IL_maximum_sorbent_temperature_for_dead_air_line_or;
+IL_maximum_pressure_for_steam_introduction_or_status					:= IL_maximum_pressure_for_steam_introduction_or;
+IL_maximum_reactor_pressure_or_status									:= IL_maximum_reactor_pressure_or;
+IL_maximum_sorbent_temperature_or_status								:= IL_maximum_sorbent_temperature_or;
+
+IF bReset THEN
+	rs_error_code_1														:= F_Error(rs_error_code_1, FALSE, errDeadAirValveSorbentTempTooHigh);		// Interlock 3
+	rs_error_code_1														:= F_Error(rs_error_code_1, FALSE, errSteamHeaderValvePressureTooHigh);		// Interlock 4
+	rs_error_code_1														:= F_Error(rs_error_code_1, FALSE, errRepresValveSorbentTempTooHigh);		// Interlock 5
+	rs_error_code_1														:= F_Error(rs_error_code_1, FALSE, errRepresValveSteamValveOpen);			// Interlock 9
+END_IF
+
+IF bResetFanSpeed THEN
+	r1.fan_vfd															:= rFanSpeed;
+	r2.fan_vfd															:= rFanSpeed;
+	r3.fan_vfd															:= rFanSpeed;
+	r4.fan_vfd															:= rFanSpeed;
+	bResetFanSpeed														:= FALSE;	
+END_IF
+
+bFanError																:= r1.fan_run_error OR r1.fan_vfd_error OR r2.fan_run_error OR r2.fan_vfd_error OR r3.fan_run_error OR r3.fan_vfd_error OR r4.fan_run_error OR r4.fan_vfd_error;
+bFansRunning															:= r1.fan_running AND r2.fan_running AND r3.fan_running AND r4.fan_running;
+
+rtrigPDT03Off(CLK:= fan_diff_pres_off);
+rtrigPDT03SV01(CLK:= fan_diff_pres_sv01);
+rtrigPDT03SV02(CLK:= fan_diff_pres_sv02);
+rtrigPDT03SV03(CLK:= fan_diff_pres_sv03);
+rtrigPDT03SV04(CLK:= fan_diff_pres_sv04);
+IF rtrigPDT03Off.Q THEN
+	fan_diff_pres_sv01													:= FALSE;
+	fan_diff_pres_sv02													:= FALSE;
+	fan_diff_pres_sv03													:= FALSE;
+	fan_diff_pres_sv04													:= FALSE;
+	fan_diff_pres_off													:= FALSE;
+ELSIF rtrigPDT03SV01.Q THEN
+	fan_diff_pres_sv02													:= FALSE;
+	fan_diff_pres_sv03													:= FALSE;
+	fan_diff_pres_sv04													:= FALSE;
+ELSIF rtrigPDT03SV02.Q THEN
+	fan_diff_pres_sv01													:= FALSE;
+	fan_diff_pres_sv03													:= FALSE;
+	fan_diff_pres_sv04													:= FALSE;
+ELSIF rtrigPDT03SV03.Q THEN
+	fan_diff_pres_sv01													:= FALSE;
+	fan_diff_pres_sv02													:= FALSE;
+	fan_diff_pres_sv04													:= FALSE;
+ELSIF rtrigPDT03SV04.Q THEN
+	fan_diff_pres_sv01													:= FALSE;
+	fan_diff_pres_sv02													:= FALSE;
+	fan_diff_pres_sv03													:= FALSE;
+END_IF
+
+rtrigAT03Off(CLK:= outlet_co2_off);
+rtrigAT03SV01(CLK:= outlet_co2_sv01);
+rtrigAT03SV02(CLK:= outlet_co2_sv02);
+rtrigAT03SV03(CLK:= outlet_co2_sv03);
+rtrigAT03SV04(CLK:= outlet_co2_sv04);
+IF rtrigAT03Off.Q THEN
+	outlet_co2_sv01														:= FALSE;
+	outlet_co2_sv02														:= FALSE;
+	outlet_co2_sv03														:= FALSE;
+	outlet_co2_sv04														:= FALSE;
+	outlet_co2_off														:= FALSE;
+ELSIF rtrigAT03SV01.Q THEN
+	outlet_co2_sv02														:= FALSE;
+	outlet_co2_sv03														:= FALSE;
+	outlet_co2_sv04														:= FALSE;
+ELSIF rtrigAT03SV02.Q THEN
+	outlet_co2_sv01														:= FALSE;
+	outlet_co2_sv03														:= FALSE;
+	outlet_co2_sv04														:= FALSE;
+ELSIF rtrigAT03SV03.Q THEN
+	outlet_co2_sv01														:= FALSE;
+	outlet_co2_sv02														:= FALSE;
+	outlet_co2_sv04														:= FALSE;
+ELSIF rtrigAT03SV04.Q THEN
+	outlet_co2_sv01														:= FALSE;
+	outlet_co2_sv02														:= FALSE;
+	outlet_co2_sv03														:= FALSE;
+END_IF
+
+fan_diff_pres															:= F_AnalogIn(PDT03, fan_diff_pres_low, fan_diff_pres_high, fan_diff_pres_min, fan_diff_pres_offset);
+fan_diff_pres_error														:= PDT03_error AND NOT fan_diff_pres_error_or;
+rs_error_code_1															:= F_Error(rs_error_code_1, fan_diff_pres_error, errFanDiffPres);
+
+outlet_co2																:= F_AnalogIn(AT03, outlet_co2_low, outlet_co2_high, outlet_co2_min, outlet_co2_offset);
+outlet_co2_error														:= AT03_error AND NOT outlet_co2_error_or;
+rs_error_code_1															:= F_Error(rs_error_code_1, outlet_co2_error, errOutletCO2);
+
+reactor_pres															:= F_AnalogIn(PT01, reactor_set_pres_low, reactor_set_pres_high, reactor_set_pres_min, reactor_set_pres_offset);
+reactor_pres_error														:= PT01_error AND NOT reactor_pres_error_or;
+rs_error_code_1															:= F_Error(rs_error_code_1, reactor_pres_error, errReactorSetPres);
+
+// Interlock 6
+bILReactorPresOK														:= reactor_pres <= SP_maximum_reactor_pressure OR IL_maximum_reactor_pressure_or;
+rs_error_code_1															:= F_Error(rs_error_code_1, NOT bILReactorPresOK, errReactorAboveMaxPres);
+
+IF bCloseAllValves THEN
+	repres_valve														:= FALSE;
+	dead_air_valve														:= FALSE;
+	purge_valve															:= FALSE;
+	cooling_valve														:= FALSE;
+	steam_header_valve													:= FALSE;
+	bCloseAllValves														:= FALSE;
+END_IF
+
+XV_02																	:= repres_valve;
+repres_valve_open_cmd_status											:= XV_02;
+fbRepresValve(Input:= repres_valve, Open:= repres_valve_open, Closed:= repres_valve_closed, Delay:= grValveDelay, Status=> repres_valve_status);
+rs_error_code_1															:= F_Error(rs_error_code_1, repres_valve_status = eError, errRepresValvePosition);
+// Interlock 5
+bILRepresValveSorbentTempOK												:= rSorbentHighTemp <= SP_maximum_sorbent_temperature_for_repressurization OR IL_maximum_sorbent_temperature_for_repressurization_or;
+IF rSorbentHighTemp <= SP_maximum_sorbent_temperature_for_repressurization THEN
+	rs_error_code_1														:= F_Error(rs_error_code_1, FALSE, errRepresValveSorbentTempTooHigh);
+END_IF
+// Interlock 9
+bILRepresValveSteamValveOK												:= steam_header_valve_closed OR IL_repres_valve_steam_valve_or;
+IF steam_header_valve_closed THEN
+	rs_error_code_1														:= F_Error(rs_error_code_1, FALSE, errRepresValveSteamValveOpen);
+END_IF
+
+
+XV_04																	:= dead_air_valve;
+dead_air_valve_open_cmd_status											:= XV_04;
+fbDeadAirValve(Input:= dead_air_valve, Open:= dead_air_valve_open, Closed:= dead_air_valve_closed, Delay:= grValveDelay, Status=> dead_air_valve_status);
+rs_error_code_1															:= F_Error(rs_error_code_1, dead_air_valve_status = eError, errDeadAirValvePosition);
+// Interlock 3
+bILDeadAirValveSorbentTempOK											:= rSorbentHighTemp <= SP_maximum_sorbent_temperature_for_dead_air_line OR IL_maximum_sorbent_temperature_for_dead_air_line_or;
+IF rSorbentHighTemp <= SP_maximum_sorbent_temperature_for_dead_air_line THEN
+	rs_error_code_1														:= F_Error(rs_error_code_1, FALSE, errDeadAirValveSorbentTempTooHigh);
+END_IF
+
+XV_05																	:= purge_valve;
+purge_valve_open_cmd_status												:= XV_05;
+fbPurgeValve(Input:= purge_valve, Open:= purge_valve_open, Closed:= purge_valve_closed, Delay:= grValveDelay, Status=> purge_valve_status);
+rs_error_code_1															:= F_Error(rs_error_code_1, purge_valve_status = eError, errPurgeValvePosition);
+
+XV_06																	:= cooling_valve;
+cooling_valve_open_cmd_status											:= XV_06;
+fbCoolingValve(Input:= cooling_valve, Open:= cooling_valve_open, Closed:= cooling_valve_closed, Delay:= grValveDelay, Status=> cooling_valve_status);
+rs_error_code_1															:= F_Error(rs_error_code_1, cooling_valve_status = eError, errCoolingValvePosition);
+
+XV_07																	:= steam_header_valve;
+steam_header_valve_open_cmd_status										:= XV_07;
+fbSteamHeaderValve(Input:= steam_header_valve, Open:= steam_header_valve_open, Closed:= steam_header_valve_closed, Delay:= grValveDelay, Status=> steam_header_valve_status);
+rs_error_code_1															:= F_Error(rs_error_code_1, steam_header_valve_status = eError, errSteamHeaderValvePosition);
+// Interlock 4
+bILSteamHeaderValvePresOK												:= reactor_pres <= SP_maximum_pressure_for_steam_introduction OR IL_maximum_pressure_for_steam_introduction_or;
+IF reactor_pres <= SP_maximum_pressure_for_steam_introduction THEN
+	rs_error_code_1														:= F_Error(rs_error_code_1, FALSE, errSteamHeaderValvePressureTooHigh);
+END_IF
+
+steam_control_valve_position											:= INT_TO_REAL(PCV_01_position) / _PERCENT_FACTOR; 
+steam_control_valve_closed												:= steam_control_valve_position <= _VALVE_CLOSED;
+steam_control_valve_open												:= steam_control_valve_position >= _VALVE_OPEN;
+
+fbSteamControlValveOp(	Setpoint										:= steam_control_valve_setpoint,							// Set point for modulation control
+						Control											:= rSteamControlValveControlPoint,							// Input controlling valve modulation
+						Error											:= bSteamControlValveControlPointError,						// Error of input controlling modulation
+						Closed											:= steam_control_valve_closed,								// Used to open valve slowly in manual mode
+						Reverse											:= FALSE,													// Controls modulation direction
+						Kp												:= steam_control_valve_kp,           						// Modulation control values
+						Ki												:= steam_control_valve_ki,           
+						BaseAdjust										:= steam_control_valve_base_adjust,  
+						LoopTime										:= steam_control_valve_loop_time,    
+						IBand											:= steam_control_valve_iband,        
+						Base											:= steam_control_valve_base,         
+						Mode											:= steam_control_valve_mode,
+						Input											:= steam_control_valve,										// Manual control input
+						Input_Increment									:= rSteamControlValveSlowMoveIncrement,
+						Full_Output_SP									:= rSteamControlValveSlowMoveFullOpen,
+						Mode_Out										=> steam_control_valve_current_mode, 
+						Output											=> PCV_01);
+
+IF steam_control_valve_current_mode = eManual AND (steam_control_valve = _OPEN OR steam_control_valve = _CLOSE) THEN
+	fbSteamControlValve(Input:= steam_control_valve = _OPEN, Open:= steam_control_valve_open, Closed:= steam_control_valve_closed, Delay:= grSteamControlValveDelay, Status=> steam_control_valve_status);
+ELSE
+	steam_control_valve_status											:= eClear;
+END_IF
+rs_error_code_1															:= F_Error(rs_error_code_1, steam_control_valve_status = eError, errSteamControlValvePosition);
+
+bAllValvesClear															:= repres_valve_status + dead_air_valve_status + purge_valve_status + cooling_valve_status + steam_header_valve_status = eClear;
+bValveError																:= repres_valve_status = eError OR dead_air_valve_status = eError OR purge_valve_status = eError OR cooling_valve_status = eError OR steam_header_valve_status = eError;
+
+IF bOpenAllDoors THEN
+	r1.open_inlet_doors													:= TRUE;
+	r2.open_inlet_doors													:= TRUE;
+	r3.open_inlet_doors													:= TRUE;
+	r4.open_inlet_doors													:= TRUE;
+	r1.open_outlet_doors												:= TRUE;
+	r2.open_outlet_doors												:= TRUE;
+	r3.open_outlet_doors												:= TRUE;
+	r4.open_outlet_doors												:= TRUE;
+	bOpenAllDoors														:= FALSE;
+END_IF
+	
+IF bCloseAllDoors THEN
+	r1.close_inlet_doors												:= TRUE;
+	r2.close_inlet_doors												:= TRUE;
+	r3.close_inlet_doors												:= TRUE;
+	r4.close_inlet_doors												:= TRUE;
+	r1.close_outlet_doors												:= TRUE;
+	r2.close_outlet_doors												:= TRUE;
+	r3.close_outlet_doors												:= TRUE;
+	r4.close_outlet_doors												:= TRUE;
+	bCloseAllDoors														:= FALSE;
+END_IF
+
+IF bExtendAllClamps THEN
+	r1.extend_inlet_clamps												:= TRUE;
+	r2.extend_inlet_clamps												:= TRUE;
+	r3.extend_inlet_clamps												:= TRUE;
+	r4.extend_inlet_clamps												:= TRUE;
+	r1.extend_outlet_clamps												:= TRUE;
+	r2.extend_outlet_clamps												:= TRUE;
+	r3.extend_outlet_clamps												:= TRUE;
+	r4.extend_outlet_clamps												:= TRUE;
+	bExtendAllClamps													:= FALSE;
+END_IF
+
+IF bRetractAllClamps THEN
+	r1.retract_inlet_clamps												:= TRUE;
+	r2.retract_inlet_clamps												:= TRUE;
+	r3.retract_inlet_clamps												:= TRUE;
+	r4.retract_inlet_clamps												:= TRUE;
+	r1.retract_outlet_clamps											:= TRUE;
+	r2.retract_outlet_clamps											:= TRUE;
+	r3.retract_outlet_clamps											:= TRUE;
+	r4.retract_outlet_clamps											:= TRUE;
+	bRetractAllClamps													:= FALSE;
+END_IF
+
+bAllDoorsOpen															:= r1.doors_open_status AND r2.doors_open_status AND r3.doors_open_status AND r4.doors_open_status;
+bAllDoorsClosed															:= r1.doors_closed_status AND r2.doors_closed_status AND r3.doors_closed_status AND r4.doors_closed_status;
+bAllClampsExtended														:= r1.clamps_extended_status AND r2.clamps_extended_status AND r3.clamps_extended_status AND r4.clamps_extended_status;
+bAllClampsRetracted														:= r1.clamps_retracted_status AND r2.clamps_retracted_status AND r3.clamps_retracted_status AND r4.clamps_retracted_status;
+
+rSorbentHighTemp														:= F_HighestReal(r1.sorbent_high_temp, r2.sorbent_high_temp, r3.sorbent_high_temp, r4.sorbent_high_temp);
+
+bAllDoorsCloseError														:= r1.doors_close_error OR r2.doors_close_error OR r3.doors_close_error OR r4.doors_close_error;
+bAllDoorsOpenError														:= r1.doors_open_error OR r2.doors_open_error OR r3.doors_open_error OR r4.doors_open_error;
+bAllClampsRetractError													:= r1.clamps_retract_error OR r2.clamps_retract_error OR r3.clamps_retract_error OR r4.clamps_retract_error;
+bAllClampsExtendError													:= r1.clamps_extend_error OR r2.clamps_extend_error OR r3.clamps_extend_error OR r4.clamps_extend_error;
+
+// Interlock 7
+bILSorbentTempOK														:= rSorbentHighTemp <= SP_maximum_sorbent_temperature OR IL_maximum_sorbent_temperature_or;
+rs_error_code_1															:= F_Error(rs_error_code_1, NOT bILSorbentTempOK, errSorbentAboveMaxTemp);
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Process_Adsorption" Id="{b320dbf0-895a-4407-bdf8-77442686e4f4}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Process_Adsorption
+// Rev 1.0 - October 29, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_adsorption													:= _STARTED;
+		M_Step(1);
+		
+	2:
+		M_Step(1);
+			
+	3:
+		M_Step(1);
+
+	4:
+		M_Step(1);
+			
+	5:
+		M_Step(1);
+		
+	6:
+		M_Step(1);
+
+	7:
+		rTime1															:= 5 * _SECONDS;
+		M_Step(1);
+
+	8:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			M_Step(98);
+		END_IF
+
+	96:																														// Reactor error
+		rs_error_code_1													:= F_Error(rs_error_code_1, TRUE, errReactor);
+		M_Step(1);
+		
+	97:
+		rs_adsorption													:= _ERROR;
+		M_Step(99);
+		
+	98:
+		rs_adsorption													:= _COMPLETED;
+		M_Step(99);
+		
+	99:
+		A_EAP_Services_Reset();
+		M_Step(1);
+		
+	100:
+		bTimer1															:= FALSE;
+
+END_CASE
+
+A_EAP_Services_Check();
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Process_Adsorption_1" Id="{5f84b3ed-796c-487c-8e79-9cae9dab708f}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Process_Adsorption_1
+// Rev 1.0 - October 29, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_adsorption													:= _STARTED;
+		M_Step(1);
+		
+	2:
+		steam_control_valve												:= _OPEN;
+		steam_control_valve_mode										:= eManual;
+		M_Step(1);
+			
+	3:
+		IF steam_control_valve_open THEN
+			rTime1														:= 5 * _SECONDS;
+			M_Step(1);
+		ELSIF steam_control_valve_status = eError THEN
+			M_Step(97);
+		END_IF
+
+	4:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			M_Step(1);
+		END_IF
+
+	5:
+		steam_control_valve												:= _CLOSE;
+		steam_control_valve_mode										:= eManual;
+		M_Step(1);
+		
+	6:
+		IF steam_control_valve_closed THEN
+			rTime1														:= 5 * _SECONDS;
+			M_Step(1);
+		ELSIF steam_control_valve_status = eError THEN
+			M_Step(97);
+		END_IF
+
+	7:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			M_Step(98);
+		END_IF
+
+	96:																														// Reactor error
+		rs_error_code_1													:= F_Error(rs_error_code_1, TRUE, errReactor);
+		M_Step(1);
+		
+	97:
+		rs_adsorption													:= _ERROR;
+		M_Step(99);
+		
+	98:
+		rs_adsorption													:= _COMPLETED;
+		M_Step(99);
+		
+	99:
+		A_EAP_Services_Reset();
+		M_Step(1);
+		
+	100:
+		bTimer1															:= FALSE;
+
+END_CASE
+
+A_EAP_Services_Check();
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Process_Air_Repressurization" Id="{c8233240-27c2-4500-a43c-b14242a5db53}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Process_Air_Repressurization
+// Rev 1.0 - October 29, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_air_repres													:= _STARTED;
+		M_Step(1);
+		
+	2:
+		M_Step(1);
+			
+	3:
+		M_Step(1);
+
+	4:
+		M_Step(1);
+			
+	5:
+		M_Step(1);
+		
+	6:
+		M_Step(1);
+
+	7:
+		rTime1															:= 5 * _SECONDS;
+		M_Step(1);
+
+	8:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			rs_air_repres												:= _COMPLETED;
+			M_Step(99);
+		END_IF
+
+	96:																														// Reactor error
+		rs_error_code_1													:= F_Error(rs_error_code_1, TRUE, errReactor);
+		M_Step(99);
+		
+	97:
+		rs_air_repres													:= _ERROR;
+		M_Step(99);
+		
+	98:
+		rs_air_repres													:= _COMPLETED;
+		M_Step(99);
+		
+	99:
+		A_EAP_Services_Reset();
+		M_Step(1);
+		
+	100:
+		bTimer1															:= FALSE;
+
+END_CASE
+
+A_EAP_Services_Check();
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Process_Dead_Air_Evacuation" Id="{fb244152-35b1-4d75-b970-ce974a3128b7}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Process_Dead_Air_Evacuation
+// Rev 1.0 - October 31, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_dead_air_evac												:= _STARTED;
+		bRetractAllClamps												:= TRUE;
+		M_Step(1);
+		
+	2:
+		IF bAllClampsRetracted THEN
+			repres_valve												:= FALSE;
+			M_Step(1);
+		ELSIF bAllClampsRetractError THEN
+			M_Step(96);
+		END_IF
+			
+	3:
+		IF repres_valve_status = eClear THEN
+			bCloseAllDoors												:= TRUE;
+			M_Step(1);
+		ELSIF repres_valve_status = eError THEN
+			M_Step(97);
+		END_IF
+
+	4:
+		IF bAllDoorsClosed THEN
+			bCloseAllValves												:= TRUE;
+			M_Step(1);
+		ELSIF bAllDoorsCloseError THEN
+			M_Step(96);
+		END_IF
+			
+	5:
+		IF bAllValvesClear THEN
+			rs_dead_air_pump_service_request							:= TRUE;
+			M_Step(1);
+		ELSIF bValveError THEN
+			M_Step(97);
+		END_IF
+		
+	6:
+		IF rs_dead_air_pump_service_assigned THEN
+			bDeadAirPumpServiceAssigned									:= TRUE;
+			IF bILDeadAirValveSorbentTempOk THEN
+				dead_air_valve											:= TRUE;
+				M_Step(1);
+			ELSE
+				rs_error_code_1											:= F_Error(rs_error_code_1, TRUE, errDeadAirValveSorbentTempTooHigh);
+				M_Step(97);
+			END_IF
+		END_IF
+
+	7:
+		IF dead_air_valve_status = eClear THEN
+			rTime1														:= SP_maximum_evacuation_duration * _MINUTES;
+			M_Step(1);
+		ELSIF dead_air_valve_status = eError THEN
+			M_Step(97);
+		END_IF
+
+	8:
+		bTimer1															:= TRUE;
+		IF reactor_pres_error THEN
+			M_Step(97);
+		ELSIF tonTimer1.Q THEN
+			rs_error_code_1												:= F_Error(rs_error_code_1, TRUE, errEvacuationPresFailedToReachTarget);
+			M_Step(97);
+		ELSIF TIME_TO_REAL(tonTimer1.ET) > (SP_minimum_evacuation_duration * _MINUTES) THEN
+			IF reactor_pres < SP_evacuation_target_pressure THEN
+				IF SP_evacuation_leak_test_active THEN
+					bTimer1												:= FALSE;
+					dead_air_valve										:= FALSE;
+					A_EAP_Services_Reset();
+					rTime1												:= SP_evacuation_leak_test_duration * _MINUTES;
+					rEvacLeakTestInitialPressure						:= reactor_pres;
+					M_Step(1);
+				ELSE
+					M_Step(98);
+				END_IF
+			END_IF
+		END_IF
+
+	9:
+		bTimer1															:= TRUE;
+		IF reactor_pres - rEvacLeakTestInitialPressure > SP_evacuation_leak_test_acceptable_leak THEN
+			rs_error_code_1												:= F_Error(rs_error_code_1, TRUE, errReactorLeak);
+			M_Step(97);
+		ELSIF tonTimer1.Q THEN
+			M_Step(98);
+		END_IF
+		
+	96:																														// Reactor error
+		rs_error_code_1													:= F_Error(rs_error_code_1, TRUE, errReactor);
+		M_Step(1);
+		
+	97:
+		rs_dead_air_evac												:= _ERROR;
+		M_Step(99);
+		
+	98:
+		rs_dead_air_evac												:= _COMPLETED;
+		M_Step(99);
+		
+	99:
+		dead_air_valve													:= FALSE;
+		A_EAP_Services_Reset();
+		M_Step(1);
+		
+	100:
+		bTimer1															:= FALSE;
+
+END_CASE
+
+A_EAP_Services_Check();
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Process_Dead_Air_Evacuation_1" Id="{df523764-7315-4489-889b-e778e92ec654}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Process_Dead_Air_Evacuation_1
+// Rev 1.0 - October 29, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_dead_air_evac												:= _STARTED;
+		M_Step(1);
+		
+	2:
+		M_Step(1);
+			
+	3:
+		M_Step(1);
+
+	4:
+		M_Step(1);
+			
+	5:
+		M_Step(1);
+		
+	6:
+		M_Step(1);
+
+	7:
+		rTime1															:= 5 * _SECONDS;
+		M_Step(1);
+
+	8:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			M_Step(99);
+		END_IF
+
+	96:																														// Reactor error
+		rs_error_code_1													:= F_Error(rs_error_code_1, TRUE, errReactor);
+		M_Step(1);
+		
+	97:
+		rs_dead_air_evac												:= _ERROR;
+		M_Step(99);
+		
+	98:
+		rs_dead_air_evac												:= _COMPLETED;
+		M_Step(99);
+		
+	99:
+		dead_air_valve													:= FALSE;
+		A_EAP_Services_Reset();
+		M_Step(1);
+		
+	100:
+		bTimer1															:= FALSE;
+
+END_CASE
+
+A_EAP_Services_Check();
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Process_Steam_Desorption" Id="{64b66c6d-be92-49a7-80c1-a34cbffc87f4}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Process_Steam_Desorption
+// Rev 1.0 - October 31, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_steam_desorption												:= _STARTED;
+		IF reactor_pres > SP_sufficient_desorption_pressure THEN
+			rs_error_code_1												:= F_Error(rs_error_code_1, TRUE, errInsufficientDesorptionVacuum);
+			M_Step(97);
+		ELSE
+			bExtendAllClamps											:= TRUE;
+			M_Step(1);
+		END_IF
+		
+	2:
+		IF bAllClampsExtended THEN
+			steam_control_valve_mode									:= eManual;
+			steam_control_valve											:= _CLOSE;
+			M_Step(1);
+		ELSIF bAllClampsExtendError THEN
+			M_Step(96);
+		END_IF
+			
+	3:
+		IF steam_control_valve_closed THEN
+			rs_purge_assist_service_request								:= TRUE;
+			rs_vac_cooling_pump_service_request							:= TRUE;
+			rs_steam_system_service_request								:= TRUE;
+			M_Step(1);
+		ELSIF steam_control_valve_status = eError THEN
+			M_Step(97);
+		END_IF
+
+	4:
+		IF rs_purge_assist_service_assigned AND rs_vac_cooling_pump_service_assigned AND rs_steam_system_service_assigned THEN
+			bPurgeAssistServiceAssigned									:= TRUE;
+			bVacCoolingPumpServiceAssigned								:= TRUE;
+			bSteamSystemServiceAssigned									:= TRUE;
+			IF bILSteamHeaderValvePresOK THEN
+				steam_header_valve										:= TRUE;
+				M_Step(1);
+			ELSE
+			 	rs_error_code_1											:= F_Error(rs_error_code_1, TRUE, errSteamHeaderValvePressureTooHigh);
+				M_Step(97);
+			END_IF
+
+		END_IF
+
+	5:
+		IF steam_header_valve_status = eClear THEN
+			rTime1														:= SP_maximum_steam_repressurization_duration * _MINUTES;
+			rSteamControlValveSlowMoveIncrement							:= SP_steam_control_valve_slow_move_increment;
+			rSteamControlValveSlowMoveFullOpen							:= SP_steam_control_valve_slow_move_full_open;
+			steam_control_valve_mode									:= eManual;
+			steam_control_valve											:= _OPEN;
+			M_Step(1);
+		ELSIF steam_header_valve_status = eError THEN
+			M_Step(97);
+		END_IF
+		
+	6:
+		bTimer1															:= TRUE;
+		IF NOT bILReactorPresOK THEN
+			M_Step(97);
+		ELSIF NOT bILSorbentTempOK THEN
+			M_Step(97);
+		ELSIF reactor_pres >= SP_steam_repressurization_target_pressure THEN
+			bTimer1														:= FALSE;
+			purge_valve													:= TRUE;
+			M_Step(1);
+		ELSIF tontimer1.Q THEN
+			IF reactor_pres < SP_acceptable_reactor_pressure THEN
+				rs_error_code_1											:= F_Error(rs_error_code_1, TRUE, errInsufficientReactorPressure);
+				M_Step(97);
+			END_IF
+		END_IF
+	
+	7:
+		IF purge_valve_status = eClear THEN
+			rTime1														:= SP_purge_duration * _MINUTES;
+			steam_control_valve_mode									:= eAuto;
+			steam_control_valve_setpoint								:= SP_purge_target_pressure;
+			M_Step(1);
+		ELSIF purge_valve_status = eError THEN
+			M_Step(97);
+		END_IF
+	
+	8:
+		bTimer1															:= TRUE;
+		rSteamControlValveControlPoint									:= reactor_pres;
+		bSteamControlValveControlPointError								:= reactor_pres_error;
+		IF NOT bILReactorPresOK THEN
+			M_Step(97);
+		ELSIF NOT bILSorbentTempOK THEN
+			M_Step(97);
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			M_Step(1);
+		END_IF
+		
+	9:
+		steam_header_valve												:= FALSE;
+		steam_control_valve_mode										:= eManual;
+		steam_control_valve												:= _CLOSE;
+		purge_valve														:= FALSE;
+		M_Step(98);
+	
+	96:																														// Reactor error
+		rs_error_code_1													:= F_Error(rs_error_code_1, TRUE, errReactor);
+		M_Step(1);
+		
+	97:
+		rs_steam_desorption												:= _ERROR;
+		M_Step(99);
+		
+	98:
+		rs_steam_desorption												:= _COMPLETED;
+		M_Step(99);
+		
+	99:
+		A_EAP_Services_Reset();
+		M_Step(1);
+		
+	100:
+		bTimer1															:= FALSE;
+	
+END_CASE
+
+A_EAP_Services_Check();
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Process_Vacuum_Cooling" Id="{754a3da5-03af-4044-b9fa-b4481f24ea64}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Process_Vacuum_Cooling
+// Rev 1.0 - October 29, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_vacuum_cooling												:= _STARTED;
+		rs_vac_cooling_pump_service_request								:= TRUE;
+		M_Step(1);
+		
+	2:
+		IF rs_vac_cooling_pump_service_assigned THEN
+			bVacCoolingPumpServiceAssigned								:= TRUE;
+			cooling_valve												:= TRUE;
+			M_Step(1);
+		END_IF
+			
+	3:
+		IF cooling_valve_status = eClear THEN
+			rTime1														:= SP_maximum_cooling_duration * _MINUTES;
+			M_Step(1);
+		ELSIF cooling_valve_status = eError THEN
+			M_Step(97);
+		END_IF
+
+	4:
+		bTimer1															:= TRUE;
+		IF reactor_pres <= SP_cooling_target_pressure THEN
+			M_Step(1);
+		ELSIF tonTimer1.Q THEN
+			IF reactor_pres <= SP_cooling_acceptable_pressure THEN
+				M_Step(1);
+			ELSE
+				rs_error_code_1											:= F_Error(rs_error_code_1, TRUE, errCoolingPressureTooHigh);
+				M_Step(97);
+			END_IF
+		END_IF
+			
+	5:
+		cooling_valve													:= TRUE;
+		bCoolingFailedFirstTry											:= FALSE;
+		M_Step(98);
+		
+	96:																														// Reactor error
+		rs_error_code_1													:= F_Error(rs_error_code_1, TRUE, errReactor);
+		M_Step(1);
+		
+	97:
+		rs_vacuum_cooling												:= _ERROR;
+		M_Step(99);
+		
+	98:
+		rs_vacuum_cooling												:= _COMPLETED;
+		M_Step(99);
+		
+	99:
+		A_EAP_Services_Reset();
+		M_Step(1);
+		
+	100:
+		bTimer1															:= FALSE;
+	
+END_CASE
+
+A_EAP_Services_Check();
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Shutdown" Id="{efc1e891-9381-4114-9c0c-f4cb06990a82}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Shutdown
+// Rev 1.0 - October 29, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_shutdown														:= _STARTED;
+		rFanSpeed														:= 0;
+		bResetFanSpeed													:= TRUE;
+		M_Step(1);
+		
+	2:
+		bCloseAllValves													:= TRUE;
+		M_Step(1);
+			
+	3:
+		A_EAP_Services_Reset();
+		M_Step(1);
+
+	4:
+		bError															:= FALSE;
+		IF rSorbentHighTemp > SP_maximum_evac_storage_temperature THEN
+			bError														:= TRUE;
+			rs_error_code_1												:= F_Error(rs_error_code_1, TRUE, errSorbentAboveMaxStorageTemp);
+		END_IF
+		IF P_Module.inlet_air_temp > SP_maximum_inlet_air_temperature THEN
+			bError														:= TRUE;		
+			rs_error_code_1												:= F_Error(rs_error_code_1, TRUE, errInletTempAboveMaxAllowedTemp);
+		END_IF
+		IF P_Module.inlet_air_temp < SP_minimum_inlet_air_temperature THEN
+			bError														:= TRUE;		
+			rs_error_code_1												:= F_Error(rs_error_code_1, TRUE, errInletTempBelowMinAllowedTemp);
+		END_IF
+		rs_shutdown														:= SEL(bError, _COMPLETED, _ERROR);
+		M_Step(100);
+			
+	100:
+		bTimer1															:= FALSE;
+	
+END_CASE
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Shutdown_Estop" Id="{8e593c93-5fe3-4dcf-896c-c30a3f5c7ec9}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Shutdown_Estop
+// Rev 1.0 - October 29, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_estop														:= _STARTED;
+		M_Step(1);
+		
+	2:
+		M_Step(1);
+			
+	3:
+		M_Step(1);
+
+	4:
+		M_Step(1);
+			
+	5:
+		M_Step(1);
+		
+	6:
+		M_Step(1);
+
+	7:
+		rTime1															:= 5 * _SECONDS;
+		M_Step(1);
+
+	8:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			rs_estop													:= _COMPLETED;
+			M_Step(99);
+		END_IF
+
+	97:																														// Reactor error
+		rs_error_code_1													:= F_Error(rs_error_code_1, TRUE, errReactor);
+		M_Step(1);
+		
+	98:
+		rs_estop														:= _ERROR;
+		M_Step(1);
+		
+	99:
+		rs_dead_air_pump_service_request								:= FALSE;
+		bDeadAirPumpServiceAssigned											:= FALSE;
+		M_Step(1);
+		
+	100:
+		bTimer1															:= FALSE;
+	
+END_CASE
+
+IF bDeadAirPumpServiceAssigned AND NOT rs_dead_air_pump_service_assigned THEN
+	rs_error_code_1														:= F_Error(rs_error_code_1, TRUE, errDeadAirPumpServiceAssignmentLost);
+	M_Step(98);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Shutdown_Estop_1" Id="{67dba4d0-3309-4bde-9661-fb9b33d6d917}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Shutdown_Estop_1
+// Rev 1.0 - October 29, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_estop														:= _STARTED;
+		M_Step(1);
+		
+	2:
+		M_Step(1);
+			
+	3:
+		M_Step(1);
+
+	4:
+		M_Step(1);
+			
+	5:
+		M_Step(1);
+		
+	6:
+		M_Step(1);
+
+	7:
+		rTime1															:= 5 * _SECONDS;
+		M_Step(1);
+
+	8:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			rs_estop													:= _COMPLETED;
+			M_Step(99);
+		END_IF
+
+	97:																														// Reactor error
+		rs_error_code_1													:= F_Error(rs_error_code_1, TRUE, errReactor);
+		M_Step(1);
+		
+	98:
+		rs_estop														:= _ERROR;
+		M_Step(1);
+		
+	99:
+		rs_dead_air_pump_service_request								:= FALSE;
+		bDeadAirPumpServiceAssigned											:= FALSE;
+		M_Step(1);
+		
+	100:
+		bTimer1															:= FALSE;
+	
+END_CASE
+
+IF bDeadAirPumpServiceAssigned AND NOT rs_dead_air_pump_service_assigned THEN
+	rs_error_code_1														:= F_Error(rs_error_code_1, TRUE, errDeadAirPumpServiceAssignmentLost);
+	M_Step(98);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Shutdown_Evac" Id="{1cbd4607-aede-4ca8-8d2d-7fdb5b7bc2d1}">
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.A_Shutdown_Evac
+// Rev 1.0 - October 29, 2024
+
+CASE current_step OF
+	
+	0:	;
+		
+	1:
+		rs_shutdown														:= _STARTED;
+		rFanSpeed														:= 0;
+		bResetFanSpeed													:= TRUE;
+		M_Step(1);
+		
+	2:
+		bCloseAllValves													:= TRUE;
+		M_Step(1);
+			
+	3:
+		A_EAP_Services_Reset();
+		M_Step(1);
+
+	4:
+		bError															:= FALSE;
+		IF reactor_pres > SP_maximum_evac_storage_pressure THEN
+			bError														:= TRUE;
+			rs_error_code_1												:= F_Error(rs_error_code_1, TRUE, errReactorAboveMaxStoragePres);
+		END_IF
+		rs_shutdown														:= SEL(bError, _COMPLETED, _ERROR);
+		M_Step(100);
+			
+	100:
+		bTimer1															:= FALSE;
+	
+END_CASE
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="M_Step" Id="{6c94a0c6-f2f2-481f-9a72-b5168c2c9e65}">
+      <Declaration><![CDATA[METHOD M_Step : INT
+VAR_INPUT
+	Step																: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// P1 - FB_Reactor_Set.M_Step
+// Rev 1.0 - October 10, 2024
+
+IF Step = 0 THEN
+	current_step														:= 0;
+ELSIF Step >= 80 THEN
+	current_step														:= Step;
+ELSE
+	current_step														:= current_step + Step;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Steam_Desorption_FAT" Id="{a59d7d6a-cbf5-477b-ba97-0c74d494bdf2}">
+      <Declaration><![CDATA[METHOD Steam_Desorption_FAT : BOOL
+VAR_INPUT
+	i_Execute : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF eState  = eSteamDesorption AND i_Execute THEN 
+	
+	CASE current_step OF
+		
+		
+		1: 
+		
+			reactor_pres 						:= FAT.st_steam_desorption.step_1.config.react_press;
+			SP_sufficient_desorption_pressure 	:= FAT.st_steam_desorption.step_1.config.sp_1;
+		
+			FAT.st_steam_desorption_result.steps := TO_STRING(current_step);
+		
+		2: 
+		
+				
+			bAllClampsExtended := bAllClampsExtended OR  STRING_TO_BOOL(FAT.st_steam_desorption.step_2.config.check_1);  
+			
+			FAT.st_steam_desorption_result.steps := TO_STRING(current_step);
+			
+		3: 
+		
+			steam_control_valve_closed := steam_control_valve_closed OR  STRING_TO_BOOL(FAT.st_steam_desorption.step_3.config.valve_1);
+			
+			FAT.st_steam_desorption_result.steps := TO_STRING(current_step);
+				
+			
+		4 : 
+		
+			rs_purge_assist_service_assigned 		:= TRUE;
+			rs_vac_cooling_pump_service_assigned 	:= TRUE;
+			rs_steam_system_service_assigned 		:= TRUE;
+			
+			reactor_pres 							:= FAT.st_steam_desorption.step_4.config.react_press;
+			SP_sufficient_desorption_pressure 		:= FAT.st_steam_desorption.step_4.config.sp_1;
+			
+			FAT.st_steam_desorption_result.steps := TO_STRING(current_step);
+			
+		5 :
+		
+			IF STRING_TO_BOOL(FAT.st_steam_desorption.step_5.config.valve_1) OR steam_header_valve_status = eClear THEN 
+				steam_header_valve_status 					:= eClear ;
+				SP_maximum_steam_repressurization_duration	:= FAT.st_steam_desorption.step_5.config.sp_1;							
+			ELSE
+				steam_header_valve_status 					:= eError ;
+			END_IF
+			
+			FAT.st_steam_desorption_result.steps := TO_STRING(current_step);
+			
+		6 :
+		
+			
+			reactor_pres								:= FAT.st_steam_desorption.step_6.config.react_press;
+			SP_maximum_reactor_pressure 				:= FAT.st_steam_desorption.step_6.config.sp_1;
+			bILReactorPresOK							:= reactor_pres <= SP_maximum_reactor_pressure;
+
+			rSorbentHighTemp							:= FAT.st_steam_desorption.step_6.config.sorbent_temp;
+			SP_maximum_sorbent_temperature				:= FAT.st_steam_desorption.step_6.config.sp_2;
+			bILSorbentTempOK							:= rSorbentHighTemp <= SP_maximum_sorbent_temperature;
+	
+			SP_steam_repressurization_target_pressure 	:= FAT.st_steam_desorption.step_6.config.sp_3;
+			
+			SP_acceptable_reactor_pressure 				:= FAT.st_steam_desorption.step_6.config.sp_4;
+			
+			FAT.st_steam_desorption_result.steps := TO_STRING(current_step);
+			
+		7 : 
+
+			IF STRING_TO_BOOL(FAT.st_steam_desorption.step_7.config.valve_1) OR purge_valve_status = eClear THEN 
+				purge_valve_status 	:= eClear ;
+				SP_purge_duration 	:= FAT.st_steam_desorption.step_7.config.sp_1;							
+			ELSE
+				purge_valve_status 	:= eError ;
+			END_IF	
+			
+			FAT.st_steam_desorption_result.steps := TO_STRING(current_step);
+
+		8: 
+
+			reactor_pres								:= FAT.st_steam_desorption.step_8.config.react_press;
+			SP_maximum_reactor_pressure 				:= FAT.st_steam_desorption.step_8.config.sp_1;
+			bILReactorPresOK							:= reactor_pres <= SP_maximum_reactor_pressure;
+
+			rSorbentHighTemp							:= FAT.st_steam_desorption.step_8.config.sorbent_temp;
+			SP_maximum_sorbent_temperature				:= FAT.st_steam_desorption.step_8.config.sp_2;
+			bILSorbentTempOK							:= rSorbentHighTemp <= SP_maximum_sorbent_temperature;
+			
+			FAT.st_steam_desorption_result.steps := TO_STRING(current_step);
+					
+			
+		99 : 
+		
+			rs_purge_assist_service_assigned := FALSE;
+			rs_vac_cooling_pump_service_assigned := FALSE;
+			rs_steam_system_service_assigned := FALSE;
+			
+		100 :
+		
+			FAT.st_steam_desorption_result.test_name :=  FAT.st_steam_desorption.test_name;
+			FAT.st_steam_desorption_result.status := TO_STRING(rs_steam_desorption);
+			FAT.st_steam_desorption_result.error := TO_INT(rs_error_code_1);
+			current_step := 0;
+			
+	END_CASE
+	
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Reactor_Set">
+      <LineId Id="16800" Count="13" />
+      <LineId Id="17338" Count="0" />
+      <LineId Id="16814" Count="0" />
+      <LineId Id="17339" Count="0" />
+      <LineId Id="16815" Count="7" />
+      <LineId Id="16824" Count="13" />
+      <LineId Id="18283" Count="1" />
+      <LineId Id="16838" Count="31" />
+      <LineId Id="17809" Count="1" />
+      <LineId Id="14346" Count="0" />
+      <LineId Id="17812" Count="0" />
+      <LineId Id="17811" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_EAP_Reset">
+      <LineId Id="181" Count="12" />
+      <LineId Id="169" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_EAP_Services_Check">
+      <LineId Id="2" Count="2" />
+      <LineId Id="23" Count="9" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_EAP_Services_Reset">
+      <LineId Id="2" Count="2" />
+      <LineId Id="15" Count="7" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_IO_ReactorSet">
+      <LineId Id="293" Count="1" />
+      <LineId Id="448" Count="0" />
+      <LineId Id="625" Count="2" />
+      <LineId Id="650" Count="0" />
+      <LineId Id="628" Count="0" />
+      <LineId Id="636" Count="0" />
+      <LineId Id="580" Count="1" />
+      <LineId Id="587" Count="0" />
+      <LineId Id="592" Count="0" />
+      <LineId Id="657" Count="0" />
+      <LineId Id="582" Count="1" />
+      <LineId Id="490" Count="0" />
+      <LineId Id="494" Count="3" />
+      <LineId Id="491" Count="1" />
+      <LineId Id="616" Count="0" />
+      <LineId Id="498" Count="0" />
+      <LineId Id="500" Count="0" />
+      <LineId Id="493" Count="0" />
+      <LineId Id="296" Count="57" />
+      <LineId Id="356" Count="2" />
+      <LineId Id="360" Count="6" />
+      <LineId Id="436" Count="0" />
+      <LineId Id="464" Count="0" />
+      <LineId Id="648" Count="0" />
+      <LineId Id="644" Count="2" />
+      <LineId Id="368" Count="0" />
+      <LineId Id="465" Count="0" />
+      <LineId Id="469" Count="3" />
+      <LineId Id="467" Count="0" />
+      <LineId Id="466" Count="0" />
+      <LineId Id="607" Count="0" />
+      <LineId Id="369" Count="1" />
+      <LineId Id="487" Count="0" />
+      <LineId Id="476" Count="0" />
+      <LineId Id="571" Count="0" />
+      <LineId Id="590" Count="0" />
+      <LineId Id="594" Count="0" />
+      <LineId Id="606" Count="0" />
+      <LineId Id="595" Count="0" />
+      <LineId Id="651" Count="1" />
+      <LineId Id="654" Count="2" />
+      <LineId Id="653" Count="0" />
+      <LineId Id="591" Count="0" />
+      <LineId Id="373" Count="2" />
+      <LineId Id="477" Count="0" />
+      <LineId Id="589" Count="0" />
+      <LineId Id="585" Count="0" />
+      <LineId Id="569" Count="0" />
+      <LineId Id="600" Count="0" />
+      <LineId Id="597" Count="1" />
+      <LineId Id="377" Count="2" />
+      <LineId Id="483" Count="0" />
+      <LineId Id="380" Count="3" />
+      <LineId Id="484" Count="0" />
+      <LineId Id="384" Count="3" />
+      <LineId Id="485" Count="0" />
+      <LineId Id="588" Count="0" />
+      <LineId Id="586" Count="0" />
+      <LineId Id="602" Count="0" />
+      <LineId Id="605" Count="0" />
+      <LineId Id="604" Count="0" />
+      <LineId Id="473" Count="0" />
+      <LineId Id="559" Count="3" />
+      <LineId Id="531" Count="1" />
+      <LineId Id="565" Count="0" />
+      <LineId Id="564" Count="0" />
+      <LineId Id="534" Count="8" />
+      <LineId Id="567" Count="1" />
+      <LineId Id="543" Count="2" />
+      <LineId Id="550" Count="1" />
+      <LineId Id="553" Count="1" />
+      <LineId Id="552" Count="0" />
+      <LineId Id="556" Count="0" />
+      <LineId Id="548" Count="0" />
+      <LineId Id="474" Count="0" />
+      <LineId Id="486" Count="0" />
+      <LineId Id="388" Count="47" />
+      <LineId Id="504" Count="0" />
+      <LineId Id="441" Count="3" />
+      <LineId Id="502" Count="0" />
+      <LineId Id="438" Count="0" />
+      <LineId Id="506" Count="0" />
+      <LineId Id="503" Count="0" />
+      <LineId Id="526" Count="0" />
+      <LineId Id="508" Count="0" />
+      <LineId Id="528" Count="0" />
+      <LineId Id="635" Count="0" />
+      <LineId Id="647" Count="0" />
+      <LineId Id="629" Count="0" />
+      <LineId Id="640" Count="0" />
+      <LineId Id="507" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Process_Adsorption">
+      <LineId Id="1643" Count="0" />
+      <LineId Id="1775" Count="31" />
+      <LineId Id="1808" Count="2" />
+      <LineId Id="1833" Count="4" />
+      <LineId Id="1851" Count="0" />
+      <LineId Id="1839" Count="2" />
+      <LineId Id="1852" Count="0" />
+      <LineId Id="1843" Count="6" />
+      <LineId Id="1853" Count="0" />
+      <LineId Id="1850" Count="0" />
+      <LineId Id="1826" Count="1" />
+      <LineId Id="1832" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Process_Adsorption_1">
+      <LineId Id="1643" Count="0" />
+      <LineId Id="1775" Count="10" />
+      <LineId Id="1833" Count="1" />
+      <LineId Id="1840" Count="0" />
+      <LineId Id="1787" Count="1" />
+      <LineId Id="1837" Count="0" />
+      <LineId Id="1850" Count="2" />
+      <LineId Id="1869" Count="0" />
+      <LineId Id="1839" Count="0" />
+      <LineId Id="1790" Count="1" />
+      <LineId Id="1855" Count="1" />
+      <LineId Id="1858" Count="3" />
+      <LineId Id="1842" Count="2" />
+      <LineId Id="1796" Count="1" />
+      <LineId Id="1846" Count="0" />
+      <LineId Id="1865" Count="0" />
+      <LineId Id="1848" Count="0" />
+      <LineId Id="1862" Count="0" />
+      <LineId Id="1888" Count="0" />
+      <LineId Id="1849" Count="0" />
+      <LineId Id="1799" Count="0" />
+      <LineId Id="1804" Count="2" />
+      <LineId Id="1808" Count="2" />
+      <LineId Id="1870" Count="16" />
+      <LineId Id="1889" Count="0" />
+      <LineId Id="1887" Count="0" />
+      <LineId Id="1826" Count="1" />
+      <LineId Id="1832" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Process_Air_Repressurization">
+      <LineId Id="2536" Count="0" />
+      <LineId Id="3073" Count="7" />
+      <LineId Id="3082" Count="2" />
+      <LineId Id="3087" Count="0" />
+      <LineId Id="3091" Count="1" />
+      <LineId Id="3095" Count="0" />
+      <LineId Id="3099" Count="1" />
+      <LineId Id="3103" Count="0" />
+      <LineId Id="3107" Count="1" />
+      <LineId Id="3111" Count="0" />
+      <LineId Id="3115" Count="1" />
+      <LineId Id="3120" Count="0" />
+      <LineId Id="3122" Count="1" />
+      <LineId Id="3165" Count="0" />
+      <LineId Id="3126" Count="0" />
+      <LineId Id="3130" Count="3" />
+      <LineId Id="3166" Count="0" />
+      <LineId Id="3134" Count="0" />
+      <LineId Id="3144" Count="1" />
+      <LineId Id="3196" Count="16" />
+      <LineId Id="3214" Count="0" />
+      <LineId Id="3213" Count="0" />
+      <LineId Id="3159" Count="1" />
+      <LineId Id="3175" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Process_Dead_Air_Evacuation">
+      <LineId Id="2022" Count="46" />
+      <LineId Id="2186" Count="3" />
+      <LineId Id="2184" Count="1" />
+      <LineId Id="2190" Count="0" />
+      <LineId Id="2071" Count="13" />
+      <LineId Id="2163" Count="2" />
+      <LineId Id="2085" Count="1" />
+      <LineId Id="2155" Count="0" />
+      <LineId Id="2180" Count="1" />
+      <LineId Id="2161" Count="0" />
+      <LineId Id="2158" Count="1" />
+      <LineId Id="2156" Count="0" />
+      <LineId Id="2183" Count="0" />
+      <LineId Id="2089" Count="0" />
+      <LineId Id="2182" Count="0" />
+      <LineId Id="2162" Count="0" />
+      <LineId Id="2093" Count="0" />
+      <LineId Id="2166" Count="0" />
+      <LineId Id="2148" Count="0" />
+      <LineId Id="2154" Count="0" />
+      <LineId Id="2167" Count="3" />
+      <LineId Id="2178" Count="0" />
+      <LineId Id="2172" Count="0" />
+      <LineId Id="2151" Count="0" />
+      <LineId Id="2096" Count="0" />
+      <LineId Id="2134" Count="0" />
+      <LineId Id="2098" Count="2" />
+      <LineId Id="2124" Count="0" />
+      <LineId Id="2103" Count="2" />
+      <LineId Id="2120" Count="0" />
+      <LineId Id="2118" Count="0" />
+      <LineId Id="2115" Count="0" />
+      <LineId Id="2127" Count="2" />
+      <LineId Id="2131" Count="1" />
+      <LineId Id="2116" Count="0" />
+      <LineId Id="2176" Count="0" />
+      <LineId Id="2108" Count="2" />
+      <LineId Id="2123" Count="0" />
+      <LineId Id="2139" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Process_Dead_Air_Evacuation_1">
+      <LineId Id="2022" Count="0" />
+      <LineId Id="2115" Count="31" />
+      <LineId Id="2148" Count="2" />
+      <LineId Id="2181" Count="1" />
+      <LineId Id="2184" Count="16" />
+      <LineId Id="2163" Count="2" />
+      <LineId Id="2180" Count="0" />
+      <LineId Id="1850" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Process_Steam_Desorption">
+      <LineId Id="2536" Count="0" />
+      <LineId Id="3179" Count="1" />
+      <LineId Id="3236" Count="9" />
+      <LineId Id="3341" Count="0" />
+      <LineId Id="3344" Count="0" />
+      <LineId Id="3352" Count="1" />
+      <LineId Id="3250" Count="2" />
+      <LineId Id="3354" Count="0" />
+      <LineId Id="3253" Count="7" />
+      <LineId Id="3367" Count="0" />
+      <LineId Id="3375" Count="0" />
+      <LineId Id="3261" Count="0" />
+      <LineId Id="3362" Count="1" />
+      <LineId Id="3264" Count="2" />
+      <LineId Id="3356" Count="1" />
+      <LineId Id="3368" Count="0" />
+      <LineId Id="3376" Count="0" />
+      <LineId Id="3486" Count="0" />
+      <LineId Id="3492" Count="1" />
+      <LineId Id="3489" Count="0" />
+      <LineId Id="3491" Count="0" />
+      <LineId Id="3494" Count="0" />
+      <LineId Id="3488" Count="0" />
+      <LineId Id="3485" Count="0" />
+      <LineId Id="3360" Count="0" />
+      <LineId Id="3403" Count="0" />
+      <LineId Id="3361" Count="0" />
+      <LineId Id="3407" Count="1" />
+      <LineId Id="3429" Count="1" />
+      <LineId Id="3414" Count="2" />
+      <LineId Id="3410" Count="0" />
+      <LineId Id="3413" Count="0" />
+      <LineId Id="3409" Count="0" />
+      <LineId Id="3405" Count="0" />
+      <LineId Id="3417" Count="1" />
+      <LineId Id="3420" Count="0" />
+      <LineId Id="3427" Count="1" />
+      <LineId Id="3434" Count="0" />
+      <LineId Id="3446" Count="3" />
+      <LineId Id="3435" Count="0" />
+      <LineId Id="3437" Count="0" />
+      <LineId Id="3440" Count="1" />
+      <LineId Id="3439" Count="0" />
+      <LineId Id="3422" Count="0" />
+      <LineId Id="3419" Count="0" />
+      <LineId Id="3450" Count="1" />
+      <LineId Id="3453" Count="0" />
+      <LineId Id="3466" Count="1" />
+      <LineId Id="3457" Count="0" />
+      <LineId Id="3455" Count="1" />
+      <LineId Id="3454" Count="0" />
+      <LineId Id="3452" Count="0" />
+      <LineId Id="3458" Count="0" />
+      <LineId Id="3460" Count="0" />
+      <LineId Id="3468" Count="1" />
+      <LineId Id="3461" Count="0" />
+      <LineId Id="3472" Count="0" />
+      <LineId Id="3462" Count="0" />
+      <LineId Id="3464" Count="0" />
+      <LineId Id="3473" Count="1" />
+      <LineId Id="3476" Count="0" />
+      <LineId Id="3475" Count="0" />
+      <LineId Id="3459" Count="0" />
+      <LineId Id="3477" Count="0" />
+      <LineId Id="3482" Count="0" />
+      <LineId Id="3480" Count="1" />
+      <LineId Id="3483" Count="0" />
+      <LineId Id="3478" Count="1" />
+      <LineId Id="3383" Count="4" />
+      <LineId Id="3401" Count="0" />
+      <LineId Id="3389" Count="2" />
+      <LineId Id="3402" Count="0" />
+      <LineId Id="3393" Count="6" />
+      <LineId Id="3424" Count="0" />
+      <LineId Id="3330" Count="2" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="3379" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Process_Vacuum_Cooling">
+      <LineId Id="1272" Count="0" />
+      <LineId Id="1619" Count="7" />
+      <LineId Id="1700" Count="0" />
+      <LineId Id="1627" Count="2" />
+      <LineId Id="1701" Count="0" />
+      <LineId Id="1703" Count="0" />
+      <LineId Id="1705" Count="2" />
+      <LineId Id="1631" Count="1" />
+      <LineId Id="1708" Count="0" />
+      <LineId Id="1712" Count="0" />
+      <LineId Id="1714" Count="0" />
+      <LineId Id="1713" Count="0" />
+      <LineId Id="1710" Count="1" />
+      <LineId Id="1634" Count="1" />
+      <LineId Id="1715" Count="2" />
+      <LineId Id="1720" Count="0" />
+      <LineId Id="1722" Count="1" />
+      <LineId Id="1725" Count="0" />
+      <LineId Id="1727" Count="1" />
+      <LineId Id="1724" Count="0" />
+      <LineId Id="1718" Count="0" />
+      <LineId Id="1637" Count="1" />
+      <LineId Id="1730" Count="1" />
+      <LineId Id="1639" Count="1" />
+      <LineId Id="1677" Count="4" />
+      <LineId Id="1697" Count="0" />
+      <LineId Id="1683" Count="10" />
+      <LineId Id="1698" Count="0" />
+      <LineId Id="1669" Count="2" />
+      <LineId Id="1676" Count="0" />
+      <LineId Id="136" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Shutdown">
+      <LineId Id="104" Count="0" />
+      <LineId Id="267" Count="7" />
+      <LineId Id="324" Count="1" />
+      <LineId Id="329" Count="0" />
+      <LineId Id="328" Count="0" />
+      <LineId Id="277" Count="0" />
+      <LineId Id="330" Count="0" />
+      <LineId Id="278" Count="2" />
+      <LineId Id="365" Count="0" />
+      <LineId Id="281" Count="2" />
+      <LineId Id="352" Count="0" />
+      <LineId Id="350" Count="0" />
+      <LineId Id="353" Count="0" />
+      <LineId Id="345" Count="0" />
+      <LineId Id="351" Count="0" />
+      <LineId Id="355" Count="1" />
+      <LineId Id="347" Count="0" />
+      <LineId Id="357" Count="0" />
+      <LineId Id="359" Count="1" />
+      <LineId Id="348" Count="0" />
+      <LineId Id="361" Count="0" />
+      <LineId Id="364" Count="0" />
+      <LineId Id="284" Count="1" />
+      <LineId Id="316" Count="0" />
+      <LineId Id="366" Count="0" />
+      <LineId Id="317" Count="1" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Shutdown_Estop">
+      <LineId Id="104" Count="0" />
+      <LineId Id="257" Count="49" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="307" Count="6" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Shutdown_Estop_1">
+      <LineId Id="104" Count="0" />
+      <LineId Id="257" Count="49" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="307" Count="6" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Shutdown_Evac">
+      <LineId Id="2" Count="17" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="28" Count="7" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="48" Count="1" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.M_Step">
+      <LineId Id="7" Count="1" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.Steam_Desorption_FAT">
+      <LineId Id="5" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="13" Count="4" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="18" Count="2" />
+      <LineId Id="126" Count="1" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="25" Count="1" />
+      <LineId Id="128" Count="1" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="27" Count="5" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="116" Count="1" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="130" Count="1" />
+      <LineId Id="60" Count="1" />
+      <LineId Id="88" Count="1" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="91" Count="1" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="132" Count="1" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="74" Count="5" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="134" Count="1" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="95" Count="6" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="103" Count="1" />
+      <LineId Id="118" Count="3" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

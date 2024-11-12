@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_Temperature" Id="{884ae771-b46f-4b70-94ce-bbcbd3306258}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_Temperature : REAL
+VAR_INPUT
+	Input																: INT;
+	Offset																: REAL;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_Temperature
+// Rev 1.0 - December 28, 2023
+
+F_Temperature															:= INT_TO_REAL(Input) / 10.0 + Offset;
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_Temperature">
+      <LineId Id="15" Count="3" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

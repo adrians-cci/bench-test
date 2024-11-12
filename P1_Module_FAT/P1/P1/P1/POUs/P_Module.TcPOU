@@ -1,0 +1,468 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="P_Module" Id="{97bd2a22-bde0-47bb-b47e-cdb2adcd207e}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_Module
+VAR_INPUT
+	
+    /// <summary>XV08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_bypass_valve													: BOOL;
+
+    /// <summary>AT01 pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_pump														: BOOL;
+	
+    /// <summary>AT01 solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_sol														: BOOL;
+	
+END_VAR
+VAR_OUTPUT
+	test			: BOOL;
+	/// EAP Variables
+	m_error_code												AT %Q*	: DWORD;
+	
+	u_vac_cooling_pump_status									AT %I*	: BYTE;
+	u_dead_air_pump_status										AT %I*	: BYTE;
+	u_steam_system_status										AT %I*	: BYTE;
+	u_purge_assist_status										AT %I*	: BYTE;
+	u_instrument_air_status										AT %I*	: BYTE;
+	u_module_generic_byte										AT %I*	: BYTE;
+	
+    /// <summary>XV08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_bypass_valve_cmd_status										: BOOL;
+    /// <summary>XV08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_bypass_valve_status											: INT;
+    /// <summary>XV08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_bypass_valve_open										AT %I*	: BOOL;
+    /// <summary>XV08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_bypass_valve_closed									AT %I*	: BOOL;
+	
+    /// <summary>AT01 pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_co2_pump_cmd_status											: BOOL;
+	
+    /// <summary>AT01 solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_co2_sol_cmd_status											: BOOL;
+
+	/// <summary>AT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_co2															: REAL;
+    /// <summary>AT01</summary>
+	inlet_co2_error														: BOOL;
+
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_h2o															: REAL;
+    /// <summary>AT02</summary>
+	inlet_h2o_error														: BOOL;
+
+	/// <summary>AT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_h2o															: REAL;
+    /// <summary>AT04</summary>
+	outlet_h2o_error													: BOOL;
+
+    /// <summary>PT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_manifold_line_pres											: REAL;						
+    /// <summary>PT02</summary>
+	steam_manifold_line_pres_error 										: BOOL;
+
+    /// <summary>PDT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	filter_diff_pres													: REAL;
+    /// <summary>PDT01</summary>
+	filter_diff_pres_error												: BOOL;
+
+    /// <summary>PDT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	sorbent_diff_pres													: REAL;
+    /// <summary>PDT02</summary>
+	
+    /// <summary>TT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_wall_temp													: REAL;						
+    /// <summary>TT05</summary>
+	reactor_wall_temp_error												: BOOL;						
+
+    /// <summary>TT10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_temp_near_rs1													: REAL;						
+    /// <summary>TT10</summary>
+	steam_temp_near_rs1_error 											: BOOL;
+
+    /// <summary>TT11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_air_temp														: REAL;						
+    /// <summary>TT11</summary>
+	inlet_air_temp_error												: BOOL;						
+
+END_VAR
+VAR
+
+	rs1																	: FB_Reactor_Set();
+	//rs1																	: FB_Reactor_Set_Ext_FAT();
+	//rs2																	: FB_Reactor_Set();
+	//rs3																	: FB_Reactor_Set();
+	
+	fb_ReadJsonFAT : FB_ReadWrite_Json;
+	sita_bit1 : BOOL;
+	
+	fbSteamBypassValve													: FB_valveStatus();
+	
+	rtrigReset															: R_TRIG;
+
+    /// <summary>steam_bypass_valve</summary>
+	XV_08														AT %Q*	: BOOL;
+	
+    /// <summary>Inlet CO2 pump</summary>
+	AT01_pump													AT %Q*	: BOOL;
+	
+    /// <summary>Inlet CO2 solenoid</summary>
+	AT01_sol													AT %Q*	: BOOL;
+
+    /// <summary>Inlet CO2</summary>
+	AT01														AT %I*	: INT;
+    /// <summary>Inlet CO2</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT01_error													AT %I*	: BOOL;
+    /// <summary>AT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_error_or													: BOOL;
+
+    /// <summary>Inlet H2O</summary>
+	AT02														AT %I*	: INT;
+    /// <summary>Inlet H2O</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT02_error													AT %I*	: BOOL;
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_h2o_error_or													: BOOL;
+
+    /// <summary>Outlet H20</summary>
+	AT04														AT %I*	: INT;
+    /// <summary>Outlet H2O</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT04_error													AT %I*	: BOOL;
+    /// <summary>AT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_error_or													: BOOL;
+
+    /// <summary>steam manifold line pres</summary>
+	PT02														AT %I*	: INT;
+    /// <summary>steam manifold line pres</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PT02_error													AT %I*	: BOOL;
+    /// <summary>PT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+ 	steam_manifold_line_pres_error_or									: BOOL;
+	
+    /// <summary>filter diff pres</summary>
+	PDT01														AT %I*	: INT;
+    /// <summary>filter diff pres</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PDT01_error													AT %I*	: BOOL;
+    /// <summary>PDT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_error_or											: BOOL;
+
+	sorbent_diff_pres_error												: BOOL;
+    /// <summary>sorbent diff pres</summary>
+	PDT02														AT %I*	: INT;
+    /// <summary>sorbent diff pres</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PDT02_error													AT %I*	: BOOL;
+    /// <summary>PDT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_error_or											: BOOL;
+
+    /// <summary>reactor_wall_temp</summary>
+	TT05														AT %I*	: INT;
+    /// <summary>reactor_wall_temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	TT05_error													AT %I*	: BOOL;
+    /// <summary>TT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_wall_temp_error_or											: BOOL;
+	
+    /// <summary>steam temp near rs1</summary>
+	TT10														AT %I*	: INT;
+    /// <summary>steam temp near rs1</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	TT10_error													AT %I*	: BOOL;
+    /// <summary>TT10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_temp_near_rs01_error_or										: BOOL;           						
+
+    /// <summary>inlet_air_temp</summary>
+	TT11														AT %I*	: INT;
+    /// <summary>inlet_air_temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	TT11_error													AT %I*	: BOOL;
+    /// <summary>TT11/summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_air_temp_error_or												: BOOL;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l1_current															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l1_current_error											AT %I*	: BOOL;
+	IT_01														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l2_current															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l2_current_error											AT %I*	: BOOL;
+	IT_02														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l3_current															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l3_current_error											AT %I*	: BOOL;
+	IT_03														AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l1_voltage															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l1_volatge_error											AT %I*	: BOOL;
+	VT_01														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l2_voltage															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l2_volatge_error											AT %I*	: BOOL;
+	VT_02														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l3_voltage															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l3_volatge_error											AT %I*	: BOOL;
+	VT_03														AT %I*	: INT;
+
+END_VAR
+	
+{attribute 'qualified_only'}
+VAR PERSISTENT
+
+    /// <summary>PDT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_low												: REAL		:= 0;
+    /// <summary>PDT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_high												: REAL		:= 1.5;
+    /// <summary>PDT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_min												: REAL		:= 0.02;
+    /// <summary>PDT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_offset												: REAL		:= 0;
+
+    /// <summary>PDT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_low												: REAL		:= 0;
+    /// <summary>PDT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_high												: REAL		:= 1.5;
+    /// <summary>PDT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_min												: REAL		:= 0.02;
+    /// <summary>PDT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_offset											: REAL		:= 0;
+
+    /// <summary>AT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_low														: REAL		:= 0;
+    /// <summary>AT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_high														: REAL		:= 2000;
+    /// <summary>AT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_min														: REAL		:= 5;
+    /// <summary>AT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_offset													: REAL		:= 0;
+
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_h2o_low														: REAL		:= 0;	  
+    /// <summary>AT02</summary>                                                        
+	{attribute 'OPC.UA.DA' := '1'}  				                                   
+	inlet_h2o_high														: REAL		:= 2000;
+    /// <summary>AT02</summary>                                                        
+	{attribute 'OPC.UA.DA' := '1'}  				                                   
+	inlet_h2o_min														: REAL		:= 5;	  
+    /// <summary>AT02</summary>                                                        
+	{attribute 'OPC.UA.DA' := '1'}  				                                   
+	inlet_h2o_offset													: REAL		:= 0;	  
+
+    /// <summary>AT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_low														: REAL		:= 0;	  
+    /// <summary>AT04</summary>                                                        
+	{attribute 'OPC.UA.DA' := '1'}  				                                   
+	outlet_h2o_high														: REAL		:= 2000;
+    /// <summary>AT04</summary>                                                        
+	{attribute 'OPC.UA.DA' := '1'}  				                                   
+	outlet_h2o_min														: REAL		:= 5;	  
+    /// <summary>AT04</summary>                                                        
+	{attribute 'OPC.UA.DA' := '1'}  				                                   
+	outlet_h2o_offset													: REAL		:= 0;	  
+
+    /// <summary>PT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_manifold_line_pres_low										: REAL		:= 0;
+    /// <summary>PT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_manifold_line_pres_high										: REAL		:= 2;
+    /// <summary>PT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_manifold_line_pres_min										: REAL		:= 0;
+    /// <summary>PT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_manifold_line_pres_offset										: REAL		:= 0;
+
+    /// <summary>TT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_wall_temp_offset											: REAL		:= 0;
+    /// <summary>TT10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_temp_near_rs1_offset											: REAL		:= 0;
+    /// <summary>TT11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_air_temp_offset												: REAL		:= 0;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// P1 - P_Module
+// Rev 1.0 - October 22, 2024
+
+m_error_code															:= 0;
+
+grDoorDelay																:= SP_door_open_close_duration * _SECONDS;
+grValveDelay															:= SP_valve_open_close_duration * _SECONDS;
+grSteamControlValveDelay												:= SP_steam_control_valve_open_close_duration * _SECONDS;
+grClampDelay															:= SP_clamp_extend_retract_duration * _SECONDS;
+
+gbReset																	:= FALSE;
+rtrigReset(CLK:= BYTE_TO_INT(u_module_generic_byte) MOD 2 = 1);
+IF rtrigReset.Q THEN
+	gbReset																:= TRUE;
+END_IF
+
+XV_08																	:= steam_bypass_valve;
+steam_bypass_valve_cmd_status											:= XV_08;
+fbSteamBypassValve(Input:= steam_bypass_valve, Open:= steam_bypass_valve_open, Closed:= steam_bypass_valve_closed, Status=> steam_bypass_valve_status);
+m_error_code															:= F_Error(m_error_code, steam_bypass_valve_status = eError, errSteamBypassValveNotInPos);
+
+AT01_pump																:= inlet_co2_pump;
+inlet_co2_pump_cmd_status												:= AT01_pump;
+
+AT01_sol																:= inlet_co2_sol;
+inlet_co2_sol_cmd_status												:= AT01_sol;
+
+inlet_co2																:= F_AnalogIn(AT01, inlet_co2_low, inlet_co2_high, inlet_co2_min, inlet_co2_offset);
+inlet_co2_error															:= AT01_error AND NOT inlet_co2_error_or;
+m_error_code															:= F_Error(m_error_code, inlet_co2_error, errInletCO2);
+
+inlet_h2o																:= F_AnalogIn(AT02, inlet_h2o_low, inlet_h2o_high, inlet_h2o_min, inlet_h2o_offset);
+inlet_h2o_error															:= AT02_error AND NOT inlet_h2o_error_or;
+m_error_code															:= F_Error(m_error_code, inlet_h2o_error, errInletH2O);
+
+outlet_h2o																:= F_AnalogIn(AT04, outlet_h2o_low, outlet_h2o_high, outlet_h2o_min, outlet_h2o_offset);
+outlet_h2o_error														:= AT04_error AND NOT outlet_h2o_error_or;
+m_error_code															:= F_Error(m_error_code, outlet_h2o_error, errOutletH2O);
+
+steam_manifold_line_pres												:= F_AnalogIn(PT02, steam_manifold_line_pres_low, steam_manifold_line_pres_high, steam_manifold_line_pres_min, steam_manifold_line_pres_offset);
+steam_manifold_line_pres_error											:= PT02_Error AND NOT steam_manifold_line_pres_error_or;
+m_error_code															:= F_Error(m_error_code, steam_manifold_line_pres_error, errSteamManifoldLinePres);
+
+filter_diff_pres														:= F_AnalogIn(PDT01, filter_diff_pres_low, filter_diff_pres_high, filter_diff_pres_min, filter_diff_pres_offset);
+filter_diff_pres_error													:= PDT01_error AND NOT filter_diff_pres_error_or; 
+m_error_code															:= F_Error(m_error_code, filter_diff_pres_error, errFilterDiffPres);
+
+sorbent_diff_pres														:= F_AnalogIn(PDT02, sorbent_diff_pres_low, sorbent_diff_pres_high, sorbent_diff_pres_min, sorbent_diff_pres_offset);
+sorbent_diff_pres_error													:= PDT02_error AND NOT sorbent_diff_pres_error_or; 
+m_error_code															:= F_Error(m_error_code, sorbent_diff_pres_error, errSorbentDiffPres);
+
+reactor_wall_temp														:= F_Temperature(TT05, reactor_wall_temp_offset);
+reactor_wall_temp_error													:= TT05_error AND NOT reactor_wall_temp_error_or;
+m_error_code															:= F_Error(m_error_code, reactor_wall_temp_error, errReactorWallTemp);
+
+steam_temp_near_rs1														:= F_Temperature(TT10, steam_temp_near_rs1_offset);
+steam_temp_near_rs1_error												:= TT10_error AND NOT steam_temp_near_rs01_error_or;
+m_error_code															:= F_Error(m_error_code, steam_temp_near_rs1_error, errSteamTempNearRS1Temp);
+
+inlet_air_temp															:= F_Temperature(TT11, inlet_air_temp_offset);
+inlet_air_temp_error													:= TT11_error AND NOT inlet_air_temp_error_or;
+m_error_code															:= F_Error(m_error_code, inlet_air_temp_error, errInletAirTemp);
+
+// ignore if < 2 Amps
+l1_current																:= SEL(IT_01 > _CURRENT_480_FACTOR * 2, 0, F_IEConvert(IT_01, _CURRENT_480_FACTOR));
+l2_current																:= SEL(IT_02 > _CURRENT_480_FACTOR * 2, 0, F_IEConvert(IT_02, _CURRENT_480_FACTOR));
+l3_current																:= SEL(IT_03 > _CURRENT_480_FACTOR * 2, 0, F_IEConvert(IT_03, _CURRENT_480_FACTOR));
+
+l1_voltage																:= F_IEConvert(VT_01, _VOLTAGE_480_FACTOR);
+l2_voltage																:= F_IEConvert(VT_02, _VOLTAGE_480_FACTOR);
+l3_voltage																:= F_IEConvert(VT_03, _VOLTAGE_480_FACTOR);
+
+rs1(reactor_set	:= 1);
+//rs2(reactor_set	:= 2);
+//rs3(reactor_set	:= 3);
+
+FAT_ReadWrite_Json();
+]]></ST>
+    </Implementation>
+    <Method Name="FAT_ReadWrite_Json" Id="{affc9aa8-f237-49d4-8d0c-3b520108cf4b}">
+      <Declaration><![CDATA[METHOD FAT_ReadWrite_Json : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fb_ReadJsonFAT(
+		i_ExecuteRead := sita_bit1,
+		i_Json_FilePath := FAT.json_file_path,
+		i_JsonStructure := 'FAT.st_steam_desorption');]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="P_Module">
+      <LineId Id="4556" Count="6" />
+      <LineId Id="4984" Count="0" />
+      <LineId Id="4563" Count="66" />
+      <LineId Id="5345" Count="0" />
+      <LineId Id="5344" Count="0" />
+      <LineId Id="2628" Count="0" />
+    </LineIds>
+    <LineIds Name="P_Module.FAT_ReadWrite_Json">
+      <LineId Id="6" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

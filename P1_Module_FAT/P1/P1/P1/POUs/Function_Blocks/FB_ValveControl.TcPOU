@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <POU Name="FB_ValveControl" Id="{bfacec44-267e-49af-a846-faf5721041f6}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ValveControl
+VAR_INPUT
+	Setpoint											: REAL;									// Target value
+	Control												: REAL;									// Actual value
+	Input												: REAL;									// Value to set output in manual mode
+	Input_Increment										: REAL;									// Amount to increase valve position during initial manual (slow) opening
+	Full_Output_SP										: REAL;									// Percentage at which slow initial speed stops and valve opens fully
+	Minimum_Output										: REAL	:= 0;							// Minimum output in auto mode
+	LoopTime											: REAL	:= 500;							// PI loop time in msecs
+	Kp													: REAL	:= 100;							// Proportional constant
+	Ki													: REAL	:= 0.05;						// Integral constant
+	IBand												: REAL	:= 3;							// Plus/minus range within setpoint that Integral is active
+	Base												: INT	:= 16384;						// Ideal output to hit setpoint
+	BaseAdjust											: INT	:= 10;							// Amount to adjust base value if not within IBand range 
+	Mode												: INT	:= 0;							// 0 = Off, 1 = Manual, 2 = Modulation, 3 = Autotune (not currently implemented)
+	Closed												: BOOL;
+	Error												: BOOL;
+	Reverse												: BOOL;
+END_VAR                                 		
+VAR_OUTPUT                              		
+	Output												: INT;
+	Mode_Out											: INT;
+END_VAR                                 		
+VAR                                     		
+	bNegativeError										: BOOL;
+	bLastError											: BOOL;
+	bSlow												: BOOL;
+	rInput												: REAL;
+	rError												: REAL;
+	P													: REAL;
+	I													: REAL;
+	rBase												: INT;
+	MinOut												: INT;
+	tonTimer											: TON;
+	rtrigManualValveOpen								: R_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// FB_ValveControl
+// Rev 1.0 - October 24, 2024
+
+MinOut													:= REAL_TO_INT(Minimum_Output * _PERCENT_FACTOR);
+IF Mode = eOff OR Mode > eAuto THEN
+	Output												:= 0;
+	I													:= 0;													// Reset Integral error 
+	rBase												:= Base;
+ELSIF Mode = eManual THEN
+	rtrigManualValveOpen(CLK:= Closed AND Input = 100);
+	IF rtrigManualValveOpen.Q THEN
+		bSlow											:= TRUE;
+		rInput											:= 0;
+	END_IF
+	IF bSlow THEN
+		tonTimer(IN:= TRUE, PT:= T#500MS);
+		IF tonTimer.Q THEN
+			rInput										:= rInput + Input_Increment;
+			rInput										:= SEL(rInput > 100, rInput, 100);
+			tonTimer(in:= FALSE);
+		END_IF
+		Output											:= REAL_TO_INT(rInput * _PERCENT_FACTOR);
+		IF rInput >= Full_Output_SP THEN
+			bSlow										:= FALSE;
+		END_IF
+	ELSE
+		Output											:= REAL_TO_INT(Input * _PERCENT_FACTOR);
+		rBase											:= Base;
+	END_IF
+ELSIF Mode = eAuto THEN																							// Modulation
+	IF tonTimer.Q THEN
+		tonTimer(IN:= FALSE);	
+		rError											:= SEL(Reverse, Setpoint - Control, Control - Setpoint);
+		bNegativeError									:= rError > 0;
+		IF bNegativeError <> bLastError THEN																	// Zero crossover
+			bLastError									:= bNegativeError;
+			rBase										:= REAL_TO_INT(rBase + I);
+			rBase										:= SEL(rBase < 0, SEL(rBase > 32767, rBase, 32767), 0);
+			I											:= 0;
+		END_IF
+		P												:= rError * Kp;
+		I												:= SEL(ABS(rError) < IBand, 0, I + (rError * Ki));
+		IF ABS(rError) > IBand THEN
+			rBase										:= SEL(bNegativeError, rBase - BaseAdjust, rBase + BaseAdjust);
+			rBase										:= SEL(rBase < 0, SEL(rBase > 32767, rBase, 32767), 0);
+		END_IF
+		Output											:= REAL_TO_INT(rBase + P + I);
+		Output											:= SEL(Output < MinOut, Output, MinOut);
+	END_IF
+	
+	tonTimer(IN:= TRUE, PT:= REAL_TO_TIME(LoopTime));
+ELSIF Mode = eTune THEN
+	;																											// Autotune (TBC)
+END_IF
+
+Mode_Out												:= Mode;
+Output													:= SEL(Output < 0, SEL(Output > 32767, Output, 32767), 0);
+	]]></ST>
+    </Implementation>
+    <LineIds Name="FB_ValveControl">
+      <LineId Id="40" Count="1" />
+      <LineId Id="209" Count="0" />
+      <LineId Id="43" Count="5" />
+      <LineId Id="210" Count="0" />
+      <LineId Id="213" Count="1" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="212" Count="0" />
+      <LineId Id="222" Count="1" />
+      <LineId Id="225" Count="1" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="230" Count="1" />
+      <LineId Id="237" Count="0" />
+      <LineId Id="235" Count="1" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="220" Count="1" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="51" Count="27" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

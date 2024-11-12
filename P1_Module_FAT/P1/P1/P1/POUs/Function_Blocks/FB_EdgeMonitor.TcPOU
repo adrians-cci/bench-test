@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_EdgeMonitor" Id="{b4f4b128-6ea1-4c4d-a2da-8452d09a25cd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_EdgeMonitor
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	fTrig : F_TRIG;
+	rTrig : R_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FallingEdge" Id="{9f6860f0-86f9-48da-acd9-800852b1e36b}">
+      <Declaration><![CDATA[METHOD FallingEdge : BOOL
+VAR_INPUT
+	i_SignalToMonitor : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fTrig(CLK := i_SignalToMonitor);
+IF fTrig.Q THEN
+	FallingEdge := TRUE;
+ELSE
+	FallingEdge := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_EdgeMonitor">
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_EdgeMonitor.FallingEdge">
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

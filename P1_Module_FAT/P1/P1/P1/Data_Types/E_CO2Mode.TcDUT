@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_CO2Mode" Id="{1ba8e859-9525-4d13-bd28-43818a1b8fc1}">
+    <Declaration><![CDATA[// E_CO2Mode
+// Rev 1.0 - July 21, 2024
+
+TYPE E_CO2Mode :
+(
+	eCO2Idle						:= 0,
+	eCO2Inside,
+	eCO2Outside,
+	eCO2Off
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

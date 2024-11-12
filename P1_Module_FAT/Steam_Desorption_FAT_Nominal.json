@@ -1,0 +1,61 @@
+{
+	"TestName" : "SteamDesorption_Nominal",
+	"Step1" : {
+			"Summary" : "check react press > SP_sufficient_desorption_pressure ( SP1)",
+			"Config" : {
+				"react_pres" : 30,
+				"SP_1" : 100
+			}
+	}
+	"Step2" : {
+			"Summary" : "check all clamps extended ( C_1 ) ",
+			"Config" : {
+				"C_1" : "TRUE"
+			}
+	}
+	"Step3" : {
+			"Summary" : "check steam control valve is closed (V1) ",
+			"Config" : {
+				"V_1" : "TRUE"
+			}
+	}
+	"Step4" : {
+			"Summary" : "check react press > SP_maximum_pressure_for_steam_introduction ( SP1) ",
+			"Config" : {
+				"react_pres" : 40,
+				"SP_1" : 80
+			}
+	}
+	"Step5" : {
+			"Summary" : "check steam header valve status = clear ( V1 ) ",
+			"Config" : {
+				"V_1" : "TRUE"
+			}
+	}
+	"Step6" : {
+			"Summary" : "check react press >  SP_steam_repressurization_target_pressure ( SP1 )  & check react press <= SP_maximum_reactor_pressure ( SP2)  & sorbent temp < SP_maximum_sorbent_temperature ( SP3)",
+			"Config" : {
+				"react_pres" : 130,
+				"SP_1" : 120,
+				"SP_2" : 80,
+				"sorbent_temp" : 100,
+				"SP_3" : 100
+			}
+	}
+	"Step7" : {
+			"Summary" : " check purge valve status = clear ( V1 ) &  set purge duration =   SP_purge_duration ( SP1) ",
+			"Config" : {
+				"SP_1" : 120,
+				"V_1" : "TRUE"
+			}
+	}
+	"Step8" : {
+			"Summary" : " check react press <= SP_maximum_reactor_pressure( SP1) & sorbent temp < SP_maximum_sorbent_temperature ( SP2)  ",
+			"Config" : {
+				"react_pres" : 40,
+				"SP_1" : 80,
+				"sorbent_temp" : 100,
+				"SP_2" : 100
+			}
+	}	
+	

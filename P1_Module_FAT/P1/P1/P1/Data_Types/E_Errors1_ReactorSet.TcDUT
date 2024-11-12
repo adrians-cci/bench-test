@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <DUT Name="E_Errors1_ReactorSet" Id="{a9a8bbdb-9079-41da-b70c-c79550f14dac}">
+    <Declaration><![CDATA[// P1 - E_Errors1_ReactorSet
+// Rev 1.0 - October 31, 2024
+
+TYPE E_Errors1_ReactorSet :
+(
+	errReactor								:= 0,			       
+	errFanDiffPres,			       
+	errOutletCO2,		         
+	errReactorSetPres,		    
+	errDoorsClosed,	       
+	errRepresValvePosition,	 
+	errDeadAirValvePosition,	 
+	errPurgeValvePosition,	 
+	errCoolingValvePosition,	 
+	errSteamControlValvePosition,	 
+	errSteamHeaderValvePosition,	 
+	errDeadAirPumpServiceAssignmentLost,
+	errPurgeAssistServiceAssignmentLost,
+	errVacCoolingPumpServiceAssignmentLost,
+	errSteamSystemServiceAssignmentLost,
+	errAdsorptionFailedToCool,
+	errEvacuationPresFailedToReachTarget,
+	errReactorAboveMaxStoragePres,
+	errReactorAboveMaxPres,
+	errSorbentAboveMaxStorageTemp,
+	errSorbentAboveMaxTemp,
+	errInletTempAboveMaxAllowedTemp,	
+	errInletTempBelowMinAllowedTemp,
+	errInsufficientDesorptionVacuum,
+	errInsufficientReactorPressure,
+	errSteamRepressurizationOverPressure,
+	errCoolingPressureTooHigh,
+	errDeadAirValveSorbentTempTooHigh,
+	errRepresValveSorbentTempTooHigh,
+	errSteamHeaderValvePressureTooHigh,
+	errRepresValveSteamValveOpen,
+	errReactorLeak
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

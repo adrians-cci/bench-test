@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <POU Name="F_Error_Range" Id="{cc9f17a4-913a-452b-817c-69f1017e8bdc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_Error_Range : BOOL
+VAR_INPUT
+	Error_Code															: DWORD;
+	First_Error															: INT;
+	Last_Error															: INT;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_Error_Range
+// Rev 1.0 - September 18, 2024
+
+F_Error_Range															:= Error_Code >= LREAL_TO_DWORD(EXPT(2, First_Error)) AND Error_Code <= LREAL_TO_DWORD(EXPT(2, Last_Error));
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_Error_Range">
+      <LineId Id="27" Count="2" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="10" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

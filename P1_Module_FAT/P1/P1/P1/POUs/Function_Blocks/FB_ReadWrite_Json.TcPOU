@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ReadWrite_Json" Id="{a21c908f-e6fb-4623-a326-2ce149e69c0a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ReadWrite_Json
+VAR_INPUT
+	i_ExecuteRead : BOOL;
+	i_ExecuteWrite : BOOL := FALSE;
+	i_Json_FilePath : STRING(255);
+    i_JsonStructure : STRING;	
+END_VAR
+VAR_OUTPUT
+	o_ConfigReadDone : BOOL;
+	o_ReadError		 : BOOL;
+END_VAR
+VAR
+	jsonWriter : BeckhoffJsonReadWriter.JsonParser;
+	jsonReader : BeckhoffJsonReadWriter.JsonParser;
+	bErrorWrite : BOOL;
+	nErrorNoWrite : UDINT;
+	bErrorRead : BOOL;
+	nErrorNoRead : UDINT;
+	fbEdge :FB_EdgeMonitor;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[jsonReader( Execute := i_ExecuteRead,
+		File := i_Json_FilePath,
+		ParseMethod := 'ReadFile', //  Reads from json file and writes to PLC
+		Content := i_JsonStructure,
+		Port := 851,
+		HasError => bErrorRead,
+		ErrorId => nErrorNoRead);
+		
+jsonWriter( Execute := i_ExecuteWrite,
+		File := i_Json_FilePath,
+		ParseMethod := 'WriteFile', // Reads from PLC and writes to json file
+		Content := i_JsonStructure,
+		Port := 851,
+		HasError => bErrorWrite,
+		ErrorId => nErrorNoWrite);	
+
+o_ReadError := 	bErrorRead;	
+o_ConfigReadDone := fbEdge.FallingEdge(i_SignalToMonitor := jsonReader.startProcess.BUSY);
+
+		
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_ReadWrite_Json">
+      <LineId Id="183" Count="19" />
+      <LineId Id="75" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

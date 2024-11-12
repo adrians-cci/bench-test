@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_StepSts_FAT" Id="{e225b688-ac3c-4426-8470-651ec1419512}">
+    <Declaration><![CDATA[TYPE ST_StepSts_FAT :
+STRUCT
+	{attribute 'json' := 'step_number'}
+	step_number : INT;
+	{attribute 'json' := 'react_pres'}
+	react_press : REAL;
+	{attribute 'json' := 'sorbent_temp'}
+	sorbent_temp : REAL;
+	{attribute 'json' := 'seq_sts'}
+	seq_sts : STRING;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

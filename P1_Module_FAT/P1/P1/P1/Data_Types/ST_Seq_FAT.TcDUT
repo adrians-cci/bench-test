@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_Seq_FAT" Id="{7a8753ac-c767-42df-b074-2c265cca9a26}">
+    <Declaration><![CDATA[TYPE ST_Seq_FAT :
+STRUCT
+	{attribute 'json' := 'TestName'}
+	test_name : STRING;
+	{attribute 'json' := 'Step1'}
+	step_1 : ST_SeqSteps_FAT;
+	{attribute 'json' := 'Step2'}
+	step_2 : ST_SeqSteps_FAT;
+	{attribute 'json' := 'Step3'}
+	step_3 : ST_SeqSteps_FAT;
+	{attribute 'json' := 'Step4'}
+	step_4 : ST_SeqSteps_FAT;
+	{attribute 'json' := 'Step5'}
+	step_5 : ST_SeqSteps_FAT;
+	{attribute 'json' := 'Step6'}
+	step_6 : ST_SeqSteps_FAT;
+	{attribute 'json' := 'Step7'}
+	step_7 : ST_SeqSteps_FAT;
+	{attribute 'json' := 'Step8'}
+	step_8 : ST_SeqSteps_FAT;
+	{attribute 'json' := 'Step9'}
+	step_9 : ST_SeqSteps_FAT;
+	{attribute 'json' := 'Step10'}
+	step_10 : ST_SeqSteps_FAT;
+	
+	
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

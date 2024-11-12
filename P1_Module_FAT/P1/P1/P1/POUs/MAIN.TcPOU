@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <POU Name="MAIN" Id="{efd4a67e-3b0e-4842-ba31-41d506babbc5}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	plc_version															: STRING;
+
+	bHalfSecondPulse													: BOOL;
+	tonHalfSecPulse														: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// P1 - Main
+// Rev 1.0 - October 11, 2024
+
+plc_version																:= '24_10_21_01';
+
+/// TIMER PULSE
+IF tonHalfSecPulse.Q THEN
+	bHalfSecondPulse													:= NOT bHalfSecondPulse;
+	tonHalfSecPulse(IN:= FALSE);
+END_IF
+tonHalfSecPulse(IN:= TRUE, PT:= T#500MS);
+
+P_Module();
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="6" Count="4" />
+      <LineId Id="15" Count="5" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="64" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
