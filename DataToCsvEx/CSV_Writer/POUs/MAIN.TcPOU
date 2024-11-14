@@ -7,9 +7,10 @@ VAR
 	FB_DataToFile:FB_DataToFileEx; //This is the function block. It must be in the variable declarion window.
 	xStartRecording:BOOL;
 	xRecordOnce:BOOL;
-	FileRoot:STRING:='C:\Users\asita\OneDrive - CarbonCapture Inc\Documents\Training\Beckhoff\';
+	FileRoot:STRING:='C:\Users\asita\Documents\GitHub\bench-test\DataToCsvEx\Log_CSV_Files\';
 	sHeader : STRING(600);
 	dataColumns : ARRAY[1..3] OF STRING;
+	sita_bit1 : BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -18,10 +19,10 @@ sHeader := 'Column1,Column2,Column3,$L';
 //This must be called every PLC scan.
 FB_DataToFile(
 	sFileRoot:=FileRoot , 
-	sFileName:='MyLogFile.csv' , 
+	sFileName:='MyLogFile_Test1.csv' , 
 	sHeader:= ADR(sHeader),
 	sHeaderLenght := SIZEOF(sHeader), 
-	sFileNameHistory:='MyLogfileOld.csv' , 
+	sFileNameHistory:='MyLogfileOld_Test1.csv' , 
 	sNetID := '',
 	udiErrId=> , 
 	xBusy=> , 
@@ -32,7 +33,7 @@ FB_DataToFile(
 //TEST or TRY   /////   xStartRecording OR xRecordOnce to see it work!
 IF xStartRecording OR xRecordOnce THEN
 	xRecordOnce:=FALSE;
-	Counter:=Counter+1;
+	Counter:= Counter+1;
 	dataColumns[1] := 'Hello World';
 	dataColumns[2] := DINT_TO_STRING(Counter); 
 	dataColumns[3] := DINT_TO_STRING(Counter); 

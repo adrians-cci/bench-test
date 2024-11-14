@@ -3,6 +3,7 @@
   <POU Name="FB_DataToFileEx" Id="{c3a664cd-81aa-4e13-8e80-224ebd0401a3}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_DataToFileEx
 VAR_INPUT
+	i_execute : BOOL;
 	sFileRoot: STRING := 'C:\Logs\';
 	sFileName: STRING := 'Log.csv';
 	sHeader: POINTER TO STRING;//Header inside file. Ideal for CSV files that need column names
@@ -67,9 +68,10 @@ END_VAR
 // Increase udiBufferSize if you are writing large amounts of data and notice missing data in file.
 // Header is automaticly created as needed.
 
+
 CASE iStep OF
 	0:	(* idle wait for error message to log*)
-		IF (udiWriteBufferAddPos <> udiWriteBufferWritePos) THEN
+		IF (udiWriteBufferAddPos <> udiWriteBufferWritePos)  THEN
 			_sFileRoot:=sFileRoot;
 			IF _sFileRoot[Len(_sFileRoot)-1] <> 92 THEN
 				_sFileRoot:=CONCAT(_sFileRoot,'\');
@@ -948,6 +950,7 @@ M_LogAddColumn(sColumn);
     <LineIds Name="FB_DataToFileEx">
       <LineId Id="333" Count="0" />
       <LineId Id="335" Count="6" />
+      <LineId Id="401" Count="0" />
       <LineId Id="334" Count="0" />
       <LineId Id="3" Count="230" />
       <LineId Id="235" Count="36" />
