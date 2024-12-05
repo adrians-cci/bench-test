@@ -4,13 +4,28 @@
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
 	Fan_Enable AT %Q* : BOOL;
+	fan_counts AT %I* : UDINT;
+	fan_rpm : REAL;
+	tmr_fan_rpm : TON;
+	counts_prev : UDINT;
+	count_curr	: UDINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[]]></ST>
+      <ST><![CDATA[tmr_fan_rpm( IN := NOT tmr_fan_rpm.Q, PT := T#1S);
+
+IF tmr_fan_rpm.Q THEN
+	count_curr := fan_counts;
+	fan_rpm := TO_REAL(((count_curr - counts_prev)/2)*60);
+	counts_prev := count_curr; 
+END_IF]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
       <LineId Id="2" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="16" Count="1" />
+      <LineId Id="12" Count="1" />
     </LineIds>
   </POU>
 </TcPlcObject>
