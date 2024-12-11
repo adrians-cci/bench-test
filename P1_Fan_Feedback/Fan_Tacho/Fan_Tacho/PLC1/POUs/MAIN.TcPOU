@@ -9,6 +9,7 @@ VAR
 	tmr_fan_rpm : TON;
 	counts_prev : UDINT;
 	count_curr	: UDINT;
+	
 END_VAR
 ]]></Declaration>
     <Implementation>

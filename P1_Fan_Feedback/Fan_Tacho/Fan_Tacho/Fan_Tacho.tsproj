@@ -45,6 +45,14 @@
 	</ImageDatas>
 	<Project ProjectGUID="{93A20E72-A88D-4F1B-9792-AF9EA3DBFCB8}" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
+			<Settings MaxCpus="20" NonWinCpus="1">
+				<Cpu CpuId="19"/>
+			</Settings>
+			<Licenses>
+				<Target>
+					<ManualSelect Instances="1">{94C91BCC-DC1F-4EBC-AEFD-2DC25DF4708B}</ManualSelect>
+				</Target>
+			</Licenses>
 			<Tasks>
 				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
 					<Name>PlcTask</Name>
@@ -53,7 +61,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{A53BBA5F-E4BA-470B-8D9D-8A6DB53DA92C}" Name="PLC1" PrjFilePath="PLC1\PLC1.plcproj" TmcFilePath="PLC1\PLC1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{0A612092-A754-3B5E-4626-107CA97D554B}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC1\PLC1.tmc" TmcHash="{D41EB553-544C-AC88-219C-96562C55BFDB}">
 					<Name>PLC1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -70,6 +78,13 @@
 							<Type>BOOL</Type>
 						</Var>
 					</Vars>
+					<UnrestoredVarLinks ImportTime="2024-12-05T18:41:59">
+						<OwnerA Name="InputDst" Prefix="TIPC^PLC1^PLC1 Instance" Type="1">
+							<OwnerB Name="TIID^Device 2 (EtherCAT Simulation)">
+								<Link VarA="MAIN.ecat_sim_device_state" TypeA="UINT" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000005}" VarB="Inputs^DevState" RestoreInfo="ANotFound"/>
+							</OwnerB>
+						</OwnerA>
+					</UnrestoredVarLinks>
 					<Contexts>
 						<Context>
 							<Id>0</Id>
@@ -94,7 +109,7 @@
 					<Pnp>
 						<DeviceDesc>Ethernet 8 (Realtek USB GbE Family Controller #4)</DeviceDesc>
 						<DeviceName>\DEVICE\{79393DC6-4625-4CFD-950B-9B5A659D2EBB}</DeviceName>
-						<DeviceData>00e04c41840b</DeviceData>
+						<DeviceData>a0cec88953af</DeviceData>
 					</Pnp>
 				</AddressInfo>
 				<Image Id="1" AddrType="9" ImageType="3">

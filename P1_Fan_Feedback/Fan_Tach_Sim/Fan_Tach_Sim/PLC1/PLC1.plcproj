@@ -3,19 +3,19 @@
   <PropertyGroup>
     <FileVersion>1.0.0.0</FileVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{a53bba5f-e4ba-470b-8d9d-8a6db53da92c}</ProjectGuid>
+    <ProjectGuid>{975abea8-3959-4854-86b2-e4803a7ddd6d}</ProjectGuid>
     <SubObjectsSortedByName>True</SubObjectsSortedByName>
     <DownloadApplicationInfo>true</DownloadApplicationInfo>
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>PLC1</Name>
     <ProgramVersion>3.1.4024.0</ProgramVersion>
-    <Application>{5756c104-58ce-4e27-98a7-4f7ece16afa5}</Application>
-    <TypeSystem>{8e70a6fe-09ac-4127-b3de-d0f8459e439d}</TypeSystem>
-    <Implicit_Task_Info>{6531ee9b-56cf-4eb4-b10e-eb28095a5e44}</Implicit_Task_Info>
-    <Implicit_KindOfTask>{3de6a5b7-fb49-4819-825c-6ccf960af2e1}</Implicit_KindOfTask>
-    <Implicit_Jitter_Distribution>{146bbf3a-f2d4-46db-adfa-18432a362bca}</Implicit_Jitter_Distribution>
-    <LibraryReferences>{3a3510d9-1062-4dcb-b594-0b4daf36c333}</LibraryReferences>
+    <Application>{eabb01ad-c4d4-4170-a1f4-35cad1a6bb37}</Application>
+    <TypeSystem>{a6d7428c-28fd-4ff9-9649-0f984ece40a5}</TypeSystem>
+    <Implicit_Task_Info>{1a0f3085-0aec-4a14-b976-de5a2b4af655}</Implicit_Task_Info>
+    <Implicit_KindOfTask>{00e5067d-19d5-4bae-a73e-caec25b9a6c5}</Implicit_KindOfTask>
+    <Implicit_Jitter_Distribution>{b1b7c206-34d8-4e5d-bb3f-e9649c594b74}</Implicit_Jitter_Distribution>
+    <LibraryReferences>{2da375cf-61b5-441c-9e22-39f849e8b20e}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="PlcTask.TcTTO">
@@ -53,8 +53,8 @@
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-        <Data>
-          <o xml:space="preserve" t="OptionKey">
+  <Data>
+    <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{40450F57-0AA3-4216-96F3-5444ECB29763}</v>
@@ -75,13 +75,13 @@
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-        </Data>
-        <TypeList>
-          <Type n="Hashtable">System.Collections.Hashtable</Type>
-          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-          <Type n="String">System.String</Type>
-        </TypeList>
-      </XmlArchive>
+  </Data>
+  <TypeList>
+    <Type n="Hashtable">System.Collections.Hashtable</Type>
+    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+    <Type n="String">System.String</Type>
+  </TypeList>
+</XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>
