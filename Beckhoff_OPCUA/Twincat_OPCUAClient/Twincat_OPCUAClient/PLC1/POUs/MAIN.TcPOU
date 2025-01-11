@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{daa0d860-80be-440c-8fa1-7b8c7d66b00a}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	{attribute 'OPC.UA.DA' := '1'}
+	opcua_server_read 		: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	opcua_server_write		: REAL;
+	
+	opcua_client_read				AT %I*	: REAL;
+	opcua_client_write				AT %Q*	: REAL;
+	opcua_client_write_enable 		AT %Q* : BOOL := TRUE;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
