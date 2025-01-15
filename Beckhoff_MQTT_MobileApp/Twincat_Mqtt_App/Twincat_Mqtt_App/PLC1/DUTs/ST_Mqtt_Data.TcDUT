@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_Mqtt_Data" Id="{dcc0435b-8c7b-44d7-b786-c4f448a4f271}">
+    <Declaration><![CDATA[TYPE ST_Mqtt_Data :
+STRUCT
+	{attribute 'iot.DisplayName' := 'Valve'}
+	valve1 : BOOL;
+	{attribute 'iot.DisplayName' := 'Pressure Transducer'}
+    {attribute 'iot.ReadOnly' := 'true'}
+    {attribute 'iot.Unit' := 'Celsius'}
+	{attribute 'iot.MinValue' := '5'}
+    {attribute 'iot.MaxValue' := '30'}
+	pt1 : REAL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>
