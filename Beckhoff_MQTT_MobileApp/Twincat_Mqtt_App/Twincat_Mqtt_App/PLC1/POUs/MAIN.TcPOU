@@ -11,6 +11,13 @@ VAR
 			 							 sPassword := 'ccinc');
 	mqtt_data : ST_Mqtt_Data;
 	tmrSend : TON;
+	
+	tmrCycleTime : TON;
+	timeSP : REAL := 10;
+	sp : REAL := 30;
+	out : REAL;
+	seconds : REAL := 1000;
+	timePT : REAL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -21,7 +28,18 @@ tmrSend(IN := NOT tmrSend.Q, PT := T#500MS);
 IF fb_IotComm.bConnected AND tmrSend.Q THEN
 	fb_IotComm.SendData(ADR(mqtt_data),SIZEOF(mqtt_data));
 END_IF
-			 
+
+timePT := timeSP * 	seconds;		 
+tmrCycleTime(IN := NOT tmrCycleTime.Q,  PT := REAL_TO_TIME(timePT));
+IF tmrCycleTime.Q THEN
+	out := 0;
+ELSE
+//	out := out + sp * (UDINT_TO_LREAL(_TaskInfo[GETCURTASKINDEXEX()].CycleTime) / 10000000/timeSP);
+	out := out + sp * (0.01/(timePT/seconds));
+END_IF
+
+
+
 	]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
@@ -31,7 +49,15 @@ END_IF
       <LineId Id="24" Count="0" />
       <LineId Id="23" Count="0" />
       <LineId Id="25" Count="1" />
+      <LineId Id="47" Count="0" />
       <LineId Id="12" Count="1" />
+      <LineId Id="48" Count="1" />
+      <LineId Id="51" Count="1" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="40" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>
