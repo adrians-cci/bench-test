@@ -1,0 +1,3697 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="P_U01" Id="{dcf8449b-3592-47e4-a482-48f13716f004}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_U01
+VAR_INPUT
+	auto_mode_on														: BOOL;
+
+	shutdown_process													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	co2_adsorption_interlock											: BOOL;
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pres_control_valve											: REAL;
+    /// <summary>PCV01</summary>                  	           
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pres_control_valve_mode										: INT;			
+    /// <summary>PCV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_flow_control_valve											: REAL;
+    /// <summary>PCV02</summary>                  	           
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_flow_control_valve_mode										: INT;			
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	hot_sorbent_for_repressurization_interlock							: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	drainage_on															: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repressurization_valve_with_steam_interlock							: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	door_open_with_steam_flow_interlock									: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	door_open_with_reactor_vacuum_interlock								: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	hot_reactor_condenser_interlock										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	no_steam_unevacuated_reactor_interlock								: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_over_safe_pressure_limit_interlock							: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_over_safe_temperature_limit_interlock						: BOOL;
+	
+	/// <summary>XV10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_inlet_valve												: BOOL;
+	/// <summary>XV11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_line_ambient_valve											: BOOL;
+    /// <summary>X01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_liquid_loop_fan												: BOOL;
+    /// <summary>P05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_liquid_pump													: BOOL;
+    /// <summary>P02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pump															: BOOL;
+    /// <summary>XV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pump_bypass_valve											: BOOL;
+    /// <summary>XV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pump_inlet_valve												: BOOL;
+    /// <summary>P01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_water_pump													: BOOL;
+    /// <summary>B01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	boiler_package														: BOOL;
+    /// <summary>P04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condenser_pump														: BOOL;
+    /// <summary>E01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condenser_fan														: BOOL;
+    /// <summary>P06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_separator_drain_pump											: BOOL;
+    /// <summary>PCV02</summary>
+	steam_flow_control_valve_setpoint									: REAL;
+	
+END_VAR
+VAR_OUTPUT
+	utility_error														: STRING;
+    /// <summary>XV10</summary>
+	dead_air_inlet_valve_clear											: BOOL;
+    /// <summary>XV11</summary>
+	product_line_ambient_valve_clear									: BOOL;
+    /// <summary>XV03</summary>
+	vacuum_pump_inlet_valve_clear										: BOOL;
+END_VAR
+VAR
+
+	fbWriteData															: FB_WritePersistentData;
+	tonWriteData														: TON;
+	bWriteData															: BOOL;
+	
+	sError																: STRING;
+	sMessage															: STRING;
+	sUtilityError														: STRING;
+	sRS																	: STRING;
+	iAxStep																: INT;
+	i2Step																: INT;
+	i3Step																: INT;
+	i8Step																: INT;
+	i9Step																: INT;
+	iVfd_Speed															: INT;
+	bCondition1															: BOOL;
+	bCondition2															: BOOL;
+	bCondition3															: BOOL;
+	bAdsorptionActive													: BOOL;
+	bComplete															: BOOL;
+	bPreCheckDone														: BOOL;
+	bTimer																: BOOL;
+	bPass1																: BOOL;
+	bPass2																: BOOL;
+	bPass3																: BOOL;
+	bAdsorptionTimer													: BOOL;
+	bCloseXVValves														: BOOL;
+	bRunSteamBypass														: BOOL;
+	bVfd_Speed_Up														: BOOL;
+	bCondenserKnockoutError												: BOOL;
+	bVacuumSeparatorFillError											: BOOL;
+	bVacuumSeparatorDrainError											: BOOL;
+	rTime																: REAL;
+	rSP																	: REAL;
+	rPres																: REAL;
+	tonTimer															: TON;
+	tonAdsorptionTimer													: TON;
+	tonBoilerCheck														: TON;
+	tonVacuumInterlock													: TON;
+	tonCondenserKODrain													: TON;
+	tonVacuumSeparatorFill												: TON;
+	tonVacuumSeparatorDrain												: TON;
+	rtrigVacuumSeparator												: R_TRIG;
+	rtrigKODrainValve													: R_TRIG;
+	
+	bCondenserFlowError													: BOOL;
+	bCondensateFlowError												: BOOL;
+	bFlowCalibrationDiffPresError										: BOOL;
+	bInletLineTempError                                  	            : BOOL;
+	bProductOutletCo2Error												: BOOL;
+	bProductOutletFlowError												: BOOL;
+	bProductOutletH2oError												: BOOL;
+	bProductTempError                                   		       	: BOOL;
+	bProductVacuumPresError												: BOOL;
+	bProductVacuumTempError                              	          	: BOOL;
+	bSteamFlowError														: BOOL;
+	bSteamLinePresError													: BOOL;
+	bSteamWaterTankLevelError											: BOOL;
+	bVacuumPumpWaterFlowError											: BOOL;
+	bVacuumPumpWaterTemp1Error											: BOOL;
+	bVacuumSeparatorLevelError											: BOOL;
+	bWaterFeedFlowError													: BOOL;
+	bWaterScale1Error													: BOOL;
+	bWaterScale2Error													: BOOL;
+	bWaterScale3Error													: BOOL;
+
+	fb_Vacuum_Pres_Control_Valve_PI										: FB_PI_Control();
+	fb_Steam_Flow_Control_Valve_PI										: FB_PI_Control();
+	
+	fb_WaterScales_In													: FB_RateOfChange;
+ 	fb_WaterScales_Out													: FB_RateOfChange;
+	{attribute 'OPC.UA.DA' := '1'} 
+	water_scales_in_delta												: REAL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	water_scales_out_delta												: REAL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	water_scales_in_rate												: REAL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	water_scales_out_rate												: REAL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	water_scales_reset													: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	pressure_drop_test													: BOOL;							// Pressure drop test flag
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_condenser_steam_or										: BOOL;							// Override condenser pump & fan needing to be on when steam is flowing
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_condenser_steam_or_status									: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condenser_steam_interlock											: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_hot_reactor_condenser_or									: BOOL;							// Override dead air valve needing to be open if sorbent temp is high
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_hot_reactor_condenser_or_status							: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_no_steam_unevacuated_reactor_or							: BOOL;							// Override no steam to unevacuated reactor
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_no_steam_unevacuated_reactor_or_status					: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_cooling_with_vacuum_or									: BOOL;							// Override vacuum not running without cooling loop active
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_cooling_with_vacuum_or_status								: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_with_vacuum_interlock										: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_separator_water_level_with_vacuum_or						: BOOL;							// Override vacuum not running while separator water level too high or too low
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_separator_water_level_with_vacuum_or_status				: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	separator_water_level_with_vacuum_interlock							: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_cooling_loop_flow_with_vacuum_or							: BOOL;							// Override vacuum not running with insufficient cooling flow
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_cooling_loop_flow_with_vacuum_or_status					: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_loop_flow_with_vacuum_interlock								: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_condensate_tank_level_for_steam_or						: BOOL;							// Override steam not running with condensate collection tank low 
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_condensate_tank_level_for_steam_or_status					: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_tank_level_for_steam_interlock							: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_hot_sorbent_for_repressurization_or						: BOOL;							// Override repressurization not running if sorbent temp is high 
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_hot_sorbent_for_repressurization_or_status				: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_reactor_over_safe_pressure_limit_or						: BOOL;							// Override reactor over safe pressure limit
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_reactor_over_safe_pressure_limit_or_status				: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_reactor_over_safe_temperature_limit_or					: BOOL;							// Override reactor over safe temperature limit
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_reactor_over_safe_temperature_limit_or_status				: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_repressurization_valve_with_steam_or						: BOOL;							// Override repressurization valve with steam flow
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_repressurization_valve_with_steam_or_status				: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_door_open_with_steam_flow_or								: BOOL;							// Override door open with steam flow
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_door_open_with_steam_flow_or_status						: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_door_open_with_reactor_vacuum_or							: BOOL;							// Override door open with reactor under vacuum
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_door_open_with_reactor_vacuum_or_status					: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_co2_adsorption_or											: BOOL;							// Override co2 adsorption solenoids
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_co2_adsorption_or_status									: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	interlock_condensate_pump_or										: BOOL;							// Override condensate pump
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_condensate_pump_or_status									: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	interlock_condensate_pump											: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_separator_drain_or_on										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_separator_drain_or_on_status									: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_separator_drain_or_off										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_separator_drain_or_off_status								: BOOL;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_drain_or_on													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_drain_or_on_status											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_drain_or_off												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_drain_or_off_status											: BOOL;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condenser_knockout_drain_or_on										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condenser_knockout_drain_or_on_status								: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condenser_knockout_drain_or_off										: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condenser_knockout_drain_or_off_status								: BOOL;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	warmup_complete														: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_bypass_complete												: BOOL;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	write_persistent_data												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	drainage_function_on_or												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	drainage_function_off_or											: BOOL;
+	
+	
+	// PIDs
+	steam_valve_pid 												: FB_CTRL_PID;
+	steam_valve_pid_params											: ST_CTRL_PID_PARAMS;
+	steam_valve_pid_mode											: E_CTRL_MODE := E_CTRL_MODE.eCTRL_MODE_MANUAL;
+	steam_valve_pid_manual_sp										: LREAL := 50;   // Pressure SP value in manual mode
+	steam_valve_pid_sp_value										: LREAL;  // Pressure SP value
+	steam_valve_pid_actual_value									: LREAL;  // Presure Actual Value
+	steam_valve_pid_out												: LREAL;  // valve control signal ( 0-100 %)
+	steam_valve_pid_simulate_timer									: TON;
+	steam_valve_pid_kp												: LREAL := 0.5;
+	steam_valve_pid_tn												: TIME := T#5S;
+	steam_valve_pid_tv												: TIME := T#0S;
+	
+	
+	simulate_process												: FB_CTRL_PT2oscillation;
+	simulate_process_params											: ST_CTRL_PT2oscillation_PARAMS ;
+	simulate_process_kp												: REAL := 20;
+	simulate_process_dumping_ration									: REAL := 0.5;
+	simulate_process_tT0											: REAL := 0;
+	
+//	fb_MovingAverage												: FB_CTRL_MOVING_AVERAGE;
+	moving_avg_in													: REAL;
+	moving_avg_out													: LREAL;
+	moving_avg_params												: ST_CTRL_MOVING_AVERAGE_PARAMS;
+	moving_avg_array												: ARRAY[1..10] OF REAL;
+	moving_avg_in_sim_timer											: TON;
+	
+	fbMovingAverage													: FB_MovingAverage;
+	
+    /// <summary>LS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condensate_drum_lsl									AT %I*	: BOOL;
+    /// <summary>LS02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condensate_drum_lsh									AT %I*	: BOOL;
+
+    /// <summary>B01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	boiler_package_cmd_status											: BOOL;
+    /// <summary>B01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	boiler_ready														: BOOL;
+    /// <summary>boiler package</summary>
+	B_01														AT %Q*	: BOOL;
+    /// <summary>B01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	boiler_reset												AT %Q*	: BOOL;
+	
+    /// <summary>P02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_water_pump_cmd_status											: BOOL;
+    /// <summary>vacuum pump</summary>
+	P_01														AT %Q*	: BOOL;
+
+    /// <summary>P02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_cmd_status												: BOOL;
+    /// <summary>vacuum pump</summary>
+	P_02														AT %Q*	: BOOL;
+
+    /// <summary>P03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_pump														: BOOL;
+    /// <summary>P03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_pump_cmd_status											: BOOL;
+    /// <summary>condensate pump</summary>
+	P_03														AT %Q*	: BOOL;
+
+    /// <summary>P04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condenser_pump_cmd_status											: BOOL;
+    /// <summary>condenser pump</summary>
+	P_04														AT %Q*	: BOOL;
+
+    /// <summary>P05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_liquid_pump_cmd_status										: BOOL;
+    /// <summary>vacuum liquid pump</summary>
+	P_05														AT %Q*	: BOOL;
+
+    /// <summary>P06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_separator_drain_pump_cmd_status								: BOOL;
+    /// <summary>vacuum cooling pump</summary>
+	P_06														AT %Q*	: BOOL;
+
+    /// <summary>E01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condenser_fan_cmd_status											: BOOL;
+    /// <summary>condenser fan</summary>
+	E_01														AT %Q*	: BOOL;
+
+    /// <summary>X01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_liquid_loop_fan_cmd_status									: BOOL;
+    /// <summary>vacuum liquid loop fan</summary>
+	X_01														AT %Q*	: BOOL;
+
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_co2													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'} 
+    /// <summary>AT02</summary>
+	product_outlet_co2_error											: BOOL;
+    /// <summary>product outlet co2</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_ProductOutletCO2ErrorOff											: BOOL;
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	AT_02														AT %I*	: INT;
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT_02_error													AT %I*	: BOOL;
+    
+	/// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_h2o													: REAL;
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_h2o_error											: BOOL;
+	/// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_ProductOutletH2OErrorOff											: BOOL;
+    /// <summary>product outlet h2o</summary>
+	AT_03														AT %I*	: INT;
+    /// <summary>product outlet h2o</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT_03_error													AT %I*	: BOOL;
+
+    /// <summary>FT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	product_outlet_flow													: REAL;
+    /// <summary>FT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_flow_error											: BOOL;
+    /// <summary>FT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_ProductOutletFlowErrorOff											: BOOL;
+    /// <summary>product outlet flow</summary>
+	FT_02														AT %I*	: INT;
+    /// <summary>product outlet flow</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	FT_02_error													AT %I*	: BOOL;
+
+    /// <summary>FT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_flow														: REAL;
+    /// <summary>FT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_flow_error												: BOOL;
+    /// <summary>FT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_CondensateFlowErrorOff												: BOOL;
+    /// <summary>condensate flow</summary>
+	FT_04														AT %I*	: INT;
+    /// <summary>condensate flow</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	FT_04_error													AT %I*	: BOOL;
+
+    /// <summary>FT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	tap_water_feed_flow													: REAL;
+    /// <summary>FT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tap_water_feed_flow_error											: BOOL;
+    /// <summary>FT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_TapWaterFeedFlowErrorOff											: BOOL;
+    /// <summary>tap water feed flow</summary>
+	FT_05														AT %I*	: INT;
+    /// <summary>tap water feed flow</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	FT_05_error													AT %I*	: BOOL;
+
+    /// <summary>FT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	steam_flow															: REAL;
+    /// <summary>FT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_flow_error													: BOOL;
+    /// <summary>FT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_SteamFlowErrorOff													: BOOL;
+    /// <summary>steam flow</summary>
+	FT_06														AT %I*	: INT;
+    /// <summary>steam flow</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	FT_06_error													AT %I*	: BOOL;
+
+    /// <summary>FT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	vacuum_pump_water_flow												: REAL;
+    /// <summary>FT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_water_flow_error										: BOOL;
+    /// <summary>FT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_VacuumPumpWaterFlowErrorOff										: BOOL;
+    /// <summary>vacuum pump water flow</summary>
+	FT_07														AT %I*	: INT;
+    /// <summary>vacuum pump water flow</summary>
+    /// <summary>FT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	FT_07_error													AT %I*	: BOOL;
+
+    /// <summary>FT08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	condenser_flow														: REAL;
+    /// <summary>FT08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condenser_flow_error												: BOOL;
+    /// <summary>FT08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_CondenserFlowErrorOff												: BOOL;
+    /// <summary>vacuum pump water flow</summary>
+	FT_08														AT %I*	: INT;
+    /// <summary>vacuum pump water flow</summary>
+    /// <summary>FT08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	FT_08_error													AT %I*	: BOOL;
+
+    /// <summary>LT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	steam_water_tank_level												: REAL;
+    /// <summary>LT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_water_tank_level_error										: BOOL;
+    /// <summary>LT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_SteamWaterTankLevelErrorOff										: BOOL;
+    /// <summary>steam water tank level</summary>
+	LT_01														AT %I*	: INT;
+    /// <summary>steam water tank level</summary>
+    /// <summary>LT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	LT_01_error													AT %I*	: BOOL;
+
+    /// <summary>LT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	vacuum_separator_level												: REAL;
+    /// <summary>LT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_separator_level_error										: BOOL;
+    /// <summary>LT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_VacuumSeparatorLevelErrorOff										: BOOL;
+    /// <summary>vacuum separator level</summary>
+	LT_02														AT %I*	: INT;
+    /// <summary>vacuum separator level</summary>
+    /// <summary>LT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	LT_02_error													AT %I*	: BOOL;
+
+    /// <summary>PT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_pres													: REAL;
+    /// <summary>PT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_pres_error											: BOOL;
+    /// <summary>PT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_ProductVacuumPresErrorOff											: BOOL;
+    /// <summary>product vacuum pres</summary>
+	PT_04														AT %I*	: INT;
+    /// <summary>product vacuum pres</summary>
+    /// <summary>PT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PT_04_error													AT %I*	: BOOL;
+
+    /// <summary>PT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_line_pres														: REAL;
+    /// <summary>PT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_line_pres_error												: BOOL;
+    /// <summary>PT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_SteamLinePresErrorOff												: BOOL;
+    /// <summary>steam line pres</summary>
+	PT_07														AT %I*	: INT;
+    /// <summary>steam line pres</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PT_07_error													AT %I*	: BOOL;
+
+    /// <summary>PDT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	flow_calibration_diff_pres											: REAL;
+    /// <summary>PDT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	flow_calibration_diff_pres_error									: BOOL;
+    /// <summary>PDT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_FlowCalibrationDiffPresErrorOff									: BOOL;
+    /// <summary>flow calibration diff pres</summary>
+	PDT_04														AT %I*	: INT;
+    /// <summary>flow calibration diff pres</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PDT_04_error												AT %I*	: BOOL;
+
+    /// <summary>TT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_temp														: REAL;
+    /// <summary>TT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_temp_error													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_ProductTempErrorOff												: BOOL;
+    /// <summary>product temp</summary>
+	TT_02														AT %I*	: INT;
+    /// <summary>product temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	TT_02_error													AT %I*	: BOOL;
+
+    /// <summary>TT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_temp													: REAL;
+    /// <summary>TT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_temp_error											: BOOL;
+    /// <summary>TT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_ProductVacuumTempOff												: BOOL;
+    /// <summary>product vacuum temp</summary>
+	TT_03														AT %I*	: INT;
+    /// <summary>product vacuum temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	TT_03_error													AT %I*	: BOOL;
+
+    /// <summary>TT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_line_temp														: REAL;
+    /// <summary>TT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_line_temp_error												: BOOL;
+    /// <summary>TT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_InletLineTempErrorOff												: BOOL;
+    /// <summary>inlet line temp</summary>
+	TT_06														AT %I*	: INT;
+    /// <summary>inlet line temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	TT_06_error													AT %I*	: BOOL;
+
+    /// <summary>TT10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_water_temp_1											: REAL;
+    /// <summary>TT10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_water_temp_1_error										: BOOL;
+    /// <summary>TT10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_VacuumPumpWaterTemp1ErrorOff										: BOOL;
+    /// <summary>vacuum pump water temp 1</summary>
+	TT_10														AT %I*	: INT;
+    /// <summary>vacuum pump water temp 1</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	TT_10_error													AT %I*	: BOOL;
+	
+    /// <summary>TT11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_water_temp_2											: REAL;
+    /// <summary>TT11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_water_temp_2_error										: BOOL;
+    /// <summary>TT11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_VacuumPumpWaterTemp2ErrorOff										: BOOL;
+    /// <summary>vacuum pump water temp 2</summary>
+	TT_11														AT %I*	: INT;
+    /// <summary>vacuum pump water temp 2</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	TT_11_error													AT %I*	: BOOL;
+
+    /// <summary>XV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_inlet_valve_open_cmd_status								: BOOL;
+    /// <summary>XV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_inlet_valve_open								AT %I*	: BOOL;
+    /// <summary>XV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_inlet_valve_closed								AT %I*	: BOOL;
+    /// <summary>vacuum pump inlet valve</summary>
+	XV_03														AT %Q*	: BOOL;
+	
+    /// <summary>XV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_bypass_valve_open_cmd_status							: BOOL;
+    /// <summary>XV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_bypass_valve_open								AT %I*	: BOOL;
+    /// <summary>XV04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pump_bypass_valve_closed								AT %I*	: BOOL;
+    /// <summary>vacuum pump bypass valve</summary>
+	XV_04														AT %Q*	: BOOL;
+    /// <summary>XV04</summary>
+	vacuum_pump_bypass_valve_clear										: BOOL;
+	
+    /// <summary>XV06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	knockout_drain_valve												: BOOL;
+    /// <summary>XV06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	knockout_drain_valve_open_cmd_status								: BOOL;
+    /// <summary>XV06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	knockout_drain_valve_open									AT %I*	: BOOL;
+    /// <summary>XV06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	knockout_drain_valve_closed									AT %I*	: BOOL;
+    /// <summary>knockout drain valve</summary>
+	XV_06														AT %Q*	: BOOL;
+    /// <summary>XV06</summary>
+	knockout_drain_valve_clear											: BOOL;
+	
+    /// <summary>XV10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_inlet_valve_open_cmd_status								: BOOL;
+    /// <summary>XV10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_inlet_valve_open									AT %I*	: BOOL;
+    /// <summary>XV10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_inlet_valve_closed 								AT %I*	: BOOL;
+    /// <summary>dead air inlet valve</summary>
+	XV_10														AT %Q*	: BOOL;
+
+    /// <summary>XV11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_line_ambient_valve_cmd_status								: BOOL;
+    /// <summary>XV11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_line_ambient_valve_product 							AT %I*	: BOOL;				///@@@ Assuming open valve is Product
+    /// <summary>XV11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_line_ambient_valve_ambient							AT %I*	: BOOL;				///@@@ Assuming closed valve is Ambient
+    /// <summary>product line ambient valve</summary>
+	XV_11														AT %Q*	: BOOL;
+
+	/// <summary>XV12</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tap_water_feed_valve												: BOOL;
+    /// <summary>XV11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tap_water_feed_valve_cmd_status										: BOOL;
+	XV_12														AT %Q*	: BOOL;
+
+	/// <summary>XV13</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	separator_drain_valve												: BOOL;
+    /// <summary>XV13</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	separator_drain_valve_open_cmd_status								: BOOL;
+    /// <summary>XV13</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	separator_drain_valve_open									AT %I*	: BOOL;
+    /// <summary>XV13</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	separator_drain_valve_closed 								AT %I*	: BOOL;
+    /// <summary>dead air inlet valve</summary>
+	XV_13														AT %Q*	: BOOL;
+    /// <summary>XV13</summary>
+	separator_drain_valve_clear											: BOOL;
+
+	/// <summary>XV14</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_water_reservoir_valve											: BOOL;
+    /// <summary>XV14</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_water_reservoir_valve_cmd_status								: BOOL;
+    /// <summary>steam water reservoir valve</summary>
+	XV_14														AT %Q*	: BOOL;
+
+    /// <summary>PCV01</summary>
+	vacuum_pres_control_valve_open										: BOOL;
+    /// <summary>PCV01</summary>
+	vacuum_pres_control_valve_closed									: BOOL;
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pres_control_valve_position									: REAL;
+    /// <summary>PCV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pres_control_valve_position_error					AT %I*	: BOOL;
+    /// <summary>vacuum pressure control valve</summary>
+	PCV_01														AT %Q*	: INT;
+    /// <summary>vacuum pressure control valve</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PCV_01_position												AT %I*	: INT;
+    /// <summary>PCV01</summary>                  	           
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	vacuum_pres_control_valve_current_mode								: INT;			
+    /// <summary>PCV01</summary>                  	           
+	vacuum_pres_control_valve_kp										: REAL		:= 0.01; 
+    /// <summary>PCV01</summary>                  	           
+	vacuum_pres_control_valve_ki										: REAL		:= 0.01;
+    /// <summary>PCV01</summary>                  	           
+	vacuum_pres_control_valve_loop_time									: REAL		:= 2000;
+    /// <summary>PCV01</summary>                  	           
+	vacuum_pres_control_valve_iband										: REAL		:= 6;
+    /// <summary>PCV01</summary>                  	           
+	vacuum_pres_control_valve_base										: INT		:= 13110;
+    /// <summary>PCV01</summary>                  	           
+	vacuum_pres_control_valve_base_adjust								: INT		:= 10;
+	
+    /// <summary>PCV02</summary>
+	steam_flow_control_valve_open										: BOOL;
+    /// <summary>PCV02</summary>
+	steam_flow_control_valve_closed										: BOOL;
+    /// <summary>PCV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_flow_control_valve_position									: REAL;
+    /// <summary>PCV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_flow_control_valve_position_error								: BOOL;
+    /// <summary>steam flow control valve</summary>
+	PCV_02														AT %Q*	: INT;
+    /// <summary>steam flow control valve</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PCV_02_position												AT %I*	: INT;
+    /// <summary>PCV02</summary>                  	           
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_flow_control_valve_current_mode								: INT;			
+    /// <summary>PCV02</summary>                  	           
+	steam_flow_control_valve_kp											: REAL		:= 0.01; 
+    /// <summary>PCV02</summary>                  	           
+	steam_flow_control_valve_ki											: REAL		:= 0.01;
+    /// <summary>PCV02</summary>                  	           
+	steam_flow_control_valve_loop_time									: REAL		:= 2000;
+    /// <summary>PCV02</summary>                  	           
+	steam_flow_control_valve_iband										: REAL		:= 6;
+    /// <summary>PCV02</summary>                  	           
+	steam_flow_control_valve_base										: INT		:= 13110;
+    /// <summary>PCV02</summary>                  	           
+	steam_flow_control_valve_base_adjust								: INT		:= 10;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_240														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_240_error										AT %I*	: BOOL;
+	IT1															AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_current_240														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_current_240_error										AT %I*	: BOOL;
+	IT2															AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_current_240														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_current_240_error										AT %I*	: BOOL;
+	IT3															AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_voltage_240														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_voltage_240_error										AT %I*	: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	VT1															AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l2_voltage_240														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_voltage_240_error										AT %I*	: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	VT2															AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l3_voltage_240														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_voltage_240_error										AT %I*	: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	VT3															AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_120														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_120_error										AT %I*	: BOOL;
+	IT4															AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_voltage_120														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_voltage_120_error										AT %I*	: BOOL;
+	VT4															AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_boiler													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_boiler_error										AT %I*	: BOOL;
+	IT_boiler_01												AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_current_boiler													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_current_boiler_error										AT %I*	: BOOL;
+	IT_boiler_02												AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_current_boiler													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_current_boiler_error										AT %I*	: BOOL;
+	IT_boiler_03												AT %I*	: INT;
+	
+	//== Water Scales ====
+	  /// <summary>WI01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	water_scale_1														: REAL;
+    /// <summary>WI01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	water_scale_1_error													: BOOL;
+    /// <summary>WI01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_WaterScale1ErrorOff												: BOOL;
+    /// <summary>water scale 1</summary>
+	WI_01														AT %I*	: INT;
+    /// <summary>water scale 1</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	WI_01_error													AT %I*	: BOOL;
+	
+	  /// <summary>WI02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	water_scale_2														: REAL;
+    /// <summary>WI02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	water_scale_2_error													: BOOL;
+    /// <summary>WI02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_WaterScale2ErrorOff												: BOOL;
+    /// <summary>water scale 2</summary>
+	WI_02														AT %I*	: INT;
+    /// <summary>water scale 2</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	WI_02_error													AT %I*	: BOOL;
+	
+	
+		  /// <summary>WI03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	water_scale_3														: REAL;
+    /// <summary>WI03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	water_scale_3_error													: BOOL;
+    /// <summary>WI03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_WaterScale3ErrorOff												: BOOL;
+    /// <summary>water scale 3/summary>
+	WI_03														AT %I*	: INT;
+    /// <summary>water scale 3</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	WI_03_error													AT %I*	: BOOL;
+	
+END_VAR
+
+VAR PERSISTENT
+	
+	/// SCALING
+	
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_co2_low												: REAL;
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_co2_high												: REAL;
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_co2_min												: REAL;
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_co2_offset											: REAL;
+	
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_h2o_low												: REAL;
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_h2o_high												: REAL;
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_h2o_min												: REAL;
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_h2o_offset											: REAL;
+	
+    /// <summary>FT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_flow_low												: REAL;
+    /// <summary>FT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_flow_high											: REAL;
+    /// <summary>FT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_flow_min												: REAL;
+    /// <summary>FT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_flow_offset											: REAL;
+	
+    /// <summary>FT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_flow_low													: REAL;
+    /// <summary>FT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_flow_high												: REAL;
+    /// <summary>FT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_flow_min													: REAL;
+    /// <summary>FT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_flow_offset												: REAL;
+	
+    /// <summary>FT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tap_water_feed_flow_low												: REAL;
+    /// <summary>FT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tap_water_feed_flow_high											: REAL;
+    /// <summary>FT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tap_water_feed_flow_min												: REAL;
+    /// <summary>FT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tap_water_feed_flow_offset											: REAL;
+
+    /// <summary>FT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_flow_low														: REAL;
+    /// <summary>FT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_flow_high														: REAL;
+    /// <summary>FT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_flow_min														: REAL;
+    /// <summary>FT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_flow_offset													: REAL;
+
+    /// <summary>FT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pump_water_flow_low											: REAL;
+    /// <summary>FT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pump_water_flow_high											: REAL;
+    /// <summary>FT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pump_water_flow_min											: REAL;
+    /// <summary>FT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pump_water_flow_offset										: REAL;
+	
+    /// <summary>FT08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condenser_flow_low													: REAL;
+    /// <summary>FT08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condenser_flow_high													: REAL;
+    /// <summary>FT08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condenser_flow_min													: REAL;
+    /// <summary>FT08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condenser_flow_offset												: REAL;
+	
+    /// <summary>AT-08</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_wind_speed_low												: REAL;
+    /// <summary>AT-08</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_wind_speed_high												: REAL;
+    /// <summary>AT-08</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_wind_speed_min												: REAL;
+    /// <summary>AT-08</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_wind_speed_offset											: REAL;
+	
+    /// <summary>LT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_water_tank_level_low											: REAL;
+    /// <summary>LT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_water_tank_level_high											: REAL;
+    /// <summary>LT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_water_tank_level_min											: REAL;
+    /// <summary>LT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_water_tank_level_offset										: REAL;
+	
+    /// <summary>LT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_separator_level_low											: REAL;
+    /// <summary>LT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_separator_level_high											: REAL;
+    /// <summary>LT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_separator_level_min											: REAL;
+    /// <summary>LT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_separator_level_offset										: REAL;
+	
+    /// <summary>PT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pres_low												: REAL;
+    /// <summary>PT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pres_high											: REAL;
+    /// <summary>PT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pres_min												: REAL;
+    /// <summary>PT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pres_offset											: REAL;
+	
+    /// <summary>PT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_line_pres_low													: REAL;
+    /// <summary>PT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_line_pres_high												: REAL;
+    /// <summary>PT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_line_pres_min													: REAL;
+    /// <summary>PT07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_line_pres_offset												: REAL;
+	
+    /// <summary>PDT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	flow_calibration_diff_pres_low										: REAL;
+    /// <summary>PDT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	flow_calibration_diff_pres_high										: REAL;
+    /// <summary>PDT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	flow_calibration_diff_pres_min										: REAL;
+    /// <summary>PDT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	flow_calibration_diff_pres_offset									: REAL;
+	
+    /// <summary>TT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_temp_offset													: REAL;
+	
+    /// <summary>TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_temp_offset											: REAL;
+	
+    /// <summary>TT06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_line_temp_offset												: REAL;
+	
+    /// <summary>TT10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pump_water_temp_1_offset										: REAL;
+
+    /// <summary>TT11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	vacuum_pump_water_temp_2_offset										: REAL;
+	
+	
+	/// <summary>WI01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_1_low													: REAL;
+    /// <summary>WI01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_1_high													: REAL;
+    /// <summary>WI01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_1_min													: REAL;
+    /// <summary>WI01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_1_offset												: REAL;
+	
+	
+	/// <summary>WI02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_2_low													: REAL;
+    /// <summary>WI02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_2_high													: REAL;
+    /// <summary>WI02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_2_min													: REAL;
+    /// <summary>WI02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_2_offset												: REAL;
+	
+	/// <summary>WI03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_3_low													: REAL;
+    /// <summary>WI03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_3_high													: REAL;
+    /// <summary>WI03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_3_min													: REAL;
+    /// <summary>WI02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	water_scale_3_offset												: REAL;
+	
+	/// SET POINTS
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_adsorb_during_steam_bypass										: BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_adsorb_during_warmup												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_boiler_warmup_duration											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_condensate_collection_tank_high_level							: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_condensate_collection_tank_low_level								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_condensation_collection_tank_emergency_low_level					: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_duration_to_drain_cooling_and_purge_line_in_module				: REAL;				
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_duration_to_drain_reactor_set									: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_evacuation_duration												: REAL;							// PS 11/25/24	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_evacuation_ideal_pressure										: REAL;							// PS 11/25/24	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_mass_flow_totalizer												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_condensate_collection_tank_refill_duration				: REAL;							// PS 08_16_24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_condenser_knockout_drain_duration						: REAL;							// PS 08_22_24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_duration_to_drain_reactor_set							: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_inlet_product_vacuum_temperature							: REAL;							// PS 04_30_24	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_reasonable_sorbent_TC_reading							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_vacuum_separator_drain_duration							: REAL;							// PS 08_22_24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_vacuum_separator_refill_duration							: REAL;							// PS 08_22_24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_condensate_flow											: REAL;							// PS 08_22_24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_dead_air_line_pressure									: REAL;							// PS 11/27/24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_drainage_pressure										: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_reasonable_sorbent_TC_reading							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_steam_bypass_duration									: REAL;							// PS 12/2/24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_steam_bypass_flow_rate									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_vacuum_cooling_loop_flow									: REAL := 2; 						// PS 11/25/24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_max_vacuum_cooling_loop_temp										: REAL := 50;							// PS 11/25/24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_vacuum_liq_seal_flow										: REAL;							// PS 08_13_24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_product_condensate_drum_high_level								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_product_condensate_drum_low_level								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_reactor_vfd_percent_maximum										: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_reactor_vfd_percent_step_duration								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_reactor_vfd_percent_step_size									: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_steam_bypass_duration											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_steam_bypass_immediately_after_warm_up							: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_steam_bypass_temperature											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_steam_bypass_vacuum_pressure										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_target_boiler_pressure											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_vacuum_pres_control_valve										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_vacuum_separator_level_emergency_high							: REAL;							// PS 08_13_24									
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_vacuum_separator_level_emergency_low								: REAL;							// PS 08_13_24									
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_vacuum_separator_level_high										: REAL;							// PS 08_22_24									
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_vacuum_separator_level_mid										: REAL;							// PS 08_22_24									
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_vacuum_separator_level_low										: REAL;							// PS 08_22_24									
+	
+    /// <summary>PCV01</summary>
+	vacuum_pres_control_valve_setpoint									: REAL;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Theseus - P_U01
+// Rev 1.0 - December 2, 2024
+
+A_IO_Points();
+A_PIDs();
+A_MovingAverage();
+A02_WarmUp();
+A03_Steam_Bypass();
+A08_Shutdown();
+A09_Pressure_Drop_Test();
+P_U01.shutdown_process													:= FALSE;
+
+IF LEFT(gsCycleMode, 1) = '0' THEN
+	IF gsCycleMode = '02' THEN
+		i2Step															:= 1;
+	ELSIF gsCycleMode = '03' THEN
+		i3Step															:= 1;
+	ELSIF gsCycleMode = '08' THEN
+		i8Step															:= 1;
+	ELSIF gsCycleMode = '09' THEN
+		i9Step															:= 1;
+	END_IF
+	gsCycleMode															:= '';
+END_IF
+
+IF tonWriteData.Q OR P_U01.write_persistent_data THEN
+	P_U01.write_persistent_data											:= FALSE;
+	bWriteData															:= TRUE;
+ELSIF NOT fbWriteData.BUSY THEN
+	bWriteData															:= FALSE;
+END_IF
+
+fbWriteData(	NETID													:= '',
+				PORT													:= 851,
+				START													:= bWriteData,
+				TMOUT													:= T#5S);
+
+tonTimer(IN:= bTimer, PT:= REAL_TO_TIME(rTime));
+tonAdsorptionTimer(IN:= bAdsorptionTimer, PT:= REAL_TO_TIME(P_M01.SP_adsorption_duration * _MINUTES));
+tonWriteData(IN:= NOT bWriteData, PT:= T#30M);
+
+// Water Scales
+fb_WaterScales_In ( 
+			i_value := water_scale_1 + water_scale_2,
+			io_reset	:= water_scales_reset,
+			o_change_value => water_scales_in_delta,
+			o_change_rate => water_scales_in_rate
+			);
+			
+fb_WaterScales_Out ( 
+			i_value := water_scale_3,
+			io_reset	:= water_scales_reset,
+			o_change_value => water_scales_out_delta,
+			o_change_rate => water_scales_out_rate
+			);
+		
+IF water_scales_reset THEN
+	water_scales_reset := FALSE;
+END_IF
+
+]]></ST>
+    </Implementation>
+    <Action Name="A_IO_Points" Id="{d2567efd-8816-46e7-a69d-41abdef6a01f}">
+      <Implementation>
+        <ST><![CDATA[// Theseus - A_IO_Points
+// Rev 1.0 - November 26, 2024
+
+interlock_condenser_steam_or_status										:= interlock_condenser_steam_or;
+interlock_hot_reactor_condenser_or_status								:= interlock_hot_reactor_condenser_or;
+interlock_no_steam_unevacuated_reactor_or_status						:= interlock_no_steam_unevacuated_reactor_or;
+interlock_cooling_with_vacuum_or_status									:= interlock_cooling_with_vacuum_or;
+interlock_separator_water_level_with_vacuum_or_status					:= interlock_separator_water_level_with_vacuum_or;
+interlock_cooling_loop_flow_with_vacuum_or_status						:= interlock_cooling_loop_flow_with_vacuum_or;
+interlock_condensate_tank_level_for_steam_or_status						:= interlock_condensate_tank_level_for_steam_or;
+interlock_hot_sorbent_for_repressurization_or_status					:= interlock_hot_sorbent_for_repressurization_or;
+interlock_reactor_over_safe_pressure_limit_or_status					:= interlock_reactor_over_safe_pressure_limit_or;
+interlock_reactor_over_safe_temperature_limit_or_status					:= interlock_reactor_over_safe_temperature_limit_or;
+interlock_repressurization_valve_with_steam_or_status					:= interlock_repressurization_valve_with_steam_or;
+interlock_door_open_with_steam_flow_or_status							:= interlock_door_open_with_steam_flow_or;
+interlock_door_open_with_reactor_vacuum_or_status						:= interlock_door_open_with_reactor_vacuum_or;
+interlock_co2_adsorption_or_status										:= interlock_co2_adsorption_or;
+interlock_condensate_pump_or_status										:= interlock_condensate_pump_or;
+condenser_knockout_drain_or_on_status									:= condenser_knockout_drain_or_on;
+condenser_knockout_drain_or_off_status									:= condenser_knockout_drain_or_off;
+vacuum_separator_drain_or_on_status										:= vacuum_separator_drain_or_on;
+vacuum_separator_drain_or_off_status									:= vacuum_separator_drain_or_off;
+reactor_drain_or_on_status												:= reactor_drain_or_on;
+reactor_drain_or_off_status												:= reactor_drain_or_off;
+
+// Interlock 5
+cooling_with_vacuum_interlock											:= NOT vacuum_liquid_loop_fan OR NOT vacuum_liquid_pump;
+bCondition1																:= NOT interlock_cooling_with_vacuum_or AND cooling_with_vacuum_interlock;
+
+// Interlock 6
+separator_water_level_with_vacuum_interlock								:= vacuum_separator_level < SP_vacuum_separator_level_emergency_low OR vacuum_separator_level > SP_vacuum_separator_level_emergency_high;
+bCondition2																:= NOT interlock_separator_water_level_with_vacuum_or AND separator_water_level_with_vacuum_interlock;
+
+// Interlock 7
+cooling_loop_flow_with_vacuum_interlock									:= vacuum_pump AND vacuum_pump_water_flow < SP_minimum_vacuum_liq_seal_flow;
+tonVacuumInterlock(IN:= cooling_loop_flow_with_vacuum_interlock, PT:= T#5S);
+bCondition3																:= NOT interlock_cooling_loop_flow_with_vacuum_or AND tonVacuumInterlock.Q;
+
+IF bCondition1 OR bCondition2 OR bCondition3 THEN
+	vacuum_pump															:= FALSE;
+END_IF
+IF bCondition2 THEN
+	vacuum_pump_inlet_valve												:= FALSE;
+	vacuum_pump_bypass_valve											:= FALSE;
+	dead_air_inlet_valve												:= FALSE;
+	product_line_ambient_valve											:= INT_TO_BOOL(eAmbient);
+END_IF
+
+// Interlock 8
+condensate_tank_level_for_steam_interlock								:= steam_water_tank_level < SP_condensation_collection_tank_emergency_low_level;
+IF NOT interlock_condensate_tank_level_for_steam_or AND condensate_tank_level_for_steam_interlock THEN
+	boiler_package														:= FALSE;
+	steam_water_pump													:= FALSE;
+	steam_flow_control_valve											:= _CLOSED;
+END_IF
+
+gbDrainageOn															:= (drainage_on AND NOT drainage_function_off_or) OR drainage_function_on_or;
+
+// Interlock 9
+hot_sorbent_for_repressurization_interlock								:= P_M01.rs1.sorbent_high_temp >= P_M01.SP_maximum_target_sorbent_temperature_to_repressurize;
+bCondition1																:= NOT interlock_hot_sorbent_for_repressurization_or AND hot_sorbent_for_repressurization_interlock;
+ 
+// Interlock 13
+P_U01.repressurization_valve_with_steam_interlock						:= NOT P_U01.steam_flow_control_valve_closed;
+bCondition2																:= NOT P_U01.interlock_repressurization_valve_with_steam_or AND P_U01.repressurization_valve_with_steam_interlock;
+
+gbRepresValves															:= NOT bCondition1 AND NOT bCondition2;
+
+// Vacuum Separator
+IF (gbDrainageOn OR vacuum_separator_drain_or_on) AND NOT vacuum_separator_drain_or_off THEN
+	// Fill
+	tonVacuumSeparatorFill(IN:= tap_water_feed_valve AND NOT bVacuumSeparatorFillError, PT:= REAL_TO_TIME(SP_maximum_vacuum_separator_refill_duration * _MINUTES));
+	IF tonVacuumSeparatorFill.Q THEN
+		tap_water_feed_valve											:= FALSE;
+		bVacuumSeparatorFillError										:= TRUE;
+		P_Alarms.M_Add_Alarm(_U01, gsVacuumSeparatorFillError, gsMessageTBD);
+	ELSIF vacuum_separator_level < SP_vacuum_separator_level_low  AND NOT bVacuumSeparatorFillError THEN
+		tap_water_feed_valve											:= TRUE;
+	ELSIF vacuum_separator_level > SP_vacuum_separator_level_mid THEN
+		tap_water_feed_valve											:= FALSE;
+		bVacuumSeparatorFillError										:= FALSE;
+	END_IF
+	// Drain
+//	tonVacuumSeparatorDrain(IN:= separator_drain_valve AND NOT bVacuumSeparatorDrainError, PT:= REAL_TO_TIME(SP_maximum_vacuum_separator_drain_duration * _MINUTES));
+	IF tonVacuumSeparatorFill.Q THEN
+		separator_drain_valve											:= FALSE;
+		vacuum_separator_drain_pump										:= FALSE;
+		bVacuumSeparatorDrainError										:= TRUE;
+		P_Alarms.M_Add_Alarm(_U01, gsVacuumSeparatorDrainError, gsMessageTBD);
+	ELSIF vacuum_separator_level >= SP_vacuum_separator_level_high THEN
+		separator_drain_valve											:= TRUE;
+		vacuum_separator_drain_pump										:= TRUE;
+	ELSIF vacuum_separator_level < SP_vacuum_separator_level_mid THEN
+		separator_drain_valve											:= FALSE;
+		vacuum_separator_drain_pump										:= FALSE;
+		bVacuumSeparatorDrainError										:= FALSE;
+	END_IF
+END_IF
+rtrigVacuumSeparator(CLK:= NOT gbDrainageOn AND NOT vacuum_separator_drain_or_on AND NOT vacuum_separator_drain_or_off);
+IF rtrigVacuumSeparator.Q THEN
+	tap_water_feed_valve												:= FALSE;
+	separator_drain_valve												:= FALSE;
+	vacuum_separator_drain_pump											:= FALSE;
+END_IF
+
+// Condenser Knockout drainage
+IF (gbDrainageOn OR condenser_knockout_drain_or_on) AND NOT condenser_knockout_drain_or_off THEN
+	IF gbCondenserKODrainageOn THEN
+//		tonCondenserKODrain(IN:= NOT bCondenserKnockoutError AND (product_condensate_drum_lsh OR product_condensate_drum_lsl), PT:= REAL_TO_TIME(SP_maximum_condenser_knockout_drain_duration * _MINUTES));
+		IF tonCondenserKODrain.Q AND P_M01.rs1.reactor_condensate_flow < SP_minimum_condensate_flow THEN
+			bCondenserKnockoutError										:= TRUE;
+			knockout_drain_valve										:= FALSE;
+			steam_flow_control_valve									:= _CLOSED;
+			P_Alarms.M_Add_Alarm(_U01, gsCondenserKODrainageError, gsMessageTBD);
+		ELSIF product_condensate_drum_lsh THEN
+			knockout_drain_valve										:= TRUE;
+		ELSIF NOT product_condensate_drum_lsh AND NOT product_condensate_drum_lsl THEN
+			knockout_drain_valve										:= FALSE;
+		END_IF
+	ELSE
+		knockout_drain_valve											:= FALSE;
+	END_IF
+END_IF
+rtrigKODrainValve(CLK:= NOT gbDrainageOn AND NOT condenser_knockout_drain_or_on AND NOT condenser_knockout_drain_or_off);
+IF rtrigKODrainValve.Q THEN
+	knockout_drain_valve												:= FALSE;
+END_IF
+
+IF NOT interlock_condensate_pump_or THEN
+	condensate_pump														:= knockout_drain_valve OR gbCondensateValve;
+END_IF
+
+// Interlock 2
+condenser_steam_interlock												:= NOT steam_flow_control_valve_closed AND (P_M01.rs1.steam_bypass_valve_open OR P_M01.rs1.product_iso_valve_open);
+IF NOT interlock_condenser_steam_or AND condenser_steam_interlock THEN
+	condenser_pump														:= TRUE;
+	condenser_fan														:= TRUE;
+END_IF
+
+B_01																	:= boiler_package;
+boiler_package_cmd_status												:= B_01;
+
+P_01																	:= steam_water_pump;
+steam_water_pump_cmd_status												:= P_01;
+
+P_02																	:= vacuum_pump;
+vacuum_pump_cmd_status													:= P_02;
+
+P_03																	:= condensate_pump;
+condensate_pump_cmd_status												:= P_03;
+
+P_04																	:= condenser_pump;
+condenser_pump_cmd_status												:= P_04;
+
+P_05																	:= vacuum_liquid_pump;
+vacuum_liquid_pump_cmd_status											:= P_05;
+
+P_06																	:= vacuum_separator_drain_pump;
+vacuum_separator_drain_pump_cmd_status									:= P_06;
+
+E_01																	:= condenser_fan;
+condenser_fan_cmd_status												:= E_01; 
+
+X_01																	:= vacuum_liquid_loop_fan;
+vacuum_liquid_loop_fan_cmd_status										:= X_01;
+
+product_outlet_co2														:= F_AnalogIn(AT_02, product_outlet_co2_low, product_outlet_co2_high, product_outlet_co2_min, product_outlet_co2_offset);
+product_outlet_co2_error												:= AT_02_error AND NOT _ProductOutletCO2ErrorOff;
+bProductOutletCo2Error													:= P_Alarms.M_Check_Error(product_outlet_co2_error, bProductOutletCo2Error, _U01, gsProductOutletCo2SensorError, gsProcessCannotRun);
+
+product_outlet_h2o														:= F_AnalogIn(AT_03, product_outlet_h2o_low, product_outlet_h2o_high, product_outlet_h2o_min, product_outlet_h2o_offset);
+product_outlet_h2o_error												:= AT_03_error AND NOT _ProductOutletH2OErrorOff;
+bProductOutletH2oError													:= P_Alarms.M_Check_Error(product_outlet_h2o_error, bProductOutletH2oError, _U01, gsProductOutletH2oSensorError, gsProcessCannotRun);
+
+product_outlet_flow														:= F_AnalogIn(FT_02, product_outlet_flow_low, product_outlet_flow_high, product_outlet_flow_min, product_outlet_flow_offset);
+product_outlet_flow_error												:= product_outlet_flow_error AND NOT _ProductOutletFlowErrorOff;
+bProductOutletFlowError													:= P_Alarms.M_Check_Error(product_outlet_flow_error, bProductOutletFlowError, _U01, gsProductOutletFlowSensorError, gsProcessCannotRun);
+
+condensate_flow															:= F_AnalogIn(FT_04, condensate_flow_low, condensate_flow_high, condensate_flow_min, condensate_flow_offset);
+condensate_flow_error													:= FT_04_error AND NOT _CondensateFlowErrorOff;
+bCondensateFlowError													:= P_Alarms.M_Check_Error(condensate_flow_error, bCondensateFlowError, _U01, gsCondensateFlowSensorError, gsProcessCannotRun);
+	
+tap_water_feed_flow														:= F_AnalogIn(FT_05, tap_water_feed_flow_low, tap_water_feed_flow_high, tap_water_feed_flow_min, tap_water_feed_flow_offset);
+tap_water_feed_flow_error												:= FT_05_error AND NOT _TapWaterFeedFlowErrorOff;
+bWaterFeedFlowError														:= P_Alarms.M_Check_Error(tap_water_feed_flow_error, bWaterFeedFlowError, _U01, gsTapWaterFeedFlowSensorError, gsProcessCannotRun);
+
+steam_flow																:= F_AnalogIn(FT_06, steam_flow_low, steam_flow_high, steam_flow_min, steam_flow_offset);
+steam_flow_error														:= FT_06_error AND NOT _SteamFlowErrorOff;
+bSteamFlowError															:= P_Alarms.M_Check_Error(steam_flow_error, bSteamFlowError, _U01, gsTapWaterFeedFlowSensorError, gsProcessCannotRun);
+
+vacuum_pump_water_flow													:= F_AnalogIn(FT_07, vacuum_pump_water_flow_low, vacuum_pump_water_flow_high, vacuum_pump_water_flow_min, vacuum_pump_water_flow_offset);
+vacuum_pump_water_flow_error											:= FT_07_error AND NOT _VacuumPumpWaterFlowErrorOff;
+bVacuumPumpWaterFlowError												:= P_Alarms.M_Check_Error(vacuum_pump_water_flow_error, bVacuumPumpWaterFlowError, _U01, gsVacuumPumpWaterFlowSensorError, gsProcessCannotRun);
+	
+condenser_flow															:= F_AnalogIn(FT_08, condenser_flow_low, condenser_flow_high, condenser_flow_min, condenser_flow_offset);
+condenser_flow_error													:= FT_08_error AND NOT _CondenserFlowErrorOff;
+bCondenserFlowError														:= P_Alarms.M_Check_Error(condenser_flow_error, bCondenserFlowError, _U01, gsCondenserFlowSensorError, gsProcessCannotRun);
+	
+steam_water_tank_level													:= F_AnalogIn(LT_01, steam_water_tank_level_low, steam_water_tank_level_high, steam_water_tank_level_min, steam_water_tank_level_offset);
+steam_water_tank_level_error											:= LT_01_error AND NOT _SteamWaterTankLevelErrorOff;
+bSteamWaterTankLevelError												:= P_Alarms.M_Check_Error(steam_water_tank_level_error, bSteamWaterTankLevelError, _U01, gsSteamWaterTankLevelSensorError, gsProcessCannotRun);
+	
+vacuum_separator_level													:= F_AnalogIn(LT_02, vacuum_separator_level_low, vacuum_separator_level_high, vacuum_separator_level_min, vacuum_separator_level_offset);
+vacuum_separator_level_error											:= LT_02_error AND NOT _VacuumSeparatorLevelErrorOff;
+bVacuumSeparatorLevelError												:= P_Alarms.M_Check_Error(vacuum_separator_level_error, bVacuumSeparatorLevelError, _U01, gsVacuumSeparatorLevelSensorError, gsProcessCannotRun);
+	
+product_vacuum_pres														:= F_AnalogIn(PT_04, product_vacuum_pres_low, product_vacuum_pres_high, product_vacuum_pres_min, product_vacuum_pres_offset);
+product_vacuum_pres_error												:= PT_04_error AND NOT _ProductVacuumPresErrorOff;
+bProductVacuumPresError													:= P_Alarms.M_Check_Error(product_vacuum_pres_error, bProductVacuumPresError, _U01, gsProductVacuumPresSensorError, gsProcessCannotRun);
+
+steam_line_pres															:= F_AnalogIn(PT_07, steam_line_pres_low, steam_line_pres_high, steam_line_pres_min, steam_line_pres_offset);
+steam_line_pres_error													:= PT_07_error AND NOT _SteamLinePresErrorOff;
+bSteamLinePresError														:= P_Alarms.M_Check_Error(steam_line_pres_error, bSteamLinePresError, _U01, gsSteamLinePresSensorError, gsProcessCannotRun);
+
+flow_calibration_diff_pres												:= F_AnalogIn(PDT_04, flow_calibration_diff_pres_low, flow_calibration_diff_pres_high, flow_calibration_diff_pres_min, flow_calibration_diff_pres_offset);
+flow_calibration_diff_pres_error										:= PDT_04_error AND NOT _FlowCalibrationDiffPresErrorOff;
+bFlowCalibrationDiffPresError											:= P_Alarms.M_Check_Error(flow_calibration_diff_pres_error, bFlowCalibrationDiffPresError, _U01, gsFlowCalibrationDiffPresSensorError, gsProcessCannotRun);
+
+
+water_scale_1															:= F_AnalogIn(WI_01, water_scale_1_low, water_scale_1_high, water_scale_1_min, water_scale_1_offset);
+water_scale_1_error														:= WI_01_error AND NOT _WaterScale1ErrorOff;
+bWaterScale1Error														:= P_Alarms.M_Check_Error(water_scale_1_error, bWaterScale1Error, _U01, gsWaterScale1SensorError, gsWarning); 
+	
+water_scale_2															:= F_AnalogIn(WI_02, water_scale_2_low, water_scale_2_high, water_scale_2_min, water_scale_2_offset);
+water_scale_2_error														:= WI_02_error AND NOT _WaterScale2ErrorOff;
+bWaterScale2Error														:= P_Alarms.M_Check_Error(water_scale_2_error, bWaterScale2Error, _U01, gsWaterScale1SensorError, gsWarning); 
+
+water_scale_3															:= F_AnalogIn(WI_03, water_scale_3_low, water_scale_3_high, water_scale_3_min, water_scale_3_offset);
+water_scale_3_error														:= WI_03_error AND NOT _WaterScale3ErrorOff;
+bWaterScale3Error														:= P_Alarms.M_Check_Error(water_scale_3_error, bWaterScale3Error, _U01, gsWaterScale1SensorError, gsWarning);
+
+product_temp															:= F_Temperature(TT_02, product_temp_offset);
+product_temp_error														:= TT_02_error AND NOT _ProductTempErrorOff;
+bProductTempError														:= P_Alarms.M_Check_Error(product_temp_error, bProductTempError, _U01, gsProductTempSensorError, gsProcessCannotRun);
+
+product_vacuum_temp														:= F_Temperature(TT_03, product_vacuum_temp_offset);
+product_vacuum_temp_error												:= TT_03_error AND NOT _ProductVacuumTempOff;
+bProductVacuumTempError													:= P_Alarms.M_Check_Error(product_vacuum_temp_error, bProductVacuumTempError, _U01, gsProductVacuumTempSensorError, gsProcessCannotRun);
+	
+inlet_line_temp															:= F_Temperature(TT_06, inlet_line_temp_offset);
+inlet_line_temp_error													:= TT_06_error AND NOT _InletLineTempErrorOff;
+bInletLineTempError														:= P_Alarms.M_Check_Error(inlet_line_temp_error, bInletLineTempError, _U01, gsInletLineTempSensorError, gsProcessCannotRun);
+
+vacuum_pump_water_temp_1												:= F_Temperature(TT_10, vacuum_pump_water_temp_1_offset);
+vacuum_pump_water_temp_1_error											:= TT_10_error AND NOT _VacuumPumpWaterTemp1ErrorOff;
+bVacuumPumpWaterTemp1Error												:= P_Alarms.M_Check_Error(vacuum_pump_water_temp_1_error, bVacuumPumpWaterTemp1Error, _U01, gsVacuumPumpWaterTemp1SensorError, gsProcessCannotRun);
+
+vacuum_pump_water_temp_2												:= F_Temperature(TT_11, vacuum_pump_water_temp_2_offset);
+vacuum_pump_water_temp_2_error											:= TT_11_error AND NOT _VacuumPumpWaterTemp2ErrorOff;
+
+IF bCloseXVValves THEN
+	vacuum_pump_inlet_valve												:= FALSE;
+	vacuum_pump_bypass_valve											:= FALSE;
+	knockout_drain_valve												:= FALSE;
+	dead_air_inlet_valve												:= FALSE;
+	separator_drain_valve												:= FALSE;
+	bCloseXVValves														:= FALSE;
+END_IF
+
+XV_03																	:= 	vacuum_pump_inlet_valve;
+vacuum_pump_inlet_valve_open_cmd_status									:= vacuum_pump_inlet_valve;
+vacuum_pump_inlet_valve_clear											:= F_ValveClear(vacuum_pump_inlet_valve, vacuum_pump_inlet_valve_open, vacuum_pump_inlet_valve_closed);
+
+XV_04																	:= vacuum_pump_bypass_valve;
+vacuum_pump_bypass_valve_open_cmd_status								:= XV_04;
+vacuum_pump_bypass_valve_clear											:= F_ValveClear(vacuum_pump_bypass_valve, vacuum_pump_bypass_valve_open, vacuum_pump_bypass_valve_closed);
+
+XV_06																	:= knockout_drain_valve;
+knockout_drain_valve_open_cmd_status									:= XV_06;
+knockout_drain_valve_clear												:= F_ValveClear(knockout_drain_valve, knockout_drain_valve_open, knockout_drain_valve_closed);
+
+XV_10																	:= dead_air_inlet_valve;
+dead_air_inlet_valve_open_cmd_status									:= dead_air_inlet_valve;
+dead_air_inlet_valve_clear												:= F_ValveClear(dead_air_inlet_valve, dead_air_inlet_valve_open, dead_air_inlet_valve_closed);
+
+XV_11																	:= product_line_ambient_valve;
+product_line_ambient_valve_cmd_status									:= XV_11;
+product_line_ambient_valve_clear										:= F_ValveClear(product_line_ambient_valve, product_line_ambient_valve_ambient,product_line_ambient_valve_product);
+
+XV_12																	:= tap_water_feed_valve;
+tap_water_feed_valve_cmd_status											:= XV_12;
+
+XV_13																	:= separator_drain_valve;
+separator_drain_valve_open_cmd_status									:= XV_13;
+separator_drain_valve_clear												:= F_ValveClear(separator_drain_valve, separator_drain_valve_open, separator_drain_valve_closed);
+
+XV_14																	:= steam_water_reservoir_valve;
+steam_water_reservoir_valve_cmd_status									:= XV_14;
+
+fb_Vacuum_Pres_Control_Valve_PI(		Setpoint						:= vacuum_pres_control_valve_setpoint,
+										Control							:= product_vacuum_pres,
+										Error							:= vacuum_pres_control_valve_position_error,
+										Reverse							:= FALSE,
+										Kp								:= vacuum_pres_control_valve_kp,           
+										Ki								:= vacuum_pres_control_valve_ki,           
+										BaseAdjust						:= vacuum_pres_control_valve_base_adjust,  
+										LoopTime						:= vacuum_pres_control_valve_loop_time,    
+										IBand							:= vacuum_pres_control_valve_iband,        
+										Base							:= vacuum_pres_control_valve_base,         
+										Mode							:= vacuum_pres_control_valve_mode,
+										Input							:= vacuum_pres_control_valve,
+										Mode_Out						=> vacuum_pres_control_valve_current_mode, 
+										Output							=> PCV_01);
+
+vacuum_pres_control_valve_position										:= INT_TO_REAL(PCV_01_position) / _PERCENT_FACTOR; 
+vacuum_pres_control_valve_open											:= vacuum_pres_control_valve_position >= _VALVE_OPEN;
+vacuum_pres_control_valve_closed										:= vacuum_pres_control_valve_position < _VALVE_CLOSED;
+
+fb_Steam_Flow_Control_Valve_PI(			Setpoint						:= steam_flow_control_valve_setpoint,
+										Control							:= ,
+										Error							:= steam_flow_control_valve_position_error,
+										Reverse							:= FALSE,
+										Kp								:= steam_flow_control_valve_kp,           
+										Ki								:= steam_flow_control_valve_ki,           
+										BaseAdjust						:= steam_flow_control_valve_base_adjust,  
+										LoopTime						:= steam_flow_control_valve_loop_time,    
+										IBand							:= steam_flow_control_valve_iband,        
+										Base							:= steam_flow_control_valve_base,         
+										Mode							:= steam_flow_control_valve_mode,
+										Input							:= steam_flow_control_valve,
+										Mode_Out						=> steam_flow_control_valve_current_mode, 
+										Output							=> PCV_02);
+
+steam_flow_control_valve_position										:= INT_TO_REAL(PCV_02_position) / _PERCENT_FACTOR; 
+steam_flow_control_valve_open											:= steam_flow_control_valve_position >= _VALVE_OPEN;
+steam_flow_control_valve_closed											:= steam_flow_control_valve_position < _VALVE_CLOSED;
+
+// ignore if < 2 Amps
+l1_current_240															:= SEL(IT1 > _CURRENT_240_FACTOR * 2,0,F_IEConvert(IT1, _CURRENT_240_FACTOR));
+l2_current_240															:= SEL(IT2 > _CURRENT_240_FACTOR * 2,0,F_IEConvert(IT2, _CURRENT_240_FACTOR));
+l3_current_240															:= SEL(IT3 > _CURRENT_240_FACTOR * 2,0,F_IEConvert(IT3, _CURRENT_240_FACTOR));
+l1_voltage_240															:= F_IEConvert(VT1, _VOLTAGE_240_FACTOR);
+l2_voltage_240															:= F_IEConvert(VT2, _VOLTAGE_240_FACTOR);
+l3_voltage_240															:= F_IEConvert(VT3, _VOLTAGE_240_FACTOR);
+
+// Ignore if < 1 Amp
+l1_current_120															:= SEL(IT4 > _CURRENT_120_FACTOR ,0,F_IEConvert(IT4, _CURRENT_120_FACTOR));
+l1_voltage_120															:= F_IEConvert(VT4, _VOLTAGE_120_FACTOR);
+
+// Boiler - ignore noise if < 5A = 400 counts
+
+l1_current_boiler := SEL(IT_boiler_01 > 400, 0, F_IEConvert(IT_boiler_01, _CURRENT_BOILER_FACTOR));  // double coiled 
+l2_current_boiler := SEL(IT_boiler_02 > 400, 0, F_IEConvert(IT_boiler_02, _CURRENT_BOILER_FACTOR));  // double coiled 
+l3_current_boiler := SEL(IT_boiler_03 > 400, 0, F_IEConvert(IT_boiler_03, _CURRENT_BOILER_FACTOR));  // double coiled 
+
+//boiler_ready														:= NOT boiler_outlet_pres_error AND boiler_outlet_pres > SP_target_boiler_pressure AND boiler_package;
+//boiler_ready															:= boiler_ready;
+
+tonBoilerCheck(IN:= warmup_complete AND NOT boiler_ready, PT:= _TIMEOUT_WARMUP_RESET);
+IF tonBoilerCheck.Q THEN
+	warmup_complete														:= FALSE;
+END_IF
+
+// These Utility errors prevent any new automated cycles from running
+utility_error		:= '';
+//utility_error															:= SEL(NOT boiler_ready, '', gsBoilerError);
+utility_error															:= SEL(bProductVacuumPresError, utility_error, gsProductVacuumPresSensorError);
+//utility_error															:= SEL(bProductOutletCo2Error, utility_error, gsProductOutletCo2SensorError);
+//utility_error															:= SEL(bInletLineTempError, utility_error, gsInletLineTempSensorError);
+//utility_error															:= SEL(bSteamWaterTankLevelError, utility_error, gsSteamWaterTankLevelSensorError);
+utility_error															:= SEL(bVacuumSeparatorLevelError, utility_error, gsVacuumSeparatorLevelSensorError);
+utility_error															:= SEL(bVacuumPumpWaterFlowError, utility_error, gsVacuumPumpWaterFlowSensorError);
+utility_error															:= SEL(bVacuumPumpWaterTemp1Error, utility_error, gsVacuumPumpWaterTemp1SensorError);
+//utility_error															:= SEL(bFlowCalibrationDiffPresError, utility_error, gsFlowCalibrationDiffPresSensorError);
+//utility_error															:= SEL(bProductOutletH2oError, utility_error, gsProductOutletH2oSensorError);
+//utility_error															:= SEL(bProductTempError, utility_error, gsProductTempSensorError);
+//utility_error															:= SEL(bProductVacuumTempError, utility_error, gsProductVacuumTempSensorError);
+//utility_error															:= '';
+
+//sUtilityError															:= utility_error; // - TO BE ENABLED 
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_MovingAverage" Id="{8485b6cb-e244-43cb-929b-696de39510b1}">
+      <Implementation>
+        <ST><![CDATA[(*
+moving_avg_params.nSamplesToFilter := 2;
+moving_avg_params.tCtrlCycleTime := T#1000MS;
+moving_avg_params.tTaskCycleTime := T#10MS;
+moving_avg_params.pWorkArray_ADR := ADR(moving_avg_array);
+moving_avg_params.nWorkArray_SIZEOF := SIZEOF(moving_avg_array);
+
+moving_avg_in_sim_timer ( IN := NOT moving_avg_in_sim_timer.Q, PT := T#1000MS);
+
+IF moving_avg_in_sim_timer.Q THEN 
+	moving_avg_in := moving_avg_in + 1;
+	IF moving_avg_in = 100 THEN
+		moving_avg_in := 0;
+	END_IF
+END_IF
+
+fb_MovingAverage(
+	fIn:= moving_avg_in , 
+	fManSyncValue:= , 
+	bSync:= , 
+	eMode:= E_CTRL_MODE.eCTRL_MODE_ACTIVE, 
+	bHold:= , 
+	fOut=> moving_avg_out, 
+	eState=> , 
+	eErrorId=> , 
+	bError=> , 
+	stParams:= moving_avg_params);
+*)
+
+fbMovingAverage(
+	i_number_of_samples := 5,
+	i_sample_time := 1000);]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_PIDs" Id="{bdad273d-c5b6-4cdc-9e45-b9c5a8ce2ca9}">
+      <Implementation>
+        <ST><![CDATA[// Steam valve
+
+steam_valve_pid_params.tCtrlCycleTime := T#1000MS;
+steam_valve_pid_params.tTaskCycleTime := T#10MS;
+steam_valve_pid_params.fKp := steam_valve_pid_kp ;
+steam_valve_pid_params.tTn := steam_valve_pid_tn;
+steam_valve_pid_params.tTv := steam_valve_pid_tv;
+steam_valve_pid_params.tTd := T#0MS;
+steam_valve_pid_params.fOutMaxLimit := 100;
+steam_valve_pid_params.fOutMinLimit := 0;
+
+steam_valve_pid(
+	fSetpointValue	:= steam_valve_pid_sp_value, 
+	fActualValue	:= steam_valve_pid_actual_value, 
+	fManSyncValue	:= steam_valve_pid_manual_sp, 
+	bSync			:= FALSE, 
+	eMode			:= steam_valve_pid_mode , 
+	bHold:= , 
+	fOut			=> steam_valve_pid_out , 
+	bARWactive=> , 
+	eState=> , 
+	eErrorId=> , 
+	bError=> , 
+	stParams		:= steam_valve_pid_params);
+
+
+steam_valve_pid_simulate_timer( IN := NOT steam_valve_pid_simulate_timer.Q, PT := T#10MS);
+IF steam_valve_pid_simulate_timer.Q AND steam_valve_pid.eMode = E_CTRL_MODE.eCTRL_MODE_ACTIVE THEN
+	//steam_valve_pid_actual_value := steam_valve_pid_actual_value * 0.8 + steam_valve_pid_out * 0.01;
+	//steam_valve_pid_actual_value := steam_valve_pid_actual_value + ((steam_valve_pid_sp_value - steam_valve_pid_actual_value)/1.2) + 0.1; 
+	steam_valve_pid_actual_value := steam_valve_pid_actual_value * 0.995 + steam_valve_pid_out * 0.01;
+END_IF
+(*	
+IF steam_valve_pid.eMode = E_CTRL_MODE.eCTRL_MODE_MANUAL  AND (steam_valve_pid_sp_value <= 0) THEN
+	steam_valve_pid_sp_value := steam_valve_pid_actual_value;
+END_IF
+
+IF steam_valve_pid.eMode = E_CTRL_MODE.eCTRL_MODE_ACTIVE AND (steam_valve_pid_manual_sp <= 0) THEN
+	steam_valve_pid_manual_sp := steam_valve_pid_out;
+END_IF
+*)
+simulate_process_params.tCtrlCycleTime := T#100MS;
+simulate_process_params.tTaskCycleTime := T#10MS;
+simulate_process_params.fKp := simulate_process_kp;
+simulate_process_params.fTheta := simulate_process_dumping_ration;
+simulate_process_params.tT0 := TO_TIME(simulate_process_tT0);
+
+simulate_process(
+	fIn:= steam_valve_pid_out , 
+	fManValue:= , 
+	eMode:= E_CTRL_MODE.eCTRL_MODE_ACTIVE, 
+	bHold:= , 
+//	fOut=> steam_valve_pid_actual_value , 
+	eState=> , 
+	eErrorId=> , 
+	bError=> , 
+	stParams:= simulate_process_params);]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A02_WarmUp" Id="{3e02c609-752d-4440-9a0e-94c91ce7baf7}">
+      <Implementation>
+        <ST><![CDATA[// Theseus - P_U01.A02_WarmUp
+// Rev 1.0 - October 8, 2024
+
+CASE i2Step OF
+
+	0:	;
+		
+	1:	
+		sError															:= '';
+		bComplete														:= FALSE;
+		bRunSteamBypass													:= FALSE;
+		P_U01.steam_bypass_complete										:= FALSE;
+		IF NOT P_U01.warmup_complete THEN
+			gsCycleStage												:= 'warm_up.initialize';							// 3
+			IF NOT TRUE THEN //P_U01.boiler_outlet_pres_error THEN
+				sError													:= F_Concat3(_U01, gsCycleStage, gsBoilerError);
+				i2Step													:= 80;
+			ELSE
+				i2Step													:= i2Step + 1;
+			END_IF
+		ELSE
+			bComplete													:= TRUE;
+			i2Step														:= 90;
+		END_IF
+		
+	2:	
+		P_U01.boiler_package												:= TRUE;											// 4
+		gsCycleStage													:= 'warm_up.boiler_heating';						// 5
+		P_U01.drainage_on													:= TRUE;											// 6
+		bAdsorptionActive												:= FALSE;											// 7
+		bAdsorptionTimer												:= FALSE;
+		i2Step															:= SEL(P_U01.SP_adsorb_during_warmup, 20, i2Step + 1);	// 8
+
+	3:
+		iAxStep															:= 1;												// 8.a
+		i2Step															:= i2Step + 1;
+
+	4:	
+		Ax_Process_Pre_Check();																								// 8.a																			
+		IF bPreCheckDone THEN
+			IF sError = '' THEN																								// 8.a.i
+				P_M01.rs1.repres_valves									:= P_M01.bRS01;										// 8.b
+				rTime													:= _VALVE_TIME;
+				i2Step													:= i2Step + 1;
+			ELSE
+				P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), sError, gsWarmupWillContinueWOAdsorption);					// 8.a.ii
+				i2Step													:= 20;
+			END_IF
+		END_IF
+		
+	5:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.repres_valves_clear) OR NOT P_M01.bRS01;
+		IF bPass1 THEN
+			bTimer														:= FALSE;
+			i2Step														:= i2Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			//P_M01_RS01.close_repres_valves								:= TRUE;
+			//i2Step														:= 20;
+			i2Step														:= i2Step + 1; 
+		END_IF
+		
+	6:
+		P_M01.rs1.open_doors											:= P_M01.bRS01;										// 8.c
+		rTime															:= P_M01.SP_doorsopenclose_timedelay * _MINUTES;	// 8.c.i
+		gsCycleStage													:= 'warm_up.boiler_heating_open_doors';				// 8.c.ii
+		i2Step															:= i2Step + 1;
+
+	7:
+		bTimer															:= TRUE; 
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.open_doors) OR NOT P_M01.bRS01;
+		IF bPass1 THEN
+			bTimer														:= FALSE;
+			i2Step														:= i2Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sRS															:= _RS01;
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorOpeningError, gsWarmupWillContinueWOAdsorption);
+			i2Step														:= 20;
+		END_IF
+
+	8:
+		P_M01.rs1.fan_setpoint											:= SEL(P_M01.bRS01, 0, P_M01.SP_reactor_set_1_vfd_percent);	// 8.d
+		gsCycleStage													:= 'warm_up.boiler_heating_turn_on_fans';			// 8.d.i
+		rTime															:= _FAN_RS_DELAY_TIME;
+		i2Step															:= i2Step + 1;
+
+	9:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i2Step														:= i2Step + 1;
+		END_IF
+
+	10:
+		P_M01.rs1.r1.inlet_co2_sol										:= P_M01.bRS01;										// 8.e
+		P_M01.rs1.r1.outlet_co2_sol										:= P_M01.bRS01;										// 8.e
+		gsCycleStage													:= 'warm_up.boiler_heating_adsorption';				// 8.e.i
+		bAdsorptionTimer												:= TRUE;											// 8.f
+		bAdsorptionActive												:= TRUE;											// 8.g
+		i2Step															:= 20;
+
+
+//**** Complete Warmup		
+	20:
+		P_U01.vacuum_pres_control_valve									:= _OPEN;											// 9
+		rTime															:= _VALVE_TIME;
+		i2Step															:= i2Step + 1;
+		
+	21:	
+		bTimer															:= TRUE;
+		IF P_U01.vacuum_pres_control_valve_open THEN																			// 9
+			bTimer														:= FALSE;
+			rTime														:= P_U01.SP_boiler_warmup_duration * _MINUTES;		// 11
+			i2Step														:= i2Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= gsProductVacuumBackfeedValveError;				// 9
+			IF bAdsorptionActive THEN
+				P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), sError, gsProcessCannotRunAdsorptionWillContinue);
+				P_U01.boiler_package										:= FALSE;
+				i2Step													:= 30;
+			ELSE
+				i2Step													:= 80;
+			END_IF
+		END_IF
+		
+	22:
+		bTimer															:= TRUE;
+		IF P_U01.boiler_ready THEN																							// 12 (Handled in P_U01.A_Points)
+			bTimer														:= FALSE;
+			bComplete													:= TRUE;
+			P_U01.warmup_complete											:= TRUE;
+			i2Step														:= i2Step + 1;
+		ELSIF tonTimer.Q THEN																								// 12.a
+			bTimer														:= FALSE;
+			sError														:= gsBoilerError;
+			i2Step														:= 80;
+		END_IF
+
+	23:
+		bRunSteamBypass													:= P_U01.SP_steam_bypass_immediately_after_warm_up;
+		IF bAdsorptionActive AND NOT bRunSteamBypass THEN 																	// 14
+			i2Step														:= 30;
+		ELSIF bAdsorptionActive AND bRunSteamBypass AND NOT P_U01.SP_adsorb_during_steam_bypass THEN
+			i2Step														:= 40;												// 15
+		ELSE
+			i2Step														:= 90;												// 13 & 16
+		END_IF
+	
+		
+//**** Adsorption 1		
+	30:
+		IF tonAdsorptionTimer.Q THEN																						// 14.a
+			bAdsorptionTimer											:= FALSE;
+			gsCycleStage												:= 'warm_up.boiler_heating.turn_off_fans';			// 14.b
+			P_M01.rs1.fan_setpoint										:= 0;												// 14.c
+			rTime														:= _FAN_RS_DELAY_TIME;
+			i2Step														:= i2Step + 1;
+		END_IF
+
+	31:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			gsCycleStage												:= 'warm_up.boiler_heating.closing_doors';			// 14.d
+			P_M01.rs1.close_doors										:= TRUE;											// 14.e
+			rTime														:= P_M01.SP_doorsopenclose_timedelay * _MINUTES;										// 14.e.i
+			i2Step														:= i2Step + 1;
+		END_IF		
+
+	32:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.inlet_doors_closed AND P_M01.rs1.outlet_doors_closed) OR NOT P_M01.bRS01;	// 14.e.ii
+		IF bPass1 THEN
+			bTimer														:= FALSE;
+			i2Step														:= i2Step + 1;
+		ELSIF tonTimer.Q THEN																								// 14.e.i
+			bTimer														:= FALSE;
+			bRunSteamBypass												:= FALSE;
+			sRS															:= _RS01;
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorClosingError, gsSystemCannotRun);
+			i2Step														:= i2Step + 1;
+		END_IF
+		
+	33:
+		//P_M01_RS01.co2_sensors_on										:= FALSE;											// 14.f
+		bAdsorptionActive												:= FALSE;											// 14.g
+		i2Step															:= 90;
+
+	
+//**** Adsorption 2	
+	40:
+		IF tonAdsorptionTimer.Q THEN																						// 15.a
+			bAdsorptionTimer											:= FALSE;
+			P_M01.rs1.fan_setpoint										:= 0;												// 15.b
+			rTime														:= _FAN_RS_DELAY_TIME;
+			i2Step														:= i2Step + 1;
+		END_IF
+
+	41:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;											// 15.c
+			//P_M01_RS01.co2_sensors_on									:= FALSE;
+			bAdsorptionActive											:= FALSE;											// 15.d
+			i2Step														:= i2Step + 1;
+		END_IF
+		
+	42:
+		P_M01.rs1.close_doors											:= TRUE;											// 15.g
+		rTime															:= P_M01.SP_doorsopenclose_timedelay * _MINUTES;										// 15.g.i
+		i2Step															:= i2Step + 1;
+
+	43:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.inlet_doors_closed AND P_M01.rs1.outlet_doors_closed) OR NOT P_M01.bRS01;		// 15.g.ii
+		IF bPass1 THEN
+			bTimer														:= FALSE;
+			i2Step														:= 90;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			bRunSteamBypass												:= FALSE;
+			sRS															:= _RS01;
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorOpeningError, gsSystemCannotRun);
+			i2Step														:= 90;
+		END_IF
+
+
+//**** Process error		
+	80:
+		P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), sError, gsProcessCannotRun);
+		gsCycleStage													:= 'warm_up.error';
+		i2Step															:= i2Step + 1;
+
+//**** Stop process		
+	81:
+		P_U01.vacuum_pres_control_valve									:= _CLOSED;
+		//P_M01_RS01.co2_sensors_on										:= FALSE;
+		P_M01.rs1.fan_setpoint											:= 0;
+		rTime															:= _FAN_RS_DELAY_TIME;
+		i2Step															:= i2Step + 1;
+
+	82:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			P_U01.boiler_package											:= FALSE;
+			P_M01.rs1.close_doors										:= P_M01.bRS01;
+			rTime														:= P_M01.SP_doorsopenclose_timedelay * _MINUTES;
+			i2Step														:= 90;
+		END_IF
+		
+//**** Close process
+	90:
+		gsCycleStage													:= SEL(bComplete, 'warm_up.failed', 'warm_up.complete');
+		bAdsorptionTimer												:= FALSE;
+		P_U01.drainage_on													:= FALSE;
+		rTime															:= _PROCESS_COMPLETE_TIME;
+		i2Step															:= i2Step + 1;
+		
+	91:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			gsCycleStage												:= '';
+			i2Step														:= 0;
+		END_IF
+				
+
+END_CASE
+
+IF i2Step > 0 AND i2Step < 80 AND P_U01.shutdown_process THEN
+	gsCycleStage														:= 'warm_up.stopping';
+	i2Step																:= 81;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A03_Steam_Bypass" Id="{73856173-8e49-4891-b8be-3c57dfbf2633}">
+      <Implementation>
+        <ST><![CDATA[// Theseus - P_U01.A03_Steam_Bypass
+// Rev 1.0 - October 7, 2024
+
+CASE i3Step OF
+
+	0:	;
+
+	1:	
+		bComplete														:= FALSE;
+		IF P_U01.warmup_complete THEN
+			IF NOT P_U01.steam_bypass_complete THEN
+				gsCycleStage											:= 'steam_bypass.initialize';						// 4
+				sError													:= '';
+				IF P_U01.product_vacuum_pres_error THEN
+					sError												:= gsProductVacuumPresSensorError;
+				END_IF
+				i3Step													:= SEL(sError = '', 80, i3Step + 1);
+			ELSE
+				bComplete												:= TRUE;
+				i3Step													:= 90;
+			END_IF
+		ELSE
+			P_U01.boiler_package										:= FALSE;
+			P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), gsWarmupNotRunError, gsProcessCannotRun);
+			i3Step														:= 90;
+		END_IF
+		
+	2:	
+		IF P_U01.boiler_ready THEN																							// 5.a (Handled in P_U01.A_Points)
+			P_U01.bCloseXVValves										:= TRUE;											// 5.b
+			rTime														:= _VALVE_TIME;
+			i3Step														:= i3Step + 1;
+		ELSE
+			sError														:= gsBoilerError;
+			sMessage													:= gsRunWarmup;
+			i3Step														:= 80;
+		END_IF
+
+	3:	bTimer															:= TRUE;
+		bPass1															:= P_U01.vacuum_pump_inlet_valve_closed;
+		IF bPass1 THEN
+			bTimer														:= FALSE;
+			P_U01.vacuum_pres_control_valve								:= _OPEN;											// 5.b.iii
+			rTime														:= _VALVE_TIME;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= SEL(bPass1, '', gsProductVacuumPumpIsoValveError);
+			sError														:= SEL(bPass2, sError, gsProductVacuumOutletIsoValveError);
+			i3Step														:= 80;
+		END_IF
+		
+	4:
+		bTimer															:= TRUE;
+		IF P_U01.vacuum_pres_control_valve_position > _VALVE_OPEN THEN
+			bTimer														:= FALSE;
+			P_U01.drainage_on												:= TRUE;											// 5.c
+			IF bAdsorptionActive AND P_U01.SP_adsorb_during_steam_bypass THEN													// 5.b.iv
+				P_M01.rs1.open_doors									:= P_M01.bRS01;
+				rTime													:= P_M01.SP_doorsopenclose_timedelay * _MINUTES;
+				i3Step													:= i3Step + 1;
+			ELSE
+				i3Step													:= i3Step + 2;
+			END_IF
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= gsProductVacuumBackfeedValveError;
+			i3Step														:= 80;
+		END_IF
+
+	5:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.inlet_doors_open AND P_M01.rs1.outlet_doors_open) OR NOT P_M01.bRS01;	// 5.b.iv
+		IF bPass1 THEN
+			bTimer														:= FALSE;
+			IF NOT bAdsorptionActive AND P_U01.SP_adsorb_during_steam_bypass THEN												// 6
+				iAxStep													:= 1;												// 6.b
+				i3Step													:= i3Step + 1;
+			ELSE
+				i3Step													:= 20;
+			END_IF
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			bAdsorptionActive											:= FALSE;
+			sRS															:= _RS01;
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorOpeningError, gsSteamBypassWillContinueWOAdsorption);
+			i3Step														:= 20;
+		END_IF
+
+	6:
+		Ax_Process_Pre_Check();																								// 6.b																			
+		IF bPreCheckDone THEN
+			IF sError = '' THEN																								// 6.b.i
+				P_M01.rs1.repres_valves									:= P_M01.bRS01;										// 6.c
+				rTime													:= _VALVE_TIME;
+				i3Step													:= i3Step + 1;
+			ELSE
+				P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), sError, gsSteamBypassWillContinueWOAdsorption);			// 6.b.ii
+				bAdsorptionActive										:= FALSE;
+				i3Step													:= 20;
+			END_IF
+		END_IF
+
+	7:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.repres_valves_clear) OR NOT P_M01.bRS01;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+			//bAdsorptionActive											:= FALSE;
+			//P_M01_RS01.close_repres_valves								:= P_M01.bRS01;
+			//i3Step													:= 20; 
+		END_IF
+		
+	8:
+		P_M01.rs1.open_doors											:= P_M01.bRS01;
+		gsCycleStage													:= 'steam_bypass.initialize.open_doors';			// 6.d.ii
+		rTime															:= P_M01.SP_doorsopenclose_timedelay * _MINUTES;										// 6.d.i
+		i3Step															:= i3Step + 1;
+
+	9:
+		bTimer															:= TRUE; 
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.inlet_doors_open AND P_M01.rs1.outlet_doors_open) OR NOT P_M01.bRS01;	// 6.d.ii
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sRS															:= _RS01;
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorOpeningError, gsSteamBypassWillContinueWOAdsorption);
+			bAdsorptionActive											:= FALSE;
+			i3Step														:= 20;
+		END_IF
+
+	10:
+		P_M01.rs1.fan_setpoint											:= SEL(P_M01.bRS01, 0, P_M01.SP_reactor_set_1_vfd_percent);	// 6.e
+		gsCycleStage													:= 'steam_bypass.initialize.turn_on_fans';			// 6.e.i
+		rTime															:= _FAN_RS_DELAY_TIME;
+		i3Step															:= i3Step + 1;
+
+	11:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		END_IF
+
+	12:
+		//P_M01_RS01.co2_sensors_on										:= P_M01.bRS01;										// 6.f
+		gsCycleStage													:= 'steam_bypass.initialize.adsorption';			// 6.f.i
+		bAdsorptionTimer												:= TRUE;											// 6.a
+		bAdsorptionActive												:= TRUE;											// 6.g
+		i3Step															:= 20;
+
+
+//**** Complete Steam Bypass		
+	20:
+		rSP																:= P_U01.SP_steam_bypass_vacuum_pressure;				// 8
+		bPass1															:= P_U01.product_vacuum_pres < rSP;
+		bPass2															:= P_U01.product_vacuum_pres < rSP;
+		i3Step															:= SEL(bPass1 AND bPass2, i3Step + 1, 30);
+	
+	21:
+		P_U01.vacuum_pump_inlet_valve										:= TRUE;											// 9.a
+		rTime															:= _VALVE_TIME;
+		i3Step															:= i3Step + 1;
+		
+	22:
+		bTimer															:= TRUE;
+		bPass1															:= P_U01.vacuum_pump_inlet_valve_open;
+		IF bPass1 AND bPass2 THEN
+			bTimer														:= FALSE;
+			//P_U01.fan											:= TRUE;											// 9.a
+			P_U01.vacuum_pres_control_valve								:= _CLOSED;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= SEL(bPass1, '', gsProductVacuumPumpIsoValveError);
+			sError														:= SEL(bPass2, sError, gsProductVacuumOutletIsoValveError);
+			i3Step														:= 80;
+		END_IF
+		
+	23:	
+		gsCycleStage													:= SEL(bAdsorptionActive, 'steam_bypass.evacuate_lines', 'steam_bypass.evacuate_lines.adsorption');		// 9.b.i
+		rTime															:= P_M01.SP_evacuation_duration * _MINUTES;
+		i3Step															:= i3Step + 1;
+		
+	24:
+		bTimer															:= TRUE;											// 9.d
+		rSP																:= P_U01.SP_steam_bypass_vacuum_pressure;
+		bPass1															:= P_U01.product_vacuum_pres < rSP;
+		bPass2															:= P_U01.product_vacuum_pres < rSP;
+		IF bPass1 AND bPass2 THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= gsUnableToEvacuateLinesError;
+			i3Step														:= 80;
+		END_IF
+	
+	25:	
+		P_U01.vacuum_pump_inlet_valve										:= FALSE;											// 9.e
+		P_U01.vacuum_pres_control_valve									:= _OPEN;
+		//P_U01.fan											:= FALSE;
+		i3Step															:= 30;
+
+		
+//**** Steam Bypass		
+	30:
+		//P_U01.steam_bypass_valve											:= TRUE;											// 10
+		gsCycleStage													:= SEL(bAdsorptionActive, 'steam_bypass.steam_bypass.adsorption', 'steam_bypass.steam_bypass');		// 10.a
+		rSP																:= P_U01.SP_steam_bypass_duration * _MINUTES;				
+		rTime															:= rSP;
+		i3Step															:= i3Step + 1;				
+
+	31:
+		i3Step															:= i3Step + 1;
+		
+	32:
+		P_U01.vacuum_pump_bypass_valve									:= TRUE;											// 12
+		//P_U01.fan												:= TRUE;
+		i3Step															:= i3Step + 1;
+		
+	33:
+		IF TIME_TO_REAL(tonTimer.ET) >= (rSP * 0.3) THEN																	// 13
+			i3Step														:= i3Step + 1;
+		END_IF 
+	
+	34:
+		i3Step															:= i3Step + 1;										// 13.a
+	
+	35:
+		IF tonTimer.Q THEN //OR P_U01.product_line_temp > P_U01.SP_steam_bypass_temperature THEN										// 14
+			bTimer														:= FALSE;
+			//P_U01.steam_bypass_valve										:= FALSE;											// 15
+			gsCycleStage												:= SEL(bAdsorptionActive, 'steam_bypass.wrap_up', 'steam_bypass.wrap_up.adsorption');	// 15.a
+			P_U01.vacuum_pump_bypass_valve								:= FALSE;
+			//P_U01.fan											:= FALSE;
+			IF bAdsorptionActive THEN
+				i3Step													:= 40;
+			ELSE
+				P_U01.steam_bypass_complete								:= TRUE;
+				i3Step													:= 90;
+			END_IF
+		END_IF
+		
+		
+//**** Complete Adsorption		
+	40:
+		IF tonAdsorptionTimer.Q THEN																						// 17.a.i
+			bAdsorptionTimer											:= FALSE;
+			P_M01.rs1.fan_setpoint										:= 0;												// 17.a.ii
+			gsCycleStage												:= 'steam_bypass.wrap_up.turn_off_fans';			// 17.a.ii.1
+			rTime														:= _FAN_RS_DELAY_TIME;
+			i3Step														:= i3Step + 1;
+		END_IF
+
+	41:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			P_M01.rs1.close_doors										:= TRUE;											// 17.a.iii
+			gsCycleStage												:= 'steam_bypass.wrap_up.close_doors';				// 17.a.iii.1
+			rTime														:= P_M01.SP_doorsopenclose_timedelay * _MINUTES;										// 17.a.iii.2
+			i3Step														:= i3Step + 1;
+		END_IF		
+
+	42:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.inlet_doors_closed AND P_M01.rs1.outlet_doors_closed) OR NOT P_M01.bRS01;		// 17.a.iii.3
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sRS															:= _RS01;
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorClosingError, gsSystemCannotRun);
+			i3Step														:= i3Step + 1;
+		END_IF
+		
+	43:
+		//P_M01_RS01.co2_sensors_on										:= FALSE;											// 17.a.iv
+		bAdsorptionActive												:= FALSE;											// 17.a.v
+		i3Step															:= 90;
+
+	
+//**** Process error		
+	80:
+		gsCycleStage													:= 'steam_bypass.error';
+		sMessage														:= SEL(sMessage = gsRunWarmup, gsProcessCannotRun, sMessage);
+		P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), sError, sMessage);
+		i3Step															:= i3Step + 1;
+
+//**** Stop process
+	81:
+		//P_M01_RS01.co2_sensors_on										:= FALSE;
+		P_M01.rs1.fan_setpoint											:= 0;
+		rTime															:= _FAN_RS_DELAY_TIME;
+		i3Step															:= i3Step + 1;
+
+	82:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		END_IF
+
+	83:
+		//P_U01.fan												:= FALSE;
+		P_U01.vacuum_pump_bypass_valve									:= FALSE;
+		P_U01.vacuum_pres_control_valve									:= _CLOSED;
+		P_U01.vacuum_pump_inlet_valve									:= FALSE;
+		rTime															:= _VALVE_TIME;
+		i3Step															:= i3Step + 1;
+		
+	84:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i3Step														:= 90;
+		END_IF
+		
+//**** Close process
+	90:
+		gsCycleStage													:= SEL(bComplete, 'steam_bypass.failed', 'steam_bypass.complete');
+		bAdsorptionTimer												:= FALSE;
+		P_U01.drainage_on												:= FALSE;
+		rTime															:= _PROCESS_COMPLETE_TIME;
+		i3Step															:= i3Step + 1;
+		
+	91:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			gsCycleStage												:= '';
+			i3Step														:= 0;
+		END_IF
+				
+END_CASE
+
+IF i3Step > 0 AND i3Step < 80 AND P_U01.shutdown_process THEN
+	gsCycleStage														:= 'steam_bypass.stopping';
+	i3Step																:= 81;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A08_Shutdown" Id="{dceaad34-9fba-494d-9502-9d4c836ba12b}">
+      <Implementation>
+        <ST><![CDATA[// Theseus - P_U01.A08_Shutdown
+// Rev 1.0 - October 7, 2024
+
+CASE i8Step OF
+
+	0:	;
+
+	1:	
+		bComplete														:= FALSE;
+		gsCycleStage													:= 'shutdown.initialize';							// 1.a
+		P_U01.boiler_package												:= FALSE;											// 3
+		i8Step															:= i8Step + 1;
+
+	2:
+		P_M01.rs1.fan_setpoint											:= 0;
+		rTime															:= _PAUSE_TIME;
+		i8Step															:= i8Step + 1;
+		
+	3:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;						
+			P_M01.rs1.close_doors										:= P_M01.bRS01;										// 4
+			gsCycleStage												:= 'shutdown.close_doors';							// 4.a
+			rTime														:= P_M01.SP_doorsopenclose_timedelay * _MINUTES;
+			i8Step														:= i8Step + 1;
+		END_IF
+
+	4:
+		bTimer															:= TRUE; 
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.inlet_doors_closed AND P_M01.rs1.outlet_doors_closed) OR NOT P_M01.bRS01;
+		IF bPass1 OR tonTimer.Q THEN
+			IF tonTimer.Q THEN 
+				sRS														:= _RS01;
+				P_Alarms.M_Add_Alarm(F_Concat3(_U01, gsCycleStage, sRS), gsReactorDoorClosingError, gsSystemCannotRun);
+			END_IF
+			bTimer														:= FALSE;
+			i8Step														:= i8Step + 1;
+		END_IF
+
+	5:
+		P_M01.rs1.close_valves											:= P_M01.bRS01;										// 5		
+		gsCycleStage													:= 'shutdown.wrap_up';								// 5.a
+		rTime															:= _VALVE_TIME;
+		i8Step															:= i8Step + 1;
+		
+	6:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			//P_M01_RS01.co2_sensors_on									:= NOT P_M01.bRS01;
+			P_M01.rs1.repres_valves										:= NOT P_M01.bRS01;
+			i8Step														:= i8Step + 1;
+		END_IF
+		
+	7:
+		P_U01.bCloseXVValves											:= TRUE;
+		P_U01.vacuum_pres_control_valve									:= 0;
+		rTime															:= _PAUSE_TIME;
+		i8Step															:= i8Step + 1;
+
+	8:
+		bTimer															:= TRUE;
+		bPass1															:= NOT P_M01.rs1.reactor_drain_vessel_lsl;			// 6
+		bPass2															:= NOT product_condensate_drum_lsh;
+		gsCycleStage													:= 'shutdown.drain';								// 6.a
+		IF bPass1 AND bPass2 THEN
+			bTimer														:= FALSE;
+ 		ELSIF tonTimer.Q THEN
+			sError														:= SEL(NOT bPass1, '', F_concat3(_RS01, ' ', gsCondensateLslError));
+			sError														:= SEL(NOT bPass2, sError, gsProductCondensateDrumLshError);
+			P_Alarms.M_Add_Alarm(_U01, sError, gsCheckOperation);
+		END_IF
+		i8Step															:= 90;
+		
+//**** Close process
+	90:
+		gsCycleStage													:= 'shutdown.complete';								// 7
+		rTime															:= _PROCESS_COMPLETE_TIME;
+		i8Step															:= i8Step + 1;
+		
+	91:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			gsCycleStage												:= '';
+			i8Step														:= 0;
+		END_IF
+				
+END_CASE
+
+IF i8Step > 0 AND i8Step < 80 AND P_U01.shutdown_process THEN
+	gsCycleStage														:= 'shutdown.stopping';
+	i8Step																:= 81;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A09_Pressure_Drop_Test" Id="{b8bf7e66-dcdb-4668-8218-16ff48a3e793}">
+      <Implementation>
+        <ST><![CDATA[// Theseus - P_U01.A09_Pressure_Drop_Test
+// Rev 1.0 - October 8, 2024
+
+CASE i9Step OF
+
+	0:	;
+
+	1:	
+		bComplete														:= FALSE;
+		gsCycleStage													:= 'pressure_drop_test.initialize';					// 3
+		i9Step															:= i9Step + 1;
+
+	2:	
+		Ax_Process_Pre_Check();																								// 3.a																			
+		IF bPreCheckDone THEN
+			IF sError = '' THEN																								// 3.a.i
+				P_U01.drainage_on											:= TRUE;											// 3.c
+				i9Step													:= i9Step + 1;
+			ELSE
+				sRS														:= '';
+				sMessage												:= gsPressureDropTestCannotRun;						// 3.a.ii
+				i9Step													:= 80;
+			END_IF
+		END_IF
+
+	3:
+		P_M01.rs1.repres_valves											:= P_M01.bRS01;										// 4
+		rTime															:= _VALVE_TIME;
+		i9Step															:= i9Step + 1;
+
+	4:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.repres_valves_clear) OR NOT P_M01.bRS01;
+		IF bPass1 OR tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i9Step														:= i9Step + 1;
+		END_IF
+		
+	5:
+		P_M01.rs1.open_doors											:= P_M01.bRS01;										// 5
+		gsCycleStage													:= 'pressure_drop_test.open_doors';					// 5.a
+		rTime															:= P_M01.SP_doorsopenclose_timedelay * _MINUTES;		// 5.b
+		i9Step															:= i9Step + 1;
+
+	6:
+		bTimer															:= TRUE; 
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.inlet_doors_open AND P_M01.rs1.outlet_doors_open) OR NOT P_M01.bRS01;	// 5.c
+		IF bPass1 THEN
+			bTimer														:= FALSE;
+			iVfd_Speed													:= P_U01.SP_reactor_vfd_percent_step_size;			// 6
+			bVfd_Speed_Up												:= TRUE;
+			gsCycleStage												:= 'pressure_drop_test.pressure_drop_test';			// 6.a
+			rTime														:= P_U01.SP_reactor_vfd_percent_step_duration * _MINUTES;	// 7
+			i9Step														:= i9Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sRS															:= _RS01;
+			sError														:= gsReactorDoorOpeningError;
+			sMessage													:= gsPressureDropTestCannotRun;
+			i9Step														:= 80;
+		END_IF
+
+	7:
+		P_M01.rs1.fan_setpoint											:= SEL(P_M01.bRS01, 0, iVfd_Speed);
+		i9Step															:= SEL(iVfd_Speed = 0, i9Step + 1, i9Step + 2);		//11
+
+	8:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN																									// 8
+			bTimer														:= FALSE;
+			IF bVfd_Speed_Up THEN
+				IF iVfd_Speed + P_U01.SP_reactor_vfd_percent_step_size <= P_U01.SP_reactor_vfd_percent_maximum THEN
+					iVfd_Speed											:= iVfd_Speed + P_U01.SP_reactor_vfd_percent_step_size;	// 9
+				ELSE
+					bVfd_Speed_Up										:= FALSE;
+					iVfd_Speed											:= iVfd_Speed - P_U01.SP_reactor_vfd_percent_step_size;
+				END_IF
+			ELSE
+				IF iVfd_Speed - P_U01.SP_reactor_vfd_percent_step_size >= 0 THEN
+					iVfd_Speed											:= iVfd_Speed - P_U01.SP_reactor_vfd_percent_step_size;	// 10
+				ELSE
+					iVfd_Speed											:= 0;
+				END_IF
+			END_IF
+			i9Step														:= i9Step - 1;
+		END_IF
+
+	9:
+		bComplete														:= TRUE;
+		gsCycleStage													:= 'pressure_drop_test.close_doors';				// 11.a
+		P_M01.rs1.close_doors											:= P_M01.bRS01;										// 12
+		rTime															:= P_M01.SP_doorsopenclose_timedelay * _MINUTES;										// 12.a
+		i9Step															:= i9Step + 1;
+
+	10:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.inlet_doors_closed and P_M01.rs1.outlet_doors_closed) OR NOT P_M01.bRS01;	// 12.b
+		IF bPass1 THEN
+			bTimer														:= FALSE;
+			i9Step														:= i9Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sRS															:= _RS01;
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, gsCycleStage, sRS), gsReactorDoorClosingError, gsUnableToCloseDoors);
+			i9Step														:= 90;
+		END_IF
+		
+
+//**** Process error		
+	80:
+		gsCycleStage													:= 'pressure_drop_test.error';
+		P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), sError, sMessage);
+		i9Step															:= i9Step + 1;
+
+//**** Stop process		
+	81:
+		P_M01.rs1.fan_setpoint											:= 0;
+		i9Step															:= 90;
+		
+//**** Close process
+	90:
+		gsCycleStage													:= SEL(bComplete, 'pressure_drop_test.failed', 'pressure_drop_test.complete');	// 13
+		P_U01.drainage_on													:= FALSE;
+		rTime															:= _PROCESS_COMPLETE_TIME;
+		i9Step															:= i9Step + 1;
+		
+	91:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			gsCycleStage												:= '';
+			i9Step														:= 0;
+		END_IF
+				
+END_CASE
+
+IF i9Step > 0 AND i9Step < 80 AND P_U01.shutdown_process THEN
+	gsCycleStage														:= 'pressure_drop_test.stopping';
+	i9Step																:= 81;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="Ax_Process_Pre_Check" Id="{d59aaf0d-9d27-45c8-bc13-c9bb5b8aaff8}">
+      <Implementation>
+        <ST><![CDATA[// Theseus - P_U01.Ax_Process_Pre_Check
+// Rev 1.0 - October 7, 2024
+
+CASE iAxStep OF
+
+	0:	;
+
+	1:	
+		sError															:= '';
+		bPreCheckDone													:= FALSE;
+		P_M01.rs1.close_valves											:= P_M01.bRS01;
+		P_M01.rs1.retract_clamps										:= P_M01.bRS01;
+		rTime															:= _VALVE_TIME;
+		iAxStep															:= iAxStep + 1;
+	
+	2:	
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.rs_valves_clear) OR NOT P_M01.bRS01;
+		IF bPass1 THEN
+			bTimer														:= FALSE;
+			iAxStep														:= iAxStep + 1;
+		ELSIF tonTimer.Q THEN
+			sError														:= 'Valve Error';
+			iAxStep														:= 99;
+		END_IF
+
+	3:
+		IF P_M01.rs1.adsorption_high_temp_count <= _HIGH_CART_READINGS_MAX THEN
+			iAxStep														:= iAxStep + 1;
+		ELSE
+			sError														:= gsHighTempCountError;
+			iAxStep														:= 99;
+		END_IF
+
+	4:
+		bPass1															:= (P_M01.bRS01 AND P_M01.rs1.inlet_clamps_retracted) OR NOT P_M01.bRS01; 
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			iAxStep														:= iAxStep + 1;
+		ELSE
+			sError														:= gsClampRetractError;
+			iAxStep														:= 99;
+		END_IF
+		
+	5:
+		iAxStep															:= iAxStep + 1;
+		
+	6:
+		///@@@bPass1															:= (P_M01.bRS01 AND P_M01.rs1.average_pressure_within_ambient) OR NOT P_M01.bRS01;
+		IF NOT bPass1 OR NOT bPass2 OR NOT bPass3 THEN
+			sError														:=  gsAmbientPressureError;
+		END_IF
+		iAxStep															:= 99;
+		
+	99:
+		bTimer															:= FALSE;
+		bPreCheckDone													:= TRUE;
+		iAxStep															:= 0;
+				
+END_CASE
+
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="P_U01">
+      <LineId Id="2116" Count="3" />
+      <LineId Id="6518" Count="0" />
+      <LineId Id="7968" Count="0" />
+      <LineId Id="2121" Count="4" />
+      <LineId Id="2247" Count="0" />
+      <LineId Id="2126" Count="2" />
+      <LineId Id="2130" Count="1" />
+      <LineId Id="2133" Count="1" />
+      <LineId Id="2136" Count="1" />
+      <LineId Id="2139" Count="0" />
+      <LineId Id="2246" Count="0" />
+      <LineId Id="2248" Count="0" />
+      <LineId Id="2140" Count="15" />
+      <LineId Id="3657" Count="0" />
+      <LineId Id="3656" Count="0" />
+      <LineId Id="3658" Count="0" />
+      <LineId Id="3662" Count="1" />
+      <LineId Id="3667" Count="1" />
+      <LineId Id="3665" Count="0" />
+      <LineId Id="3669" Count="0" />
+      <LineId Id="3671" Count="4" />
+      <LineId Id="3670" Count="0" />
+      <LineId Id="3661" Count="0" />
+      <LineId Id="5084" Count="2" />
+      <LineId Id="3660" Count="0" />
+      <LineId Id="1894" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A_IO_Points">
+      <LineId Id="1585" Count="2" />
+      <LineId Id="2277" Count="0" />
+      <LineId Id="2279" Count="0" />
+      <LineId Id="2276" Count="0" />
+      <LineId Id="2283" Count="0" />
+      <LineId Id="2282" Count="0" />
+      <LineId Id="2297" Count="0" />
+      <LineId Id="2296" Count="0" />
+      <LineId Id="2319" Count="0" />
+      <LineId Id="2333" Count="0" />
+      <LineId Id="2336" Count="0" />
+      <LineId Id="2334" Count="1" />
+      <LineId Id="2337" Count="0" />
+      <LineId Id="2602" Count="0" />
+      <LineId Id="2609" Count="0" />
+      <LineId Id="2563" Count="1" />
+      <LineId Id="2338" Count="0" />
+      <LineId Id="2557" Count="0" />
+      <LineId Id="2572" Count="1" />
+      <LineId Id="2558" Count="0" />
+      <LineId Id="2272" Count="0" />
+      <LineId Id="2526" Count="0" />
+      <LineId Id="2545" Count="1" />
+      <LineId Id="2301" Count="0" />
+      <LineId Id="2527" Count="0" />
+      <LineId Id="2547" Count="0" />
+      <LineId Id="2549" Count="0" />
+      <LineId Id="2529" Count="0" />
+      <LineId Id="2555" Count="0" />
+      <LineId Id="2530" Count="0" />
+      <LineId Id="2550" Count="0" />
+      <LineId Id="2548" Count="0" />
+      <LineId Id="2524" Count="0" />
+      <LineId Id="2535" Count="0" />
+      <LineId Id="2534" Count="0" />
+      <LineId Id="2312" Count="1" />
+      <LineId Id="2315" Count="0" />
+      <LineId Id="2317" Count="1" />
+      <LineId Id="2314" Count="0" />
+      <LineId Id="2536" Count="0" />
+      <LineId Id="2320" Count="0" />
+      <LineId Id="2323" Count="2" />
+      <LineId Id="2327" Count="1" />
+      <LineId Id="2326" Count="0" />
+      <LineId Id="2329" Count="0" />
+      <LineId Id="1591" Count="0" />
+      <LineId Id="2618" Count="0" />
+      <LineId Id="2644" Count="8" />
+      <LineId Id="1592" Count="0" />
+      <LineId Id="2570" Count="0" />
+      <LineId Id="2569" Count="0" />
+      <LineId Id="2571" Count="0" />
+      <LineId Id="2468" Count="1" />
+      <LineId Id="2473" Count="0" />
+      <LineId Id="2475" Count="0" />
+      <LineId Id="2478" Count="0" />
+      <LineId Id="2455" Count="0" />
+      <LineId Id="2460" Count="0" />
+      <LineId Id="2462" Count="0" />
+      <LineId Id="2464" Count="0" />
+      <LineId Id="2480" Count="0" />
+      <LineId Id="2461" Count="0" />
+      <LineId Id="2481" Count="2" />
+      <LineId Id="2500" Count="3" />
+      <LineId Id="2487" Count="0" />
+      <LineId Id="2494" Count="1" />
+      <LineId Id="2489" Count="0" />
+      <LineId Id="2496" Count="3" />
+      <LineId Id="2612" Count="1" />
+      <LineId Id="2615" Count="0" />
+      <LineId Id="2474" Count="0" />
+      <LineId Id="2504" Count="1" />
+      <LineId Id="2616" Count="0" />
+      <LineId Id="2567" Count="0" />
+      <LineId Id="2581" Count="17" />
+      <LineId Id="2603" Count="1" />
+      <LineId Id="2607" Count="1" />
+      <LineId Id="2610" Count="0" />
+      <LineId Id="2601" Count="0" />
+      <LineId Id="2576" Count="0" />
+      <LineId Id="2611" Count="0" />
+      <LineId Id="2537" Count="6" />
+      <LineId Id="2423" Count="0" />
+      <LineId Id="1599" Count="2" />
+      <LineId Id="2265" Count="2" />
+      <LineId Id="2617" Count="0" />
+      <LineId Id="2204" Count="0" />
+      <LineId Id="2379" Count="0" />
+      <LineId Id="2253" Count="2" />
+      <LineId Id="2259" Count="2" />
+      <LineId Id="2210" Count="1" />
+      <LineId Id="2214" Count="0" />
+      <LineId Id="2262" Count="2" />
+      <LineId Id="2215" Count="0" />
+      <LineId Id="2217" Count="1" />
+      <LineId Id="2216" Count="0" />
+      <LineId Id="2219" Count="0" />
+      <LineId Id="2213" Count="0" />
+      <LineId Id="1660" Count="0" />
+      <LineId Id="1662" Count="3" />
+      <LineId Id="1667" Count="2" />
+      <LineId Id="1736" Count="0" />
+      <LineId Id="1738" Count="3" />
+      <LineId Id="1743" Count="3" />
+      <LineId Id="1748" Count="2" />
+      <LineId Id="2187" Count="0" />
+      <LineId Id="2189" Count="2" />
+      <LineId Id="1756" Count="0" />
+      <LineId Id="1758" Count="2" />
+      <LineId Id="2192" Count="0" />
+      <LineId Id="2194" Count="2" />
+      <LineId Id="1761" Count="0" />
+      <LineId Id="1763" Count="3" />
+      <LineId Id="1768" Count="2" />
+      <LineId Id="1791" Count="0" />
+      <LineId Id="1793" Count="3" />
+      <LineId Id="1798" Count="2" />
+      <LineId Id="2197" Count="0" />
+      <LineId Id="2199" Count="1" />
+      <LineId Id="2658" Count="2" />
+      <LineId Id="2662" Count="0" />
+      <LineId Id="2664" Count="0" />
+      <LineId Id="2663" Count="0" />
+      <LineId Id="2665" Count="1" />
+      <LineId Id="2661" Count="0" />
+      <LineId Id="2668" Count="2" />
+      <LineId Id="2667" Count="0" />
+      <LineId Id="2201" Count="0" />
+      <LineId Id="1811" Count="0" />
+      <LineId Id="1813" Count="3" />
+      <LineId Id="1818" Count="2" />
+      <LineId Id="1831" Count="0" />
+      <LineId Id="1833" Count="1" />
+      <LineId Id="2228" Count="0" />
+      <LineId Id="2220" Count="0" />
+      <LineId Id="2222" Count="0" />
+      <LineId Id="2674" Count="0" />
+      <LineId Id="2223" Count="1" />
+      <LineId Id="2226" Count="1" />
+      <LineId Id="1874" Count="0" />
+      <LineId Id="1877" Count="1" />
+      <LineId Id="2252" Count="0" />
+      <LineId Id="2171" Count="1" />
+      <LineId Id="1882" Count="1" />
+      <LineId Id="2656" Count="0" />
+      <LineId Id="1884" Count="0" />
+      <LineId Id="1894" Count="5" />
+      <LineId Id="2377" Count="0" />
+      <LineId Id="2206" Count="1" />
+      <LineId Id="2209" Count="0" />
+      <LineId Id="2657" Count="0" />
+      <LineId Id="1904" Count="0" />
+      <LineId Id="2168" Count="1" />
+      <LineId Id="2339" Count="0" />
+      <LineId Id="2177" Count="2" />
+      <LineId Id="2653" Count="0" />
+      <LineId Id="2360" Count="0" />
+      <LineId Id="2182" Count="0" />
+      <LineId Id="2654" Count="0" />
+      <LineId Id="2183" Count="0" />
+      <LineId Id="2174" Count="1" />
+      <LineId Id="2655" Count="0" />
+      <LineId Id="2176" Count="0" />
+      <LineId Id="2185" Count="1" />
+      <LineId Id="1916" Count="16" />
+      <LineId Id="1934" Count="0" />
+      <LineId Id="2147" Count="0" />
+      <LineId Id="2231" Count="16" />
+      <LineId Id="2249" Count="0" />
+      <LineId Id="2251" Count="0" />
+      <LineId Id="1972" Count="9" />
+      <LineId Id="1984" Count="0" />
+      <LineId Id="1987" Count="15" />
+      <LineId Id="2671" Count="0" />
+      <LineId Id="2003" Count="0" />
+      <LineId Id="2006" Count="0" />
+      <LineId Id="2008" Count="0" />
+      <LineId Id="2011" Count="0" />
+      <LineId Id="2013" Count="1" />
+      <LineId Id="2672" Count="1" />
+      <LineId Id="2019" Count="1" />
+      <LineId Id="2028" Count="1" />
+      <LineId Id="2269" Count="0" />
+      <LineId Id="2268" Count="0" />
+      <LineId Id="2036" Count="0" />
+      <LineId Id="1399" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A_MovingAverage">
+      <LineId Id="31" Count="0" />
+      <LineId Id="1" Count="4" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="20" Count="10" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="35" Count="1" />
+    </LineIds>
+    <LineIds Name="P_U01.A_PIDs">
+      <LineId Id="1" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="7" Count="4" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="16" Count="12" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="41" Count="1" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="30" Count="1" />
+      <LineId Id="33" Count="2" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="57" Count="3" />
+      <LineId Id="45" Count="3" />
+      <LineId Id="50" Count="5" />
+      <LineId Id="43" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A02_WarmUp">
+      <LineId Id="2" Count="7" />
+      <LineId Id="1462" Count="0" />
+      <LineId Id="1327" Count="0" />
+      <LineId Id="1442" Count="0" />
+      <LineId Id="1460" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="1443" Count="1" />
+      <LineId Id="1463" Count="1" />
+      <LineId Id="1284" Count="1" />
+      <LineId Id="920" Count="0" />
+      <LineId Id="1324" Count="0" />
+      <LineId Id="918" Count="0" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="1337" Count="0" />
+      <LineId Id="1457" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="855" Count="0" />
+      <LineId Id="22" Count="1" />
+      <LineId Id="277" Count="7" />
+      <LineId Id="1328" Count="0" />
+      <LineId Id="1331" Count="0" />
+      <LineId Id="285" Count="7" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="1302" Count="0" />
+      <LineId Id="1305" Count="2" />
+      <LineId Id="316" Count="0" />
+      <LineId Id="932" Count="0" />
+      <LineId Id="1465" Count="0" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="1469" Count="0" />
+      <LineId Id="337" Count="3" />
+      <LineId Id="367" Count="0" />
+      <LineId Id="1340" Count="0" />
+      <LineId Id="341" Count="0" />
+      <LineId Id="274" Count="1" />
+      <LineId Id="368" Count="1" />
+      <LineId Id="374" Count="1" />
+      <LineId Id="386" Count="0" />
+      <LineId Id="377" Count="0" />
+      <LineId Id="1290" Count="0" />
+      <LineId Id="1450" Count="1" />
+      <LineId Id="385" Count="0" />
+      <LineId Id="376" Count="0" />
+      <LineId Id="388" Count="0" />
+      <LineId Id="379" Count="0" />
+      <LineId Id="1317" Count="0" />
+      <LineId Id="1341" Count="0" />
+      <LineId Id="804" Count="0" />
+      <LineId Id="422" Count="0" />
+      <LineId Id="806" Count="0" />
+      <LineId Id="815" Count="3" />
+      <LineId Id="835" Count="0" />
+      <LineId Id="819" Count="0" />
+      <LineId Id="821" Count="0" />
+      <LineId Id="711" Count="0" />
+      <LineId Id="1473" Count="1" />
+      <LineId Id="485" Count="0" />
+      <LineId Id="487" Count="0" />
+      <LineId Id="850" Count="0" />
+      <LineId Id="482" Count="0" />
+      <LineId Id="1099" Count="1" />
+      <LineId Id="1136" Count="1" />
+      <LineId Id="1139" Count="7" />
+      <LineId Id="1148" Count="2" />
+      <LineId Id="1291" Count="0" />
+      <LineId Id="1151" Count="15" />
+      <LineId Id="1169" Count="1" />
+      <LineId Id="1281" Count="0" />
+      <LineId Id="1171" Count="16" />
+      <LineId Id="1189" Count="3" />
+      <LineId Id="1195" Count="9" />
+      <LineId Id="1207" Count="6" />
+      <LineId Id="1216" Count="3" />
+      <LineId Id="1292" Count="0" />
+      <LineId Id="1220" Count="0" />
+      <LineId Id="1452" Count="1" />
+      <LineId Id="1222" Count="4" />
+      <LineId Id="1229" Count="5" />
+      <LineId Id="1236" Count="1" />
+      <LineId Id="1310" Count="0" />
+      <LineId Id="1241" Count="8" />
+      <LineId Id="1470" Count="0" />
+      <LineId Id="1253" Count="3" />
+      <LineId Id="1258" Count="0" />
+      <LineId Id="1261" Count="5" />
+      <LineId Id="1269" Count="5" />
+      <LineId Id="1454" Count="1" />
+      <LineId Id="1276" Count="2" />
+      <LineId Id="1374" Count="0" />
+      <LineId Id="1365" Count="0" />
+      <LineId Id="1383" Count="1" />
+      <LineId Id="1468" Count="0" />
+      <LineId Id="1385" Count="1" />
+      <LineId Id="1430" Count="0" />
+      <LineId Id="1396" Count="0" />
+      <LineId Id="1368" Count="0" />
+      <LineId Id="1414" Count="0" />
+      <LineId Id="1417" Count="0" />
+      <LineId Id="1420" Count="6" />
+      <LineId Id="1431" Count="1" />
+      <LineId Id="1435" Count="0" />
+      <LineId Id="1427" Count="1" />
+      <LineId Id="1294" Count="0" />
+      <LineId Id="934" Count="0" />
+      <LineId Id="913" Count="0" />
+      <LineId Id="1440" Count="0" />
+      <LineId Id="914" Count="0" />
+      <LineId Id="1458" Count="0" />
+      <LineId Id="915" Count="0" />
+      <LineId Id="928" Count="0" />
+      <LineId Id="917" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="921" Count="2" />
+      <LineId Id="1449" Count="0" />
+      <LineId Id="927" Count="0" />
+      <LineId Id="924" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="1411" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="1404" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="1407" Count="0" />
+      <LineId Id="1409" Count="0" />
+      <LineId Id="1406" Count="0" />
+      <LineId Id="1439" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A03_Steam_Bypass">
+      <LineId Id="2" Count="0" />
+      <LineId Id="10" Count="6" />
+      <LineId Id="1166" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="1159" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="1460" Count="0" />
+      <LineId Id="1451" Count="1" />
+      <LineId Id="1459" Count="0" />
+      <LineId Id="1473" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="1157" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="1163" Count="0" />
+      <LineId Id="1160" Count="0" />
+      <LineId Id="1434" Count="1" />
+      <LineId Id="1164" Count="0" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="466" Count="0" />
+      <LineId Id="537" Count="0" />
+      <LineId Id="477" Count="0" />
+      <LineId Id="476" Count="0" />
+      <LineId Id="465" Count="0" />
+      <LineId Id="468" Count="0" />
+      <LineId Id="1167" Count="0" />
+      <LineId Id="1318" Count="0" />
+      <LineId Id="467" Count="0" />
+      <LineId Id="1080" Count="1" />
+      <LineId Id="1086" Count="0" />
+      <LineId Id="1088" Count="0" />
+      <LineId Id="1092" Count="0" />
+      <LineId Id="1085" Count="0" />
+      <LineId Id="1095" Count="0" />
+      <LineId Id="1094" Count="0" />
+      <LineId Id="1089" Count="0" />
+      <LineId Id="1093" Count="0" />
+      <LineId Id="1090" Count="0" />
+      <LineId Id="1096" Count="0" />
+      <LineId Id="1320" Count="0" />
+      <LineId Id="1091" Count="0" />
+      <LineId Id="470" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="479" Count="0" />
+      <LineId Id="481" Count="1" />
+      <LineId Id="1345" Count="0" />
+      <LineId Id="494" Count="0" />
+      <LineId Id="1201" Count="0" />
+      <LineId Id="1204" Count="0" />
+      <LineId Id="859" Count="1" />
+      <LineId Id="862" Count="0" />
+      <LineId Id="496" Count="0" />
+      <LineId Id="484" Count="0" />
+      <LineId Id="925" Count="0" />
+      <LineId Id="485" Count="0" />
+      <LineId Id="1348" Count="0" />
+      <LineId Id="492" Count="0" />
+      <LineId Id="1321" Count="0" />
+      <LineId Id="509" Count="0" />
+      <LineId Id="1205" Count="0" />
+      <LineId Id="511" Count="0" />
+      <LineId Id="514" Count="0" />
+      <LineId Id="1206" Count="0" />
+      <LineId Id="1350" Count="5" />
+      <LineId Id="1209" Count="0" />
+      <LineId Id="1231" Count="0" />
+      <LineId Id="1169" Count="0" />
+      <LineId Id="1472" Count="0" />
+      <LineId Id="1470" Count="0" />
+      <LineId Id="1210" Count="0" />
+      <LineId Id="520" Count="0" />
+      <LineId Id="1333" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="564" Count="2" />
+      <LineId Id="578" Count="0" />
+      <LineId Id="582" Count="0" />
+      <LineId Id="567" Count="3" />
+      <LineId Id="1191" Count="0" />
+      <LineId Id="571" Count="1" />
+      <LineId Id="65" Count="2" />
+      <LineId Id="1212" Count="0" />
+      <LineId Id="71" Count="4" />
+      <LineId Id="1357" Count="0" />
+      <LineId Id="1192" Count="0" />
+      <LineId Id="1237" Count="0" />
+      <LineId Id="1123" Count="2" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="1362" Count="0" />
+      <LineId Id="103" Count="5" />
+      <LineId Id="111" Count="3" />
+      <LineId Id="901" Count="0" />
+      <LineId Id="1477" Count="1" />
+      <LineId Id="1240" Count="0" />
+      <LineId Id="116" Count="1" />
+      <LineId Id="777" Count="0" />
+      <LineId Id="781" Count="0" />
+      <LineId Id="1103" Count="0" />
+      <LineId Id="1361" Count="0" />
+      <LineId Id="801" Count="11" />
+      <LineId Id="815" Count="3" />
+      <LineId Id="1229" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="607" Count="1" />
+      <LineId Id="867" Count="0" />
+      <LineId Id="864" Count="0" />
+      <LineId Id="868" Count="0" />
+      <LineId Id="902" Count="0" />
+      <LineId Id="866" Count="0" />
+      <LineId Id="875" Count="0" />
+      <LineId Id="878" Count="0" />
+      <LineId Id="1133" Count="1" />
+      <LineId Id="1126" Count="1" />
+      <LineId Id="1136" Count="1" />
+      <LineId Id="1135" Count="0" />
+      <LineId Id="1139" Count="0" />
+      <LineId Id="1142" Count="1" />
+      <LineId Id="1141" Count="0" />
+      <LineId Id="1144" Count="3" />
+      <LineId Id="1149" Count="0" />
+      <LineId Id="1140" Count="0" />
+      <LineId Id="1128" Count="1" />
+      <LineId Id="905" Count="0" />
+      <LineId Id="877" Count="0" />
+      <LineId Id="612" Count="1" />
+      <LineId Id="884" Count="0" />
+      <LineId Id="895" Count="0" />
+      <LineId Id="906" Count="2" />
+      <LineId Id="892" Count="0" />
+      <LineId Id="900" Count="0" />
+      <LineId Id="893" Count="0" />
+      <LineId Id="896" Count="0" />
+      <LineId Id="916" Count="0" />
+      <LineId Id="982" Count="0" />
+      <LineId Id="914" Count="0" />
+      <LineId Id="894" Count="0" />
+      <LineId Id="886" Count="0" />
+      <LineId Id="614" Count="0" />
+      <LineId Id="987" Count="0" />
+      <LineId Id="998" Count="0" />
+      <LineId Id="989" Count="0" />
+      <LineId Id="996" Count="0" />
+      <LineId Id="1367" Count="0" />
+      <LineId Id="1366" Count="0" />
+      <LineId Id="997" Count="0" />
+      <LineId Id="984" Count="0" />
+      <LineId Id="1002" Count="0" />
+      <LineId Id="1368" Count="0" />
+      <LineId Id="1003" Count="0" />
+      <LineId Id="1021" Count="0" />
+      <LineId Id="1369" Count="0" />
+      <LineId Id="985" Count="1" />
+      <LineId Id="1006" Count="0" />
+      <LineId Id="631" Count="0" />
+      <LineId Id="1012" Count="1" />
+      <LineId Id="1017" Count="0" />
+      <LineId Id="1022" Count="2" />
+      <LineId Id="1018" Count="0" />
+      <LineId Id="1020" Count="0" />
+      <LineId Id="1019" Count="0" />
+      <LineId Id="1014" Count="0" />
+      <LineId Id="1025" Count="0" />
+      <LineId Id="1487" Count="0" />
+      <LineId Id="1015" Count="0" />
+      <LineId Id="1033" Count="0" />
+      <LineId Id="1036" Count="1" />
+      <LineId Id="1047" Count="0" />
+      <LineId Id="1054" Count="0" />
+      <LineId Id="1040" Count="0" />
+      <LineId Id="1042" Count="1" />
+      <LineId Id="1063" Count="0" />
+      <LineId Id="1065" Count="0" />
+      <LineId Id="1068" Count="0" />
+      <LineId Id="1066" Count="0" />
+      <LineId Id="1064" Count="0" />
+      <LineId Id="1038" Count="0" />
+      <LineId Id="1035" Count="0" />
+      <LineId Id="1154" Count="0" />
+      <LineId Id="1156" Count="0" />
+      <LineId Id="658" Count="0" />
+      <LineId Id="660" Count="1" />
+      <LineId Id="1071" Count="0" />
+      <LineId Id="1373" Count="0" />
+      <LineId Id="666" Count="7" />
+      <LineId Id="675" Count="0" />
+      <LineId Id="1374" Count="0" />
+      <LineId Id="678" Count="6" />
+      <LineId Id="687" Count="3" />
+      <LineId Id="929" Count="0" />
+      <LineId Id="1479" Count="1" />
+      <LineId Id="693" Count="4" />
+      <LineId Id="700" Count="3" />
+      <LineId Id="1248" Count="2" />
+      <LineId Id="1461" Count="0" />
+      <LineId Id="1251" Count="1" />
+      <LineId Id="1444" Count="0" />
+      <LineId Id="1253" Count="0" />
+      <LineId Id="1396" Count="0" />
+      <LineId Id="1399" Count="0" />
+      <LineId Id="1402" Count="0" />
+      <LineId Id="1405" Count="2" />
+      <LineId Id="1286" Count="5" />
+      <LineId Id="1393" Count="0" />
+      <LineId Id="1388" Count="0" />
+      <LineId Id="1408" Count="0" />
+      <LineId Id="1414" Count="0" />
+      <LineId Id="1417" Count="0" />
+      <LineId Id="1391" Count="0" />
+      <LineId Id="1424" Count="0" />
+      <LineId Id="1389" Count="0" />
+      <LineId Id="1392" Count="0" />
+      <LineId Id="1425" Count="5" />
+      <LineId Id="1297" Count="2" />
+      <LineId Id="1442" Count="0" />
+      <LineId Id="1300" Count="0" />
+      <LineId Id="1481" Count="0" />
+      <LineId Id="1302" Count="6" />
+      <LineId Id="1462" Count="0" />
+      <LineId Id="1310" Count="3" />
+      <LineId Id="1436" Count="0" />
+      <LineId Id="1438" Count="3" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A08_Shutdown">
+      <LineId Id="2" Count="8" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="212" Count="0" />
+      <LineId Id="161" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="244" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="163" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="169" Count="1" />
+      <LineId Id="248" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="173" Count="2" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="205" Count="0" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="195" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="206" Count="0" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="199" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="254" Count="1" />
+      <LineId Id="257" Count="0" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="258" Count="0" />
+      <LineId Id="264" Count="0" />
+      <LineId Id="259" Count="0" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="262" Count="1" />
+      <LineId Id="267" Count="0" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="211" Count="0" />
+      <LineId Id="277" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="273" Count="0" />
+      <LineId Id="250" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="294" Count="0" />
+      <LineId Id="290" Count="2" />
+      <LineId Id="281" Count="0" />
+      <LineId Id="298" Count="0" />
+      <LineId Id="300" Count="0" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="159" Count="0" />
+      <LineId Id="137" Count="2" />
+      <LineId Id="141" Count="6" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="148" Count="8" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A09_Pressure_Drop_Test">
+      <LineId Id="2" Count="5" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="354" Count="0" />
+      <LineId Id="334" Count="0" />
+      <LineId Id="39" Count="4" />
+      <LineId Id="340" Count="0" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="422" Count="0" />
+      <LineId Id="358" Count="0" />
+      <LineId Id="51" Count="2" />
+      <LineId Id="341" Count="1" />
+      <LineId Id="349" Count="0" />
+      <LineId Id="352" Count="1" />
+      <LineId Id="344" Count="0" />
+      <LineId Id="55" Count="2" />
+      <LineId Id="60" Count="2" />
+      <LineId Id="71" Count="3" />
+      <LineId Id="355" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="79" Count="4" />
+      <LineId Id="86" Count="1" />
+      <LineId Id="372" Count="0" />
+      <LineId Id="379" Count="0" />
+      <LineId Id="374" Count="1" />
+      <LineId Id="88" Count="2" />
+      <LineId Id="415" Count="0" />
+      <LineId Id="356" Count="1" />
+      <LineId Id="92" Count="1" />
+      <LineId Id="359" Count="0" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="101" Count="5" />
+      <LineId Id="380" Count="1" />
+      <LineId Id="383" Count="0" />
+      <LineId Id="385" Count="0" />
+      <LineId Id="390" Count="0" />
+      <LineId Id="389" Count="0" />
+      <LineId Id="384" Count="0" />
+      <LineId Id="387" Count="0" />
+      <LineId Id="391" Count="1" />
+      <LineId Id="394" Count="1" />
+      <LineId Id="393" Count="0" />
+      <LineId Id="382" Count="0" />
+      <LineId Id="107" Count="1" />
+      <LineId Id="368" Count="0" />
+      <LineId Id="367" Count="0" />
+      <LineId Id="398" Count="0" />
+      <LineId Id="396" Count="0" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="193" Count="1" />
+      <LineId Id="196" Count="3" />
+      <LineId Id="202" Count="4" />
+      <LineId Id="418" Count="0" />
+      <LineId Id="208" Count="3" />
+      <LineId Id="397" Count="0" />
+      <LineId Id="265" Count="5" />
+      <LineId Id="409" Count="0" />
+      <LineId Id="405" Count="0" />
+      <LineId Id="410" Count="0" />
+      <LineId Id="408" Count="0" />
+      <LineId Id="314" Count="2" />
+      <LineId Id="318" Count="0" />
+      <LineId Id="421" Count="0" />
+      <LineId Id="319" Count="6" />
+      <LineId Id="414" Count="0" />
+      <LineId Id="327" Count="3" />
+      <LineId Id="401" Count="3" />
+      <LineId Id="400" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.Ax_Process_Pre_Check">
+      <LineId Id="335" Count="10" />
+      <LineId Id="348" Count="0" />
+      <LineId Id="351" Count="5" />
+      <LineId Id="359" Count="17" />
+      <LineId Id="379" Count="7" />
+      <LineId Id="388" Count="0" />
+      <LineId Id="393" Count="2" />
+      <LineId Id="398" Count="12" />
+      <LineId Id="58" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

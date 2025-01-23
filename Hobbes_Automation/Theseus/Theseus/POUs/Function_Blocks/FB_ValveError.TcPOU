@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ValveError" Id="{6f6fe58f-1790-4f92-aa00-600430c993d7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC FB_ValveError
+VAR_INPUT
+	Command																: BOOL;
+	Open																: BOOL;
+	Closed																: BOOL;
+END_VAR
+VAR_OUTPUT
+	ti_Status																: INT;
+END_VAR
+VAR
+	Transition															: BOOL;
+	tonError															: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//// Theseus - FB_ValveError
+//// Rev 1.0 - December 28, 2023
+
+Transition																:= (Command AND NOT Open) OR (NOT Command AND NOT Closed);
+ti_Status																	:= SEL(Transition, 0, SEL(tonError.Q, 1, 2)); 
+
+tonError(IN:= Transition, PT:= REAL_TO_TIME(_VALVE_TIME * _SECONDS));
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_ValveError">
+      <LineId Id="16" Count="6" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

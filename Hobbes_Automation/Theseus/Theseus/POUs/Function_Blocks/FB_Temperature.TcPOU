@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Temperature" Id="{de633056-90f3-4e97-8f8c-392d7f8d451b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Temperature
+VAR_INPUT
+	Error																: BOOL;
+	Temp																: REAL;
+	Low																	: REFERENCE TO REAL;
+	High																: REFERENCE TO REAL;
+	Total																: REFERENCE TO REAL;
+	Counter																: REFERENCE TO INT;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Theseus - FB_Temperature
+// Rev 1.0 - April 25, 2024
+
+IF NOT Error THEN
+	Low																	:= F_LowestReal(Temp, Low);
+	High																:= F_HighestReal(Temp, High, 0, 0);
+	Total																:= Total + Temp;
+	Counter																:= Counter + 1;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Temperature">
+      <LineId Id="119" Count="7" />
+      <LineId Id="57" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Reactor" Id="{220035de-72a2-4668-ae1a-94544ccc1c9c}">
+    <Declaration><![CDATA[// Phase 0 - Reactor
+// Rev 1.0 - January 24, 2024
+
+TYPE Reactor :
+STRUCT
+
+	inlet_co2															: REAL;
+	inlet_co2_error														: BOOL;
+	inlet_co2_pump														: BOOL;			// Pump must be on for sampling
+	inlet_co2_sol														: BOOL;			// Solenoid is open for inside sampling, closed for outside sampling
+	inlet_h2o															: REAL;
+	inlet_h2o_error														: BOOL;
+	outlet_co2															: REAL;
+	outlet_co2_error													: BOOL;
+	outlet_co2_pump														: BOOL;			// Pump must be on for sampling
+	outlet_co2_sol														: BOOL;			// Solenoid is open for inside sampling, closed for outside sampling
+	outlet_h2o															: REAL;
+	outlet_h2o_error													: BOOL;
+	air_flow															: REAL;
+	air_flow_error														: BOOL;
+	filter_diff_pres													: REAL;
+	filter_diff_pres_error												: BOOL;
+	sorbent_diff_pres													: REAL;
+	sorbent_diff_pres_error												: BOOL;
+	fan_diff_pres														: REAL;
+	fan_diff_pres_error													: BOOL;
+	reactor_pres														: REAL;
+	reactor_pres_error													: BOOL;
+
+	repressurization_valve												: BOOL;
+	repressurization_valve_clear										: BOOL;
+	                                            			
+	fan_vfd_enable														: BOOL;
+	fan_vfd																: REAL;
+	fan_vfd_output														: REAL;
+
+	inlet_door_open														: BOOL;
+	inlet_door_close													: BOOL;
+	inlet_door_left_open												: BOOL;
+	inlet_door_left_close												: BOOL;
+	inlet_door_right_open												: BOOL;
+	inlet_door_right_close												: BOOL;
+
+	inlet_door_retract_left_clamps										: BOOL;
+	inlet_door_retract_right_clamps										: BOOL;
+	inlet_door_left_clamps_extended										: BOOL;
+	inlet_door_right_clamps_extended									: BOOL;
+	                                    	        		
+	outlet_door_open													: BOOL;
+	outlet_door_close													: BOOL;
+	outlet_door_left_open												: BOOL;
+	outlet_door_left_close												: BOOL;
+	outlet_door_right_open												: BOOL;
+	outlet_door_right_close												: BOOL;
+
+	outlet_door_retract_left_clamps										: BOOL;
+	outlet_door_retract_right_clamps									: BOOL;
+	outlet_door_left_clamps_extended									: BOOL;
+	outlet_door_right_clamps_extended									: BOOL;
+	
+	reactor_wall_temp													: REAL;
+	reactor_wall_temp_error												: BOOL;
+	outlet_line_temp													: REAL;
+	outlet_line_temp_error												: BOOL;
+                                                    		
+	cart01_temp_front													: REAL;
+	cart01_temp_front_error												: BOOL;
+	cart01_temp_back													: REAL;
+	cart01_temp_back_error												: BOOL;
+                                                					
+	cart02_temp_front													: REAL;
+	cart02_temp_front_error												: BOOL;
+	cart02_temp_back													: REAL;
+	cart02_temp_back_error												: BOOL;
+                                                					
+	cart03_temp_front													: REAL;
+	cart03_temp_front_error												: BOOL;
+	cart03_temp_back													: REAL;
+	cart03_temp_back_error												: BOOL;
+                                                					
+	cart04_temp_front													: REAL;
+	cart04_temp_front_error												: BOOL;
+	cart04_temp_back													: REAL;
+	cart04_temp_back_error												: BOOL;
+                                                					
+	cart05_temp_front													: REAL;
+	cart05_temp_front_error												: BOOL;
+	cart05_temp_back													: REAL;
+	cart05_temp_back_error												: BOOL;
+                                                					
+	cart06_temp_front													: REAL;
+	cart06_temp_front_error												: BOOL;
+	cart06_temp_back													: REAL;
+	cart06_temp_back_error												: BOOL;
+                                                					
+	cart07_temp_front													: REAL;
+	cart07_temp_front_error												: BOOL;
+	cart07_temp_back													: REAL;
+	cart07_temp_back_error												: BOOL;
+                                                					
+	cart08_temp_front													: REAL;
+	cart08_temp_front_error												: BOOL;
+	cart08_temp_back													: REAL;
+	cart08_temp_back_error												: BOOL;
+                                                					
+	cart09_temp_front													: REAL;
+	cart09_temp_front_error												: BOOL;
+	cart09_temp_back													: REAL;
+	cart09_temp_back_error												: BOOL;
+                                                					
+	cart10_temp_front													: REAL;
+	cart10_temp_front_error												: BOOL;
+	cart10_temp_back													: REAL;
+	cart10_temp_back_error												: BOOL;
+                                                					
+	cart11_temp_front													: REAL;
+	cart11_temp_front_error												: BOOL;
+	cart11_temp_back													: REAL;
+	cart11_temp_back_error												: BOOL;
+                                                					
+	cart12_temp_front													: REAL;
+	cart12_temp_front_error												: BOOL;
+	cart12_temp_back													: REAL;
+	cart12_temp_back_error												: BOOL;
+	                                            					
+	temp_low															: REAL;
+	temp_high															: REAL;
+	temp_average														: REAL;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

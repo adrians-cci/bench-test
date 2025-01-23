@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Analog_Out" Id="{bb6dbcf1-aa6d-4898-8174-f3abdc4398d1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Analog_Out
+VAR_INPUT
+END_VAR
+VAR_IN_OUT
+	Input1																: REAL;
+	Input2																: REAL;
+END_VAR
+VAR
+	Last1																: REAL;
+	Last2																: REAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Theseus - FB_Analog_Out
+// Rev 1.0 - April 3, 2024
+
+IF Input2 <> Last2 THEN
+	Last2																:= Input2;
+	Input1																:= Input2;
+	Last1																:= Input2;
+ELSIF Input1 <> Last1 THEN
+	Last1																:= Input1;
+	Input2																:= Input1;
+	Last2																:= Input1;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Analog_Out">
+      <LineId Id="95" Count="10" />
+      <LineId Id="55" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

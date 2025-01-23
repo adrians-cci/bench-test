@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_PI_Control" Id="{ceda0565-30ae-4617-afa5-37285cd259dd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PI_Control
+VAR_INPUT
+	Setpoint											: REAL;									// Target value
+	Control												: REAL;									// Actual value
+	Input												: REAL	:= 0;							// Value to set output in manual mode
+	Minimum_Output										: REAL	:= 0;							// Minimum output in auto mode
+	LoopTime											: REAL	:= 500;							// PI loop time in msecs
+	Kp													: REAL	:= 100;							// Proportional constant
+	Ki													: REAL	:= 0.05;						// Integral constant
+	IBand												: REAL	:= 3;							// Plus/minus range within setpoint that Integral is active
+	Base												: INT	:= 16384;						// Ideal output to hit setpoint
+	BaseAdjust											: INT	:= 10;							// Amount to adjust base value if not within IBand range 
+	Mode												: INT	:= 0;							// 0 = Off, 1 = Manual, 2 = Modulation, 3 = Autotune (not currently implemented)
+	Error												: BOOL;
+	Reverse												: BOOL;
+END_VAR                                 		
+VAR_OUTPUT                              		
+	Output												: INT;
+	Mode_Out											: INT;
+END_VAR                                 		
+VAR                                     		
+	bNegativeError										: BOOL;
+	bLastError											: BOOL;
+	rError												: REAL;
+	rBase												: INT;
+	P													: REAL;
+	I													: REAL;
+	MinOut												: INT;
+	tonLoop												: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// FB_PI_Control
+// Rev 1.0 - April 24, 2024
+
+MinOut													:= REAL_TO_INT(Minimum_Output * _PERCENT_FACTOR);
+IF Mode = eOff OR Mode > eAuto THEN // OR Error THEN
+	Output												:= 0;
+	I													:= 0;													// Reset Integral error 
+	rBase												:= Base;
+ELSIF Mode = eManual THEN
+	Output												:= REAL_TO_INT(Input * _PERCENT_FACTOR);				// Manual
+	rBase												:= Base;
+ELSIF Mode = eAuto THEN																							// Modulation
+	IF tonLoop.Q THEN
+		tonLoop(IN:= FALSE);	
+		rError											:= SEL(Reverse, Setpoint - Control, Control - Setpoint);
+		bNegativeError									:= rError > 0;
+		IF bNegativeError <> bLastError THEN																	// Zero crossover
+			bLastError									:= bNegativeError;
+			rBase										:= REAL_TO_INT(rBase + I);
+			rBase										:= SEL(rBase < 0, SEL(rBase > 32767, rBase, 32767), 0);
+			I											:= 0;
+		END_IF
+		P												:= rError * Kp;
+		I												:= SEL(ABS(rError) < IBand, 0, I + (rError * Ki));
+		IF ABS(rError) > IBand THEN
+			rBase										:= SEL(bNegativeError, rBase - BaseAdjust, rBase + BaseAdjust);
+			rBase										:= SEL(rBase < 0, SEL(rBase > 32767, rBase, 32767), 0);
+		END_IF
+		Output											:= REAL_TO_INT(rBase + P + I);
+		Output											:= SEL(Output < MinOut, Output, MinOut);
+	END_IF
+	
+	tonLoop(IN:= TRUE, PT:= REAL_TO_TIME(LoopTime));
+ELSIF Mode = eTune THEN
+	;																											// Autotune (TBC)
+END_IF
+
+Mode_Out												:= Mode;
+Output													:= SEL(Output < 0, SEL(Output > 32767, Output, 32767), 0);
+	]]></ST>
+    </Implementation>
+    <LineIds Name="FB_PI_Control">
+      <LineId Id="190" Count="3" />
+      <LineId Id="260" Count="3" />
+      <LineId Id="194" Count="2" />
+      <LineId Id="201" Count="23" />
+      <LineId Id="226" Count="3" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

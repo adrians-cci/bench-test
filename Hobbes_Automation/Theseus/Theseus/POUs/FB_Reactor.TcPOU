@@ -1,0 +1,1532 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Reactor" Id="{32d6c989-cb84-4a88-81eb-bcfd090dd38e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Reactor
+VAR_INPUT
+	
+	unit																: INT;
+
+    /// <summary>XV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	open_inlet_door														: BOOL;
+    /// <summary>XV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	close_inlet_door													: BOOL;
+    /// <summary>XV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	open_outlet_door													: BOOL;
+    /// <summary>XV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	close_outlet_door													: BOOL;
+
+    /// <summary>XV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	extend_inlet_door_clamps											: BOOL;
+    /// <summary>XV01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	retract_inlet_door_clamps											: BOOL;
+    /// <summary>XV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	extend_outlet_door_clamps											: BOOL;
+    /// <summary>XV03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	retract_outlet_door_clamps											: BOOL;
+
+	/// <summary>XV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	repres_valve														: BOOL;
+	/// <summary>XV09</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	over_pressure_test_control											: BOOL;
+	
+	/// <summary>AT01_pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_pump														: BOOL;
+    /// <summary>AT01_solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_sol														: BOOL;
+
+    /// <summary>AT03_pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_pump														: BOOL;
+    /// <summary>AT03_solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_sol														: BOOL;
+	
+    /// <summary>F01</summary>
+	fan_vfd_setpoint													: REAL;
+
+END_VAR
+VAR_OUTPUT
+
+	inlet_doors_open													: BOOL;
+    outlet_doors_open													: BOOL;	
+    inlet_doors_closed													: BOOL;	
+    outlet_doors_closed													: BOOL;	
+
+	inlet_door_clamps_extended											: BOOL;
+	inlet_door_clamps_retracted											: BOOL;
+	outlet_door_clamps_extended											: BOOL;
+    outlet_door_clamps_retracted										: BOOL;
+	
+	sorbent_low_temp													: REAL;
+	sorbent_high_temp													: REAL;
+	sorbent_average_temp												: REAL;
+
+	desorption_high_temp_count											: INT;
+	adsorption_high_temp_count											: INT;
+	vacuum_cooling_high_temp_count										: INT;
+
+    /// <summary>AT01</summary>																			// Summary defines hover over text while in twincat 3 program
+	{attribute 'OPC.UA.DA' := '1'}  				                									// OPC_UA tag
+	{attribute 'OPC.UA.DA.Access' := '1'}																// OPC_UA tag definition - '1' indicates Read Only, '2' indicates Write Only (not used), '3' indicates Read Write (default)  				                
+	inlet_co2															: REAL;							// Tag value to read (scaled)
+    /// <summary>AT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_co2_error														: BOOL;
+
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_h2o															: REAL;
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_h2o_error														: BOOL;
+
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2															: REAL;
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2_error													: BOOL;
+
+    /// <summary>AT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_h2o															: REAL;
+    /// <summary>AT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_h2o_error													: BOOL;
+
+    /// <summary>PT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_pres														: REAL;
+    /// <summary>PT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_pres_error													: BOOL;
+
+    /// <summary>FT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	air_flow															: REAL;
+    /// <summary>FT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	air_flow_error														: BOOL;
+
+    /// <summary>PDT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	filter_diff_pres													: REAL;
+    /// <summary>PDT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	filter_diff_pres_error												: BOOL;
+
+    /// <summary>PDT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	sorbent_diff_pres													: REAL;
+    /// <summary>PDT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	sorbent_diff_pres_error												: BOOL;
+
+    /// <summary>PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_diff_pres														: REAL;
+    /// <summary>PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_diff_pres_error													: BOOL;
+    /// <summary>TT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	air_inlet_temp														: REAL;
+    /// <summary>TT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	air_inlet_temp_error												: BOOL;
+	
+    /// <summary>TT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_wall_temp													: REAL;
+    /// <summary>Reactor Wall Temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_wall_temp_error												: BOOL;
+	
+    /// <summary>AT01_pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_co2_pump_cmd_status											: BOOL;
+    /// <summary>AT01_solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_co2_sol_cmd_status											: BOOL;
+
+    /// <summary>AT03_pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2_pump_cmd_status											: BOOL;
+    /// <summary>AT03_solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2_sol_cmd_status											: BOOL;
+	
+    /// <summary>XV-02</summary>
+	repres_valve_clear													: BOOL;
+
+    /// <summary>XV09</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	over_pressure_test_control_cmd_status								: BOOL;
+
+END_VAR
+VAR
+	fb_Fan																: FB_VFD();
+	tonFan																: TON;
+	rRpm																: REAL;
+	rFanSPOld															: REAL			:= 0;
+
+	fbInletDoorsClosed													: FB_Door_Closed();
+	fbOutletDoorsClosed													: FB_Door_Closed();
+	
+	rtrigSorbentErrorCheck												: R_TRIG;
+	i																	: INT;
+	iCount																: ARRAY [0..23] OF INT;
+
+	iInletAirSetpoint													: INT			:= 0;
+	iTempCount															: INT;
+	iHighTempCount														: INT;
+	rTempTotal															: REAL;
+	rTempSP																: REAL;
+	rMin																: REAL;
+	rMax																: REAL;
+
+	cart01_temp_front_calc												: FB_Temperature;
+	cart01_temp_back_calc												: FB_Temperature;
+	cart02_temp_front_calc												: FB_Temperature;
+	cart02_temp_back_calc												: FB_Temperature;
+	cart03_temp_front_calc												: FB_Temperature;
+	cart03_temp_back_calc												: FB_Temperature;
+	cart04_temp_front_calc												: FB_Temperature;
+	cart04_temp_back_calc												: FB_Temperature;
+	cart05_temp_front_calc												: FB_Temperature;
+	cart05_temp_back_calc												: FB_Temperature;
+	cart06_temp_front_calc												: FB_Temperature;
+	cart06_temp_back_calc												: FB_Temperature;
+	cart07_temp_front_calc												: FB_Temperature;
+	cart07_temp_back_calc												: FB_Temperature;
+	cart08_temp_front_calc												: FB_Temperature;
+	cart08_temp_back_calc												: FB_Temperature;
+	cart09_temp_front_calc												: FB_Temperature;
+	cart09_temp_back_calc												: FB_Temperature;
+	cart10_temp_front_calc												: FB_Temperature;
+	cart10_temp_back_calc												: FB_Temperature;
+	cart11_temp_front_calc												: FB_Temperature;
+	cart11_temp_back_calc												: FB_Temperature;
+	cart12_temp_front_calc												: FB_Temperature;
+	cart12_temp_back_calc												: FB_Temperature;
+	
+    /// <summary>AT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_InletCO2ErrorOff													: BOOL;
+    /// <summary>Inlet CO2</summary>
+	AT_01														AT %I*	: INT;
+    /// <summary>Inlet CO2</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT_01_error													AT %I*	: BOOL;
+
+    /// <summary>AT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_InletH2OErrorOff													: BOOL;
+    /// <summary>Inlet H20</summary>
+	AT_02														AT %I*	: INT;
+    /// <summary>Inlet H20</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT_02_error													AT %I*	: BOOL;
+
+    /// <summary>AT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_OutletCO2ErrorOff													: BOOL;
+    /// <summary>Outlet CO2</summary>
+	AT_03														AT %I*	: INT;
+    /// <summary>Outlet CO2</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT_03_error													AT %I*	: BOOL;
+
+    /// <summary>AT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_OutletH2OErrorOff													: BOOL;
+    /// <summary>Outlet H20</summary>
+	AT_04														AT %I*	: INT;
+    /// <summary>Outlet H20</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	AT_04_error													AT %I*	: BOOL;
+
+    /// <summary>PT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}
+	_ReactorPresErrorOff												: BOOL;  				                
+    /// <summary>Reactor Pressure</summary>
+	PT_01														AT %I*	: INT;
+    /// <summary>Reactor Pressure</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PT_01_error													AT %I*	: BOOL;
+
+    /// <summary>FT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_AirFlowErrorOff													: BOOL;
+    /// <summary>Air flow</summary>
+	FT_01														AT %I*	: INT;
+    /// <summary>Air flow</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	FT_01_error													AT %I*	: BOOL;
+
+    /// <summary>PDT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_FilterDiffPresErrorOff												: BOOL;
+    /// <summary>Filter diff pres</summary>
+	PDT_01														AT %I*	: INT;
+    /// <summary>Filter diff pres</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PDT_01_error												AT %I*	: BOOL;
+
+    /// <summary>PDT02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_SorbentDiffPresErrorOff											: BOOL;
+    /// <summary>Sorbent diff pres</summary>
+	PDT_02														AT %I*	: INT;
+    /// <summary>Sorbent diff pres</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PDT_02_error												AT %I*	: BOOL;
+
+    /// <summary>PDT03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_FanDiffPresErrorOff												: BOOL;
+    /// <summary>fan diff pres</summary>
+	PDT_03														AT %I*	: INT;
+    /// <summary>fan diff pres</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PDT_03_error												AT %I*	: BOOL;
+	
+    /// <summary>TT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	_AirInletTempErrorOff												: BOOL;
+    /// <summary>air inlet temp</summary>
+	TT_04														AT %I*	: INT;
+    /// <summary>air inlet temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	TT_04_error													AT %I*	: BOOL;
+
+    /// <summary>TT05</summary>
+	_ReactorWallTempErrorOff											: BOOL;
+    /// <summary>Reactor wall temp</summary>
+	TT_05														AT %I*	: INT;
+    /// <summary>Reactor wall temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	TT_05_error													AT %I*	: BOOL;
+	
+    /// <summary>Inlet CO2 pump</summary>
+	AT_01_pump													AT %Q*	: BOOL;
+    /// <summary>Inlet CO2 solenoid</summary>
+	AT_01_sol													AT %Q*	: BOOL;
+
+    /// <summary>Inlet CO2 pump</summary>
+	AT_03_pump													AT %Q*	: BOOL;
+    /// <summary>Outlet CO2 solenoid</summary>
+	AT_03_sol													AT %Q*	: BOOL;
+
+    /// <summary>XV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repres_valve_open_cmd_status										: BOOL;
+    /// <summary>XV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repres_valve_open											AT %I*	: BOOL;
+    /// <summary>XV02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repres_valve_closed											AT %I*	: BOOL;
+    /// <summary>repres valve</summary>
+	XV_02														AT %Q*	: BOOL;
+	
+    /// <summary>over pressure test control</summary>
+	XV_09														AT %Q*	: BOOL;
+	
+    /// <summary>F01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_vfd_enable														: BOOL :=  TRUE;
+    /// <summary>F01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_vfd_reset														: BOOL;
+    /// <summary>F01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_enabled														: BOOL;
+    /// <summary>F01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_error														: BOOL;
+    /// <summary>F01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_output														: REAL;
+	 /// <summary>F01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_output_current												: REAL;
+    /// <summary>F01</summary>
+	fan_vfd_control												AT %Q*	: WORD;
+    /// <summary>F01</summary>
+	fan_vfd_target_vel											AT %Q*	: WORD;
+    /// <summary>F01</summary>
+	fan_vfd_status												AT %I*	: WORD;
+    /// <summary>F01</summary>
+	fan_vfd_velocity											AT %I*	: WORD;
+    /// <summary>F01</summary>
+	fan_vfd_ecat_state											AT %I*  : BOOL;
+	fan_vfd_current												AT %I*	: DINT;
+	//fan_vfd_current_amps										AT %Q*	: REAL;
+
+    /// <summary>XV01_SV05</summary>
+	inlet_door_open_valve										AT %Q*	: BOOL;
+    /// <summary>XV01_SV06</summary>
+	inlet_door_close_valve										AT %Q*	: BOOL;
+	
+    /// <summary>XV01_ZS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_near_open_ls										AT %I*	: BOOL;
+    /// <summary>XV01_ZS02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_near_closed_ls									AT %I*	: BOOL;
+    /// <summary>XV01_ZS02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_near_closed												: BOOL;
+    /// <summary>XV01_ZS04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_far_open_ls										AT %I*	: BOOL;
+    /// <summary>XV01_ZS05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_far_closed_ls									AT %I*	: BOOL;
+    /// <summary>XV01_ZS05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_far_closed												: BOOL;
+	
+    /// <summary>XV01_ZS03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_near_clamps_extended								AT %I*	: BOOL;
+    /// <summary>XV01_ZS06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_far_clamps_extended								AT %I*	: BOOL;
+
+    /// <summary>XV01_SV01</summary>
+	inlet_door_near_clamps_extend_valve							AT %Q*	: BOOL;
+    /// <summary>XV01_SV03</summary>
+	inlet_door_near_clamps_retract_valve						AT %Q*	: BOOL;
+    /// <summary>XV01_SV02 Clamps</summary>
+	inlet_door_far_clamps_extend_valve							AT %Q*	: BOOL;
+    /// <summary>XV01_SV04</summary>
+	inlet_door_far_clamps_retract_valve							AT %Q*	: BOOL;
+
+    /// <summary>XV03_SV05</summary>
+	outlet_door_open_valve										AT %Q*	: BOOL;
+    /// <summary>XV03_SV06</summary>
+	outlet_door_close_valve										AT %Q*	: BOOL;
+
+    /// <summary>XV03 ZS01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_near_open_ls									AT %I*	: BOOL;
+    /// <summary>XV03 ZS02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_near_closed_ls									AT %I*	: BOOL;
+    /// <summary>XV03 ZS02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_near_closed												: BOOL;
+    /// <summary>XV03 ZS04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_far_open_ls										AT %I*	: BOOL;
+    /// <summary>XV03 ZS05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_far_closed_ls									AT %I*	: BOOL;
+    /// <summary>XV03 ZS05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_far_closed												: BOOL;
+
+    /// <summary>XV03 ZS03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_near_clamps_extended							AT %I*	: BOOL;
+    /// <summary>XV03 ZS06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_far_clamps_extended								AT %I*	: BOOL;
+	
+    /// <summary>XV03_SV01</summary>
+	outlet_door_near_clamps_extend_valve						AT %Q*	: BOOL;
+    /// <summary>XV03_SV03</summary>
+	outlet_door_near_clamps_retract_valve						AT %Q*	: BOOL;
+    /// <summary>XV03_SV02</summary>
+	outlet_door_far_clamps_extend_valve							AT %Q*	: BOOL;
+    /// <summary>XV03_SV04</summary>
+	outlet_door_far_clamps_retract_valve						AT %Q*	: BOOL;
+
+   /// <summary>01-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart01_front_temp													: REAL;
+    /// <summary>01-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart01_front_temp_error												: BOOL;
+    /// <summary>Cart01 front temperature</summary>
+	_01_TT_01													AT %I*	: INT;
+    /// <summary>Cart01 front temperature</summary>
+	_01_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>01-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart01_back_temp													: REAL;
+    /// <summary>01-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart01_back_temp_error												: BOOL;
+    /// <summary>Cart01 back temperature</summary>
+	_01_TT_03													AT %I*	: INT;
+    /// <summary>Cart01 back temperature</summary>
+	_01_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>02-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart02_front_temp													: REAL;
+    /// <summary>02-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart02_front_temp_error												: BOOL;
+    /// <summary>Cart02 front temperature</summary>
+	_02_TT_01													AT %I*	: INT;
+    /// <summary>Cart02 front temperature</summary>
+	_02_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>02-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart02_back_temp													: REAL;
+    /// <summary>02-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart02_back_temp_error												: BOOL;
+    /// <summary>Cart02 back temperature</summary>
+	_02_TT_03													AT %I*	: INT;
+    /// <summary>Cart02 back temperature</summary>
+	_02_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>03-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart03_front_temp													: REAL;
+    /// <summary>03-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart03_front_temp_error												: BOOL;
+    /// <summary>Cart03 front temperature</summary>
+	_03_TT_01													AT %I*	: INT;
+    /// <summary>Cart03 front temperature</summary>
+	_03_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>03-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart03_back_temp													: REAL;
+    /// <summary>03-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart03_back_temp_error												: BOOL;
+    /// <summary>Cart03 back temperature</summary>
+	_03_TT_03													AT %I*	: INT;
+    /// <summary>Cart03 back temperature</summary>
+	_03_TT_03_Error												AT %I*	: BOOL;
+
+    /// <summary>04-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart04_front_temp													: REAL;
+    /// <summary>04-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart04_front_temp_error												: BOOL;
+    /// <summary>Cart04 front temperature</summary>
+	_04_TT_01													AT %I*	: INT;
+    /// <summary>Cart04 front temperature</summary>
+	_04_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>04-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart04_back_temp													: REAL;
+    /// <summary>04-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart04_back_temp_error												: BOOL;
+    /// <summary>Cart04 back temperature</summary>
+	_04_TT_03													AT %I*	: INT;
+    /// <summary>Cart04 back temperature</summary>
+	_04_TT_03_Error												AT %I*	: BOOL;
+
+    /// <summary>05-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart05_front_temp													: REAL;
+    /// <summary>05-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart05_front_temp_error												: BOOL;
+    /// <summary>Cart05 front temperature</summary>
+	_05_TT_01													AT %I*	: INT;
+    /// <summary>Cart05 front temperature</summary>
+	_05_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>05-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart05_back_temp													: REAL;
+    /// <summary>05-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart05_back_temp_error												: BOOL;
+    /// <summary>Cart05 back temperature</summary>
+	_05_TT_03													AT %I*	: INT;
+    /// <summary>Cart05 back temperature</summary>
+	_05_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>06-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart06_front_temp													: REAL;
+    /// <summary>06-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart06_front_temp_error												: BOOL;
+    /// <summary>Cart06 front temperature</summary>
+	_06_TT_01													AT %I*	: INT;
+    /// <summary>Cart06 front temperature</summary>
+	_06_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>06-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart06_back_temp													: REAL;
+    /// <summary>06-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart06_back_temp_error												: BOOL;
+    /// <summary>Cart06 back temperature</summary>
+	_06_TT_03													AT %I*	: INT;
+    /// <summary>Cart06 back temperature</summary>
+	_06_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>07-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart07_front_temp													: REAL;
+    /// <summary>07-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart07_front_temp_error												: BOOL;
+    /// <summary>Cart07 front temperature</summary>
+	_07_TT_01													AT %I*	: INT;
+    /// <summary>Cart07 front temperature</summary>
+	_07_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>07-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart07_back_temp													: REAL;
+    /// <summary>07-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart07_back_temp_error												: BOOL;
+    /// <summary>Cart07 back temperature</summary>
+	_07_TT_03													AT %I*	: INT;
+    /// <summary>Cart07 back temperature</summary>
+	_07_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>08-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart08_front_temp													: REAL;
+    /// <summary>08-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart08_front_temp_error												: BOOL;
+    /// <summary>Cart08 front temperature</summary>
+	_08_TT_01													AT %I*	: INT;
+    /// <summary>Cart08 front temperature</summary>
+	_08_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>08-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart08_back_temp													: REAL;
+    /// <summary>08-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart08_back_temp_error												: BOOL;
+    /// <summary>Cart08 back temperature</summary>
+	_08_TT_03													AT %I*	: INT;
+    /// <summary>Cart08 back temperature</summary>
+	_08_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>09-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart09_front_temp													: REAL;
+    /// <summary>09-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart09_front_temp_error												: BOOL;
+    /// <summary>Cart09 front temperature</summary>
+	_09_TT_01													AT %I*	: INT;
+    /// <summary>Cart09 front temperature</summary>
+	_09_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>09-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart09_back_temp													: REAL;
+    /// <summary>09-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart09_back_temp_error												: BOOL;
+    /// <summary>Cart09 back temperature</summary>
+	_09_TT_03													AT %I*	: INT;
+    /// <summary>Cart09 back temperature</summary>
+	_09_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>10-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart10_front_temp													: REAL;
+    /// <summary>10-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart10_front_temp_error												: BOOL;
+    /// <summary>Cart10 front temperature</summary>
+	_10_TT_01													AT %I*	: INT;
+    /// <summary>Cart10 front temperature</summary>
+	_10_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>10-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart10_back_temp													: REAL;
+    /// <summary>10-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart10_back_temp_error												: BOOL;
+    /// <summary>Cart10 back temperature</summary>
+	_10_TT_03													AT %I*	: INT;
+    /// <summary>Cart10 back temperature</summary>
+	_10_TT_03_Error												AT %I*	: BOOL;
+
+    /// <summary>11-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart11_front_temp													: REAL;
+    /// <summary>11-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart11_front_temp_error												: BOOL;
+    /// <summary>Cart11 front temperature</summary>
+	_11_TT_01													AT %I*	: INT;
+    /// <summary>Cart11 front temperature</summary>
+	_11_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>11-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart11_back_temp													: REAL;
+    /// <summary>11-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart11_back_temp_error												: BOOL;
+    /// <summary>Cart11 back temperature</summary>
+	_11_TT_03													AT %I*	: INT;
+    /// <summary>Cart11 back temperature</summary>
+	_11_TT_03_Error												AT %I*	: BOOL;
+
+    /// <summary>12-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart12_front_temp													: REAL;
+    /// <summary>12-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart12_front_temp_error												: BOOL;
+    /// <summary>Cart12 front temperature</summary>
+	_12_TT_01													AT %I*	: INT;
+    /// <summary>Cart12 front temperature</summary>
+	_12_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>12-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart12_back_temp													: REAL;
+    /// <summary>12-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart12_back_temp_error												: BOOL;
+    /// <summary>Cart12 back temperature</summary>
+	_12_TT_03													AT %I*	: INT;
+    /// <summary>Cart12 back temperature</summary>
+	_12_TT_03_Error												AT %I*	: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	temp_low															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	temp_high															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	temp_average														: REAL;
+
+END_VAR
+
+VAR PERSISTENT
+
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_low														: REAL;							// Tag for low point to scale input (these tags can be preset as shown or overwritten)
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_high														: REAL;							// Tag for high point to scale input
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_min														: REAL;							// Tag for minimum display value (if input is below this value, zero is displayed)
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_offset													: REAL;							// Tag for offset correction value
+
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_h2o_low														: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_h2o_high														: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_h2o_min														: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_h2o_offset													: REAL;
+
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_low														: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_high														: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_min														: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_offset													: REAL;
+
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_low														: REAL;
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_high														: REAL;
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_min														: REAL;
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_offset													: REAL;
+	
+    /// <summary>FT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	air_flow_low														: REAL;
+    /// <summary>FT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	air_flow_high														: REAL;
+    /// <summary>FT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	air_flow_min														: REAL;
+    /// <summary>FT01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	air_flow_offset														: REAL;
+
+    /// <summary>PDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_low												: REAL;
+    /// <summary>PDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_high												: REAL;
+    /// <summary>PDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_min												: REAL;
+    /// <summary>PDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_offset												: REAL;
+
+    /// <summary>PDT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_low												: REAL;
+    /// <summary>PDT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_high												: REAL;
+    /// <summary>PDT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_min												: REAL;
+    /// <summary>PDT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_offset											: REAL;
+
+    /// <summary>PDT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_low													: REAL;
+    /// <summary>PDT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_high													: REAL;
+    /// <summary>PDT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_min													: REAL;
+    /// <summary>PDT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_offset												: REAL;
+
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_pres_low													: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_pres_high													: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_pres_min													: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_pres_offset													: REAL;
+
+    /// <summary>TT04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	air_inlet_temp_offset												: REAL;
+
+    /// <summary>TT05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_wall_temp_offset											: REAL;
+
+    /// <summary>01-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart01_front_temp_offset											: REAL;
+    /// <summary>10-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart01_back_temp_offset												: REAL;
+    /// <summary>02-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart02_front_temp_offset											: REAL;
+    /// <summary>02-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart02_back_temp_offset												: REAL;
+    /// <summary>03-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart03_front_temp_offset											: REAL;
+    /// <summary>03-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart03_back_temp_offset												: REAL;
+    /// <summary>04-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart04_front_temp_offset											: REAL;
+    /// <summary>04-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart04_back_temp_offset												: REAL;
+    /// <summary>05-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart05_front_temp_offset											: REAL;
+    /// <summary>05-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart05_back_temp_offset												: REAL;
+    /// <summary>06-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart06_front_temp_offset											: REAL;
+    /// <summary>06-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart06_back_temp_offset												: REAL;
+    /// <summary>07-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart07_front_temp_offset											: REAL;
+    /// <summary>07-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart07_back_temp_offset												: REAL;
+    /// <summary>08-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart08_front_temp_offset											: REAL;
+    /// <summary>08-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart08_back_temp_offset												: REAL;
+    /// <summary>09-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart09_front_temp_offset											: REAL;
+    /// <summary>09-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart09_back_temp_offset												: REAL;
+    /// <summary>10-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart10_front_temp_offset											: REAL;
+    /// <summary>10-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart10_back_temp_offset												: REAL;
+    /// <summary>11-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart11_front_temp_offset											: REAL;
+    /// <summary>11-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart11_back_temp_offset												: REAL;
+    /// <summary>12-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart12_front_temp_offset											: REAL;
+    /// <summary>12-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart12_back_temp_offset												: REAL;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Theseus - FB_Reactor
+// Rev 1.0 - November 4, 2024
+
+inlet_co2																:= F_AnalogIn(AT_01, inlet_co2_low, inlet_co2_high, inlet_co2_min, inlet_co2_offset);
+inlet_co2_error															:= AT_01_error AND NOT _InletCO2ErrorOff;
+
+inlet_h2o																:= F_AnalogIn(AT_02, inlet_h2o_low, inlet_h2o_high, inlet_h2o_min, inlet_h2o_offset);
+inlet_h2o_error															:= AT_02_error AND NOT _InletH2OErrorOff;
+
+outlet_co2																:= F_AnalogIn(AT_03, outlet_co2_low, outlet_co2_high, outlet_co2_min, outlet_co2_offset);
+outlet_co2_error														:= AT_03_error AND NOT _OutletCO2ErrorOff;
+
+outlet_h2o																:= F_AnalogIn(AT_04, outlet_h2o_low, outlet_h2o_high, outlet_h2o_min, outlet_h2o_offset);
+outlet_h2o_error														:= AT_04_error AND NOT _OutletH2OErrorOff;
+
+reactor_pres															:= F_AnalogIn(PT_01, reactor_pres_low, reactor_pres_high, reactor_pres_min, reactor_pres_offset);
+reactor_pres_error														:= PT_01_error AND NOT _ReactorPresErrorOff;
+
+air_flow																:= F_AnalogIn(FT_01, air_flow_low, air_flow_high, air_flow_min, air_flow_offset);
+air_flow_error															:= FT_01_error AND NOT _AirFlowErrorOff;
+
+filter_diff_pres														:= F_AnalogIn(PDT_01, filter_diff_pres_low, filter_diff_pres_high, filter_diff_pres_min, filter_diff_pres_offset);
+filter_diff_pres_error													:= PDT_01_error AND NOT _FilterDiffPresErrorOff;
+
+sorbent_diff_pres														:= F_AnalogIn(PDT_02, sorbent_diff_pres_low, sorbent_diff_pres_high, sorbent_diff_pres_min, sorbent_diff_pres_offset);
+sorbent_diff_pres_error													:= PDT_02_error AND NOT _SorbentDiffPresErrorOff;
+
+fan_diff_pres															:= F_AnalogIn(PDT_03, fan_diff_pres_low, fan_diff_pres_high, fan_diff_pres_min, fan_diff_pres_offset);
+fan_diff_pres_error														:= PDT_03_error AND NOT _FanDiffPresErrorOff;
+
+air_inlet_temp															:= F_Temperature(TT_04, air_inlet_temp_offset);
+air_inlet_temp_error													:= TT_04_error AND NOT _AirInletTempErrorOff;
+
+reactor_wall_temp														:= F_Temperature(TT_05, reactor_wall_temp_offset);
+reactor_wall_temp_error													:= TT_05_error AND NOT _ReactorWallTempErrorOff;
+
+AT_01_pump																:= inlet_co2_pump;
+inlet_co2_pump_cmd_status												:= AT_01_pump;
+
+AT_01_sol																:= inlet_co2_sol;
+inlet_co2_sol_cmd_status												:= AT_01_sol;
+
+AT_03_pump																:= outlet_co2_pump;
+outlet_co2_pump_cmd_status												:= AT_03_pump;
+                                                                           
+AT_03_sol																:= outlet_co2_sol;
+outlet_co2_sol_cmd_status												:= AT_03_sol;
+
+// SORBENT TEMPERATURE HANDLING
+rtrigSorbentErrorCheck(CLK:= MAIN.bHalfSecondPulse);
+IF rtrigSorbentErrorCheck.Q THEN
+	A_Sorbent_Temperatures();
+END_IF
+
+XV_02																	:= repres_valve;
+repres_valve_open_cmd_status											:= XV_02;
+repres_valve_clear														:= F_ValveClear(repres_valve, repres_valve_open, repres_valve_closed);
+
+XV_09																	:= over_pressure_test_control;
+over_pressure_test_control_cmd_status									:= XV_09;
+
+// FAN
+tonFan(IN:= fan_vfd_setpoint <> rFanSPOld, PT:= INT_TO_TIME((unit - 1) * _FAN_DELAY_TIME));
+IF tonFan.Q THEN
+	rfanSPOld															:= fan_vfd_setpoint;
+	rRpm																:= fan_vfd_setpoint * _FAN_RPM_FACTOR;
+END_IF
+fb_Fan(	Enable_Vfd														:= NOT fan_vfd_ecat_state AND fan_vfd_enable,
+		Fault_Reset														:= fan_vfd_reset, 
+		Rpm																:= rRpm, 
+		Minimum_Speed													:= _FAN_SPEED_MIN,
+		Maximum_Speed													:= _FAN_SPEED_MAX, 
+		StatusWord														:= fan_vfd_status, 
+		ControlWord														=> fan_vfd_control, 
+		TargetRpm														=> fan_vfd_target_vel, 
+		Ready															=> fan_vfd_enabled,
+		Error															=> fan_vfd_error);
+fan_vfd_output															:= WORD_TO_REAL(fan_vfd_velocity) / _FAN_RPM_FACTOR;
+fan_vfd_output_current													:= DINT_TO_REAL(fan_vfd_current)/100;
+IF fan_vfd_reset THEN
+	fan_vfd_reset														:= FALSE;
+END_IF
+
+// CLAMPS & DOORS
+fbInletDoorsClosed(valve:= inlet_door_close_valve, limit_switch:= inlet_door_near_closed_ls AND inlet_door_far_closed_ls, door_closed=> inlet_doors_closed);
+fbOutletDoorsClosed(valve:= outlet_door_close_valve, limit_switch:= outlet_door_near_closed_ls AND outlet_door_far_closed_ls, door_closed=> outlet_doors_closed);
+
+inlet_doors_open														:= inlet_door_near_open_ls AND inlet_door_far_open_ls;
+outlet_doors_open														:= outlet_door_near_open_ls AND outlet_door_far_open_ls;
+
+inlet_door_clamps_extended												:= inlet_door_near_clamps_extended AND inlet_door_far_clamps_extended;
+inlet_door_clamps_retracted												:= NOT inlet_door_near_clamps_extended AND NOT inlet_door_far_clamps_extended;
+outlet_door_clamps_extended												:= outlet_door_near_clamps_extended AND outlet_door_far_clamps_extended;
+outlet_door_clamps_retracted											:= NOT outlet_door_near_clamps_extended AND NOT outlet_door_far_clamps_extended;
+ 
+IF extend_inlet_door_clamps THEN
+	inlet_door_near_clamps_retract_valve								:= FALSE;
+	inlet_door_far_clamps_retract_valve									:= FALSE;
+	inlet_door_near_clamps_extend_valve									:= TRUE;
+	inlet_door_far_clamps_extend_valve									:= TRUE;
+ELSIF retract_inlet_door_clamps THEN
+	inlet_door_near_clamps_extend_valve									:= FALSE;
+	inlet_door_far_clamps_extend_valve									:= FALSE;
+	inlet_door_near_clamps_retract_valve								:= TRUE;
+	inlet_door_far_clamps_retract_valve									:= TRUE;
+END_IF
+IF extend_outlet_door_clamps THEN
+	outlet_door_near_clamps_retract_valve								:= FALSE;
+	outlet_door_far_clamps_retract_valve								:= FALSE;
+	outlet_door_near_clamps_extend_valve								:= TRUE;
+	outlet_door_far_clamps_extend_valve									:= TRUE;
+ELSIF retract_outlet_door_clamps THEN
+	outlet_door_near_clamps_extend_valve								:= FALSE;
+	outlet_door_far_clamps_extend_valve									:= FALSE;
+	outlet_door_near_clamps_retract_valve								:= TRUE;
+	outlet_door_far_clamps_retract_valve								:= TRUE;
+END_IF
+
+extend_inlet_door_clamps												:= FALSE;
+retract_inlet_door_clamps												:= FALSE;
+extend_outlet_door_clamps												:= FALSE;
+retract_outlet_door_clamps												:= FALSE;
+
+IF open_inlet_door THEN
+	inlet_door_open_valve												:= TRUE;
+	inlet_door_close_valve												:= FALSE;
+ELSIF close_inlet_door THEN
+	inlet_door_close_valve												:= TRUE;
+	inlet_door_open_valve												:= FALSE;
+END_IF
+IF open_outlet_door THEN
+	outlet_door_open_valve												:= TRUE;
+	outlet_door_close_valve												:= FALSE;
+ELSIF close_outlet_door THEN
+	outlet_door_close_valve												:= TRUE;
+	outlet_door_open_valve												:= FALSE;
+END_IF
+
+open_inlet_door															:= FALSE;
+close_inlet_door														:= FALSE;
+open_outlet_door														:= FALSE;
+close_outlet_door														:= FALSE;
+
+temp_low																:=sorbent_low_temp		;   
+temp_high       														:=sorbent_high_temp		; 
+temp_average    														:=sorbent_average_temp	;
+											]]></ST>
+    </Implementation>
+    <Action Name="A_Sorbent_Temperatures" Id="{55a3bf1c-b7a4-4a44-a132-1ee2c82ca5d5}">
+      <Implementation>
+        <ST><![CDATA[// Theseus - FB_ReatorIO.A_Sorbent_Temperatures
+// Rev 1.0 - October 8, 2024
+
+sorbent_low_temp														:= 1000;
+sorbent_high_temp														:= -1000;
+
+rTempTotal																:= 0;
+iTempCount																:= 0;
+
+cart01_front_temp														:= F_Temperature(_01_TT_01, cart01_front_temp_offset);
+cart01_front_temp_error 												:= _01_TT_01_error OR iCount[0] < 30;
+cart01_back_temp														:= F_Temperature(_01_TT_03, cart01_back_temp_offset);
+cart01_back_temp_error 													:= _01_TT_03_Error OR iCount[1] < 30;
+cart01_temp_front_calc(Error:= cart01_front_temp_error, Temp:= cart01_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart01_temp_back_calc(Error:= cart01_back_temp_error, Temp:= cart01_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart02_front_temp														:= F_Temperature(_02_TT_01, cart02_front_temp_offset);
+cart02_front_temp_error 												:= _02_TT_01_error OR iCount[2] < 30;
+cart02_back_temp														:= F_Temperature(_02_TT_03, cart02_back_temp_offset);
+cart02_back_temp_error 													:= _02_TT_03_Error OR iCount[3] < 30;
+cart02_temp_front_calc(Error:= cart02_front_temp_error, Temp:= cart02_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart02_temp_back_calc(Error:= cart02_back_temp_error, Temp:= cart02_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart03_front_temp														:= F_Temperature(_03_TT_01, cart03_front_temp_offset);
+cart03_front_temp_error 												:= _03_TT_01_error OR iCount[4] < 30;
+cart03_back_temp														:= F_Temperature(_03_TT_03, cart03_back_temp_offset);
+cart03_back_temp_error 													:= _03_TT_03_Error OR iCount[5] < 30;
+cart03_temp_front_calc(Error:= cart03_front_temp_error, Temp:= cart03_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart03_temp_back_calc(Error:= cart03_back_temp_error, Temp:= cart03_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart04_front_temp														:= F_Temperature(_04_TT_01, cart04_front_temp_offset);
+cart04_front_temp_error 												:= _04_TT_01_error OR iCount[6] < 30;
+cart04_back_temp														:= F_Temperature(_04_TT_03, cart04_back_temp_offset);
+cart04_back_temp_error 													:= _04_TT_03_Error OR iCount[7] < 30;
+cart04_temp_front_calc(Error:= cart04_front_temp_error, Temp:= cart04_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart04_temp_back_calc(Error:= cart04_back_temp_error, Temp:= cart04_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart05_front_temp														:= F_Temperature(_05_TT_01, cart05_front_temp_offset);
+cart05_front_temp_error 												:= _05_TT_01_error OR iCount[8] < 30;
+cart05_back_temp														:= F_Temperature(_05_TT_03, cart05_back_temp_offset);
+cart05_back_temp_error 													:= _05_TT_03_Error OR iCount[9] < 30;
+cart05_temp_front_calc(Error:= cart05_front_temp_error, Temp:= cart05_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart05_temp_back_calc(Error:= cart05_back_temp_error, Temp:= cart05_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart06_front_temp														:= F_Temperature(_06_TT_01, cart06_front_temp_offset);
+cart06_front_temp_error 												:= _06_TT_01_error OR iCount[10] < 30;
+cart06_back_temp														:= F_Temperature(_06_TT_03, cart06_back_temp_offset);
+cart06_back_temp_error 													:= _06_TT_03_Error OR iCount[11] < 30;
+cart06_temp_front_calc(Error:= cart06_front_temp_error, Temp:= cart06_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart06_temp_back_calc(Error:= cart06_back_temp_error, Temp:= cart06_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart07_front_temp														:= F_Temperature(_07_TT_01, cart07_front_temp_offset);
+cart07_front_temp_error 												:= _07_TT_01_error OR iCount[12] < 30;
+cart07_back_temp														:= F_Temperature(_07_TT_03, cart07_back_temp_offset);
+cart07_back_temp_error 													:= _07_TT_03_Error OR iCount[13] < 30;
+cart07_temp_front_calc(Error:= cart07_front_temp_error, Temp:= cart07_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart07_temp_back_calc(Error:= cart07_back_temp_error, Temp:= cart07_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart08_front_temp														:= F_Temperature(_08_TT_01, cart08_front_temp_offset);
+cart08_front_temp_error 												:= _08_TT_01_error OR iCount[14] < 30;
+cart08_back_temp														:= F_Temperature(_08_TT_03, cart08_back_temp_offset);
+cart08_back_temp_error 													:= _08_TT_03_Error OR iCount[15] < 30;
+cart08_temp_front_calc(Error:= cart08_front_temp_error, Temp:= cart08_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart08_temp_back_calc(Error:= cart08_back_temp_error, Temp:= cart08_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart09_front_temp														:= F_Temperature(_09_TT_01, cart09_front_temp_offset);
+cart09_front_temp_error 												:= _09_TT_01_error OR iCount[16] < 30;
+cart09_back_temp														:= F_Temperature(_09_TT_03, cart09_back_temp_offset);
+cart09_back_temp_error 													:= _09_TT_03_Error OR iCount[17] < 30;
+cart09_temp_front_calc(Error:= cart09_front_temp_error, Temp:= cart09_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart09_temp_back_calc(Error:= cart09_back_temp_error, Temp:= cart09_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart10_front_temp														:= F_Temperature(_10_TT_01, cart10_front_temp_offset);
+cart10_front_temp_error 												:= _10_TT_01_error OR iCount[18] < 30;
+cart10_back_temp														:= F_Temperature(_10_TT_03, cart10_back_temp_offset);
+cart10_back_temp_error 													:= _10_TT_03_Error OR iCount[19] < 30;
+cart10_temp_front_calc(Error:= cart10_front_temp_error, Temp:= cart10_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart10_temp_back_calc(Error:= cart10_back_temp_error, Temp:= cart10_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart11_front_temp														:= F_Temperature(_11_TT_01, cart11_front_temp_offset);
+cart11_front_temp_error 												:= _11_TT_01_error OR iCount[20] < 30;
+cart11_back_temp														:= F_Temperature(_11_TT_03, cart11_back_temp_offset);
+cart11_back_temp_error 													:= _11_TT_03_Error OR iCount[21] < 30;
+cart11_temp_front_calc(Error:= cart11_front_temp_error, Temp:= cart11_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart11_temp_back_calc(Error:= cart11_back_temp_error, Temp:= cart11_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart12_front_temp														:= F_Temperature(_12_TT_01, cart12_front_temp_offset);
+cart12_front_temp_error 												:= _12_TT_01_error OR iCount[22] < 30;
+cart12_back_temp														:= F_Temperature(_12_TT_03, cart12_back_temp_offset);
+cart12_back_temp_error 													:= _12_TT_03_Error OR iCount[23] < 30;
+cart12_temp_front_calc(Error:= cart12_front_temp_error, Temp:= cart12_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart12_temp_back_calc(Error:= cart12_back_temp_error, Temp:= cart12_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+sorbent_average_temp													:= SEL(iTempCount > 0, 0, rTempTotal / iTempCount);
+
+FOR i:= 0 TO 23 DO
+	iCount[i]															:= iCount[i] + 1;
+	IF iCount[i] > 30 THEN
+		iCount[i]														:= 30;
+	END_IF
+END_FOR
+
+iHighTempCount															:= 0;
+rMin																	:= P_U01.SP_minimum_reasonable_sorbent_TC_reading;
+rMax																	:= P_U01.SP_maximum_reasonable_sorbent_TC_reading;
+IF iInletAirSetpoint = 0 THEN
+	rTempSP																:= P_M01.SP_vacuum_cooling_target_temperature;
+ELSIF iInletAirSetpoint = 1 THEN
+	rTempSP																:= P_M01.SP_maximum_inlet_air_temperature_during_adsorption;
+ELSE
+	rTempSP																:= P_M01.SP_maximum_sorbent_temperature_during_desorption;
+END_IF
+
+IF _01_TT_01_Error OR cart01_front_temp < rMin OR cart01_front_temp > rMax THEN
+	iCount[0]															:= 0;
+ELSIF cart01_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _01_TT_03_Error OR cart01_back_temp < rMin OR cart01_back_temp > rMax THEN
+	iCount[1]															:= 0;
+ELSIF cart01_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _02_TT_01_Error OR cart02_front_temp < rMin OR cart02_front_temp > rMax THEN
+	iCount[2]															:= 0;
+ELSIF cart02_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _02_TT_03_Error OR cart02_back_temp < rMin OR cart02_back_temp > rMax THEN
+	iCount[3]															:= 0;
+ELSIF cart02_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _03_TT_01_Error OR cart03_front_temp < rMin OR cart03_front_temp > rMax THEN
+	iCount[4]															:= 0;
+ELSIF cart03_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _03_TT_03_Error OR cart03_back_temp < rMin OR cart03_back_temp > rMax THEN
+	iCount[5]															:= 0;
+ELSIF cart03_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _04_TT_01_Error OR cart04_front_temp < rMin OR cart04_front_temp > rMax THEN
+	iCount[6]															:= 0;
+ELSIF cart04_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _04_TT_03_Error OR cart04_back_temp < rMin OR cart04_back_temp > rMax THEN
+	iCount[7]															:= 0;
+ELSIF cart04_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _05_TT_01_Error OR cart05_front_temp < rMin OR cart05_front_temp > rMax THEN
+	iCount[8]															:= 0;
+ELSIF cart05_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _05_TT_03_Error OR cart05_back_temp < rMin OR cart05_back_temp > rMax THEN
+	iCount[9]															:= 0;
+ELSIF cart05_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _06_TT_01_Error OR cart06_front_temp < rMin OR cart06_front_temp > rMax THEN
+	iCount[10]															:= 0;
+ELSIF cart06_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _06_TT_03_Error OR cart06_back_temp < rMin OR cart06_back_temp > rMax THEN
+	iCount[11]															:= 0;
+ELSIF cart06_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _07_TT_01_Error OR cart07_front_temp < rMin OR cart07_front_temp > rMax THEN
+	iCount[12]															:= 0;
+ELSIF cart07_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _07_TT_03_Error OR cart07_back_temp < rMin OR cart07_back_temp > rMax THEN
+	iCount[13]															:= 0;
+ELSIF cart07_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _08_TT_01_Error OR cart08_front_temp < rMin OR cart08_front_temp > rMax THEN
+	iCount[14]															:= 0;
+ELSIF cart08_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _08_TT_03_Error OR cart08_back_temp < rMin OR cart08_back_temp > rMax THEN
+	iCount[15]															:= 0;
+ELSIF cart08_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _09_TT_01_Error OR cart09_front_temp < rMin OR cart09_front_temp > rMax THEN
+	iCount[16]															:= 0;
+ELSIF cart09_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _09_TT_03_Error OR cart09_back_temp < rMin OR cart09_back_temp > rMax THEN
+	iCount[17]															:= 0;
+ELSIF cart09_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _10_TT_01_Error OR cart10_front_temp < rMin OR cart10_front_temp > rMax THEN
+	iCount[18]															:= 0;
+ELSIF cart10_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _10_TT_03_Error OR cart10_back_temp < rMin OR cart10_back_temp > rMax THEN
+	iCount[19]															:= 0;
+ELSIF cart10_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _11_TT_01_Error OR cart11_front_temp < rMin OR cart11_front_temp > rMax THEN
+	iCount[20]															:= 0;
+ELSIF cart11_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _11_TT_03_Error OR cart11_back_temp < rMin OR cart11_back_temp > rMax THEN
+	iCount[21]															:= 0;
+ELSIF cart11_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF _12_TT_01_Error OR cart12_front_temp < rMin OR cart12_front_temp > rMax THEN
+	iCount[22]															:= 0;
+ELSIF cart12_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF _12_TT_03_Error OR cart12_back_temp < rMin OR cart12_back_temp > rMax THEN
+	iCount[23]															:= 0;
+ELSIF cart12_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF iInletAirSetpoint = 0 THEN
+	vacuum_cooling_high_temp_count										:= iHighTempCount;
+ELSIF iInletAirSetpoint = 1 THEN
+	adsorption_high_temp_count											:= iHighTempCount;
+ELSE
+	desorption_high_temp_count											:= iHighTempCount;
+END_IF
+iInletAirSetpoint														:= SEL(iInletAirSetpoint = 2, iInletAirSetpoint + 1, 0);;
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="FB_Reactor">
+      <LineId Id="6117" Count="1" />
+      <LineId Id="12122" Count="0" />
+      <LineId Id="13286" Count="2" />
+      <LineId Id="13336" Count="2" />
+      <LineId Id="13388" Count="5" />
+      <LineId Id="12123" Count="0" />
+      <LineId Id="12174" Count="0" />
+      <LineId Id="14715" Count="0" />
+      <LineId Id="13241" Count="0" />
+      <LineId Id="14716" Count="1" />
+      <LineId Id="14787" Count="2" />
+      <LineId Id="14807" Count="2" />
+      <LineId Id="14829" Count="1" />
+      <LineId Id="14791" Count="0" />
+      <LineId Id="13242" Count="0" />
+      <LineId Id="13248" Count="0" />
+      <LineId Id="13247" Count="0" />
+      <LineId Id="13243" Count="0" />
+      <LineId Id="13259" Count="0" />
+      <LineId Id="13244" Count="0" />
+      <LineId Id="6145" Count="1" />
+      <LineId Id="13223" Count="0" />
+      <LineId Id="6148" Count="7" />
+      <LineId Id="10337" Count="0" />
+      <LineId Id="13260" Count="5" />
+      <LineId Id="6156" Count="0" />
+      <LineId Id="12142" Count="0" />
+      <LineId Id="6159" Count="0" />
+      <LineId Id="12144" Count="0" />
+      <LineId Id="7450" Count="0" />
+      <LineId Id="6550" Count="0" />
+      <LineId Id="6544" Count="0" />
+      <LineId Id="6167" Count="0" />
+      <LineId Id="6169" Count="15" />
+      <LineId Id="9049" Count="0" />
+      <LineId Id="6185" Count="2" />
+      <LineId Id="8426" Count="0" />
+      <LineId Id="6189" Count="0" />
+      <LineId Id="17017" Count="0" />
+      <LineId Id="17020" Count="1" />
+      <LineId Id="14597" Count="1" />
+      <LineId Id="14550" Count="0" />
+      <LineId Id="14591" Count="3" />
+      <LineId Id="14596" Count="0" />
+      <LineId Id="14573" Count="0" />
+      <LineId Id="14578" Count="3" />
+      <LineId Id="14655" Count="0" />
+      <LineId Id="14583" Count="3" />
+      <LineId Id="14652" Count="0" />
+      <LineId Id="14656" Count="10" />
+      <LineId Id="14653" Count="0" />
+      <LineId Id="14574" Count="1" />
+      <LineId Id="14667" Count="1" />
+      <LineId Id="15979" Count="0" />
+      <LineId Id="14563" Count="6" />
+      <LineId Id="14496" Count="0" />
+      <LineId Id="14501" Count="1" />
+      <LineId Id="14497" Count="0" />
+      <LineId Id="14503" Count="1" />
+      <LineId Id="14498" Count="0" />
+      <LineId Id="14572" Count="0" />
+      <LineId Id="14570" Count="1" />
+      <LineId Id="14559" Count="1" />
+      <LineId Id="18065" Count="1" />
+      <LineId Id="18063" Count="0" />
+      <LineId Id="18062" Count="0" />
+      <LineId Id="18064" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor.A_Sorbent_Temperatures">
+      <LineId Id="2" Count="1" />
+      <LineId Id="453" Count="0" />
+      <LineId Id="5" Count="12" />
+      <LineId Id="255" Count="76" />
+      <LineId Id="95" Count="30" />
+      <LineId Id="332" Count="120" />
+      <LineId Id="247" Count="7" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

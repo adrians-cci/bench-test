@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_Reactor_Instrumentation" Id="{6604d568-1651-4a8d-8332-24b0dc8dd5b3}">
+    <Declaration><![CDATA[// Phase 0 - E_Reactor_Instrumentation
+// Rev 1.0 - January 30, 2024
+
+TYPE E_Reactor_Instrumentation :
+(
+	eNominally						:= 0,
+	eMostly,
+	eFully
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

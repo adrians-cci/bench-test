@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <DUT Name="E_ProductType" Id="{386f1651-3a0e-47f3-a60b-ece63beff680}">
+    <Declaration><![CDATA[// Theseus - E_ProductType
+// Rev 1.0 - June 15, 2024
+
+TYPE E_ProductType :
+(
+	eAmbient			 												:= 0,
+	eProduct
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

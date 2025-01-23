@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+  <DUT Name="E_Status" Id="{f9062928-37f8-4f15-9ab2-9345bc8da554}">
+    <Declaration><![CDATA[// Theseus - E_Status
+// Rev 1.0 - December 2, 2024
+
+TYPE E_Status :
+(
+	eSystem_Idle						:= 0,
+	e1,
+	e2,
+	eWarmup_Running,			
+	eSteamBypass_Running,		
+	eDoorCycle_Running,		
+	ePositivePressure_Running,	
+	eRepressurization_Running,	
+	eAdsorption_Running,		
+	eEvacuation_Running,		
+	eDesorption_Running,
+	eBypass_Running,
+	eShutting_Down,				
+	ePressureTest_Running,		
+	e12,                        
+	eWarmup_Error,				
+	eSteamBypass_Error,			
+	eDoor_Cycle_Error,			
+	ePositivePressure_Error,	
+	eRepressurization_Error,	
+	eAdsorption_Error,			
+	eEvacuation_Error,			
+	eDesorption_Error,
+	eShutdown_Error,			
+	ePressureTest_Error,		
+	e21,                        
+	e22,                        
+	eWarmup_Complete,			
+	eSteamBypass_Complete,		
+	eDoorCycle_Complete,         
+	ePositivePressure_Complete,	
+	eRepressurization_Complete,	
+	eAdsorption_Complete,		
+	eEvacuation_Complete,		
+	eDesorption_Complete,
+	eBypass_Complete,		
+	eShutdown_Complete,			
+	ePressureTest_Complete,		
+	e32,                        
+	eStopping_Process,			
+	eResetting,					
+	eSaving_Data				
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_Concat4" Id="{31bccea4-9c60-4a6f-9ca7-efa63767e87c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_Concat4 : STRING
+VAR_INPUT
+	s1																	: STRING;
+	s2																	: STRING;
+	s3																	: STRING;
+	s4																	: STRING;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_Concat4
+// Rev 1.0 - January 10, 2024
+
+F_Concat4																:= CONCAT(s1, s2);
+F_Concat4																:= CONCAT(F_Concat4, s3);
+F_Concat4																:= CONCAT(F_Concat4, s4);
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_Concat4">
+      <LineId Id="8" Count="2" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="15" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Constants" Id="{f03a959c-02cb-48ba-8c8c-5ccddccc88b1}">
+    <Declaration><![CDATA[// Theseus - Global_Constants
+// Rev 1.0 - November 4, 2024
+
+VAR_GLOBAL CONSTANT
+	
+	_DOOR_ACTUATION_TIMEOUT												: REAL		:= 120000;
+	_CLAMP_ACTUATION_TIMEOUT											: REAL		:= 10000;
+	_VALVE_TIME															: REAL		:= 5000;
+	
+	_ALARM_COUNT														: INT		:= 100;
+	_DRAIN_TIME															: TIME		:= T#3S;
+	_DOOR_LATCH_CLOSE_TIME												: TIME		:= T#2S;
+	_FAN_SPEED_MAX														: REAL		:= 1765;		// Maximum Fan RPM
+	_FAN_SPEED_MIN														: REAL		:= 300;			// Minimum Fan RPM
+	_PUMP_SPEED_MAX														: REAL		:= 3540;		// Maximum Pump RPM
+	_PUMP_SPEED_MIN														: REAL		:= 200;			// Minimum Pump RPM
+	_FAN_DELAY_TIME														: INT		:= 2000;
+	_FAN_RS_DELAY_TIME													: INT		:= 15000;
+	_PROCESS_COMPLETE_TIME												: REAL		:= 2000;
+	_PAUSE_TIME															: REAL		:= 2000;
+	_FAN_SHUTDOWN_TIME													: REAL		:= 10000;
+	_VALVE_INCREMENT_TIME												: REAL		:= 250;			// Time period for incremental change in valve position (mSecs)
+	_STOPPING_TIME														: REAL		:= 2000;
+	_VALVE_CLOSED														: INT		:= 3;
+	_VALVE_OPEN															: INT		:= 95;
+	
+	_CURRENT_120_FACTOR													: REAL		:= 655.34;		// =  32767 counts / 50 amps
+	_CURRENT_240_FACTOR													: REAL		:= 218.44;      // = 32767 counts / 150 amps
+	_CURRENT_BOILER_FACTOR												: REAL 		:= 40.95 * 2 ;	//  = 32767 / 800 Amps * 2 (double coiled)
+	_CURRENT_MODULE_FACTOR												: REAL		:= 81.91;		// 0- 800 amps	
+	_PERCENT_FACTOR														: REAL		:= 327.67;		// Factor to convert input to output percentage
+	_FAN_RPM_FACTOR														: REAL		:= 17.65;		// Factor to convert fan percent input to rpm output (max rpm / 100)
+	_PUMP_RPM_FACTOR													: REAL		:= 35.4;		// Factor to convert pump percent input to rpm output (max rpm / 100)
+	_BLOWER_RPM_FACTOR													: REAL      := 34.7;		// product blower rpm = 3470
+	_VOLTAGE_120_FACTOR													: REAL		:= 218.44;		// 0- 150 VAC
+	_VOLTAGE_240_FACTOR													: REAL		:= 65.53;		// 0 - 500 VAC 
+	
+	_INLET_AIR_MAX_COUNT												: INT		:= 0;
+	_ADSORP_MAX_COUNT													: INT		:= 1;
+	_VAC_COOLING_MAX_COUNT												: INT		:= 1;
+	_DESORP_MAX_COUNT													: INT		:= 1;
+	_HIGH_CART_READINGS_MAX												: INT		:= 2;
+	_RETRY_ATTEMPTS														: INT		:= 3;
+	_MAX_REACTOR_ERRORS													: INT		:= 3;
+	
+	_PRESSURE_PERCENT													: REAL		:= 0.9;
+	_TEMP_DEADBAND														: REAL		:= 0.5;
+	
+	_TIMEOUT_WARMUP_RESET												: TIME		:= T#10M;
+	_TIMEOUT_RESET														: TIME		:= T#3S;
+	
+	_OPEN																: INT 		:= 100;
+	_CLOSED																: INT		:= 0;
+
+	_SECONDS															: REAL		:= 1000;
+	_MINUTES															: REAL		:= 60000;
+	
+	_U01																: STRING	:= 'U01 - ';
+	_RS01																: STRING	:= 'RS01 - ';
+	_R1																	: STRING	:= 'Reactor1';
+	
+	STEAM_TABLE  : ARRAY[1..30] OF ARRAY [0..1] OF REAL := [[0.0,0.0],[0.02,0.000015],[0.03,0.000022],[0.04,0.000029],[0.05,0.000035],[0.06,0.000042],[0.07,0.000049],[0.08,0.000055],[0.09,0.000062],
+															[0.1,0.000068],[0.2,0.000131],[0.3,0.000191],[0.4,0.00025],[0.5,0.000309],[0.6,0.000366],[0.7,0.000423],[0.8,0.000479],[0.9,0.000535],
+															[1.0,0.00059],[1.1,0.000645],[1.2,0.0007],[1.3,0.000755],[1.4,0.000809],[1.5,0.000863],[1.6,0.000916],[1.7,0.00097],[1.8,0.001023],[1.8,0.001023],[1.9,0.001076],
+															[2.0,0.001129]];
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

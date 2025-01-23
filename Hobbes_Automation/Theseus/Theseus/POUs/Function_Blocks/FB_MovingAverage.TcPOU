@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_MovingAverage" Id="{dca1b28a-bbbb-40ec-81e2-03f79acefce3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_MovingAverage
+VAR_INPUT
+	i_value_to_avg													: REAL;
+	i_number_of_samples												: UINT;
+	i_sample_time													: UINT;  // ms
+END_VAR
+VAR_OUTPUT
+	o_avg_value												: LREAL;
+END_VAR
+VAR
+	fb_CtrlMovingAverage											: FB_CTRL_MOVING_AVERAGE;
+	moving_avg_params												: ST_CTRL_MOVING_AVERAGE_PARAMS;
+	moving_avg_array												: ARRAY[1..1000] OF REAL;
+	moving_avg_in_sim_timer											: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[moving_avg_params.nSamplesToFilter := i_number_of_samples;
+moving_avg_params.tCtrlCycleTime := TO_TIME(i_sample_time);
+moving_avg_params.tTaskCycleTime := T#10MS;
+moving_avg_params.pWorkArray_ADR := ADR(moving_avg_array);
+moving_avg_params.nWorkArray_SIZEOF := SIZEOF(moving_avg_array);
+
+moving_avg_in_sim_timer ( IN := NOT moving_avg_in_sim_timer.Q, PT := T#1000MS);
+
+IF moving_avg_in_sim_timer.Q THEN 
+	i_value_to_avg := i_value_to_avg + 1;
+	IF i_value_to_avg = 30 THEN
+		i_value_to_avg := 0;
+	END_IF
+END_IF
+
+fb_CtrlMovingAverage(
+	fIn:= i_value_to_avg , 
+	fManSyncValue:= , 
+	bSync:= , 
+	eMode:= E_CTRL_MODE.eCTRL_MODE_ACTIVE, 
+	bHold:= , 
+	fOut=> o_avg_value, 
+	eState=> , 
+	eErrorId=> , 
+	bError=> , 
+	stParams:= moving_avg_params);]]></ST>
+    </Implementation>
+    <LineIds Name="FB_MovingAverage">
+      <LineId Id="97" Count="24" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

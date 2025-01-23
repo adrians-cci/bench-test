@@ -1,0 +1,508 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="P_M01" Id="{fb60791d-8094-40c4-99ca-4ff675ae8289}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_M01
+VAR_INPUT
+	rs1																	: FB_Reactor_Set();
+	stop_rs																: BOOL;
+	clear_rs															: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	plc_version															: STRING;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Alarm_Active														: BOOL;			// An alarm is active
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ts_Alarm															: STRING;		// Active alarm string
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ts_User_Message														: STRING;		// Message corresponding to active alarm
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ti_Alarm_Severity													: INT;			// Alarm level (not implemented)	
+	{attribute 'OPC.UA.DA' := '1'}  
+	processAlarms														: ARRAY[0.._ALARM_COUNT] OF STRING;
+	{attribute 'OPC.UA.DA' := '1'}  
+	processAlarmsMessage												: ARRAY[0.._ALARM_COUNT] OF STRING;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Acknowledge_Alarm												: BOOL;			// Clears current alarm
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Clear_Alarm_All													: BOOL;			// Clears current alarm
+END_VAR
+VAR
+	sCycleModeRS01														: STRING	:= '';
+	iRS01CyclesToRun													: INT;
+	iLength																: INT;
+	iRS01Count															: INT;
+	rtrigStart															: R_TRIG;
+	
+	bRSProcess															: BOOL;
+	bRSManual															: BOOL;
+	bRS01																: BOOL;
+	bRS01Selected														: BOOL;
+	bStarted															: BOOL;
+	bReactorSetSelected													: BOOL;
+	
+	rtrigRS01StartNextRS												: R_TRIG;
+	rtrigRS01Restart													: R_TRIG;
+	rtrigRS01Done														: R_TRIG;
+	rtrigRS01Offline													: R_TRIG;
+	
+	rtrigCPDrainLSHOn													: R_TRIG;
+	tonCPDrainErrorOn													: TON;
+	tonCPDrainErrorOff													: TON;
+	bCPDrainError														: BOOL;
+	
+	rMinPressureSP														: REAL; 
+	rMaxPressureSP														: REAL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	ts_Cycle_Mode														: STRING;		// Starts process based on each character in integer format
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_HMI_Active														: BOOL;			// An HMI program is running and communicating
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Cancel_Cycle														: BOOL;			// Complete current cycle then stop
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Stop_Process														: BOOL;			// Stop current process immediately
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Reset_Process													: BOOL;
+	
+					
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Auto_Mode_On														: BOOL;			// Machine is currently in auto mode
+
+END_VAR
+
+VAR PERSISTENT
+
+	/// SET POINTS
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_evacuation_ideal_pressure										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_evacuation_duration												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_settle_time												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_leak_test_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_unacceptable_vacuum_pressure_change								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_pos_pres_ideal_pressure											: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_pos_pres_settle_time												: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_pos_pres_leak_test_duration										: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_unacceptable_pos_pres_change										: REAL;		
+
+	
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_sorbent_hightemp_startco2analyzer						: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_outletco2_highlimit									: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_repres_preslimit_clampsretract									: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_clampsretract_timedelay											: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_repres_pres_highlimit											: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_doorsopenclose_timedelay											: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_duration												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_valve_max_retries										: INT;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_valve_rotational_velocity								: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_ambient_pressure													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_cycle_start_offset_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_dead_time_in_cycle_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_desired_cycle_count												: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_evacuation_unacceptable_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_include_reactor_set_1_in_process									: BOOL;					
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_include_reactor_set_2_in_process									: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_include_reactor_set_3_in_process									: BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_initial_maximum_steam_valve_percent_open							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_initial_steam_purge_reactor_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_leak_test_duration												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_desorption_starting_pressure								: REAL;							
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_inlet_air_temperature_during_adsorption					: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_reactor_leakage_pressure									: REAL;												// PS 11/27/24
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_reactor_pressure_to_introduce_steam						: REAL;												// PS 08_12_24
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_safe_ambient_temperature									: REAL;												// PS 08_12_24
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_safe_co2_adsorption_sensor_temperature					: REAL;												// PS 08_16_24
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_safe_reactor_steam_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_safe_sorbent_temperature									: REAL;												// PS 08_15_24
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_sorbent_temperature_during_desorption					: REAL;			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_sorbent_temperature_to_use_dead_air_line					: REAL;												// PS 08_12_24			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_target_sorbent_temperature_during_purge					: REAL;												// PS 04_25_24			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_target_sorbent_temperature_to_repressurize				: REAL;												// PS 08_15_24		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_target_steam_pressure									: REAL;			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_minimum_desired_inlet_co2_concentration_during_adsorption		: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_minimum_inlet_air_temperature_during_adsorption					: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_high_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_high_temperature								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_low_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_low_temperature								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_percent_from_steam_purge_target_pressure							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_percent_of_ambient_pressure										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_reactor_set_1_vfd_percent										: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_reactor_set_2_vfd_percent										: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_reactor_set_3_vfd_percent										: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_repressurization_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_start_steam_purge_reactor_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_pressure_control_valve_initial_opening_duration			: REAL;					
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_pressurization_and_purge_duration							: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_purge_pressure												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_purge_pressure_decrease									: REAL;												// PS 04_25_24
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_target_desorption_starting_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_target_duration_from_adsorption_start_until_sorbent_cool			: REAL;							
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_target_pressure_change											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_unacceptable_duration_from_adsorption_start_until_sorbent_cool	: REAL;					
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_undesirable_duration_from_adsorption_start_until_sorbent_cool	: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_assisted_purge											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_duration											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_target_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_target_temperature								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_unacceptable_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_unacceptable_temperature							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_extend_wallace_clamp_duration									: REAL;
+			
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Theseus - P_M01
+// Rev 1.0 - November 27, 2024
+
+A_Drain_Condensate_Product_Cooling_Lines();
+
+rs1(	stop_rs_automode												:= stop_rs,
+        clear_reactor_set_pause											:= clear_rs);
+		
+rMinPressureSP															:= SP_ambient_pressure - (SP_percent_of_ambient_pressure / 100 * SP_ambient_pressure); 
+rMaxPressureSP															:= SP_ambient_pressure + (SP_percent_of_ambient_pressure / 100 * SP_ambient_pressure);
+
+A_AutoMode();
+]]></ST>
+    </Implementation>
+    <Action Name="A_AutoMode" Id="{09e55664-babb-4196-8f9d-296b538a2a5f}">
+      <Implementation>
+        <ST><![CDATA[// Theseus - P_M01.A_AutoMode
+// Rev 1.0 - October 4, 2024
+
+IF tb_Stop_Process OR rs1.utility_error THEN 																	// Stop all processes from HMI or if utility error occurs
+	P_U01.shutdown_process												:= TRUE;
+//	rs1.stop_rs_automode												:= TRUE;
+	stop_rs																:= TRUE;
+	bRSProcess															:= FALSE;
+	tb_Stop_Process														:= FALSE;
+END_IF
+
+IF tb_Cancel_Cycle OR rs1.cancel_all_reactor_sets THEN
+	iRS01CyclesToRun													:= SEL(rs1.tb_Process_Running, iRS01Count, iRS01Count + 1);
+	bRS01																:= SEL(iRS01Count >= iRS01CyclesToRun, bRS01, FALSE);
+	tb_Cancel_Cycle														:= FALSE;
+END_IF
+
+A_AutoMode_RS01();
+
+bReactorSetSelected														:= SP_include_reactor_set_1_in_process;
+IF ts_Cycle_Mode <> '' AND (P_U01.sUtilityError <> '' OR SP_desired_cycle_count = 0 OR NOT bReactorSetSelected) THEN		// Don't allow cycle if moodule or utility error occured, cycle count is zero or no reactor sets are selected
+	IF P_U01.sUtilityError  <> '' THEN
+		P_Alarms.M_Add_Alarm(_U01, P_U01.sUtilityError, gsProcessCannotRun);
+	ELSIF SP_desired_cycle_count = 0 THEN
+		P_Alarms.M_Add_Alarm(_U01, gsDesiredCycleCountError, gsProcessCannotRun);
+	ELSE
+		P_Alarms.M_Add_Alarm(_U01, gsNoReactorSetsSelected, gsProcessCannotRun);
+	END_IF
+	ts_Cycle_Mode														:= '';
+END_IF
+
+iLength																	:= LEN(ts_Cycle_Mode);							// Start process in this order '6745' (Evac, Desorp, Repres, Adsorp)
+rtrigStart(CLK:= iLength > 0);
+IF rtrigStart.Q THEN
+	gsCycleMode															:= ts_Cycle_Mode;
+	ts_Cycle_Mode														:= '';
+	iRS01CyclesToRun													:= SP_desired_cycle_count;
+	bRS01																:= SP_include_reactor_set_1_in_process;			// Get active reactors
+	IF iLength = 1 THEN																										// Single process selected
+		tb_Auto_Mode_On													:= FALSE;
+		bRSManual														:= STRING_TO_INT(gsCycleMode) >= eDoorCycle AND STRING_TO_INT(gsCycleMode) <= eDesorption;
+	ELSE
+		bRS01Selected													:= bRS01;
+		rs1.ti_Cycle_Count												:= 0;												// Completed cycles
+		iRS01Count														:= 0;												// Attempted cycles
+		tb_Auto_Mode_On													:= TRUE;
+		bRSProcess														:= TRUE;
+	END_IF
+END_IF
+
+IF bRSManual THEN
+	sCycleModeRS01														:= SEL(bRS01, sCycleModeRS01, gsCycleMode);
+	bRSManual															:= FALSE;
+ELSIF bRSProcess THEN
+	IF NOT bStarted THEN
+		sCycleModeRS01													:= gsCycleMode;
+		bStarted														:= TRUE;
+	END_IF
+	IF NOT bRS01 THEN																										// Stop process if reactor is not selected
+//		rs1.stop_rs_automode											:= TRUE;
+		stop_rs															:= TRUE;
+		bRSProcess														:= FALSE;
+	END_IF
+	
+	rtrigRS01Done(CLK:= rs1.Done);
+	IF rtrigRS01Done.Q THEN
+		sCycleModeRS01													:= '';												// Turn off cycle
+		bStarted														:= FALSE;
+		iRS01Count														:= iRS01Count + 1;									// This counter increments regardless of reactor status if long as reactor was selected
+		IF iRS01Count >= iRS01CyclesToRun THEN
+			bRS01														:= FALSE;
+			gsCycleMode													:= '';
+		END_IF
+		IF rs1.tb_Process_Complete THEN 																				// Increment counter once a valid cycle has run
+			rs1.ti_Cycle_Count											:= rs1.ti_Cycle_Count + 1;
+			rs1.ti_Total_Cycle_Count									:= 1;			///@@@
+		END_IF
+	END_IF
+	
+ELSE
+//	P_U01.write_persistent_data											:= TRUE;
+	sCycleModeRS01														:= '';
+	bRS01																:= FALSE;
+	bStarted															:= FALSE;
+	tb_Auto_Mode_On														:= FALSE;
+	
+END_IF
+
+rs1.cycle_mode 															:= sCycleModeRS01;
+
+IF NOT rs1.Process_Running THEN 
+	rs1.cycle_stage														:= gsCycleStage;
+//	gsCycleMode															:= '';
+END_IF
+
+// rs1.cycle_stage															:= SEL(bRS01 AND gsCycleStage <> '', gsM01RS01CycleStage, gsCycleStage);
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_AutoMode_RS01" Id="{fc49b2e0-a2a8-4bea-b9a9-b6cd56469bed}">
+      <Implementation>
+        <ST><![CDATA[// Theseus - P_M01.A_AutoMode_RS01
+// Rev 1.0 - October 4, 2024
+
+rtrigRS01Restart(CLK:= SP_include_reactor_set_1_in_process);
+IF rtrigRS01Restart.Q THEN
+	IF tb_Auto_Mode_On AND NOT bRS01Selected THEN 
+		SP_include_reactor_set_1_in_process								:= FALSE;
+	ELSE
+		bRS01															:= TRUE;
+		rs1.clear_rs_pause												:= TRUE;
+	END_IF
+END_IF
+
+//IF rs1.stop_rs_automode THEN
+IF stop_rs THEN
+	SP_include_reactor_set_1_in_process									:= FALSE;
+	bRS01Selected														:= FALSE;
+END_IF
+
+rtrigRS01Offline(CLK:= NOT SP_include_reactor_set_1_in_process);
+IF rtrigRS01Offline.Q THEN
+	bRS01																:= FALSE;
+END_IF
+
+IF rs1.cancel_reactor_set THEN
+	iRS01CyclesToRun													:= SEL(rs1.tb_Process_Running, iRS01Count, iRS01Count + 1);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Drain_Condensate_Product_Cooling_Lines" Id="{cd17a143-43f1-4b7b-95f2-4ecc9b135900}">
+      <Implementation>
+        <ST><![CDATA[// Theseus - P_M01.A_Drain_Condensate_Product_Cooling_Lines
+// Rev 1.0 - June 10, 2024
+
+(*IF gbDrainageOn THEN
+	IF (P_U01.purge_product_line_pres < P_U01.SP_drainage_function_cutoff_pressure) OR
+		(m01_rs1.purge_valve_closed AND m01_rs1.condensate_valve_closed) THEN
+		m.condensate_from_cooling_and_purge_lines_pump					:= FALSE;
+	ELSE
+		IF m.condensate_from_cooling_and_purge_linesh THEN
+			m.condensate_from_cooling_and_purge_lines_pump				:= TRUE;
+		END_IF
+		IF NOT m.condensate_from_cooling_and_purge_linesl THEN
+			m.condensate_from_cooling_and_purge_lines_pump				:= FALSE;
+		END_IF
+	END_IF
+	
+	rtrigCPDrainLSHOn(CLK:= tonCPDrainErrorOn.Q);
+	IF rtrigCPDrainLSHOn.Q THEN
+		P_Alarms.M_Add_Alarm(_M01, gsCondensateProductDrainError, gsProcessStopsAtEOC);
+		m.condensate_from_cooling_and_purge_lines_pump					:= FALSE;
+		bCPDrainError													:= TRUE;
+		m01.tb_Cancel_Cycle												:= TRUE;											// Complete current cycles
+	END_IF
+	tonCPDrainErrorOn(IN:= m.condensate_from_cooling_and_purge_linesh AND NOT bCPDrainError, PT:= _DRAIN_TIME);
+	
+	IF tonCPDrainErrorOff.Q THEN
+		bCPDrainError													:= FALSE;
+	END_IF
+	tonCPDrainErrorOff(IN:= NOT m.condensate_from_cooling_and_purge_linesh AND bCPDrainError, PT:= _DRAIN_TIME);
+END_IF
+*)]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="P_M01">
+      <LineId Id="1968" Count="2" />
+      <LineId Id="2009" Count="0" />
+      <LineId Id="2886" Count="0" />
+      <LineId Id="2885" Count="0" />
+      <LineId Id="2662" Count="0" />
+      <LineId Id="2887" Count="0" />
+      <LineId Id="2023" Count="2" />
+      <LineId Id="2032" Count="0" />
+      <LineId Id="99" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01.A_AutoMode">
+      <LineId Id="1892" Count="5" />
+      <LineId Id="2090" Count="0" />
+      <LineId Id="1900" Count="5" />
+      <LineId Id="1908" Count="0" />
+      <LineId Id="1911" Count="3" />
+      <LineId Id="1917" Count="2" />
+      <LineId Id="1922" Count="15" />
+      <LineId Id="1940" Count="0" />
+      <LineId Id="1943" Count="3" />
+      <LineId Id="1949" Count="0" />
+      <LineId Id="1952" Count="0" />
+      <LineId Id="1955" Count="0" />
+      <LineId Id="1958" Count="1" />
+      <LineId Id="1961" Count="3" />
+      <LineId Id="1966" Count="0" />
+      <LineId Id="1969" Count="0" />
+      <LineId Id="1971" Count="0" />
+      <LineId Id="2074" Count="0" />
+      <LineId Id="2077" Count="0" />
+      <LineId Id="2086" Count="0" />
+      <LineId Id="2080" Count="1" />
+      <LineId Id="2083" Count="0" />
+      <LineId Id="2091" Count="0" />
+      <LineId Id="2084" Count="1" />
+      <LineId Id="1972" Count="3" />
+      <LineId Id="2087" Count="0" />
+      <LineId Id="1976" Count="2" />
+      <LineId Id="2097" Count="0" />
+      <LineId Id="1979" Count="2" />
+      <LineId Id="1983" Count="3" />
+      <LineId Id="2046" Count="2" />
+      <LineId Id="2051" Count="0" />
+      <LineId Id="2055" Count="3" />
+      <LineId Id="2089" Count="0" />
+      <LineId Id="2092" Count="0" />
+      <LineId Id="2094" Count="2" />
+      <LineId Id="2098" Count="0" />
+      <LineId Id="2088" Count="0" />
+      <LineId Id="2059" Count="1" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01.A_AutoMode_RS01">
+      <LineId Id="2" Count="2" />
+      <LineId Id="9" Count="4" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="44" Count="5" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="52" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01.A_Drain_Condensate_Product_Cooling_Lines">
+      <LineId Id="2" Count="2" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="68" Count="2" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="55" Count="3" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="54" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

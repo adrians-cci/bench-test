@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_IEConvert" Id="{ff3f5164-3e55-4167-aa37-a4b26197bfc6}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_IEConvert : REAL
+VAR_INPUT
+	Input																: INT;
+	Factor																: REAL;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_IEConvert
+// Rev 1.0 - December 28, 2023
+
+F_IEConvert															:= INT_TO_REAL(Input) / Factor;]]></ST>
+    </Implementation>
+    <LineIds Name="F_IEConvert">
+      <LineId Id="46" Count="2" />
+      <LineId Id="10" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

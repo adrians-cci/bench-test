@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_ValveClear" Id="{7a1dd4b2-7dbb-4250-9f37-31cd86071f1d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_ValveClear : bool
+VAR_INPUT
+	Input																: BOOL;
+	Open																: BOOL;
+	Closed																: BOOL;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_ValveClear
+// Rev 1.0 - December 28, 2023
+
+F_ValveClear															:= ((Input AND Open) OR (NOT Input AND Closed)) AND NOT (Open = Closed);
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_ValveClear">
+      <LineId Id="12" Count="2" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

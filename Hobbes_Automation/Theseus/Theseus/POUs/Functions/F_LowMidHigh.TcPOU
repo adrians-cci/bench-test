@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_LowMidHigh" Id="{3e1774e1-6f9d-4ed8-a3ed-2a768482924c}" SpecialFunc="None">
+    <Declaration><![CDATA[/// <summary>Returns 0 if Value < Low, 2 if Value > High, 1 otherwise</summary>
+FUNCTION F_LowMidHigh : INT
+VAR_INPUT
+	Value																: REAL;
+	Low																	: REAL;
+	High																: REAL;
+	Current																: INT;
+END_VAR
+VAR
+	Out																	: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_LowMidHigh
+// Rev 1.0 - April 19, 2024
+
+IF Value > High THEN
+	Out																	:= 2;
+ELSIF Value >= Low THEN
+	Out																	:= 1;
+ELSE
+	Out																	:= 0;
+END_IF
+F_LowMidHigh															:= F_HighestInt(Value1:= Out, Value2:= Current);
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_LowMidHigh">
+      <LineId Id="16" Count="1" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="43" Count="2" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
