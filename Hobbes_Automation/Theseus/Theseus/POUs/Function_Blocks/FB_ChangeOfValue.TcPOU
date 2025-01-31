@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ChangeOfValue" Id="{bec52b21-adb8-44f5-9118-a1c46c6d7003}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ChangeOfValue
+VAR_INPUT
+	i_execute		: BOOL;
+	i_value			: REAL;
+	i_time			: REAL;
+	i_threshold			: REAL;
+END_VAR
+VAR_OUTPUT
+	o_delta				: REAL;
+	o_below_threshold	: BOOL;
+	o_timeout			: BOOL;
+END_VAR
+VAR
+	tmrSampleTime	: TON;
+	state			: (idle, first_cycle,second_cycle);
+	rtrig_execute	: R_TRIG;
+	value_first_cycle	: REAL;
+	value_second_cycle	: REAL;
+	old_value : REAL;
+	new_value : REAL;
+	delta_value : REAL;
+	tmrTimeout : TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[rtrig_execute(CLK := i_execute);
+(*
+IF NOT i_execute THEN
+	state := idle;
+END_IF
+
+CASE state OF
+	idle : 	
+		tmrSampleTime.IN := FALSE;
+		IF rtrig_execute.Q THEN 
+			o_oor := FALSE;
+			o_delta := 0;
+//			state := first_cycle;
+			
+		END_IF
+	first_cycle: 
+		value_first_cycle := i_value;
+		tmrSampleTime.IN := TRUE;
+		state := second_cycle;
+	second_cycle:
+		IF tmrSampleTime.Q THEN
+			value_second_cycle := i_value;
+			o_delta := ABS(value_second_cycle - value_first_cycle);
+			tmrSampleTime.IN := FALSE;
+			IF o_delta < i_range THEN
+				o_oor := TRUE;
+			ELSE
+				o_oor := FALSE;
+			END_IF
+			state := first_cycle;
+		END_IF
+		
+		
+END_CASE
+*)
+
+IF rtrig_execute.Q THEN
+	old_value := i_value;
+	o_below_threshold := FALSE;
+	tmrTimeout.IN := TRUE;
+
+END_IF
+IF i_execute THEN
+	tmrSampleTime.IN := TRUE;
+	IF tmrSampleTime.Q THEN
+		tmrSampleTime.IN := FALSE;
+		new_value := i_value;
+		delta_value := ABS(new_value - old_value);
+		old_value := new_value;
+		o_below_threshold := delta_value < i_threshold;
+	END_IF
+ELSE
+	tmrSampleTime.IN := FALSE;
+	tmrTimeout.IN 	:= FALSE;
+END_IF
+
+IF tmrTimeout.Q THEN
+	o_timeout := TRUE;
+ELSE
+	o_timeout := FALSE;	
+END_IF
+
+tmrSampleTime(PT:= TO_TIME(i_time)*1000);
+tmrTimeout(PT := T#600S);
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_ChangeOfValue">
+      <LineId Id="210" Count="38" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="249" Count="12" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="262" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="0" />
+      <LineId Id="275" Count="0" />
+      <LineId Id="277" Count="0" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="263" Count="1" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="265" Count="1" />
+      <LineId Id="87" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -232,7 +232,14 @@ VAR
 	bCondition1															: BOOL;
 	bCondition2															: BOOL;
 	bCondition3															: BOOL;
-
+	
+	reactor_drain_adsorption_on											: BOOL;
+	tmrDrainAdsorp														: TON;
+	waterscale_desorp													: REAL;
+	water_scale_change_oor												: BOOL;
+	fb_adsorp_reactor_wastewater											: FB_ChangeOfValue;
+	
+	
 	{attribute 'OPC.UA.DA' := '1'}  				                
 	{attribute 'OPC.UA.DA.Access' := '1'}  				                
 	ti_Machine_State													: INT;
@@ -859,7 +866,24 @@ IF 	rtrigCondensateValveOff_DrainOff.Q THEN
 END_IF
 
 
-gbCondensateValve														:= condensate_valve;]]></ST>
+gbCondensateValve														:= condensate_valve;
+
+fb_adsorp_reactor_wastewater
+	( i_execute := reactor_drain_adsorption_on,
+	  i_value := P_U01.water_scale_3,
+	  i_time := 30,
+	  i_threshold := 1);
+	  
+IF reactor_drain_adsorption_on THEN
+	IF NOT fb_adsorp_reactor_wastewater.o_below_threshold THEN
+		condensate_valve											:= TRUE;
+	ELSIF fb_adsorp_reactor_wastewater.o_below_threshold OR fb_adsorp_reactor_wastewater.o_timeout THEN
+		condensate_valve											:= FALSE;
+		reactor_drain_adsorption_on := FALSE;
+	END_IF
+END_IF
+
+]]></ST>
       </Implementation>
     </Action>
     <Action Name="A_Idle" Id="{f9da58c1-f853-41c1-a061-a5899835c823}">
@@ -1058,6 +1082,9 @@ IF NOT r1.reactor_pres_error THEN
 	iCount																:= iCount + 1;
 	iError																:= iError - 1;
 END_IF
+
+
+
 ]]></ST>
       </Implementation>
     </Action>
@@ -1877,12 +1904,28 @@ CASE i5Step OF
 		bTimer1															:= TRUE;
 		IF sorbent_average_temp < 40 THEN
 			bTimer1														:= FALSE; 
+			reactor_drain_adsorption_on									:= TRUE;
+			rTime1														:= 120 * _SECONDS;
 			i5Step														:= i5Step + 1; 
 		ELSIF tonTimer1.Q THEN
 			sReactorError												:= 'Evac Sorbent did not cool down enough at beginning of desorption';		
 		END_IF
 		
-	8: 
+	8:   // new step
+		
+		IF NOT reactor_drain_adsorption_on THEN
+			bTimer1														:= TRUE;
+		END_IF
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			P_U01.condenser_knockout_drain_adsorption_on				:= TRUE;
+			i5Step														:= i5Step + 1; 
+		END_IF
+		IF tonTimer2.Q THEN
+			i5Step														:= i5Step + 1; 
+		END_IF
+		
+	9: 
 		
 		IF tonTimer2.Q THEN
 			bTimer2														:= FALSE; 
@@ -1891,7 +1934,7 @@ CASE i5Step OF
 			i5Step														:= i5Step + 1; 
 		END_IF
 		
-	9: 
+	10: 
 		
 		
 		bTimer1															:= TRUE;
@@ -1905,7 +1948,7 @@ CASE i5Step OF
 			sReactorError												:= 'Adsorption Fan VFD did not turn off';	
 		END_IF
 		
-	10:
+	11:
 		cycle_stage														:= 'adsorption.stopping ';
 		
 		bTimer1															:= TRUE;
@@ -1921,7 +1964,7 @@ CASE i5Step OF
 			sReactorError												:= gsDoorsNotClosedError;
 		END_IF
 		
-	11:
+	12:
 		
 		bTimer1															:= TRUE;
 				
@@ -3019,6 +3062,18 @@ END_IF]]></ST>
       <LineId Id="64" Count="0" />
       <LineId Id="83" Count="0" />
       <LineId Id="1" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="103" Count="3" />
+      <LineId Id="108" Count="0" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="121" Count="2" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="111" Count="0" />
     </LineIds>
     <LineIds Name="FB_Reactor_Set.A_Idle">
       <LineId Id="2" Count="1" />
@@ -3093,6 +3148,8 @@ END_IF]]></ST>
       <LineId Id="170" Count="4" />
       <LineId Id="191" Count="0" />
       <LineId Id="193" Count="10" />
+      <LineId Id="544" Count="1" />
+      <LineId Id="543" Count="0" />
       <LineId Id="1" Count="0" />
     </LineIds>
     <LineIds Name="FB_Reactor_Set.A_Reset">
@@ -3422,7 +3479,19 @@ END_IF]]></ST>
       <LineId Id="87" Count="0" />
       <LineId Id="185" Count="0" />
       <LineId Id="203" Count="0" />
-      <LineId Id="88" Count="13" />
+      <LineId Id="88" Count="6" />
+      <LineId Id="266" Count="1" />
+      <LineId Id="95" Count="3" />
+      <LineId Id="251" Count="2" />
+      <LineId Id="258" Count="1" />
+      <LineId Id="261" Count="0" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="264" Count="0" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="265" Count="0" />
+      <LineId Id="254" Count="2" />
+      <LineId Id="99" Count="2" />
       <LineId Id="103" Count="1" />
       <LineId Id="240" Count="1" />
       <LineId Id="105" Count="6" />

@@ -91,6 +91,9 @@
     <Compile Include="POUs\Function_Blocks\FB_Analog_Out.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Function_Blocks\FB_ChangeOfValue.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Function_Blocks\FB_Door_Closed.TcPOU">
       <SubType>Code</SubType>
     </Compile>

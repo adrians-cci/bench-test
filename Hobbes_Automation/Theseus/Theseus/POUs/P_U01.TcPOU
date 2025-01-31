@@ -87,6 +87,7 @@ VAR_INPUT
 	vacuum_separator_drain_pump											: BOOL;
     /// <summary>PCV02</summary>
 	steam_flow_control_valve_setpoint									: REAL;
+	condenser_knockout_drain_adsorption_on									: BOOL;
 	
 END_VAR
 VAR_OUTPUT
@@ -180,6 +181,7 @@ VAR
 	water_scales_out_rate												: REAL;
 	{attribute 'OPC.UA.DA' := '1'} 
 	water_scales_reset													: BOOL;
+	fb_adsorp_product_wastewater										: FB_ChangeOfValue;
 	
 	{attribute 'OPC.UA.DA' := '1'}  				                
 	pressure_drop_test													: BOOL;							// Pressure drop test flag
@@ -368,6 +370,11 @@ VAR
 	moving_avg_in_sim_timer											: TON;
 	
 	fbMovingAverage													: FB_MovingAverage;
+	
+	condenser_tank_capacity										: REAL;
+	steam_delivery_tank_capacity										: REAL;
+	condenser_tank_room_before_full										: REAL;
+	steam_delivery_tank_before_empty										: REAL;
 	
     /// <summary>LS01</summary>
 	{attribute 'OPC.UA.DA' := '1'}  				                
@@ -1445,7 +1452,17 @@ VAR PERSISTENT
 	{attribute 'OPC.UA.DA' := '1'}  				                
 	SP_vacuum_separator_level_mid										: REAL;							// PS 08_22_24									
 	{attribute 'OPC.UA.DA' := '1'}  				                
-	SP_vacuum_separator_level_low										: REAL;							// PS 08_22_24									
+	SP_vacuum_separator_level_low										: REAL;							// PS 08_22_24	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_waste_water_tank_weight_full										: REAL;										
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_waste_water_tank_weight_empty									: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_steam_water_tank_weight_full										: REAL;										
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_steam_water_tank_weight_empty									: REAL;	
+	
+	
 	
     /// <summary>PCV01</summary>
 	vacuum_pres_control_valve_setpoint									: REAL;
@@ -1512,6 +1529,16 @@ fb_WaterScales_Out (
 IF water_scales_reset THEN
 	water_scales_reset := FALSE;
 END_IF
+
+// Water Scales Capapcity Desorption 
+condenser_tank_capacity := SP_waste_water_tank_weight_full - SP_waste_water_tank_weight_empty;
+steam_delivery_tank_capacity := SP_steam_water_tank_weight_full - SP_steam_water_tank_weight_empty;
+condenser_tank_room_before_full	:= SP_waste_water_tank_weight_full - water_scale_3;
+steam_delivery_tank_before_empty := (water_scale_1 + water_scale_2) -  SP_steam_water_tank_weight_empty;
+
+
+
+
 
 ]]></ST>
     </Implementation>
@@ -1644,6 +1671,22 @@ rtrigKODrainValve(CLK:= NOT gbDrainageOn AND NOT condenser_knockout_drain_or_on 
 IF rtrigKODrainValve.Q THEN
 	knockout_drain_valve												:= FALSE;
 END_IF
+
+fb_adsorp_product_wastewater
+	( i_execute := condenser_knockout_drain_adsorption_on,
+	  i_value := P_U01.water_scale_3,
+	  i_time := 30,
+	  i_threshold := 1);
+	  
+IF condenser_knockout_drain_adsorption_on THEN
+	IF NOT fb_adsorp_product_wastewater.o_below_threshold THEN
+		knockout_drain_valve											:= TRUE;
+	ELSIF fb_adsorp_product_wastewater.o_below_threshold OR fb_adsorp_product_wastewater.o_timeout THEN
+		knockout_drain_valve											:= FALSE;
+		condenser_knockout_drain_adsorption_on 							:= FALSE;
+	END_IF
+END_IF
+
 
 IF NOT interlock_condensate_pump_or THEN
 	condensate_pump														:= knockout_drain_valve OR gbCondensateValve;
@@ -2934,31 +2977,7 @@ END_CASE
       </Implementation>
     </Action>
     <LineIds Name="P_U01">
-      <LineId Id="2116" Count="3" />
-      <LineId Id="6518" Count="0" />
-      <LineId Id="7968" Count="0" />
-      <LineId Id="2121" Count="4" />
-      <LineId Id="2247" Count="0" />
-      <LineId Id="2126" Count="2" />
-      <LineId Id="2130" Count="1" />
-      <LineId Id="2133" Count="1" />
-      <LineId Id="2136" Count="1" />
-      <LineId Id="2139" Count="0" />
-      <LineId Id="2246" Count="0" />
-      <LineId Id="2248" Count="0" />
-      <LineId Id="2140" Count="15" />
-      <LineId Id="3657" Count="0" />
-      <LineId Id="3656" Count="0" />
-      <LineId Id="3658" Count="0" />
-      <LineId Id="3662" Count="1" />
-      <LineId Id="3667" Count="1" />
-      <LineId Id="3665" Count="0" />
-      <LineId Id="3669" Count="0" />
-      <LineId Id="3671" Count="4" />
-      <LineId Id="3670" Count="0" />
-      <LineId Id="3661" Count="0" />
-      <LineId Id="5084" Count="2" />
-      <LineId Id="3660" Count="0" />
+      <LineId Id="17064" Count="69" />
       <LineId Id="1894" Count="0" />
     </LineIds>
     <LineIds Name="P_U01.A_IO_Points">
@@ -3039,6 +3058,11 @@ END_CASE
       <LineId Id="2581" Count="17" />
       <LineId Id="2603" Count="1" />
       <LineId Id="2607" Count="1" />
+      <LineId Id="2676" Count="0" />
+      <LineId Id="2679" Count="5" />
+      <LineId Id="2694" Count="6" />
+      <LineId Id="2678" Count="0" />
+      <LineId Id="2675" Count="0" />
       <LineId Id="2610" Count="0" />
       <LineId Id="2601" Count="0" />
       <LineId Id="2576" Count="0" />

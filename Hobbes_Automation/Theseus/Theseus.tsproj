@@ -69,11 +69,400 @@
 		</System>
 		<Plc>
 			<Project GUID="{70247F44-0E5A-4D6F-BDCF-958D2E610C2A}" Name="Theseus" PrjFilePath="Theseus\Theseus.plcproj" TmcFilePath="Theseus\Theseus.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Theseus\Theseus.tmc" TmcHash="{A73757B2-D4DB-E7D0-2F4E-AD5B47E55ADC}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Theseus\Theseus.tmc" TmcHash="{349B049F-4F7B-D126-3E20-DDF2272BB6AC}">
 					<Name>Theseus Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
 						<Name>PlcTask Inputs</Name>
+						<Var>
+							<Name>P_U01.product_condensate_drum_lsl</Name>
+							<Comment><![CDATA[ <summary>LS01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.product_condensate_drum_lsh</Name>
+							<Comment><![CDATA[ <summary>LS02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.AT_02_error</Name>
+							<Comment><![CDATA[ <summary>AT02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.AT_02</Name>
+							<Comment><![CDATA[ <summary>AT02</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.AT_03</Name>
+							<Comment><![CDATA[ <summary>product outlet h2o</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.AT_03_error</Name>
+							<Comment><![CDATA[ <summary>product outlet h2o</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_02_error</Name>
+							<Comment><![CDATA[ <summary>product outlet flow</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_02</Name>
+							<Comment><![CDATA[ <summary>product outlet flow</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_04</Name>
+							<Comment><![CDATA[ <summary>condensate flow</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_04_error</Name>
+							<Comment><![CDATA[ <summary>condensate flow</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_05_error</Name>
+							<Comment><![CDATA[ <summary>tap water feed flow</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_05</Name>
+							<Comment><![CDATA[ <summary>tap water feed flow</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_06</Name>
+							<Comment><![CDATA[ <summary>steam flow</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_06_error</Name>
+							<Comment><![CDATA[ <summary>steam flow</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_07_error</Name>
+							<Comment><![CDATA[ <summary>vacuum pump water flow</summary>
+ <summary>FT07</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_07</Name>
+							<Comment><![CDATA[ <summary>vacuum pump water flow</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_08</Name>
+							<Comment><![CDATA[ <summary>vacuum pump water flow</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.FT_08_error</Name>
+							<Comment><![CDATA[ <summary>vacuum pump water flow</summary>
+ <summary>FT08</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.LT_01_error</Name>
+							<Comment><![CDATA[ <summary>steam water tank level</summary>
+ <summary>LT01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.LT_01</Name>
+							<Comment><![CDATA[ <summary>steam water tank level</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.LT_02</Name>
+							<Comment><![CDATA[ <summary>vacuum separator level</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.LT_02_error</Name>
+							<Comment><![CDATA[ <summary>vacuum separator level</summary>
+ <summary>LT02</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.PT_04_error</Name>
+							<Comment><![CDATA[ <summary>product vacuum pres</summary>
+ <summary>PT04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.PT_04</Name>
+							<Comment><![CDATA[ <summary>product vacuum pres</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.PT_07</Name>
+							<Comment><![CDATA[ <summary>steam line pres</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.PT_07_error</Name>
+							<Comment><![CDATA[ <summary>steam line pres</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.PDT_04_error</Name>
+							<Comment><![CDATA[ <summary>flow calibration diff pres</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.PDT_04</Name>
+							<Comment><![CDATA[ <summary>flow calibration diff pres</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.TT_02</Name>
+							<Comment><![CDATA[ <summary>product temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.TT_02_error</Name>
+							<Comment><![CDATA[ <summary>product temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.TT_03_error</Name>
+							<Comment><![CDATA[ <summary>product vacuum temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.TT_03</Name>
+							<Comment><![CDATA[ <summary>product vacuum temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.TT_06</Name>
+							<Comment><![CDATA[ <summary>inlet line temp</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.TT_06_error</Name>
+							<Comment><![CDATA[ <summary>inlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.TT_10_error</Name>
+							<Comment><![CDATA[ <summary>vacuum pump water temp 1</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.TT_10</Name>
+							<Comment><![CDATA[ <summary>vacuum pump water temp 1</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.TT_11</Name>
+							<Comment><![CDATA[ <summary>vacuum pump water temp 2</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.TT_11_error</Name>
+							<Comment><![CDATA[ <summary>vacuum pump water temp 2</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.vacuum_pump_inlet_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.vacuum_pump_inlet_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV03</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.vacuum_pump_bypass_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.vacuum_pump_bypass_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV04</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.knockout_drain_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV06</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.knockout_drain_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV06</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.dead_air_inlet_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV10</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.dead_air_inlet_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV10</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.product_line_ambient_valve_product</Name>
+							<Comment><![CDATA[ <summary>XV11</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.product_line_ambient_valve_ambient</Name>
+							<Comment><![CDATA[@@@ Assuming open valve is Product
+ <summary>XV11</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.separator_drain_valve_open</Name>
+							<Comment><![CDATA[ <summary>XV13</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.separator_drain_valve_closed</Name>
+							<Comment><![CDATA[ <summary>XV13</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.vacuum_pres_control_valve_position_error</Name>
+							<Comment><![CDATA[ <summary>PCV01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.PCV_01_position</Name>
+							<Comment><![CDATA[ <summary>vacuum pressure control valve</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.PCV_02_position</Name>
+							<Comment><![CDATA[ <summary>steam flow control valve</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l1_current_240_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l2_current_240_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.IT1</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.IT2</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l3_current_240_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l1_voltage_240_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.IT3</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.VT1</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l2_voltage_240_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l3_voltage_240_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.VT2</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.VT3</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l1_current_120_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l1_voltage_120_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.IT4</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.VT4</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l1_current_boiler_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l2_current_boiler_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.IT_boiler_01</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.IT_boiler_02</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.l3_current_boiler_error</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.IT_boiler_03</Name>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.WI_01_error</Name>
+							<Comment><![CDATA[ <summary>water scale 1</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.WI_01</Name>
+							<Comment><![CDATA[ <summary>water scale 1</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.WI_02</Name>
+							<Comment><![CDATA[ <summary>water scale 2</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.WI_02_error</Name>
+							<Comment><![CDATA[ <summary>water scale 2</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.WI_03_error</Name>
+							<Comment><![CDATA[ <summary>water scale 3</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>P_U01.WI_03</Name>
+							<Comment><![CDATA[ <summary>water scale 3/summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
 						<Var>
 							<Name>P_M01.rs1.r1.AT_01</Name>
 							<Comment><![CDATA[ <summary>Inlet CO2</summary>]]></Comment>
@@ -611,398 +1000,109 @@
 							<Comment><![CDATA[ <summary>RS_XV08</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
+					</Vars>
+					<Vars VarGrpType="2" AreaNo="1">
+						<Name>PlcTask Outputs</Name>
 						<Var>
-							<Name>P_U01.product_condensate_drum_lsl</Name>
-							<Comment><![CDATA[ <summary>LS01</summary>]]></Comment>
+							<Name>P_U01.B_01</Name>
+							<Comment><![CDATA[ <summary>boiler package</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.product_condensate_drum_lsh</Name>
-							<Comment><![CDATA[ <summary>LS02</summary>]]></Comment>
+							<Name>P_U01.boiler_reset</Name>
+							<Comment><![CDATA[ <summary>B01</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.AT_02_error</Name>
-							<Comment><![CDATA[ <summary>AT02</summary>]]></Comment>
+							<Name>P_U01.P_01</Name>
+							<Comment><![CDATA[ <summary>vacuum pump</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.AT_02</Name>
-							<Comment><![CDATA[ <summary>AT02</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.AT_03</Name>
-							<Comment><![CDATA[ <summary>product outlet h2o</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.AT_03_error</Name>
-							<Comment><![CDATA[ <summary>product outlet h2o</summary>]]></Comment>
+							<Name>P_U01.P_02</Name>
+							<Comment><![CDATA[ <summary>vacuum pump</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.FT_02_error</Name>
-							<Comment><![CDATA[ <summary>product outlet flow</summary>]]></Comment>
+							<Name>P_U01.P_03</Name>
+							<Comment><![CDATA[ <summary>condensate pump</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.FT_02</Name>
-							<Comment><![CDATA[ <summary>product outlet flow</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.FT_04</Name>
-							<Comment><![CDATA[ <summary>condensate flow</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.FT_04_error</Name>
-							<Comment><![CDATA[ <summary>condensate flow</summary>]]></Comment>
+							<Name>P_U01.P_04</Name>
+							<Comment><![CDATA[ <summary>condenser pump</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.FT_05_error</Name>
-							<Comment><![CDATA[ <summary>tap water feed flow</summary>]]></Comment>
+							<Name>P_U01.P_05</Name>
+							<Comment><![CDATA[ <summary>vacuum liquid pump</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.FT_05</Name>
-							<Comment><![CDATA[ <summary>tap water feed flow</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.FT_06</Name>
-							<Comment><![CDATA[ <summary>steam flow</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.FT_06_error</Name>
-							<Comment><![CDATA[ <summary>steam flow</summary>]]></Comment>
+							<Name>P_U01.P_06</Name>
+							<Comment><![CDATA[ <summary>vacuum cooling pump</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.FT_07_error</Name>
-							<Comment><![CDATA[ <summary>vacuum pump water flow</summary>
- <summary>FT07</summary>]]></Comment>
+							<Name>P_U01.E_01</Name>
+							<Comment><![CDATA[ <summary>condenser fan</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.FT_07</Name>
-							<Comment><![CDATA[ <summary>vacuum pump water flow</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.FT_08</Name>
-							<Comment><![CDATA[ <summary>vacuum pump water flow</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.FT_08_error</Name>
-							<Comment><![CDATA[ <summary>vacuum pump water flow</summary>
- <summary>FT08</summary>]]></Comment>
+							<Name>P_U01.X_01</Name>
+							<Comment><![CDATA[ <summary>vacuum liquid loop fan</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.LT_01_error</Name>
-							<Comment><![CDATA[ <summary>steam water tank level</summary>
- <summary>LT01</summary>]]></Comment>
+							<Name>P_U01.XV_03</Name>
+							<Comment><![CDATA[ <summary>vacuum pump inlet valve</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.LT_01</Name>
-							<Comment><![CDATA[ <summary>steam water tank level</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.LT_02</Name>
-							<Comment><![CDATA[ <summary>vacuum separator level</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.LT_02_error</Name>
-							<Comment><![CDATA[ <summary>vacuum separator level</summary>
- <summary>LT02</summary>]]></Comment>
+							<Name>P_U01.XV_04</Name>
+							<Comment><![CDATA[ <summary>vacuum pump bypass valve</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.PT_04_error</Name>
-							<Comment><![CDATA[ <summary>product vacuum pres</summary>
- <summary>PT04</summary>]]></Comment>
+							<Name>P_U01.XV_06</Name>
+							<Comment><![CDATA[ <summary>knockout drain valve</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.PT_04</Name>
-							<Comment><![CDATA[ <summary>product vacuum pres</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.PT_07</Name>
-							<Comment><![CDATA[ <summary>steam line pres</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.PT_07_error</Name>
-							<Comment><![CDATA[ <summary>steam line pres</summary>]]></Comment>
+							<Name>P_U01.XV_10</Name>
+							<Comment><![CDATA[ <summary>dead air inlet valve</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.PDT_04_error</Name>
-							<Comment><![CDATA[ <summary>flow calibration diff pres</summary>]]></Comment>
+							<Name>P_U01.XV_11</Name>
+							<Comment><![CDATA[@@@ Assuming closed valve is Ambient
+ <summary>product line ambient valve</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.PDT_04</Name>
-							<Comment><![CDATA[ <summary>flow calibration diff pres</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.TT_02</Name>
-							<Comment><![CDATA[ <summary>product temp</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.TT_02_error</Name>
-							<Comment><![CDATA[ <summary>product temp</summary>]]></Comment>
+							<Name>P_U01.XV_12</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.TT_03_error</Name>
-							<Comment><![CDATA[ <summary>product vacuum temp</summary>]]></Comment>
+							<Name>P_U01.XV_13</Name>
+							<Comment><![CDATA[ <summary>dead air inlet valve</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.TT_03</Name>
-							<Comment><![CDATA[ <summary>product vacuum temp</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.TT_06</Name>
-							<Comment><![CDATA[ <summary>inlet line temp</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.TT_06_error</Name>
-							<Comment><![CDATA[ <summary>inlet line temp</summary>]]></Comment>
+							<Name>P_U01.XV_14</Name>
+							<Comment><![CDATA[ <summary>steam water reservoir valve</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.TT_10_error</Name>
-							<Comment><![CDATA[ <summary>vacuum pump water temp 1</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.TT_10</Name>
-							<Comment><![CDATA[ <summary>vacuum pump water temp 1</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.TT_11</Name>
-							<Comment><![CDATA[ <summary>vacuum pump water temp 2</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.TT_11_error</Name>
-							<Comment><![CDATA[ <summary>vacuum pump water temp 2</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.vacuum_pump_inlet_valve_open</Name>
-							<Comment><![CDATA[ <summary>XV03</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.vacuum_pump_inlet_valve_closed</Name>
-							<Comment><![CDATA[ <summary>XV03</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.vacuum_pump_bypass_valve_open</Name>
-							<Comment><![CDATA[ <summary>XV04</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.vacuum_pump_bypass_valve_closed</Name>
-							<Comment><![CDATA[ <summary>XV04</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.knockout_drain_valve_open</Name>
-							<Comment><![CDATA[ <summary>XV06</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.knockout_drain_valve_closed</Name>
-							<Comment><![CDATA[ <summary>XV06</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.dead_air_inlet_valve_open</Name>
-							<Comment><![CDATA[ <summary>XV10</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.dead_air_inlet_valve_closed</Name>
-							<Comment><![CDATA[ <summary>XV10</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.product_line_ambient_valve_product</Name>
-							<Comment><![CDATA[ <summary>XV11</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.product_line_ambient_valve_ambient</Name>
-							<Comment><![CDATA[@@@ Assuming open valve is Product
- <summary>XV11</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.separator_drain_valve_open</Name>
-							<Comment><![CDATA[ <summary>XV13</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.separator_drain_valve_closed</Name>
-							<Comment><![CDATA[ <summary>XV13</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.vacuum_pres_control_valve_position_error</Name>
-							<Comment><![CDATA[ <summary>PCV01</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.PCV_01_position</Name>
+							<Name>P_U01.PCV_01</Name>
 							<Comment><![CDATA[ <summary>vacuum pressure control valve</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>P_U01.PCV_02_position</Name>
+							<Name>P_U01.PCV_02</Name>
 							<Comment><![CDATA[ <summary>steam flow control valve</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
-						<Var>
-							<Name>P_U01.l1_current_240_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.l2_current_240_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.IT1</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.IT2</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.l3_current_240_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.l1_voltage_240_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.IT3</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.VT1</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.l2_voltage_240_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.l3_voltage_240_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.VT2</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.VT3</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.l1_current_120_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.l1_voltage_120_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.IT4</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.VT4</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.l1_current_boiler_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.l2_current_boiler_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.IT_boiler_01</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.IT_boiler_02</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.l3_current_boiler_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.IT_boiler_03</Name>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.WI_01_error</Name>
-							<Comment><![CDATA[ <summary>water scale 1</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.WI_01</Name>
-							<Comment><![CDATA[ <summary>water scale 1</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.WI_02</Name>
-							<Comment><![CDATA[ <summary>water scale 2</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.WI_02_error</Name>
-							<Comment><![CDATA[ <summary>water scale 2</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.WI_03_error</Name>
-							<Comment><![CDATA[ <summary>water scale 3</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.WI_03</Name>
-							<Comment><![CDATA[ <summary>water scale 3/summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-					</Vars>
-					<Vars VarGrpType="2" AreaNo="1">
-						<Name>PlcTask Outputs</Name>
 						<Var>
 							<Name>P_M01.rs1.r1.AT_01_pump</Name>
 							<Comment><![CDATA[ <summary>Inlet CO2 pump</summary>]]></Comment>
@@ -1132,106 +1232,6 @@
 							<Name>P_M01.rs1.XV_08</Name>
 							<Comment><![CDATA[ <summary>steam bypass valve</summary>]]></Comment>
 							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.B_01</Name>
-							<Comment><![CDATA[ <summary>boiler package</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.boiler_reset</Name>
-							<Comment><![CDATA[ <summary>B01</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.P_01</Name>
-							<Comment><![CDATA[ <summary>vacuum pump</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.P_02</Name>
-							<Comment><![CDATA[ <summary>vacuum pump</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.P_03</Name>
-							<Comment><![CDATA[ <summary>condensate pump</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.P_04</Name>
-							<Comment><![CDATA[ <summary>condenser pump</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.P_05</Name>
-							<Comment><![CDATA[ <summary>vacuum liquid pump</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.P_06</Name>
-							<Comment><![CDATA[ <summary>vacuum cooling pump</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.E_01</Name>
-							<Comment><![CDATA[ <summary>condenser fan</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.X_01</Name>
-							<Comment><![CDATA[ <summary>vacuum liquid loop fan</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.XV_03</Name>
-							<Comment><![CDATA[ <summary>vacuum pump inlet valve</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.XV_04</Name>
-							<Comment><![CDATA[ <summary>vacuum pump bypass valve</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.XV_06</Name>
-							<Comment><![CDATA[ <summary>knockout drain valve</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.XV_10</Name>
-							<Comment><![CDATA[ <summary>dead air inlet valve</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.XV_11</Name>
-							<Comment><![CDATA[@@@ Assuming closed valve is Ambient
- <summary>product line ambient valve</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.XV_12</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.XV_13</Name>
-							<Comment><![CDATA[ <summary>dead air inlet valve</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.XV_14</Name>
-							<Comment><![CDATA[ <summary>steam water reservoir valve</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.PCV_01</Name>
-							<Comment><![CDATA[ <summary>vacuum pressure control valve</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>P_U01.PCV_02</Name>
-							<Comment><![CDATA[ <summary>steam flow control valve</summary>]]></Comment>
-							<Type>INT</Type>
 						</Var>
 					</Vars>
 					<UnrestoredVarLinks ImportTime="2024-02-05T16:02:00">
