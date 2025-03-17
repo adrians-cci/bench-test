@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RSLogix5000Content SchemaRevision="1.0" SoftwareRevision="32.02" TargetName="Seq1_Test" TargetType="Routine" TargetSubType="RLL" ContainsContext="true" ExportDate="Wed Mar 12 17:29:01 2025" ExportOptions="References NoRawData L5KData DecoratedData Context Dependencies ForceProtectedEncoding AllProjDocTrans">
+<Controller Use="Context" Name="Test_PID">
+<DataTypes Use="Context">
+<DataType Name="SeqSteps" Family="NoFamily" Class="User">
+<Members>
+<Member Name="ZZZZZZZZZZSeqSteps0" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="true" ExternalAccess="Read/Write"/>
+<Member Name="Step1" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZSeqSteps0" BitNumber="0" ExternalAccess="Read/Write"/>
+<Member Name="Step2" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZSeqSteps0" BitNumber="1" ExternalAccess="Read/Write"/>
+<Member Name="Step3" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZSeqSteps0" BitNumber="2" ExternalAccess="Read/Write"/>
+<Member Name="Step4" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZSeqSteps0" BitNumber="3" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="SeqTimers" Family="NoFamily" Class="User">
+<Members>
+<Member Name="Timer1" DataType="TIMER" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="Timer2" DataType="TIMER" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write"/>
+<Member Name="Timer3" DataType="TIMER" Dimension="0" Radix="NullType" Hidden="false" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+<DataType Name="SeqTransition" Family="NoFamily" Class="User">
+<Members>
+<Member Name="ZZZZZZZZZZSeqTransit0" DataType="SINT" Dimension="0" Radix="Decimal" Hidden="true" ExternalAccess="Read/Write"/>
+<Member Name="Condition1" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZSeqTransit0" BitNumber="0" ExternalAccess="Read/Write"/>
+<Member Name="Condition2" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZSeqTransit0" BitNumber="1" ExternalAccess="Read/Write"/>
+<Member Name="Condition3" DataType="BIT" Dimension="0" Radix="Decimal" Hidden="false" Target="ZZZZZZZZZZSeqTransit0" BitNumber="2" ExternalAccess="Read/Write"/>
+</Members>
+</DataType>
+</DataTypes>
+<Tags Use="Context">
+<Tag Name="seq1_active" TagType="Base" DataType="BOOL" Radix="Decimal" Constant="false" ExternalAccess="Read/Write">
+<Data Format="L5K">
+<![CDATA[0]]>
+</Data>
+<Data Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</Data>
+</Tag>
+<Tag Name="seq1_done" TagType="Base" DataType="BOOL" Radix="Decimal" Constant="false" ExternalAccess="Read/Write">
+<Data Format="L5K">
+<![CDATA[0]]>
+</Data>
+<Data Format="Decorated">
+<DataValue DataType="BOOL" Radix="Decimal" Value="0"/>
+</Data>
+</Tag>
+<Tag Name="seq1_fault" TagType="Base" DataType="INT" Radix="Decimal" Constant="false" ExternalAccess="Read/Write">
+<Data Format="L5K">
+<![CDATA[0]]>
+</Data>
+<Data Format="Decorated">
+<DataValue DataType="INT" Radix="Decimal" Value="0"/>
+</Data>
+</Tag>
+<Tag Name="seq1_step" TagType="Base" DataType="SeqSteps" Constant="false" ExternalAccess="Read/Write">
+<Data Format="L5K">
+<![CDATA[[0]]]>
+</Data>
+<Data Format="Decorated">
+<Structure DataType="SeqSteps">
+<DataValueMember Name="Step1" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Step2" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Step3" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Step4" DataType="BOOL" Value="0"/>
+</Structure>
+</Data>
+</Tag>
+<Tag Name="seq1_tmr" TagType="Base" DataType="SeqTimers" Constant="false" ExternalAccess="Read/Write">
+<Data Format="L5K">
+<![CDATA[[[1706860,10000,0],[1706860,20000,0],[0,0,0]]]]>
+</Data>
+<Data Format="Decorated">
+<Structure DataType="SeqTimers">
+<StructureMember Name="Timer1" DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="10000"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</StructureMember>
+<StructureMember Name="Timer2" DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="20000"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</StructureMember>
+<StructureMember Name="Timer3" DataType="TIMER">
+<DataValueMember Name="PRE" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="ACC" DataType="DINT" Radix="Decimal" Value="0"/>
+<DataValueMember Name="EN" DataType="BOOL" Value="0"/>
+<DataValueMember Name="TT" DataType="BOOL" Value="0"/>
+<DataValueMember Name="DN" DataType="BOOL" Value="0"/>
+</StructureMember>
+</Structure>
+</Data>
+</Tag>
+<Tag Name="seq1_trans" TagType="Base" DataType="SeqTransition" Constant="false" ExternalAccess="Read/Write">
+<Data Format="L5K">
+<![CDATA[[0]]]>
+</Data>
+<Data Format="Decorated">
+<Structure DataType="SeqTransition">
+<DataValueMember Name="Condition1" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Condition2" DataType="BOOL" Value="0"/>
+<DataValueMember Name="Condition3" DataType="BOOL" Value="0"/>
+</Structure>
+</Data>
+</Tag>
+</Tags>
+<Programs Use="Context">
+<Program Use="Context" Name="MainProgram">
+<Routines Use="Context">
+<Routine Use="Target" Name="Seq1_Test" Type="RLL">
+<RLLContent>
+<Rung Number="0" Type="N">
+<Text>
+<![CDATA[XIC(seq1_active)OTU(seq1_done)OTE(seq1_step.Step1);]]>
+</Text>
+</Rung>
+<Rung Number="1" Type="N">
+<Text>
+<![CDATA[XIC(seq1_step.Step1)MOV(10000,seq1_tmr.Timer1.PRE)TON(seq1_tmr.Timer1,?,?)XIC(seq1_tmr.Timer1.DN)OTE(seq1_step.Step2);]]>
+</Text>
+</Rung>
+<Rung Number="2" Type="N">
+<Text>
+<![CDATA[XIC(seq1_step.Step2)[XIC(seq1_trans.Condition1) OTE(seq1_step.Step3) ,XIO(seq1_trans.Condition1) MOV(20000,seq1_tmr.Timer2.PRE) TON(seq1_tmr.Timer2,?,?) XIC(seq1_tmr.Timer2.DN) OTL(seq1_fault.1) ];]]>
+</Text>
+</Rung>
+<Rung Number="3" Type="N">
+<Text>
+<![CDATA[XIC(seq1_step.Step3)OTL(seq1_done);]]>
+</Text>
+</Rung>
+</RLLContent>
+</Routine>
+</Routines>
+</Program>
+</Programs>
+</Controller>
+</RSLogix5000Content>
