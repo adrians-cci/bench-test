@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<TcLicenseInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2011/11/TcLicenseInfo">
+	<TargetInfo>
+		<TcTargetDesc>
+			<TargetType>CB6464-WIN 10.0</TargetType>
+			<TargetVersion>
+				<Version>3</Version>
+				<Revision>1</Revision>
+				<Build>4024</Build>
+			</TargetVersion>
+			<TargetFeatures>
+				<Level>CP</Level>
+				<NetId>10.33.70.61.1.1</NetId>
+			</TargetFeatures>
+			<Hardware>
+				<Model>C6030-0060</Model>
+				<SerialNo>000SW8FS</SerialNo>
+				<CPUVersion>0.0</CPUVersion>
+				<Date>0.0.00</Date>
+				<CPUArchitecture>0</CPUArchitecture>
+			</Hardware>
+			<OsImage>
+				<ImageDevice>CB6464</ImageDevice>
+				<ImageVersion>2022-30-0003D</ImageVersion>
+				<ImageLevel>IN-0409-0512-02-0</ImageLevel>
+				<OsName>Windows 10 Enterprise LTSC 2019</OsName>
+				<OsVersion>10.0</OsVersion>
+			</OsImage>
+		</TcTargetDesc>
+	</TargetInfo>
+	<LicenseInfo>
+		<SystemId Level="70" SerialNo="000br45t">{81D5101B-B360-76B9-C4DF-E462CD8834C6}</SystemId>
+		<PurchaseOrder><![CDATA[01279363]]></PurchaseOrder>
+		<IssueTime>2024-04-23T01:23:00</IssueTime>
+		<License>
+			<LicenseId>{66689887-CCBD-452C-AC9A-039D997C6E66}</LicenseId>
+			<Name>TC3 PLC</Name>
+			<OrderNo>TC1200</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{A1AF8A04-C08D-4853-A5A0-0E6C3A278A8C}</LicenseId>
+			<Name>TC3 Modbus-RTU</Name>
+			<OrderNo>TF6255</OrderNo>
+		</License>
+		<License ManuallyAdded="true">
+			<LicenseId>{BDCC0070-42D5-49AE-ABF1-1D4434813D60}</LicenseId>
+			<Name>TC3 OPC-UA</Name>
+			<OrderNo>TF6100</OrderNo>
+		</License>
+	</LicenseInfo>
+</TcLicenseInfo>

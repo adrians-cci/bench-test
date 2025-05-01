@@ -1,0 +1,2664 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="P_U01" Id="{dcf8449b-3592-47e4-a482-48f13716f004}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_U01
+VAR
+	bPaul				: BOOL;
+	u																	: Utility;
+	
+	fbWriteData															: FB_WritePersistentData;
+	tonWriteData														: TON;
+	bWriteData															: BOOL;
+	
+	sError																: STRING;
+	sMessage															: STRING;
+	sUtilityError														: STRING;
+	sRS																	: STRING;
+	iAxStep																: INT;
+	i2Step																: INT;
+	i3Step																: INT;
+	i8Step																: INT;
+	i9Step																: INT;
+	iVfd_Speed															: INT;
+	bAdsorptionActive													: BOOL;
+	bComplete															: BOOL;
+	bPreCheckDone														: BOOL;
+	bTimer																: BOOL;
+	bPass1																: BOOL;
+	bPass2																: BOOL;
+	bPass3																: BOOL;
+	bPass4																: BOOL;
+	bPass5																: BOOL;
+	bPass6																: BOOL;
+	bAdsorptionTimer													: BOOL;
+	bCloseXVValves														: BOOL;
+	bRunSteamBypass														: BOOL;
+	bVfd_Speed_Up														: BOOL;
+	rTime																: REAL;
+	rSP																	: REAL;
+	rPres																: REAL;
+	tonTimer															: TON;
+	tonAdsorptionTimer													: TON;
+	tonBoilerCheck														: TON;
+	
+	fb_Drainage_On														: FB_Digital_Out();
+	fb_Product_Condensate_Pump											: FB_Digital_Out();
+	fb_Condensate_Collection_Tank_Pump									: FB_Digital_Out();
+	fb_Boiler_Package													: FB_Digital_Out();
+	fb_Product_Condenser												: FB_Digital_Out();
+	fb_Dead_Air_Vacuum_Pump												: FB_Digital_Out();
+	fb_Product_Blower													: FB_Digital_Out();
+	fb_Instrument_Air_Compressor										: FB_Digital_Out();
+	fb_Dead_Air_Line_C02_Pump											: FB_Digital_Out();
+	fb_Dead_Air_Line_C02_Sol											: FB_Digital_Out();
+	fb_Cooling_Line_Pre_Condenser_Valve									: FB_Digital_Out();
+	fb_Purge_Product_Pre_Condenser_Valve								: FB_Digital_Out();
+	fb_Product_Vacuum_Pump_Isolation_Valve								: FB_Digital_Out();
+	fb_Product_Vacuum_Bypass_Valve										: FB_Digital_Out();
+	fb_Product_Vacuum_Outlet_Isolation_Valve							: FB_Digital_Out();
+	fb_Product_Condensate_Drain_Valve									: FB_Digital_Out();
+	fb_Steam_Bypass_Valve												: FB_Digital_Out();
+	fb_Condensate_Collection_Tank_Pump_Outlet_Valve						: FB_Digital_Out();
+	fb_Product_Vacuum_Backfeed_Valve									: FB_Analog_Out();
+	fb_Product_Vacuum_Backfeed_Valve_PI									: FB_PI_Control();
+	fb_Product_Vacuum_Backfeed_Valve_Mode								: FB_Integer_Out();
+	fb_Product_Vacuum_Pump_Vfd_Input									: FB_Analog_Out();
+	fb_Product_Vacuum_Pump												: FB_Vacuum_Pump();
+	fb_Product_Vacuum_Pump_Vfd											: FB_VFD();
+	fb_Product_Vacuum_Pump_Radiator										: FB_Digital_Out();
+	rRpm																: REAL;
+	fb_Product_Blower_Vfd												: FB_VFD();
+	fb_Product_Blower_Vfd_Input											: FB_Analog_Out();
+	
+	fb_Product_Co2_Chiller												: FB_Digital_Out();
+	fb_Product_Co2_Chiller_Pump											: FB_Digital_Out();
+	
+	rtrigCCDrainLSHOn													: R_TRIG;
+	tonCCDrainErrorOn													: TON;
+	tonCCDrainErrorOff													: TON;
+	bCCDrainError														: BOOL;
+
+	rtrigPCDrainLSHOn													: R_TRIG;
+	tonPCDrainErrorOn													: TON;
+	tonPCDrainErrorOff													: TON;
+	bPCDrainError														: BOOL;
+	
+	tonProductCondensatePump											: TON;
+	rtrigProductCondensatePump											: R_TRIG;
+	ftrigProductCondensatePump											: F_TRIG;
+	bProductCondensateDrainValve										: BOOL;
+
+	WS_Master 															: ModbusRtuMasterV2_KL6x22B;	
+	WS_Errors															: MODBUS_ERRORS;
+	tonWSReset															: TON;
+	bWSWeather															: BOOL;
+	bWSBusy																: BOOL;
+	bWSError															: BOOL;
+	iWSFunction															: INT;
+	uiWSRead															: UINT;	
+	wWSAddress															: WORD;
+	wWSQuantity															: WORD;
+	wWSReadData 														: ARRAY[0..21] OF WORD;
+	//wWSWriteData 														: ARRAY[0..21] OF WORD;
+
+	bBoilerOutletPresError												: BOOL;
+	bBoilerOutletTempError                                              : BOOL;
+	bCondensateCollectionTankFlowError									: BOOL;
+	bCondensateCollectionTankLevelError									: BOOL;
+	bCondensateCollectionTankO2Error									: BOOL;
+	bCondensateCollectionTankOutletLineTempError                        : BOOL;
+	bCondensateCollectionTankPhError									: BOOL;
+	bCondensateCollectionTankTempError                                  : BOOL;
+	bCondensateCollectionTankTurbidityError								: BOOL;
+
+	bDeadAirFlowError													: BOOL;
+	bDeadAirLineCo2Error												: BOOL;
+	bDeadAirLinePresError												: BOOL;
+	bInstrumentAirCompPresError                                         : BOOL;
+	bInstrumentAirCompTempError                                         : BOOL;
+	
+	bPostCondenserLinePresError											: BOOL;
+	bPostCondenserLineTempError                                         : BOOL;
+	bPreCondenserLinePresError											: BOOL;
+	bPreCondenserLineTempError                                          : BOOL;
+	bProductVacuumPresError												: BOOL;
+	bProductOutletPresError												: BOOL;
+	bProductOutletTempError                                             : BOOL;
+	bProductOutletH2oError												: BOOL;
+	bProductCo2SampleH2oError											: BOOL;
+	bProductOutletTemperatureError										: BOOL;
+	bProductOutletCo2Error												: BOOL;
+	bProductOutletO2Error												: BOOL;
+	bProductOutletVolumetricFlowError									: BOOL;
+	bProductOutletMassFlowError											: BOOL;
+	bProductCondensateDrumLevelError									: BOOL;
+	bProductCondensateValveError										: BOOL;
+	bProductCondenserPumpOutlerLiquidFlowError							: BOOL;
+	bProductCondenserPumpOutletTempError                                : BOOL;
+	bProductVacuumPumpError												: BOOL;
+	bPurgeProductLinePresError											: BOOL;
+	bPurgeProductLineTempError                                          : BOOL;
+	bSteamHeaderFlowError												: BOOL;
+	bWaterToBoilerFlowError												: BOOL;
+	bWeatherHumidityError												: BOOL;
+	bWeatherPressureError												: BOOL;
+	bWeatherWindSpeedError												: BOOL;
+	bWeatherTempError													: BOOL;
+	bWeatherTempUnsafe													: BOOL;
+	bWeatherNoiseLevelError												: BOOL;
+	bWeatherWindDirectionError											: BOOL;
+	bSafeShutdown														: BOOL;
+
+	sVacPumpError														: STRING;
+	sVacuumPumpError													: ARRAY[0..3] OF STRING := ['', 'Cooling Temp', 'Exhaust_Temp', 'Oil_Temp'];
+
+	// Steam Volume
+	tmrTotalizers 														: TON;	
+	idxSteamTable 														: INT;
+	rSteamDensity 														: REAL;	
+	fbSteamTotalizerEnable												: FB_Digital_Out();
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - P_U01
+// Rev 1.0 - May 14, 2024
+
+A_IO_Points();
+A_Totalizers();
+A_Drains();
+A2_Warmup();
+A3_Steam_Bypass();
+A8_Shutdown();
+A9_Pressure_Drop_Test();
+u01.shutdown_process													:= FALSE;
+
+IF gsCycleMode = '2' THEN
+	i2Step																:= 1;
+	gsCycleMode															:= '';
+ELSIF gsCycleMode = '3' THEN
+	i3Step																:= 1;
+	gsCycleMode															:= '';
+ELSIF gsCycleMode = '8' THEN
+	i8Step																:= 1;
+	gsCycleMode															:= '';
+ELSIF gsCycleMode = '9' THEN
+	i9Step																:= 1;
+	gsCycleMode															:= '';
+END_IF
+
+IF tonWriteData.Q OR u01.write_persistent_data THEN
+	u01.write_persistent_data											:= FALSE;
+	bWriteData															:= TRUE;
+ELSIF NOT fbWriteData.BUSY THEN
+	bWriteData															:= FALSE;
+END_IF
+
+fbWriteData(	NETID													:= '',
+				PORT													:= 851,
+				START													:= bWriteData,
+				TMOUT													:= T#5S);
+
+tonTimer(IN:= bTimer, PT:= REAL_TO_TIME(rTime));
+tonAdsorptionTimer(IN:= bAdsorptionTimer, PT:= REAL_TO_TIME(m01.SP_adsorption_duration * _MINUTES));
+tonWriteData(IN:= NOT bWriteData, PT:= T#30M);
+]]></ST>
+    </Implementation>
+    <Action Name="A_Drains" Id="{ab317b0b-7a30-41e9-b5c6-59249957db4c}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_U01.A_Drains
+// Rev 1.0 - April 30, 2024
+
+IF gbDrainageOn THEN
+	
+// Drain Condensate Collection Tank
+	IF u.condensate_collection_tank_level > u01.SP_condensate_collection_tank_high_level THEN
+		u.condensate_collection_tank_pump								:= TRUE;
+		u.condensate_collection_tank_pump_outlet_valve					:= TRUE;
+	END_IF
+	IF u.condensate_collection_tank_level < u01.SP_condensate_collection_tank_low_level THEN
+		u.condensate_collection_tank_pump								:= FALSE;
+		u.condensate_collection_tank_pump_outlet_valve					:= FALSE;
+	END_IF
+	
+	rtrigCCDrainLSHOn(CLK:= tonCCDrainErrorOn.Q);
+	IF rtrigCCDrainLSHOn.Q THEN
+		P_Alarms.M_Add_Alarm(_U01, gsCondensateCollectionDrainError, gsProcessStopsAtEOC);
+		u.condensate_collection_tank_pump								:= FALSE;
+		u.condensate_collection_tank_pump_outlet_valve					:= FALSE;
+		bCCDrainError													:= TRUE;
+		m01.tb_Cancel_Cycle												:= TRUE;											// Complete current cycle
+	END_IF
+	tonCCDrainErrorOn(IN:= u.condensate_collection_tank_lsh AND NOT bCCDrainError, PT:= _DRAIN_TIME);
+	
+	IF tonCCDrainErrorOff.Q THEN
+		bCCDrainError													:= FALSE;
+	END_IF
+	tonCCDrainErrorOff(IN:= NOT u.condensate_collection_tank_lsh AND bCCDrainError, PT:= _DRAIN_TIME);
+	
+	
+// Drain Product Condensate
+	IF u.product_vacuum_pres < u01.SP_drainage_function_cutoff_pressure THEN
+		u.product_condensate_pump										:= FALSE;
+	ELSE
+		IF u.product_condensate_drum_level > u01.SP_product_condensate_drum_high_level THEN
+			u.product_condensate_pump									:= TRUE;
+		END_IF
+		IF u.product_condensate_drum_level < u01.SP_product_condensate_drum_low_level THEN
+			u.product_condensate_pump									:= FALSE;
+		END_IF
+	END_IF
+	
+	rtrigPCDrainLSHOn(CLK:= tonPCDrainErrorOn.Q);
+	IF rtrigPCDrainLSHOn.Q THEN
+		P_Alarms.M_Add_Alarm(_U01, gsProductCondensateDrainError, gsProcessStopsAtEOA);
+		u.product_condensate_pump										:= FALSE;
+		bPCDrainError													:= TRUE;
+		m01.tb_Cancel_Cycle												:= TRUE;											// Cancels all reactor sets
+	END_IF
+	tonPCDrainErrorOn(IN:= u.product_condensate_drum_lsh AND NOT bPCDrainError, PT:= _DRAIN_TIME);
+	
+	IF tonPCDrainErrorOff.Q THEN
+		bPCDrainError													:= FALSE;
+	END_IF
+	tonPCDrainErrorOff(IN:= NOT u.product_condensate_drum_lsh AND bPCDrainError, PT:= _DRAIN_TIME);
+	
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_IO_Points" Id="{d2567efd-8816-46e7-a69d-41abdef6a01f}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_U01.A_IO_Points
+// Rev 1.0 - May 14, 2024
+
+// u01.point is typically from HMI or Utility programs while u.point is typically from Reactor Set through the Utility Structure.
+
+fb_Drainage_On(Input1:= u01.drainage_on, Input2:= u.drainage_on);
+gbDrainageOn															:= (u.drainage_on AND NOT u01.drainage_function_off_or) OR u01.drainage_function_on_or;
+
+u.product_condensate_drum_lsl											:= u01.product_condensate_drum_lsl;
+u.product_condensate_drum_lsh											:= u01.product_condensate_drum_lsh;
+u.condensate_collection_tank_lsl										:= u01.condensate_collection_tank_lsl;
+u.condensate_collection_tank_lsh										:= u01.condensate_collection_tank_lsh;
+
+fb_Boiler_Package(Input1:= u01.boiler_package, Input2:= u.boiler_package);
+u01.B_01																:= u.boiler_package;
+u01.boiler_package_cmd_status											:= u.boiler_package;
+
+// Product Condensate pump / Valve interlock & error handling
+fb_Product_Condensate_Pump(Input1:= u01.product_condensate_pump, Input2:= u.product_condensate_pump);														// Get pump inputs
+u01.product_condensate_pump_cmd_status									:= u.product_condensate_pump;													// Set command status (may not reflect actual output
+u01.P_03																:= u.product_condensate_pump AND u01.product_condensate_drain_valve_open;		// Start pump only if on and valve is open
+rtrigProductCondensatePump(CLK:= u.product_condensate_pump);
+IF rtrigProductCondensatePump.Q THEN																													// Pump signal to start
+	bProductCondensateValveError										:= FALSE;																		// Clear any error
+	u.product_condensate_drain_valve									:= TRUE;																		// Open valve
+END_IF
+ftrigProductCondensatePump(CLK:= u.product_condensate_pump);
+IF ftrigProductCondensatePump.Q THEN																													// Pump signal to stop
+	u.product_condensate_drain_valve									:= FALSE;																		// Close valve (pump would have aleady stopped
+END_IF
+IF tonProductCondensatePump.Q THEN 																														// Timer has timed out (valve has not opened)
+	u.product_condensate_pump											:= FALSE;																		// Turn off pump
+	u.product_condensate_drain_valve									:= FALSE;																		// Close valve
+	bProductCondensateValveError										:= TRUE;																		// Set holding error (keeps alarm from constantly repeating)
+	P_Alarms.M_Add_Alarm(_U01, gsProductCondensateDrainValveError, gsSystemCannotRun);																	// Publish alarm
+END_IF
+tonProductCondensatePump(IN:= u.product_condensate_pump AND NOT u01.product_condensate_drain_valve_open, PT:= _PRODUCT_CONDENSATE_VALVE_TIME);			// Timer is on if pump on signal is true and valve is not open
+
+fb_Product_Condensate_Drain_Valve(Input1:= u01.product_condensate_drain_valve, Input2:= u.product_condensate_drain_valve, Output=> bProductCondensateDrainValve);
+u01.product_condensate_drain_valve_open_cmd_status						:= bProductCondensateDrainValve;
+u01.XV_06																:= SEL(u01.P_03, bProductCondensateDrainValve, TRUE);							// Valve cannot be closed if pump is running
+
+fb_Condensate_Collection_Tank_Pump(Input1:= u01.condensate_collection_tank_pump, Input2:= u.condensate_collection_tank_pump);
+u01.P_04																:= u.condensate_collection_tank_pump;
+u01.condensate_collection_tank_pump_cmd_status							:= u.condensate_collection_tank_pump;
+
+fb_Product_Condenser(Input1:= u01.product_condenser, Input2:= u.product_condenser);
+u01.E_01																:= u.product_condenser;
+u01.product_condenser_cmd_status										:= u.product_condenser;
+
+fb_Dead_Air_Vacuum_Pump(Input1:= u01.dead_air_vacuum_pump, Input2:= u.dead_air_vacuum_pump);
+u01.P_01																:= u.dead_air_vacuum_pump;
+u01.dead_air_vacuum_pump_cmd_status										:= u.dead_air_vacuum_pump;
+
+fb_Product_Blower(Input1:= u01.product_blower, Input2:= u.product_blower);
+u01.K_01																:= u.product_blower;
+u01.product_blower_cmd_status											:= u.product_blower;
+
+fb_Product_Blower_Vfd_Input(Input1:= u01.product_blower_vfd, Input2:= u.product_blower_vfd);
+rRpm																	:= u.product_blower_vfd * _BLOWER_RPM_FACTOR;
+fb_Product_Blower_Vfd(	Enable_Vfd						:= NOT u01.product_blower_vfd_ecat_state AND u01.product_blower_vfd_enable,
+						Fault_Reset						:= u01.product_blower_vfd_reset,
+						Rpm								:= rRpm,
+						Minimum_Speed					:= _BLOWER_RPM_FACTOR * 20,
+						Maximum_Speed					:= _BLOWER_RPM_FACTOR * 100, 
+						StatusWord						:= u01.product_blower_vfd_status,
+						ControlWord						=> u01.product_blower_vfd_control, 
+						TargetRpm						=> u01.product_blower_vfd_target_vel, 
+						Ready							=> u01.product_blower_vfd_enabled,
+						Error							=> u01.product_blower_vfd_error);
+u01.product_blower_vfd_output  									:= WORD_TO_REAL(u01.product_blower_vfd_velocity) / _BLOWER_RPM_FACTOR ;                             
+//u.product_blower_vfd_output										:= WORD_TO_REAL(u01.product_blower_vfd_velocity);
+IF u01.product_blower_vfd_reset THEN
+	u01.product_blower_vfd_reset := FALSE;
+END_IF
+
+
+fb_Product_Co2_Chiller(Input1 := u01.product_co2_chiller, Input2 := u.product_co2_chiller);
+u01.AT_04_chiller := u.product_co2_chiller;
+u01.product_co2_chiller_cmd_status := u.product_co2_chiller;
+
+
+fb_Product_Co2_Chiller_Pump(Input1 := u01.product_co2_chiller_pump, Input2 := u.product_co2_chiller_pump);
+u01.AT_04_pump := u.product_co2_chiller_pump;
+u01.product_co2_chiller_pump_cmd_status := u.product_co2_chiller_pump;
+
+
+
+
+fb_Instrument_Air_Compressor(Input1:= u01.instrument_air_compressor, Input2:= u.instrument_air_compressor);
+u01.C_01																:= u.instrument_air_compressor;
+u01.instrument_air_compressor_cmd_status								:= u.instrument_air_compressor;
+
+fb_Dead_Air_Line_C02_Pump(Input1:= u01.dead_air_line_co2_pump, Input2:= u.dead_air_line_co2_pump);
+u01.AT_01_pump															:= u.dead_air_line_co2_pump;
+u01.dead_air_line_co2_pump_cmd_status									:= u.dead_air_line_co2_pump;
+
+fb_Dead_Air_Line_C02_Sol(Input1:= u01.dead_air_line_co2_sol, Input2:= u.dead_air_line_co2_sol);	
+u01.AT_01_sol															:= u.dead_air_line_co2_sol;
+u01.dead_air_line_co2_sol_cmd_status									:= u.dead_air_line_co2_sol;
+
+u01.dead_air_line_co2													:= F_AnalogIn(u01.AT_01, u01.dead_air_line_co2_low, u01.dead_air_line_co2_high, u01.dead_air_line_co2_min, u01.dead_air_line_co2_offset);
+u.dead_air_line_co2														:= u01.dead_air_line_co2;
+u.dead_air_line_co2_error												:= u01.dead_air_line_co2_error AND NOT _DeadAirLineCo2Off;
+bDeadAirLineCo2Error													:= P_Alarms.M_Check_Error(u.dead_air_line_co2_error, bDeadAirLineCo2Error, _U01, gsDeadAirLineCo2SensorError, gsProcessCannotRun);
+
+u01.product_outlet_co2													:= F_AnalogIn(u01.AT_02A, u01.product_outlet_co2_low, u01.product_outlet_co2_high, u01.product_outlet_co2_min, u01.product_outlet_co2_offset);
+u.product_outlet_co2													:= u01.product_outlet_co2;
+u.product_outlet_co2_error												:= u01.product_outlet_co2_error AND NOT _ProductOutletCo2Off;
+bProductOutletCo2Error													:= P_Alarms.M_Check_Error(u.product_outlet_co2_error, bProductOutletCo2Error, _U01, gsProductOutletCo2SensorError, gsProcessCannotRun);
+
+u01.product_co2sample_h2o												:= F_AnalogIn(u01.AT_02B, u01.product_co2sample_h2o_low, u01.product_co2sample_h2o_high, u01.product_co2sample_h2o_min, u01.product_co2sample_h2o_offset);
+u.product_co2sample_h2o													:= u01.product_co2sample_h2o;
+u.product_co2sample_h2o_error											:= u01.product_co2sample_h2o_error AND NOT _ProductCo2SampleH2oOff;
+bProductCo2SampleH2oError												:= P_Alarms.M_Check_Error(u.product_co2sample_h2o_error, bProductCo2SampleH2oError, _U01, gsProductCo2SampleH2oSensorError, gsProcessCannotRun);
+
+u01.product_outlet_h2o													:= F_AnalogIn(u01.AT_07A, u01.product_outlet_h2o_low, u01.product_outlet_h2o_high, u01.product_outlet_h2o_min, u01.product_outlet_h2o_offset);
+u.product_outlet_h2o													:= u01.product_outlet_h2o;
+u.product_outlet_h2o_error												:= u01.product_outlet_h2o_error AND NOT _ProductOutletH2oOff;
+bProductOutletH2oError													:= P_Alarms.M_Check_Error(u.product_outlet_h2o_error, bProductOutletH2oError, _U01, gsProductOutletH2oSensorError, gsProcessCannotRun);
+
+u01.product_outlet_temperature											:= F_AnalogIn(u01.AT_07B, u01.product_outlet_temperature_low, u01.product_outlet_temperature_high, u01.product_outlet_temperature_min, u01.product_outlet_temperature_offset);
+u.product_outlet_temperature											:= u01.product_outlet_temperature;
+u.product_outlet_temperature_error										:= u01.product_outlet_temperature_error AND NOT _ProductOutletTemperatureOff;
+bProductOutletTemperatureError											:= P_Alarms.M_Check_Error(u.product_outlet_temperature_error, bProductOutletTemperatureError, _U01, gsProductOutletTemperatureSensorError, gsProcessCannotRun);
+
+u01.product_outlet_o2													:= F_AnalogIn(u01.AT_03, u01.product_outlet_o2_low, u01.product_outlet_o2_high, u01.product_outlet_o2_min, u01.product_outlet_o2_offset);
+u.product_outlet_o2														:= u01.product_outlet_o2;
+u.product_outlet_o2_error												:= u01.product_outlet_o2_error AND NOT _ProductOutletO2Off;
+bProductOutletO2Error													:= P_Alarms.M_Check_Error(u.product_outlet_o2_error, bProductOutletO2Error, _U01, gsProductOutletO2SensorError, gsProcessCannotRun);
+
+
+
+
+u01.condensate_collection_tank_ph										:= F_AnalogIn(u01.AT_04, u01.condensate_collection_tank_ph_low, u01.condensate_collection_tank_ph_high, u01.condensate_collection_tank_ph_min, u01.condensate_collection_tank_ph_offset);
+u.condensate_collection_tank_ph											:= u01.condensate_collection_tank_ph;
+u.condensate_collection_tank_ph_error									:= u01.condensate_collection_tank_ph_error AND NOT _CondensateCollectionTankPhOff;
+bCondensateCollectionTankPhError										:= P_Alarms.M_Check_Error(u.condensate_collection_tank_ph_error, bCondensateCollectionTankPhError, _U01, gsCondensateCollectionTankPhSensorError, gsProcessCannotRun);
+
+u01.condensate_collection_tank_o2										:= F_AnalogIn(u01.AT_05, u01.condensate_collection_tank_o2_low, u01.condensate_collection_tank_o2_high, u01.condensate_collection_tank_o2_min, u01.condensate_collection_tank_o2_offset);
+u.condensate_collection_tank_o2											:= u01.condensate_collection_tank_o2;
+u.condensate_collection_tank_o2_error									:= u01.condensate_collection_tank_o2_error AND NOT _CondensateCollectionTankO2Off;
+bCondensateCollectionTankO2Error										:= P_Alarms.M_Check_Error(u.condensate_collection_tank_o2_error, bCondensateCollectionTankO2Error, _U01, gsCondensateCollectionTankO2SensorError, gsProcessCannotRun);
+
+u01.condensate_collection_tank_turbidity								:= F_AnalogIn(u01.AT_06, u01.condensate_collection_tank_turbidity_low, u01.condensate_collection_tank_turbidity_high, u01.condensate_collection_tank_turbidity_min, u01.condensate_collection_tank_turbidity_offset);
+u.condensate_collection_tank_turbidity									:= u01.condensate_collection_tank_turbidity;
+u.condensate_collection_tank_turbidity_error							:= u01.condensate_collection_tank_turbidity_error AND NOT _CondensateCollectionTankTurbidityOff;
+bCondensateCollectionTankTurbidityError									:= P_Alarms.M_Check_Error(u.condensate_collection_tank_turbidity_error, bCondensateCollectionTankTurbidityError, _U01, gsCondensateCollectionTankTurbiditySensorError, gsProcessCannotRun);
+
+u01.weather_humidity													:= F_AnalogIn(u01.AT_07, u01.weather_humidity_low, u01.weather_humidity_high, u01.weather_humidity_min, u01.weather_humidity_offset);
+u.weather_humidity														:= u01.weather_humidity;
+u.weather_humidity_error												:= u01.weather_humidity_error AND NOT _WeatherHumidityOff;
+bWeatherHumidityError													:= P_Alarms.M_Check_Error(u.weather_humidity_error, bWeatherHumidityError, _U01, gsWeatherHumiditySensorError, gsProcessCannotRun);
+
+u01.weather_pres														:= F_AnalogIn(u01.PT_09, u01.weather_pres_low, u01.weather_pres_high, u01.weather_pres_min, u01.weather_pres_offset);
+u.weather_pres															:= u01.weather_pres;
+u.weather_pres_error													:= u01.weather_pres_error AND NOT _WeatherPressureOff;
+bWeatherPressureError													:= P_Alarms.M_Check_Error(u.weather_pres_error, bWeatherPressureError, _U01, gsWeatherPresureSensorError, gsProcessCannotRun);
+
+u01.weather_wind_speed													:= F_AnalogIn(u01.AT_08, u01.weather_wind_speed_low, u01.weather_wind_speed_high, u01.weather_wind_speed_min, u01.weather_wind_speed_offset);
+u.weather_wind_speed													:= u01.weather_wind_speed;
+u.weather_wind_speed_error												:= u01.weather_wind_speed_error AND NOT _WeatherWindSpeedOff;
+bWeatherWindSpeedError													:= P_Alarms.M_Check_Error(u.weather_wind_speed_error, bWeatherWindSpeedError, _U01, gsWeatherWindSpeedSensorError, gsProcessCannotRun);
+
+u01.weather_temp														:= F_Temperature(u01.TT_10, u01.weather_temp_offset);
+u.weather_temp															:= u01.weather_temp;
+u.weather_temp_error													:= u01.weather_temp_error AND NOT _WeatherTempOff;
+bWeatherTempError														:= P_Alarms.M_Check_Error(u.weather_temp_error, bWeatherTempError, _U01, gsWeatherTempSensorError, gsProcessCannotRun);
+IF u.weather_temp > m01.SP_maximum_inlet_air_temperature_during_adsorption OR u.weather_temp < m01.SP_minimum_inlet_air_temperature_during_adsorption THEN
+	u.os_air_unsafe_temp												:= TRUE;
+ELSIF u.weather_temp <= m01.SP_maximum_inlet_air_temperature_during_adsorption - _TEMP_DEADBAND AND u.weather_temp >= m01.SP_minimum_inlet_air_temperature_during_adsorption + _TEMP_DEADBAND THEN
+	u.os_air_unsafe_temp												:= FALSE;
+END_IF
+bWeatherTempUnsafe														:= P_Alarms.M_Check_Error(u.os_air_unsafe_temp, bWeatherTempUnsafe, _U01, gsOutsideTempRangeError, gsSystemCannotRun);
+
+u01.weather_noise_level													:= F_AnalogIn(u01.NT_01, 0, 100, 0, 0);
+u.weather_noise_level													:= u01.weather_noise_level;
+u.weather_noise_level_error												:= u01.weather_noise_level_error AND NOT _WeatherNoiseLevelOff;
+bWeatherNoiseLevelError													:= P_Alarms.M_Check_Error(u.weather_noise_level_error, bWeatherNoiseLevelError, _U01, gsWeatherNoiseLevelSensorError, gsProcessCannotRun);
+
+u01.weather_wind_direction												:= F_AnalogIn(u01.WDT_01, 0, 100, 0, 0);
+u.weather_wind_direction												:= u01.weather_wind_direction;
+u.weather_wind_direction_error											:= u01.weather_wind_direction_error AND NOT _WeatherWindDirectionOff;
+bWeatherWindDirectionError												:= P_Alarms.M_Check_Error(u.weather_wind_direction_error, bWeatherWindDirectionError, _U01, gsWeatherWindDirectionSensorError, gsProcessCannotRun);
+
+u01.dead_air_flow														:= F_AnalogIn(u01.FT_01, u01.dead_air_flow_low, u01.dead_air_flow_high, u01.dead_air_flow_min, u01.dead_air_flow_offset);
+u.dead_air_flow															:= u01.dead_air_flow;
+u.dead_air_flow_error													:= u01.dead_air_flow_error AND NOT _DeadAirFlowOff;
+bDeadAirFlowError														:= P_Alarms.M_Check_Error(u.dead_air_flow_error, bDeadAirFlowError, _U01, gsDeadAirFlowSensorError, gsProcessCannotRun);
+
+u01.product_outlet_volumetric_flow										:= F_AnalogIn(u01.FT_03, u01.product_outlet_volumetric_flow_low, u01.product_outlet_volumetric_flow_high, u01.product_outlet_volumetric_flow_min, u01.product_outlet_volumetric_flow_offset);
+u.product_outlet_volumetric_flow										:= u01.product_outlet_volumetric_flow;
+u.product_outlet_volumetric_flow_error									:= u01.product_outlet_volumetric_flow_error AND NOT _ProductOutVolumetricFlowOff;
+bProductOutletVolumetricFlowError										:= P_Alarms.M_Check_Error(u.product_outlet_volumetric_flow_error, bProductOutletVolumetricFlowError, _U01, gsProductOutletVolumetricFlowSensorError, gsProcessCannotRun);
+
+u01.product_outlet_mass_flow											:= F_AnalogIn(u01.FT_02, u01.product_outlet_mass_flow_low, u01.product_outlet_mass_flow_high, u01.product_outlet_mass_flow_min, u01.product_outlet_mass_flow_offset);
+u.product_outlet_mass_flow												:= u01.product_outlet_mass_flow;
+u.product_outlet_mass_flow_error										:= u01.product_outlet_mass_flow_error AND NOT _ProductOutMassFlowOff;
+bProductOutletMassFlowError												:= P_Alarms.M_Check_Error(u.product_outlet_mass_flow_error, bProductOutletMassFlowError, _U01, gsProductOutletMassFlowSensorError, gsProcessCannotRun);
+
+u01.product_condenser_pump_outlet_liquid_flow							:= F_AnalogIn(u01.FT_04, u01.product_condenser_pump_outlet_liquid_flow_low, u01.product_condenser_pump_outlet_liquid_flow_high, u01.product_condenser_pump_outlet_liquid_flow_min, u01.product_condenser_pump_outlet_liquid_flow_offset);
+u.product_condenser_pump_outlet_liquid_flow								:= u01.product_condenser_pump_outlet_liquid_flow;
+u.product_condenser_pump_outlet_liquid_flow_error						:= u01.product_condenser_pump_outlet_liquid_flow_error AND NOT _ProductCondenserPumpOutlerLiquidFlowOff;
+bProductCondenserPumpOutlerLiquidFlowError								:= P_Alarms.M_Check_Error(u.product_condenser_pump_outlet_liquid_flow_error, bProductCondenserPumpOutlerLiquidFlowError, _U01, gsProductCondenserPumpOutletLiquidFlowSensorError, gsProcessCannotRun);
+	
+u01.tap_water_to_boiler_flow											:= F_AnalogIn(u01.FT_05, u01.tap_water_to_boiler_flow_low, u01.tap_water_to_boiler_flow_high, u01.tap_water_to_boiler_flow_min, u01.tap_water_to_boiler_flow_offset);
+u.tap_water_to_boiler_flow												:= u01.tap_water_to_boiler_flow;
+u.tap_water_to_boiler_flow_error										:= u01.tap_water_to_boiler_flow_error AND NOT _WaterToBoilerFlowOff;
+bWaterToBoilerFlowError													:= P_Alarms.M_Check_Error(u.tap_water_to_boiler_flow_error, bWaterToBoilerFlowError, _U01, gsTapWaterToBoilerFlowSensorError, gsProcessCannotRun);
+
+u01.steam_header_flow													:= F_AnalogIn(u01.FT_06, u01.steam_header_flow_low, u01.steam_header_flow_high, u01.steam_header_flow_min, u01.steam_header_flow_offset);
+u.steam_header_flow														:= u01.steam_header_flow;
+u.steam_header_flow_error												:= u01.steam_header_flow_error AND NOT _SteamHeadFlowOff;
+bSteamHeaderFlowError													:= P_Alarms.M_Check_Error(u.steam_header_flow_error, bSteamHeaderFlowError, _U01, gsSteamHeaderFlowSensorError, gsProcessCannotRun);
+	
+u01.condensate_collection_tank_flow										:= F_AnalogIn(u01.FT_07, u01.condensate_collection_tank_flow_low, u01.condensate_collection_tank_flow_high, u01.condensate_collection_tank_flow_min, u01.condensate_collection_tank_flow_offset);
+u.condensate_collection_tank_flow										:= u01.condensate_collection_tank_flow;
+u.condensate_collection_tank_flow_error									:= u01.condensate_collection_tank_flow_error AND NOT _CondensateCollectionTankFlowOff;
+bCondensateCollectionTankFlowError										:= P_Alarms.M_Check_Error(u.condensate_collection_tank_flow_error, bCondensateCollectionTankFlowError, _U01, gsCondensateCollectionTankFlowSensorError, gsProcessCannotRun);
+	
+u01.product_condensate_drum_level										:= F_AnalogIn(u01.LT_01, u01.product_condensate_drum_level_low, u01.product_condensate_drum_level_high, u01.product_condensate_drum_level_min, u01.product_condensate_drum_level_offset);
+u.product_condensate_drum_level											:= u01.product_condensate_drum_level;
+u.product_condensate_drum_level_error									:= u01.product_condensate_drum_level_error AND NOT _ProductCondensateDrumLevelOff;
+bProductCondensateDrumLevelError										:= P_Alarms.M_Check_Error(u.product_condensate_drum_level_error, bProductCondensateDrumLevelError, _U01, gsProductCondensateDrumLevelSensorError, gsProcessCannotRun);
+	
+u01.condensate_collection_tank_level									:= F_AnalogIn(u01.LT_02, u01.condensate_collection_tank_level_low, u01.condensate_collection_tank_level_high, u01.condensate_collection_tank_level_min, u01.condensate_collection_tank_level_offset);
+u.condensate_collection_tank_level										:= u01.condensate_collection_tank_level;
+u.condensate_collection_tank_level_error								:= u01.condensate_collection_tank_level_error AND NOT _CondensateCollectionTankLevelOff;
+bCondensateCollectionTankLevelError										:= P_Alarms.M_Check_Error(u.condensate_collection_tank_level_error, bCondensateCollectionTankLevelError, _U01, gsCondensateCollectionTankLevelSensorError, gsProcessCannotRun);
+	
+u01.dead_air_line_pres													:= F_AnalogIn(U01.PT_01, u01.dead_air_line_pres_low, u01.dead_air_line_pres_high, u01.dead_air_line_pres_min, u01.dead_air_line_pres_offset);
+u.dead_air_line_pres													:= u01.dead_air_line_pres;
+u.dead_air_line_pres_error												:= u01.dead_air_line_pres_error AND NOT _DeadAirLinePresOff;
+bDeadAirLinePresError													:= P_Alarms.M_Check_Error(u.dead_air_line_pres_error, bDeadAirLinePresError, _U01, gsDeadAirLinePresSensorError, gsProcessCannotRun);
+
+u01.purge_product_line_pres												:= F_AnalogIn(U01.PT_02, u01.purge_product_line_pres_low, u01.purge_product_line_pres_high, u01.purge_product_line_pres_min, u01.purge_product_line_pres_offset);
+u.purge_product_line_pres												:= u01.purge_product_line_pres;
+u.purge_product_line_pres_error											:= u01.purge_product_line_pres_error AND NOT _PurgeProductLinePresOff;
+bPurgeProductLinePresError												:= P_Alarms.M_Check_Error(u.purge_product_line_pres_error, bPurgeProductLinePresError, _U01, gsPurgeProductLinePresSensorError, gsProcessCannotRun);
+
+u01.pre_condenser_line_pres												:= F_AnalogIn(U01.PT_03, u01.pre_condenser_line_pres_low, u01.pre_condenser_line_pres_high, u01.pre_condenser_line_pres_min, u01.pre_condenser_line_pres_offset);
+u.pre_condenser_line_pres												:= u01.pre_condenser_line_pres;
+u.pre_condenser_line_pres_error											:= u01.pre_condenser_line_pres_error AND NOT _PreCondenserLinePresOff;
+bPreCondenserLinePresError												:= P_Alarms.M_Check_Error(u.pre_condenser_line_pres_error, bPreCondenserLinePresError, _U01, gsPreCondenserLinePresSensorError, gsProcessCannotRun);
+
+u01.post_condenser_line_pres											:= F_AnalogIn(U01.PT_04, u01.post_condenser_line_pres_low, u01.post_condenser_line_pres_high, u01.post_condenser_line_pres_min, u01.post_condenser_line_pres_offset);
+u.post_condenser_line_pres												:= u01.post_condenser_line_pres;
+u.post_condenser_line_pres_error										:= u01.post_condenser_line_pres_error AND NOT _PostCondenserLinePresOff;
+bPostCondenserLinePresError												:= P_Alarms.M_Check_Error(u.post_condenser_line_pres_error, bPostCondenserLinePresError, _U01, gsPostCondenserLinePresSensorError, gsProcessCannotRun);
+
+u01.product_vacuum_pres													:= F_AnalogIn(U01.PT_05, u01.product_vacuum_pres_low, u01.product_vacuum_pres_high, u01.product_vacuum_pres_min, u01.product_vacuum_pres_offset);
+u.product_vacuum_pres													:= u01.product_vacuum_pres;
+u.product_vacuum_pres_error												:= u01.product_vacuum_pres_error AND NOT _ProductVacuumPresOff;
+bProductVacuumPresError													:= P_Alarms.M_Check_Error(u.product_vacuum_pres_error, bProductVacuumPresError, _U01, gsProductVacuumPresSensorError, gsProcessCannotRun);
+
+u01.product_outlet_pres													:= F_AnalogIn(U01.PT_06, u01.product_outlet_pres_low, u01.product_outlet_pres_high, u01.product_outlet_pres_min, u01.product_outlet_pres_offset);
+u.product_outlet_pres													:= u01.product_outlet_pres;
+u.product_outlet_pres_error												:= u01.product_outlet_pres_error AND NOT _ProductOutletPresOff;
+bProductOutletPresError													:= P_Alarms.M_Check_Error(u.product_outlet_pres_error, bProductOutletPresError, _U01, gsProductOutletPresSensorError, gsProcessCannotRun);
+
+u01.boiler_outlet_pres													:= F_AnalogIn(U01.PT_07, u01.boiler_outlet_pres_low, u01.boiler_outlet_pres_high, u01.boiler_outlet_pres_min, u01.boiler_outlet_pres_offset);
+u.boiler_outlet_pres													:= u01.boiler_outlet_pres;
+u.boiler_outlet_pres_error												:= u01.boiler_outlet_pres_error AND NOT _BoilerOutletPresOff;
+bBoilerOutletPresError													:= P_Alarms.M_Check_Error(u.boiler_outlet_pres_error, bBoilerOutletPresError, _U01, gsBoilerOutletPresSensorError, gsProcessCannotRun);
+
+u01.purge_product_line_temp												:= F_Temperature(u01.TT_01, u01.purge_product_line_temp_offset);
+u.purge_product_line_temp												:= u01.purge_product_line_temp;
+u.purge_product_line_temp_error											:= u01.purge_product_line_temp_error AND NOT _PurgeProductLineTempOff;
+bPurgeProductLineTempError												:= P_Alarms.M_Check_Error(u.purge_product_line_temp_error, bPurgeProductLineTempError, _U01, gsPurgeProductLineTempSensorError, gsProcessCannotRun);
+
+u01.pre_condenser_line_temp												:= F_Temperature(u01.TT_02, u01.pre_condenser_line_temp_offset);
+u.pre_condenser_line_temp												:= u01.pre_condenser_line_temp;
+u.pre_condenser_line_temp_error											:= u01.pre_condenser_line_temp_error AND NOT _PreCondenserLineTempOff;
+bPreCondenserLineTempError												:= P_Alarms.M_Check_Error(u.pre_condenser_line_temp_error, bPreCondenserLineTempError, _U01, gsPreCondenserLineTempSensorError, gsProcessCannotRun);
+
+u01.post_condenser_line_temp											:= F_Temperature(u01.TT_03, u01.post_condenser_line_temp_offset);
+u.post_condenser_line_temp												:= u01.post_condenser_line_temp;
+u.post_condenser_line_temp_error										:= u01.post_condenser_line_temp_error AND NOT _PostCondenserLineTempOff;
+bPostCondenserLineTempError												:= P_Alarms.M_Check_Error(u.post_condenser_line_temp_error, bPostCondenserLineTempError, _U01, gsPostCondenserLineTempSensorError, gsProcessCannotRun);
+	
+u01.product_outlet_temp													:= F_Temperature(u01.TT_04, u01.product_outlet_temp_offset);
+u.product_outlet_temp													:= u01.product_outlet_temp;
+u.product_outlet_temp_error												:= u01.product_outlet_temp_error AND NOT _ProductOutletTempOff;
+bProductOutletTempError													:= P_Alarms.M_Check_Error(u.product_outlet_temp_error, bProductOutletTempError, _U01, gsProductOutletTempSensorError, gsProcessCannotRun);
+	
+u01.product_condenser_pump_outlet_temp									:= F_Temperature(u01.TT_05, u01.product_condenser_pump_outlet_temp_offset);
+u.product_condenser_pump_outlet_temp									:= u01.product_condenser_pump_outlet_temp;
+u.product_condenser_pump_outlet_temp_error								:= u01.product_condenser_pump_outlet_temp_error AND NOT _ProductCondenserPumpOutletTempOff;
+bProductCondenserPumpOutletTempError									:= P_Alarms.M_Check_Error(u.product_condenser_pump_outlet_temp_error, bProductCondenserPumpOutletTempError, _U01, gsProductCondenserPumpOutletTempSensorError, gsProcessCannotRun);
+	
+u01.boiler_outlet_temp													:= F_Temperature(u01.TT_06, u01.boiler_outlet_temp_offset);
+u.boiler_outlet_temp													:= u01.boiler_outlet_temp;
+u.boiler_outlet_temp_error												:= u01.boiler_outlet_temp_error AND NOT _BoilerOutletTempOff;
+bBoilerOutletTempError													:= P_Alarms.M_Check_Error(u.boiler_outlet_temp_error, bBoilerOutletTempError, _U01, gsBoilerOutletTempSensorError, gsProcessCannotRun);
+	
+u01.condensate_collection_tank_temp										:= F_Temperature(u01.TT_07, u01.condensate_collection_tank_temp_offset);
+u.condensate_collection_tank_temp										:= u01.condensate_collection_tank_temp;
+u.condensate_collection_tank_temp_error									:= u01.condensate_collection_tank_temp_error AND NOT _CondensateCollectionTankTempOff;
+bCondensateCollectionTankTempError										:= P_Alarms.M_Check_Error(u.condensate_collection_tank_temp_error, bCondensateCollectionTankTempError, _U01, gsCondensateCollectionTankTempSensorError, gsProcessCannotRun);
+	
+u01.condensate_collection_tank_outlet_line_temp							:= F_Temperature(u01.TT_08, u01.condensate_collection_tank_outlet_line_temp_offset);
+u.condensate_collection_tank_outlet_line_temp							:= u01.condensate_collection_tank_outlet_line_temp;
+u.condensate_collection_tank_outlet_line_temp_error						:= u01.condensate_collection_tank_outlet_line_temp_error AND NOT _CondensateCollectionTankOutletLineTempOff;
+bCondensateCollectionTankOutletLineTempError							:= P_Alarms.M_Check_Error(u.condensate_collection_tank_outlet_line_temp_error, bCondensateCollectionTankOutletLineTempError, _U01, gsCondensateCollectionTankOutletLineTempSensorError, gsProcessCannotRun);
+
+u01.instrument_air_comp_pres											:= F_AnalogIn(U01.PT_08, u01.instrument_air_comp_pres_low, u01.instrument_air_comp_pres_high, u01.instrument_air_comp_pres_min, u01.instrument_air_comp_pres_offset);
+u.instrument_air_comp_pres												:= u01.instrument_air_comp_pres;
+u.instrument_air_comp_pres_error										:= u01.instrument_air_comp_pres_error AND NOT _InstrumentAirCompPresOff;
+bInstrumentAirCompPresError												:= P_Alarms.M_Check_Error(u.instrument_air_comp_pres_error, bInstrumentAirCompPresError, _U01, gsInstrumentAirCompPresSensorError, gsProcessCannotRun);
+rPres																	:= SEL(u.instrument_air_comp_pres_error, u01.instrument_air_comp_pres, -100);
+IF rPres >= u01.SP_minimum_instrument_air_pressure AND rPres <= u01.SP_acceptable_low_instrument_air_pressure THEN 
+	u.instrument_air_comp_pres_interlock								:= 1;
+ELSIF rPres <= u01.SP_maximum_instrument_air_pressure AND rPres >= u01.SP_acceptable_high_instrument_air_pressure THEN 
+	u.instrument_air_comp_pres_interlock								:= 1;
+ELSIF rPres < u01.SP_minimum_instrument_air_pressure OR rPres > u01.SP_maximum_instrument_air_pressure THEN
+	u.instrument_air_comp_pres_interlock								:= 2;
+ELSE
+	u.instrument_air_comp_pres_interlock								:= 0;
+END_IF	
+
+u01.instrument_air_comp_temp											:= F_Temperature(u01.TT_09, u01.instrument_air_comp_temp_offset);
+u.instrument_air_comp_temp												:= u01.instrument_air_comp_temp;
+u.instrument_air_comp_temp_error										:= u01.instrument_air_comp_temp_error AND NOT _InstrumentAirCompTempOff;
+
+bInstrumentAirCompTempError												:= P_Alarms.M_Check_Error(u.instrument_air_comp_temp_error, bInstrumentAirCompTempError, _U01, gsInstrumentAirCompTempSensorError, gsProcessCannotRun);
+IF NOT bInstrumentAirCompTempError THEN
+	IF u.instrument_air_comp_temp < u01.SP_minimum_instrument_air_temperature OR u.instrument_air_comp_temp > u01.SP_maximum_instrument_air_temperature THEN
+		P_Alarms.M_Add_Alarm(_U01, gsPneumaticLineTempError, gsReactorSetCannotRun);
+		bInstrumentAirCompTempError										:= TRUE;
+	END_IF
+END_IF
+
+IF bCloseXVValves THEN
+	u01.cooling_line_pre_condenser_valve								:= FALSE;
+	u01.purge_product_pre_condenser_valve								:= FALSE;
+	u01.product_vacuum_pump_isolation_valve								:= FALSE;
+	u01.product_vacuum_bypass_valve										:= FALSE;
+	u01.product_vacuum_outlet_isolation_valve							:= FALSE;
+	u01.steam_bypass_valve												:= FALSE;
+	u01.condensate_collection_tank_pump_outlet_valve					:= FALSE;
+	bCloseXVValves														:= FALSE;
+END_IF
+	
+fb_Cooling_Line_Pre_Condenser_Valve(Input1:= u01.cooling_line_pre_condenser_valve, Input2:= u.cooling_line_pre_condenser_valve, Output=> u01.XV_01);
+u01.cooling_line_pre_condenser_valve_open_cmd_status					:= u01.XV_01;
+u.cooling_line_pre_condenser_valve_clear								:= F_ValveClear(u.cooling_line_pre_condenser_valve, u01.cooling_line_pre_condenser_valve_open, u01.cooling_line_pre_condenser_valve_closed);
+
+fb_Purge_Product_Pre_Condenser_Valve(Input1:= u01.purge_product_pre_condenser_valve, Input2:= u.purge_product_pre_condenser_valve, Output=> u01.XV_02);
+u01.purge_product_pre_condenser_valve_open_cmd_status					:= u01.XV_02;
+u.purge_product_pre_condenser_valve_clear								:= F_ValveClear(u.purge_product_pre_condenser_valve, u01.purge_product_pre_condenser_valve_open, u01.purge_product_pre_condenser_valve_closed);
+
+fb_Product_Vacuum_Pump_Isolation_Valve(Input1:= u01.product_vacuum_pump_isolation_valve, Input2:= u.product_vacuum_pump_isolation_valve, Output=> u01.XV_03);
+u01.product_vacuum_pump_isolation_valve_open_cmd_status					:= u01.XV_03;
+u.product_vacuum_pump_isolation_valve_clear								:= F_ValveClear(u.product_vacuum_pump_isolation_valve, u01.product_vacuum_pump_isolation_valve_open, u01.product_vacuum_pump_isolation_valve_closed);
+
+fb_Product_Vacuum_Bypass_Valve(Input1:= u01.product_vacuum_bypass_valve, Input2:= u.product_vacuum_bypass_valve, Output=> u01.XV_04);
+u01.product_vacuum_bypass_valve_open_cmd_status							:= u01.XV_04;
+u.product_vacuum_bypass_valve_clear										:= F_ValveClear(u.product_vacuum_bypass_valve, u01.product_vacuum_bypass_valve_open, u01.product_vacuum_bypass_valve_closed);
+
+fb_Product_Vacuum_Outlet_Isolation_Valve(Input1:= u01.product_vacuum_outlet_isolation_valve, Input2:= u.product_vacuum_outlet_isolation_valve, Output=> u01.XV_05);
+u01.product_vacuum_outlet_isolation_valve_open_cmd_status				:= u01.XV_05;
+u.product_vacuum_outlet_isolation_valve_clear							:= F_ValveClear(u.product_vacuum_outlet_isolation_valve, u01.product_vacuum_outlet_isolation_valve_open, u01.product_vacuum_outlet_isolation_valve_closed);
+
+fb_Steam_Bypass_Valve(Input1:= u01.steam_bypass_valve, Input2:= u.steam_bypass_valve, Output=> u01.XV_08);
+u01.steam_bypass_valve_open_cmd_status									:= u01.XV_08;
+u.steam_bypass_valve_clear												:= F_ValveClear(u.steam_bypass_valve, u01.steam_bypass_valve_open, u01.steam_bypass_valve_closed);
+
+fb_Condensate_Collection_Tank_Pump_Outlet_Valve(Input1:= u01.condensate_collection_tank_pump_outlet_valve, Input2:= u.condensate_collection_tank_pump_outlet_valve, Output=> );
+u01.XV_09																:= u.condensate_collection_tank_pump_outlet_valve;
+u01.condensate_collection_tank_pump_outlet_valve_open_cmd_status		:= u.condensate_collection_tank_pump_outlet_valve;
+u.condensate_collection_tank_pump_outlet_valve_clear					:= F_ValveClear(u.condensate_collection_tank_pump_outlet_valve, u01.condensate_collection_tank_pump_outlet_valve_open, u01.condensate_collection_tank_pump_outlet_valve_closed);
+
+fb_Product_Vacuum_Backfeed_Valve(Input1:= u01.product_vacuum_backfeed_valve, Input2:= u.product_vacuum_backfeed_valve);
+fb_Product_Vacuum_Backfeed_Valve_Mode(Input1:= u01.product_vacuum_backfeed_valve_mode, Input2:= u.product_vacuum_backfeed_valve_mode);
+fb_Product_Vacuum_Backfeed_Valve_PI(	Setpoint						:= u.product_vacuum_backfeed_valve_setpoint,
+										Control							:= u01.product_vacuum_pres,
+										Error							:= u01.product_vacuum_backfeed_valve_position_error,
+										Reverse							:= FALSE,
+										Kp								:= u01.product_vacuum_backfeed_valve_kp,           
+										Ki								:= u01.product_vacuum_backfeed_valve_ki,           
+										BaseAdjust						:= u01.product_vacuum_backfeed_valve_base_adjust,  
+										LoopTime						:= u01.product_vacuum_backfeed_valve_loop_time,    
+										IBand							:= u01.product_vacuum_backfeed_valve_iband,        
+										Base							:= u01.product_vacuum_backfeed_valve_base,         
+										Mode							:= u01.product_vacuum_backfeed_valve_mode,
+										Input							:= u01.product_vacuum_backfeed_valve,
+										Mode_Out						=> u01.product_vacuum_backfeed_valve_current_mode, 
+										Output							=> u01.PCV_01);
+
+u01.product_vacuum_backfeed_valve_position								:= INT_TO_REAL(u01.PCV_01_position) / _PERCENT_FACTOR; 
+u.product_vacuum_backfeed_valve_open									:= u01.product_vacuum_backfeed_valve_position >= _VALVE_OPEN;
+u01.product_vacuum_backfeed_valve_open									:= u.product_vacuum_backfeed_valve_open;
+u.product_vacuum_backfeed_valve_closed									:= u01.product_vacuum_backfeed_valve_position < _VALVE_CLOSED;
+u01.product_vacuum_backfeed_valve_closed								:= u.product_vacuum_backfeed_valve_closed;
+
+fbSteamTotalizerEnable(Input1 := u01.steam_header_volume_total_enable, Input2 := u.steam_header_volume_total_enable );
+//u01.steam_header_volume_total_enable 									:= u.steam_header_volume_total_enable;
+
+fb_Product_Vacuum_Pump(					Enable							:= u01.product_vacuum_pump_vfd_enable,
+										Pump_Reset						:= u01.product_vacuum_pump_reset,
+										Purge_Time						:= u01.SP_product_vacuum_purge_time,
+										Safety1							:= u01.P02_TSH_1,
+										Safety2							:= u01.P02_TSH_2,
+										Safety3							:= u01.P02_TSH_3,
+										Error							=> u01.product_vacuum_pump_error,
+										Purge_Solenoid_Valve			=> u01.P02_SVC_1,
+										Seal_Purge_Valve				=> u01.P02_SVC_3);
+
+sVacPumpError															:= CONCAT(gsProductVacuumPumpError, sVacuumPumpError[u01.product_vacuum_pump_error]);
+bProductVacuumPumpError													:= P_Alarms.M_Check_Error(u01.product_vacuum_pump_error <> 0, bProductVacuumPumpError, _U01, sVacPumpError, gsProcessCannotRun);
+						
+fb_Product_Vacuum_Pump_Vfd_Input(Input1:= u01.product_vacuum_pump_vfd, Input2:= u.product_vacuum_pump_vfd);
+rRpm																	:= u.product_vacuum_pump_vfd * _PUMP_RPM_FACTOR;
+fb_Product_Vacuum_Pump_Vfd(				Enable_Vfd						:= fb_Product_Vacuum_Pump.Pump_On,
+										Fault_Reset						:= u01.product_vacuum_pump_vfd_reset,
+										Rpm								:= rRpm,
+										Minimum_Speed					:= _PUMP_RPM_FACTOR * u01.SP_product_vacuum_idle_vfd_percent,
+										Maximum_Speed					:= _PUMP_SPEED_MAX, 
+										StatusWord						:= u01.product_vacuum_pump_vfd_status,
+										ControlWord						=> u01.product_vacuum_pump_vfd_control, 
+										TargetRpm						=> u01.product_vacuum_pump_vfd_target_vel, 
+										Ready							=> u01.product_vacuum_pump_vfd_enabled,
+										Error							=> u01.product_vacuum_pump_vfd_error);
+u01.product_vacuum_pump_vfd_output  									:= WORD_TO_REAL(u01.product_vacuum_pump_vfd_velocity) / _PUMP_RPM_FACTOR ;                             
+u.product_vacuum_pump_vfd_output										:= WORD_TO_REAL(u01.product_vacuum_pump_vfd_velocity);
+IF u01.product_vacuum_pump_vfd_reset THEN
+	u01.product_vacuum_pump_vfd_reset := FALSE;
+END_IF
+
+fb_Product_Vacuum_Pump_Radiator(Input1:= u01.radiator, Input2:= u.product_vacuum_pump_radiator);
+u01.R_01																:= u.product_vacuum_pump_radiator;
+u01.radiator_cmd_status													:= u.product_vacuum_pump_radiator;
+
+// ignore if < 2 Amps
+u01.l1_current_480														:= SEL(u01.IT_01 > _CURRENT_480_FACTOR * 2,0,F_IEConvert(u01.IT_01, _CURRENT_480_FACTOR));
+u01.l2_current_480														:= SEL(u01.IT_02 > _CURRENT_480_FACTOR * 2,0,F_IEConvert(u01.IT_02, _CURRENT_480_FACTOR));
+u01.l3_current_480														:= SEL(u01.IT_03 > _CURRENT_480_FACTOR * 2,0,F_IEConvert(u01.IT_03, _CURRENT_480_FACTOR));
+u01.l1_voltage_480														:= F_IEConvert(u01.VT_01, _VOLTAGE_480_FACTOR);
+u01.l2_voltage_480														:= F_IEConvert(u01.VT_02, _VOLTAGE_480_FACTOR);
+u01.l3_voltage_480														:= F_IEConvert(u01.VT_03, _VOLTAGE_480_FACTOR);
+
+// Ignore if < 1 Amp
+u01.l1_current_208														:= SEL(u01.IT_04 > _CURRENT_208_FACTOR ,0,F_IEConvert(u01.IT_04, _CURRENT_208_FACTOR));
+u01.l2_current_208														:= SEL(u01.IT_05 > _CURRENT_208_FACTOR ,0,F_IEConvert(u01.IT_05, _CURRENT_208_FACTOR));
+u01.l3_current_208														:= SEL(u01.IT_06 > _CURRENT_208_FACTOR ,0,F_IEConvert(u01.IT_06, _CURRENT_208_FACTOR));
+u01.l1_voltage_208														:= F_IEConvert(u01.VT_04, _VOLTAGE_208_FACTOR);
+u01.l2_voltage_208														:= F_IEConvert(u01.VT_05, _VOLTAGE_208_FACTOR);
+u01.l3_voltage_208														:= F_IEConvert(u01.VT_06, _VOLTAGE_208_FACTOR);
+
+// Boiler - ignore noise if < 5A = 400 counts
+
+u01.l1_current_boiler := SEL(u01.IT_boiler_01 > 400, 0, F_IEConvert(u01.IT_boiler_01, _CURRENT_BOILER_FACTOR));  // double coiled 
+u01.l2_current_boiler := SEL(u01.IT_boiler_02 > 400, 0, F_IEConvert(u01.IT_boiler_02, _CURRENT_BOILER_FACTOR));  // double coiled 
+u01.l3_current_boiler := SEL(u01.IT_boiler_03 > 400, 0, F_IEConvert(u01.IT_boiler_03, _CURRENT_BOILER_FACTOR));  // double coiled 
+
+u01.boiler_ready														:= NOT u.boiler_outlet_pres_error AND u.boiler_outlet_pres > u01.SP_target_boiler_pressure AND u.boiler_package;
+u.boiler_ready															:= u01.boiler_ready OR sita_bits[10].1;
+
+tonBoilerCheck(IN:= u01.warmup_complete AND NOT u01.boiler_ready, PT:= _TIMEOUT_WARMUP_RESET);
+IF tonBoilerCheck.Q THEN
+	u01.warmup_complete													:= FALSE;
+END_IF
+
+// These Utility errors prevent any new automated cycles from running
+u.utility_error															:= SEL(NOT u.boiler_ready AND bPaul, '', gsBoilerError);
+u.utility_error															:= SEL(bDeadAirLinePresError, u.utility_error, gsDeadAirLinePresSensorError);		
+u.utility_error															:= SEL(bPreCondenserLinePresError, u.utility_error, gsPreCondenserLinePresSensorError);
+u.utility_error															:= SEL(bProductVacuumPresError, u.utility_error, gsProductVacuumPresSensorError);
+u.utility_error															:= SEL(bProductVacuumPumpError, u.utility_error, gsProductVacuumPumpError);
+u.utility_error															:= SEL(bProductOutletCo2Error, u.utility_error, gsProductOutletCo2SensorError);
+u.utility_error															:= SEL(bProductOutletVolumetricFlowError, u.utility_error, gsProductOutletVolumetricFlowSensorError);
+u.utility_error															:= SEL(bSteamHeaderFlowError, u.utility_error, gsSteamHeaderFlowSensorError);
+u.utility_error															:= SEL(bBoilerOutletTempError, u.utility_error, gsBoilerOutletTempSensorError);
+u.utility_error															:= SEL(bBoilerOutletPresError, u.utility_error, gsBoilerOutletPresSensorError);
+u.utility_error															:= SEL(bProductCondensateDrumLevelError, u.utility_error, gsProductCondensateDrumLevelSensorError);
+u.utility_error															:= SEL(bCondensateCollectionTankLevelError, u.utility_error, gsCondensateCollectionTankLevelSensorError);
+u.utility_error															:= SEL(bWeatherTempUnsafe, u.utility_error, gsOutsideTempRangeError);
+u.utility_error															:= SEL(bProductOutletPresError, u.utility_error, gsProductOutletPresSensorError);
+u.utility_error															:= SEL(bProductOutletTempError, u.utility_error, gsProductOutletTempSensorError);
+u.utility_error															:= SEL(bDeadAirLineCo2Error, u.utility_error, gsDeadAirLineCo2SensorError);
+u.utility_error															:= SEL(bDeadAirFlowError, u.utility_error, gsDeadAirFlowSensorError);
+u.utility_error															:= SEL(bProductOutletH2oError, u.utility_error, gsProductOutletH2oSensorError);
+u.utility_error															:= SEL(bProductOutletO2Error, u.utility_error, gsProductOutletO2SensorError);
+u.utility_error															:= SEL(bCondensateCollectionTankPhError, u.utility_error, gsCondensateCollectionTankPhSensorError);
+u.utility_error															:= SEL(bCondensateCollectionTankO2Error, u.utility_error, gsCondensateCollectionTankO2SensorError);
+u.utility_error															:= SEL(bCondensateCollectionTankTurbidityError, u.utility_error, gsCondensateCollectionTankTurbiditySensorError);
+u.utility_error															:= SEL(bPurgeProductLinePresError, u.utility_error, gsPurgeProductLinePresSensorError);
+u.utility_error															:= SEL(bPostCondenserLinePresError, u.utility_error, gsPostCondenserLinePresSensorError);
+u.utility_error															:= SEL(bPurgeProductLineTempError, u.utility_error, gsPurgeProductLineTempSensorError);
+u.utility_error															:= SEL(bPreCondenserLineTempError, u.utility_error, gsPreCondenserLineTempSensorError);
+u.utility_error															:= SEL(bPostCondenserLineTempError, u.utility_error, gsPostCondenserLineTempSensorError);
+u.utility_error															:= SEL(bProductCondenserPumpOutletTempError, u.utility_error, gsProductCondenserPumpOutletTempSensorError);
+u.utility_error															:= SEL(bCondensateCollectionTankTempError, u.utility_error, gsCondensateCollectionTankTempSensorError);
+u.utility_error															:= SEL(bCondensateCollectionTankOutletLineTempError, u.utility_error, gsCondensateCollectionTankOutletLineTempSensorError);
+u.utility_error															:= SEL(bInstrumentAirCompPresError, u.utility_error, gsInstrumentAirCompPresSensorError);
+u.utility_error															:= SEL(bInstrumentAirCompTempError, u.utility_error, gsInstrumentAirCompTempSensorError);
+u.utility_error															:= SEL(bProductCondensateValveError, u.utility_error, gsProductCondensateDrainValveError);
+sUtilityError															:= u.utility_error;
+
+// These errors initiate a Safe Shutdown if automated cycles are running 
+IF m01.tb_Auto_Mode_On AND NOT bSafeShutdown THEN																			// Safe Shutdown 1
+	u.safe_shutdown_error_1												:= SEL(bProductVacuumPumpError, '', gsProductVacuumPumpError);
+	u.safe_shutdown_error_1												:= SEL(bPreCondenserLinePresError, u.safe_shutdown_error_1, gsPreCondenserLinePresSensorError);
+	u.safe_shutdown_error_1												:= SEL(bProductVacuumPresError, u.safe_shutdown_error_1, gsProductVacuumPresSensorError);
+	u.safe_shutdown_error_1												:= SEL(bProductOutletCo2Error, u.safe_shutdown_error_1, gsProductOutletCo2SensorError);
+	u.safe_shutdown_error_1												:= SEL(bProductOutletVolumetricFlowError, u.safe_shutdown_error_1, gsProductOutletCo2SensorError);
+	IF u.safe_shutdown_error_1 <> '' THEN
+		bSafeShutdown													:= TRUE;
+	ELSE																													// Safe Shutdown 2
+		u.safe_shutdown_error_2											:= SEL(bSteamHeaderFlowError, '', gsSteamHeaderFlowSensorError);
+		u.safe_shutdown_error_2											:= SEL(bBoilerOutletPresError, u.safe_shutdown_error_2, gsBoilerOutletPresSensorError);
+		u.safe_shutdown_error_2											:= SEL(bBoilerOutletTempError, u.safe_shutdown_error_2, gsBoilerOutletTempSensorError);
+		u.safe_shutdown_error_2											:= SEL(NOT u.boiler_ready, u.safe_shutdown_error_2, gsBoilerError);
+		u.safe_shutdown_error_2											:= SEL(P_M01.bSteamManifoldLinePresError, u.safe_shutdown_error_2, gsSteamManifoldLinePresSensorError);
+		u.safe_shutdown_error_2											:= SEL(P_M01.bSteamTempNearRS01Error, u.safe_shutdown_error_2, gsSteamTempNearRS01SensorError);
+		u.safe_shutdown_error_2											:= SEL(P_M01.bSteamTempNearRS03Error, u.safe_shutdown_error_2, gsSteamTempNearRS03SensorError);
+		u.safe_shutdown_error_2											:= SEL(bProductCondensateDrumLevelError, u.safe_shutdown_error_2, gsProductCondensateDrumLevelSensorError);
+		u.safe_shutdown_error_2											:= SEL(bCondensateCollectionTankLevelError, u.safe_shutdown_error_2, gsCondensateCollectionTankLevelSensorError);
+		IF u.safe_shutdown_error_2 <> '' THEN
+			bSafeShutdown												:= TRUE;
+		END_IF
+	END_IF
+ELSIF NOT m01.tb_Auto_Mode_On THEN
+	bSafeShutdown														:= FALSE;
+	u.safe_shutdown_error_1												:= '';
+	u.safe_shutdown_error_2												:= '';
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Totalizers" Id="{5628a577-b91b-468f-9d37-381d8cfc29f4}">
+      <Implementation>
+        <ST><![CDATA[tmrTotalizers(IN := NOT tmrTotalizers.Q,PT := T#1S);
+// get steam density every 1 sec  
+IF tmrTotalizers.Q THEN
+	
+ // Steam volume
+	FOR idxSteamTable := 1 TO 30 DO 
+		IF u01.boiler_outlet_pres >= STEAM_TABLE[idxSteamTable][0] THEN
+			rSteamDensity := STEAM_TABLE[idxSteamTable][1];
+		END_IF
+	END_FOR
+	
+    u01.steam_header_volume := rSteamDensity * (u01.steam_header_flow*1000)/60 * 1.0;  // density kg/l  * flow m3/min ( m3 = 1000l)  * 1 sec 
+	IF u01.steam_header_volume_total_enable THEN
+		u01.steam_header_volume_total := u01.steam_header_volume_total + u01.steam_header_volume;
+	ELSE
+		u01.steam_header_volume_total := 0;
+	END_IF
+	
+	// Product flows 
+	IF u01.product_outlet_mass_flow_total_enable OR u01.product_outlet_volumetric_flow_total_enable THEN 
+		u01.product_outlet_mass_flow_total := u01.product_outlet_mass_flow_total + u01.product_outlet_mass_flow/60 * 1.0;  //  kg/min to kg/sec * 1 sec
+		u01.product_outlet_volumetric_flow_total := u01.product_outlet_volumetric_flow_total + u01.product_outlet_volumetric_flow/60 * 1.0 ;  // l/min to t/sec  * 1 sec
+	ELSE
+		u01.product_outlet_mass_flow_total := 0;
+		u01.product_outlet_volumetric_flow_total := 0;
+	END_IF
+	
+	// Bolier Water flow 
+	
+	IF u01.tap_water_to_boiler_flow_total_enable THEN 
+		u01.tap_water_to_boiler_flow_total := u01.tap_water_to_boiler_flow_total +  u01.tap_water_to_boiler_flow/60 * 1.0; // //  kg/min to kg/sec * 1 sec
+	ELSE
+		u01.tap_water_to_boiler_flow_total := 0;
+	END_IF
+ 
+END_IF
+
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Weather_Station" Id="{97e557fc-0646-468d-b78c-428d62b1eadb}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - A_Weather_Station
+// Rev 1.00 - February 5, 2024
+
+IF iWSFunction = 0 THEN																		// Modbus is not busy
+	WS_Master.UnitID 													:= 1;				// Weather Station Modbus address
+	wWSAddress															:= 8193;
+	wWSQuantity															:= 1;
+	iWSFunction															:= eWSReadRegs;
+	// Get weather values here
+	//	ZXI_2002														:= wMBPReadData[0];
+	//	ZYI_2002														:= wMBPReadData[1];
+ELSIF tonWSReset.Q THEN
+	iWSFunction															:= eWSIdle;
+END_IF
+tonWSReset(IN:= iWSFunction > 0, PT:= _TIMEOUT_MODBUS);
+
+CASE iWSFunction OF
+	
+	eWSIdle:
+		WS_Master.Execute 												:= FALSE;
+		
+	eWSReadRegs:
+		WS_Master.ReadRegs(		Quantity								:= wWSQuantity, 
+								MBAddr									:= wWSAddress, 
+								cbLength								:= SIZEOF(wWSReadData), 
+								pMemoryAddr								:= ADR(wWSReadData), 
+								Execute									:= TRUE, 
+								Timeout									:= _TIMEOUT_MODBUS, 
+								BUSY									=> bWSBusy, 
+								Error									=> bWSError, 
+								ErrorId									=> WS_Errors, 
+								cbRead									=> uiWSRead);
+			
+		WS_Master.ReadRegs(BUSY=> bWSBusy);
+		IF NOT WS_Master.BUSY THEN
+			WS_Master.Execute 											:= FALSE;
+			WS_Master.ReadRegs(BUSY=> bWSBusy);
+			IF WS_Master.Error THEN
+				WS_Master.ReadRegs();
+			ELSE
+				iWSFunction 											:= 0;			
+			END_IF
+		END_IF
+	
+	ELSE
+		iWSFunction 													:= 0;
+	
+END_CASE
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A2_WarmUp" Id="{3e02c609-752d-4440-9a0e-94c91ce7baf7}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_U01.A2_WarmUp
+// Rev 1.0 - April 4, 2024
+
+CASE i2Step OF
+
+	0:	;
+		
+	1:	
+		sError															:= '';
+		bComplete														:= FALSE;
+		bRunSteamBypass													:= FALSE;
+		u01.steam_bypass_complete										:= FALSE;
+		IF NOT u01.warmup_complete THEN
+			gsCycleStage												:= 'warm_up.initialize';							// 3
+			IF u01.boiler_outlet_pres_error THEN
+				sError													:= F_Concat3(_U01, gsCycleStage, gsBoilerError);
+				i2Step													:= 80;
+			ELSE
+				i2Step													:= i2Step + 1;
+			END_IF
+		ELSE
+			bComplete													:= TRUE;
+			i2Step														:= 90;
+		END_IF
+		
+	2:	
+		u01.boiler_package												:= TRUE;											// 4
+		gsCycleStage													:= 'warm_up.boiler_heating';						// 5
+		u01.drainage_on													:= TRUE;											// 6
+		bAdsorptionActive												:= FALSE;											// 7
+		bAdsorptionTimer												:= FALSE;
+		i2Step															:= SEL(u01.SP_adsorb_during_warmup, 20, i2Step + 1);	// 8
+
+	3:
+		iAxStep															:= 1;												// 8.a
+		i2Step															:= i2Step + 1;
+
+	4:	
+		Ax_Process_Pre_Check();																								// 8.a																			
+		IF bPreCheckDone THEN
+			IF sError = '' THEN																								// 8.a.i
+				P_M01_RS01.open_repres_valves							:= P_M01.bRS01;										// 8.b
+				P_M01_RS02.open_repres_valves							:= P_M01.bRS02;
+				P_M01_RS03.open_repres_valves							:= P_M01.bRS03;
+				rTime													:= _VALVE_TIME;
+				i2Step													:= i2Step + 1;
+			ELSE
+				P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), sError, gsWarmupWillContinueWOAdsorption);					// 8.a.ii
+				i2Step													:= 20;
+			END_IF
+		END_IF
+		
+	5:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.repres_valves_clear) OR NOT P_M01.bRS01;
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.repres_valves_clear) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.repres_valves_clear) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i2Step														:= i2Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			//P_M01_RS01.close_repres_valves								:= TRUE;
+			//P_M01_RS02.close_repres_valves								:= TRUE;
+			//P_M01_RS03.close_repres_valves								:= TRUE;
+			//P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), M_Repres_Valve_Error(), gsWarmupWillContinueWOAdsorption);	// Per Alex W.
+			//i2Step														:= 20;
+			i2Step														:= i2Step + 1; 
+		END_IF
+		
+	6:
+		P_M01_RS01.open_all_doors										:= P_M01.bRS01;										// 8.c
+		P_M01_RS02.open_all_doors										:= P_M01.bRS02;
+		P_M01_RS03.open_all_doors										:= P_M01.bRS03;
+		rTime															:= m01.SP_doorsopenclose_timedelay * _MINUTES;										// 8.c.i
+		gsCycleStage													:= 'warm_up.boiler_heating_open_doors';				// 8.c.ii
+		i2Step															:= i2Step + 1;
+
+	7:
+		bTimer															:= TRUE; 
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.all_doors_open) OR NOT P_M01.bRS01;
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.all_doors_open) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.all_doors_open) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i2Step														:= i2Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sRS															:= SEL(NOT bPass1, SEL(NOT bPass2, _RS03, _RS02), _RS01);
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorOpeningError, gsWarmupWillContinueWOAdsorption);
+			i2Step														:= 20;
+		END_IF
+
+	8:
+		P_M01_RS01.fan_vfd_percent										:= SEL(P_M01.bRS01, 0, m01.SP_reactor_set_1_vfd_percent);	// 8.d
+		P_M01_RS02.fan_vfd_percent										:= SEL(P_M01.bRS02, 0, m01.SP_reactor_set_2_vfd_percent);
+		P_M01_RS03.fan_vfd_percent										:= SEL(P_M01.bRS03, 0, m01.SP_reactor_set_3_vfd_percent);
+		gsCycleStage													:= 'warm_up.boiler_heating_turn_on_fans';			// 8.d.i
+		rTime															:= _FAN_RS_DELAY_TIME;
+		i2Step															:= i2Step + 1;
+
+	9:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i2Step														:= i2Step + 1;
+		END_IF
+
+	10:
+		P_M01_RS01.co2_inside_sensors_on								:= P_M01.bRS01;										// 8.e
+		P_M01_RS02.co2_inside_sensors_on								:= P_M01.bRS02;
+		P_M01_RS03.co2_inside_sensors_on								:= P_M01.bRS03;
+		gsCycleStage													:= 'warm_up.boiler_heating_adsorption';				// 8.e.i
+		bAdsorptionTimer												:= TRUE;											// 8.f
+		bAdsorptionActive												:= TRUE;											// 8.g
+		i2Step															:= 20;
+
+
+//**** Complete Warmup		
+	20:
+		u01.product_vacuum_backfeed_valve								:= _OPEN;											// 9
+		rTime															:= _VALVE_TIME;
+		i2Step															:= i2Step + 1;
+		
+	21:	
+		bTimer															:= TRUE;
+		IF u01.product_vacuum_backfeed_valve_open THEN																		// 9
+			bTimer														:= FALSE;
+			u01.product_vacuum_pump_vfd									:= u01.SP_product_vacuum_idle_vfd_percent;			// 10
+			rTime														:= u01.SP_boiler_warmup_duration * _MINUTES;		// 11
+			i2Step														:= i2Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= gsProductVacuumBackfeedValveError;				// 9
+			IF bAdsorptionActive THEN
+				P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), sError, gsProcessCannotRunAdsorptionWillContinue);
+				u01.boiler_package										:= FALSE;
+				i2Step													:= 30;
+			ELSE
+				i2Step													:= 80;
+			END_IF
+		END_IF
+		
+	22:
+		bTimer															:= TRUE;
+		IF u01.boiler_ready THEN																							// 12 (Handled in P_U01.A_Points)
+			bTimer														:= FALSE;
+			bComplete													:= TRUE;
+			u01.warmup_complete											:= TRUE;
+			i2Step														:= i2Step + 1;
+		ELSIF tonTimer.Q THEN																								// 12.a
+			bTimer														:= FALSE;
+			sError														:= gsBoilerError;
+			i2Step														:= 80;
+		END_IF
+
+	23:
+		bRunSteamBypass													:= u01.SP_steam_bypass_immediately_after_warm_up;
+		IF bAdsorptionActive AND NOT bRunSteamBypass THEN 																	// 14
+			i2Step														:= 30;
+		ELSIF bAdsorptionActive AND bRunSteamBypass AND NOT u01.SP_adsorb_during_steam_bypass THEN
+			i2Step														:= 40;												// 15
+		ELSE
+			i2Step														:= 90;												// 13 & 16
+		END_IF
+	
+		
+//**** Adsorption 1		
+	30:
+		IF tonAdsorptionTimer.Q THEN																						// 14.a
+			bAdsorptionTimer											:= FALSE;
+			gsCycleStage												:= 'warm_up.boiler_heating.turn_off_fans';			// 14.b
+			P_M01_RS01.fan_vfd_percent									:= 0;												// 14.c
+			P_M01_RS02.fan_vfd_percent									:= 0;
+			P_M01_RS03.fan_vfd_percent									:= 0;
+			rTime														:= _FAN_RS_DELAY_TIME;
+			i2Step														:= i2Step + 1;
+		END_IF
+
+	31:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			gsCycleStage												:= 'warm_up.boiler_heating.closing_doors';			// 14.d
+			P_M01_RS01.close_all_doors									:= TRUE;											// 14.e
+			P_M01_RS02.close_all_doors									:= TRUE;
+			P_M01_RS03.close_all_doors									:= TRUE;
+			rTime														:= m01.SP_doorsopenclose_timedelay * _MINUTES;										// 14.e.i
+			i2Step														:= i2Step + 1;
+		END_IF		
+
+	32:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.all_doors_closed) OR NOT P_M01.bRS01;	// 14.e.ii
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.all_doors_closed) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.all_doors_closed) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i2Step														:= i2Step + 1;
+		ELSIF tonTimer.Q THEN																								// 14.e.i
+			bTimer														:= FALSE;
+			bRunSteamBypass												:= FALSE;
+			sRS															:= SEL(NOT bPass1, SEL(NOT bPass2, _RS03, _RS02), _RS01);
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorClosingError, gsSystemCannotRun);
+			i2Step														:= i2Step + 1;
+		END_IF
+		
+	33:
+		P_M01_RS01.co2_sensors_off										:= TRUE;											// 14.f
+		P_M01_RS02.co2_sensors_off										:= TRUE;
+		P_M01_RS03.co2_sensors_off										:= TRUE;
+		bAdsorptionActive												:= FALSE;											// 14.g
+		i2Step															:= 90;
+
+	
+//**** Adsorption 2	
+	40:
+		IF tonAdsorptionTimer.Q THEN																						// 15.a
+			bAdsorptionTimer											:= FALSE;
+			P_M01_RS01.fan_vfd_percent									:= 0;												// 15.b
+			P_M01_RS02.fan_vfd_percent									:= 0;
+			P_M01_RS03.fan_vfd_percent									:= 0;
+			rTime														:= _FAN_RS_DELAY_TIME;
+			i2Step														:= i2Step + 1;
+		END_IF
+
+	41:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;											// 15.c
+			P_M01_RS01.co2_sensors_off									:= TRUE;
+			P_M01_RS02.co2_sensors_off									:= TRUE;
+			P_M01_RS03.co2_sensors_off									:= TRUE;
+			bAdsorptionActive											:= FALSE;											// 15.d
+			i2Step														:= i2Step + 1;
+		END_IF
+		
+	42:
+		P_M01_RS01.close_all_doors										:= TRUE;											// 15.g
+		P_M01_RS02.close_all_doors										:= TRUE;
+		P_M01_RS03.close_all_doors										:= TRUE;
+		rTime															:= m01.SP_doorsopenclose_timedelay * _MINUTES;										// 15.g.i
+		i2Step															:= i2Step + 1;
+
+	43:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.all_doors_closed) OR NOT P_M01.bRS01;		// 15.g.ii
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.all_doors_closed) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.all_doors_closed) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i2Step														:= 90;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			bRunSteamBypass												:= FALSE;
+			sRS															:= SEL(NOT bPass1, SEL(NOT bPass2, _RS03, _RS02), _RS01);
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorOpeningError, gsSystemCannotRun);
+			i2Step														:= 90;
+		END_IF
+
+
+//**** Process error		
+	80:
+		P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), sError, gsProcessCannotRun);
+		gsCycleStage													:= 'warm_up.error';
+		i2Step															:= i2Step + 1;
+
+//**** Stop process		
+	81:
+		u01.product_vacuum_pump_vfd										:= 0;
+		u01.product_vacuum_backfeed_valve								:= _CLOSED;
+		P_M01_RS01.co2_sensors_off										:= TRUE;
+		P_M01_RS02.co2_sensors_off										:= TRUE;
+		P_M01_RS03.co2_sensors_off										:= TRUE;
+		P_M01_RS01.fan_vfd_percent										:= 0;
+		P_M01_RS02.fan_vfd_percent										:= 0;
+		P_M01_RS03.fan_vfd_percent										:= 0;
+		rTime															:= _FAN_RS_DELAY_TIME;
+		i2Step															:= i2Step + 1;
+
+	82:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			u01.boiler_package											:= FALSE;
+			P_M01_RS01.close_all_doors									:= P_M01.bRS01;
+			P_M01_RS02.close_all_doors									:= P_M01.bRS02;
+			P_M01_RS03.close_all_doors									:= P_M01.bRS03;
+			rTime														:= m01.SP_doorsopenclose_timedelay * _MINUTES;
+			i2Step														:= 90;
+		END_IF
+		
+//**** Close process
+	90:
+		gsCycleStage													:= SEL(bComplete, 'warm_up.failed', 'warm_up.complete');
+		bAdsorptionTimer												:= FALSE;
+		u01.drainage_on													:= FALSE;
+		rTime															:= _PROCESS_COMPLETE_TIME;
+		i2Step															:= i2Step + 1;
+		
+	91:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			gsCycleStage												:= '';
+			i2Step														:= 0;
+		END_IF
+				
+
+END_CASE
+
+IF i2Step > 0 AND i2Step < 80 AND u01.shutdown_process THEN
+	gsCycleStage														:= 'warm_up.stopping';
+	i2Step																:= 81;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A3_Steam_Bypass" Id="{73856173-8e49-4891-b8be-3c57dfbf2633}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_U01.A3_Steam_Bypass
+// Rev 1.0 - April 4, 2024
+
+CASE i3Step OF
+
+	0:	;
+
+	1:	
+		bComplete														:= FALSE;
+		IF u01.warmup_complete THEN
+			IF NOT u01.steam_bypass_complete THEN
+				gsCycleStage											:= 'steam_bypass.initialize';						// 4
+				sError													:= '';
+				IF u01.post_condenser_line_pres_error THEN
+					sError												:= gsPostCondenserLinePresSensorError;
+				ELSIF u01.pre_condenser_line_pres_error THEN
+					sError												:= gsPreCondenserLinePresSensorError;
+				ELSIF u01.purge_product_line_pres_error THEN
+					sError												:= gsPurgeProductLinePresSensorError;
+				ELSIF u01.product_vacuum_pres_error THEN
+					sError												:= gsProductVacuumPresSensorError;
+				ELSIF u01.steam_header_flow_error THEN
+					sError												:= gsSteamHeaderFlowSensorError;
+				ELSIF u01.purge_product_line_temp_error THEN
+					sError												:= gsPurgeProductLineTempSensorError;
+				END_IF
+				i3Step													:= SEL(sError = '', 80, i3Step + 1);
+			ELSE
+				bComplete												:= TRUE;
+				i3Step													:= 90;
+			END_IF
+		ELSE
+			u01.boiler_package											:= FALSE;
+			P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), gsWarmupNotRunError, gsProcessCannotRun);
+			i3Step														:= 90;
+		END_IF
+		
+	2:	
+		IF u01.boiler_ready THEN																							// 5.a (Handled in P_U01.A_Points)
+			P_U01.bCloseXVValves										:= TRUE;											// 5.b
+			rTime														:= _VALVE_TIME;
+			i3Step														:= i3Step + 1;
+		ELSE
+			sError														:= gsBoilerError;
+			sMessage													:= gsRunWarmup;
+			i3Step														:= 80;
+		END_IF
+
+	3:	bTimer															:= TRUE;
+		bPass1															:= u01.product_vacuum_pump_isolation_valve_closed;
+		bPass2															:= u01.product_vacuum_outlet_isolation_valve_closed;
+		IF bPass1 AND bPass2 THEN
+			bTimer														:= FALSE;
+			u01.product_vacuum_backfeed_valve							:= _OPEN;											// 5.b.iii
+			rTime														:= _VALVE_TIME;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= SEL(bPass1, '', gsProductVacuumPumpIsoValveError);
+			sError														:= SEL(bPass2, sError, gsProductVacuumOutletIsoValveError);
+			i3Step														:= 80;
+		END_IF
+		
+	4:
+		bTimer															:= TRUE;
+		IF u01.product_vacuum_backfeed_valve > _VALVE_OPEN THEN
+			bTimer														:= FALSE;
+			u01.drainage_on												:= TRUE;											// 5.c
+			u01.product_vacuum_pump_vfd									:= u01.SP_product_vacuum_idle_vfd_percent;			// 5.d.ii
+			IF bAdsorptionActive AND u01.SP_adsorb_during_steam_bypass THEN													// 5.b.iv
+				P_M01_RS01.open_all_doors								:= P_M01.bRS01;
+				P_M01_RS02.open_all_doors								:= P_M01.bRS02;
+				P_M01_RS03.open_all_doors								:= P_M01.bRS03;
+				rTime													:= m01.SP_doorsopenclose_timedelay * _MINUTES;
+				i3Step													:= i3Step + 1;
+			ELSE
+				i3Step													:= i3Step + 2;
+			END_IF
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= gsProductVacuumBackfeedValveError;
+			i3Step														:= 80;
+		END_IF
+
+	5:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.all_doors_open) OR NOT P_M01.bRS01;	// 5.b.iv
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.all_doors_open) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.all_doors_open) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			IF NOT bAdsorptionActive AND u01.SP_adsorb_during_steam_bypass THEN												// 6
+				iAxStep													:= 1;												// 6.b
+				i3Step													:= i3Step + 1;
+			ELSE
+				i3Step													:= 20;
+			END_IF
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			bAdsorptionActive											:= FALSE;
+			sRS															:= SEL(NOT bPass1, SEL(NOT bPass2, _RS03, _RS02), _RS01);
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorOpeningError, gsSteamBypassWillContinueWOAdsorption);
+			i3Step														:= 20;
+		END_IF
+
+	6:
+		Ax_Process_Pre_Check();																								// 6.b																			
+		IF bPreCheckDone THEN
+			IF sError = '' THEN																								// 6.b.i
+				P_M01_RS01.open_repres_valves							:= P_M01.bRS01;										// 6.c
+				P_M01_RS02.open_repres_valves							:= P_M01.bRS02;
+				P_M01_RS03.open_repres_valves							:= P_M01.bRS03;
+				rTime													:= _VALVE_TIME;
+				i3Step													:= i3Step + 1;
+			ELSE
+				P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), sError, gsSteamBypassWillContinueWOAdsorption);			// 6.b.ii
+				bAdsorptionActive										:= FALSE;
+				i3Step													:= 20;
+			END_IF
+		END_IF
+
+	7:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.repres_valves_clear) OR NOT P_M01.bRS01;
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.repres_valves_clear) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.repres_valves_clear) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+			//P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), M_Repres_Valve_Error(), gsSteamBypassWillContinueWOAdsorption);
+			//bAdsorptionActive											:= FALSE;
+			//P_M01_RS01.close_repres_valves								:= P_M01.bRS01;
+			//P_M01_RS02.close_repres_valves								:= P_M01.bRS02;
+			//P_M01_RS03.close_repres_valves								:= P_M01.bRS03;
+			//i3Step													:= 20; 
+		END_IF
+		
+	8:
+		P_M01_RS01.open_all_doors										:= P_M01.bRS01;
+		P_M01_RS02.open_all_doors										:= P_M01.bRS02;
+		P_M01_RS03.open_all_doors										:= P_M01.bRS03;
+		gsCycleStage													:= 'steam_bypass.initialize.open_doors';			// 6.d.ii
+		rTime															:= m01.SP_doorsopenclose_timedelay * _MINUTES;										// 6.d.i
+		i3Step															:= i3Step + 1;
+
+	9:
+		bTimer															:= TRUE; 
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.all_doors_open) OR NOT P_M01.bRS01;	// 6.d.ii
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.all_doors_open) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.all_doors_open) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sRS															:= SEL(NOT bPass1, SEL(NOT bPass2, _RS03, _RS02), _RS01);
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorOpeningError, gsSteamBypassWillContinueWOAdsorption);
+			bAdsorptionActive											:= FALSE;
+			i3Step														:= 20;
+		END_IF
+
+	10:
+		P_M01_RS01.fan_vfd_percent										:= SEL(P_M01.bRS01, 0, m01.SP_reactor_set_1_vfd_percent);	// 6.e
+		P_M01_RS02.fan_vfd_percent										:= SEL(P_M01.bRS02, 0, m01.SP_reactor_set_2_vfd_percent);
+		P_M01_RS03.fan_vfd_percent										:= SEL(P_M01.bRS03, 0, m01.SP_reactor_set_3_vfd_percent);
+		gsCycleStage													:= 'steam_bypass.initialize.turn_on_fans';			// 6.e.i
+		rTime															:= _FAN_RS_DELAY_TIME;
+		i3Step															:= i3Step + 1;
+
+	11:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		END_IF
+
+	12:
+		P_M01_RS01.co2_inside_sensors_on								:= P_M01.bRS01;										// 6.f
+		P_M01_RS02.co2_inside_sensors_on								:= P_M01.bRS02;
+		P_M01_RS03.co2_inside_sensors_on								:= P_M01.bRS03;
+		gsCycleStage													:= 'steam_bypass.initialize.adsorption';			// 6.f.i
+		bAdsorptionTimer												:= TRUE;											// 6.a
+		bAdsorptionActive												:= TRUE;											// 6.g
+		i3Step															:= 20;
+
+
+//**** Complete Steam Bypass		
+	20:
+		u01.product_condenser											:= TRUE;											// 7
+		rSP																:= u01.SP_steam_bypass_vacuum_pressure;				// 8
+		bPass1															:= u01.product_vacuum_pres < rSP;
+		bPass2															:= u01.post_condenser_line_pres < rSP;
+		bPass3															:= u01.pre_condenser_line_pres < rSP;
+		bPass4															:= u01.purge_product_line_pres < rSP;
+		i3Step															:= SEL(bPass1 AND bPass2 AND bPass3 AND bPass4, i3Step + 1, 30);
+	
+	21:
+		u01.product_vacuum_pump_isolation_valve							:= TRUE;											// 9.a
+		u01.product_vacuum_outlet_isolation_valve						:= TRUE;
+		rTime															:= _VALVE_TIME;
+		i3Step															:= i3Step + 1;
+		
+	22:
+		bTimer															:= TRUE;
+		bPass1															:= u01.product_vacuum_pump_isolation_valve_open;
+		bPass2															:= u01.product_vacuum_outlet_isolation_valve_open;
+		IF bPass1 AND bPass2 THEN
+			bTimer														:= FALSE;
+			//u01.product_blower											:= TRUE;											// 9.a
+			u.product_blower_vfd										:= 0;  //
+			u01.product_vacuum_backfeed_valve							:= _CLOSED;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= SEL(bPass1, '', gsProductVacuumPumpIsoValveError);
+			sError														:= SEL(bPass2, sError, gsProductVacuumOutletIsoValveError);
+			i3Step														:= 80;
+		END_IF
+		
+	23:	
+		u01.product_vacuum_pump_vfd										:= u01.SP_product_vacuum_running_vfd_percent;			// 9.b
+		gsCycleStage													:= SEL(bAdsorptionActive, 'steam_bypass.evacuate_lines', 'steam_bypass.evacuate_lines.adsorption');		// 9.b.i
+		u01.purge_product_pre_condenser_valve							:= TRUE;											// 9.c
+		u01.cooling_line_pre_condenser_valve							:= TRUE;
+		rTime															:= m01.SP_evacuation_duration * _MINUTES;
+		i3Step															:= i3Step + 1;
+		
+	24:
+		bTimer															:= TRUE;											// 9.d
+		rSP																:= u01.SP_steam_bypass_vacuum_pressure;
+		bPass1															:= u01.product_vacuum_pres < rSP;
+		bPass2															:= u01.post_condenser_line_pres < rSP;
+		bPass3															:= u01.pre_condenser_line_pres < rSP;
+		bPass4															:= u01.purge_product_line_pres < rSP;
+		IF bPass1 AND bPass2 AND bPass3 AND bPass4 THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= gsUnableToEvacuateLinesError;
+			i3Step														:= 80;
+		END_IF
+	
+	25:	
+		u01.product_vacuum_pump_isolation_valve							:= FALSE;											// 9.e
+		u01.product_vacuum_outlet_isolation_valve						:= FALSE;
+		u01.product_vacuum_backfeed_valve								:= _OPEN;
+		//u01.product_blower											:= FALSE;
+		u.product_blower_vfd											:= 0;
+		u01.cooling_line_pre_condenser_valve							:= FALSE;
+		u01.purge_product_pre_condenser_valve							:= FALSE;
+		u01.product_vacuum_pump_vfd										:= u01.SP_product_vacuum_idle_vfd_percent;			// 9.f
+		i3Step															:= 30;
+
+		
+//**** Steam Bypass		
+	30:
+		u01.steam_bypass_valve											:= TRUE;											// 10
+		gsCycleStage													:= SEL(bAdsorptionActive, 'steam_bypass.steam_bypass.adsorption', 'steam_bypass.steam_bypass');		// 10.a
+		rSP																:= u01.SP_steam_bypass_duration * _MINUTES;				
+		rTime															:= rSP;
+		i3Step															:= i3Step + 1;				
+
+	31:
+		bTimer															:= TRUE;											// 10.b
+		IF u01.purge_product_line_pres > m01.SP_steam_purge_pressure THEN													// 11
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sError														:= gsPurgeProductLinePresLowError;
+			i3Step														:= 80;
+		END_IF
+		
+	32:
+		u01.product_vacuum_bypass_valve									:= TRUE;											// 12
+		u01.purge_product_pre_condenser_valve							:= TRUE;
+		//u01.product_blower												:= TRUE;
+		u.product_blower_vfd											:= _BLOWER_RPM_FACTOR * 100; // % TBD 
+		i3Step															:= i3Step + 1;
+		
+	33:
+		IF TIME_TO_REAL(tonTimer.ET) >= (rSP * 0.3) THEN																	// 13
+			i3Step														:= i3Step + 1;
+		END_IF 
+	
+	34:
+		IF u01.steam_header_flow > u01.SP_minimum_steam_bypass_flow_rate THEN
+			i3Step														:= i3Step + 1;										// 13.a
+		ELSE
+			sError														:= gsSteamBypassMinFlowRateError;					// 13.b
+			i3Step														:= 80;
+		END_IF
+	
+	35:
+		IF tonTimer.Q OR u01.purge_product_line_temp > u01.SP_steam_bypass_temperature THEN									// 14
+			bTimer														:= FALSE;
+			u01.steam_bypass_valve										:= FALSE;											// 15
+			gsCycleStage												:= SEL(bAdsorptionActive, 'steam_bypass.wrap_up', 'steam_bypass.wrap_up.adsorption');	// 15.a
+			u01.purge_product_pre_condenser_valve						:= FALSE;											// 16
+			u01.product_vacuum_bypass_valve								:= FALSE;
+			u01.product_condenser										:= FALSE;
+			//u01.product_blower											:= FALSE;
+			u.product_blower_vfd										:= 0;
+			IF bAdsorptionActive THEN
+				i3Step													:= 40;
+			ELSE
+				u01.steam_bypass_complete								:= TRUE;
+				i3Step													:= 90;
+			END_IF
+		END_IF
+		
+		
+//**** Complete Adsorption		
+	40:
+		IF tonAdsorptionTimer.Q THEN																						// 17.a.i
+			bAdsorptionTimer											:= FALSE;
+			P_M01_RS01.fan_vfd_percent									:= 0;												// 17.a.ii
+			P_M01_RS02.fan_vfd_percent									:= 0;
+			P_M01_RS03.fan_vfd_percent									:= 0;
+			gsCycleStage												:= 'steam_bypass.wrap_up.turn_off_fans';			// 17.a.ii.1
+			rTime														:= _FAN_RS_DELAY_TIME;
+			i3Step														:= i3Step + 1;
+		END_IF
+
+	41:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			P_M01_RS01.close_all_doors									:= TRUE;											// 17.a.iii
+			P_M01_RS02.close_all_doors									:= TRUE;
+			P_M01_RS03.close_all_doors									:= TRUE;
+			gsCycleStage												:= 'steam_bypass.wrap_up.close_doors';				// 17.a.iii.1
+			rTime														:= m01.SP_doorsopenclose_timedelay * _MINUTES;										// 17.a.iii.2
+			i3Step														:= i3Step + 1;
+		END_IF		
+
+	42:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.all_doors_closed) OR NOT P_M01.bRS01;		// 17.a.iii.3
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.all_doors_closed) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.all_doors_closed) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sRS															:= SEL(NOT bPass1, SEL(NOT bPass2, _RS03, _RS02), _RS01);
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), gsReactorDoorClosingError, gsSystemCannotRun);
+			i3Step														:= i3Step + 1;
+		END_IF
+		
+	43:
+		P_M01_RS01.co2_sensors_off										:= TRUE;											// 17.a.iv
+		P_M01_RS02.co2_sensors_off										:= TRUE;
+		P_M01_RS03.co2_sensors_off										:= TRUE;
+		bAdsorptionActive												:= FALSE;											// 17.a.v
+		i3Step															:= 90;
+
+	
+//**** Process error		
+	80:
+		gsCycleStage													:= 'steam_bypass.error';
+		sMessage														:= SEL(sMessage = gsRunWarmup, gsProcessCannotRun, sMessage);
+		P_Alarms.M_Add_Alarm(CONCAT(_U01, gsCycleStage), sError, sMessage);
+		i3Step															:= i3Step + 1;
+
+//**** Stop process
+	81:
+		P_M01_RS01.co2_sensors_off										:= TRUE;
+		P_M01_RS02.co2_sensors_off										:= TRUE;
+		P_M01_RS03.co2_sensors_off										:= TRUE;
+		P_M01_RS01.fan_vfd_percent										:= 0;
+		P_M01_RS02.fan_vfd_percent										:= 0;
+		P_M01_RS03.fan_vfd_percent										:= 0;
+		rTime															:= _FAN_RS_DELAY_TIME;
+		i3Step															:= i3Step + 1;
+
+	82:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i3Step														:= i3Step + 1;
+		END_IF
+
+	83:
+		//u01.product_blower												:= FALSE;
+		u.product_blower_vfd											:= 0;
+		u01.purge_product_pre_condenser_valve							:= FALSE;
+		u01.product_vacuum_bypass_valve									:= FALSE;
+		u01.product_vacuum_pump_vfd										:= 0;
+		u01.product_vacuum_backfeed_valve								:= _CLOSED;
+		u01.cooling_line_pre_condenser_valve							:= FALSE;
+		u01.purge_product_pre_condenser_valve							:= FALSE;
+		u01.product_vacuum_pump_vfd										:= u01.SP_product_vacuum_idle_vfd_percent;
+		u01.product_vacuum_pump_isolation_valve							:= FALSE;
+		u01.product_vacuum_outlet_isolation_valve						:= FALSE;
+		u01.product_condenser											:= FALSE;
+		rTime															:= _VALVE_TIME;
+		i3Step															:= i3Step + 1;
+		
+	84:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i3Step														:= 90;
+		END_IF
+		
+//**** Close process
+	90:
+		gsCycleStage													:= SEL(bComplete, 'steam_bypass.failed', 'steam_bypass.complete');
+		bAdsorptionTimer												:= FALSE;
+		u01.drainage_on													:= FALSE;
+		rTime															:= _PROCESS_COMPLETE_TIME;
+		i3Step															:= i3Step + 1;
+		
+	91:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			gsCycleStage												:= '';
+			i3Step														:= 0;
+		END_IF
+				
+END_CASE
+
+IF i3Step > 0 AND i3Step < 80 AND u01.shutdown_process THEN
+	gsCycleStage														:= 'steam_bypass.stopping';
+	i3Step																:= 81;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A8_Shutdown" Id="{dceaad34-9fba-494d-9502-9d4c836ba12b}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_U01.A8_Shutdown
+// Rev 1.0 - May 1, 2024
+
+CASE i8Step OF
+
+	0:	;
+
+	1:	
+		bComplete														:= FALSE;
+		gsCycleStage													:= 'shutdown.initialize';							// 1.a
+		u01.boiler_package												:= FALSE;											// 3
+		i8Step															:= i8Step + 1;
+
+	2:
+		P_M01_RS01.fan_vfd_percent										:= 0;
+		P_M01_RS02.fan_vfd_percent										:= 0;
+		P_M01_RS03.fan_vfd_percent										:= 0;
+		rTime															:= _PAUSE_TIME;
+		i8Step															:= i8Step + 1;
+		
+	3:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;						
+			P_M01_RS01.close_all_doors									:= P_M01.bRS01;										// 4
+			P_M01_RS02.close_all_doors									:= P_M01.bRS02;
+			P_M01_RS03.close_all_doors									:= P_M01.bRS03;
+			gsCycleStage												:= 'shutdown.close_doors';							// 4.a
+			rTime														:= m01.SP_doorsopenclose_timedelay * _MINUTES;
+			i8Step														:= i8Step + 1;
+		END_IF
+
+	4:
+		bTimer															:= TRUE; 
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.all_doors_closed) OR NOT P_M01.bRS01;
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.all_doors_closed) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.all_doors_closed) OR NOT P_M01.bRS03;
+		IF (bPass1 AND bPass2 AND bPass3) OR tonTimer.Q THEN
+			IF tonTimer.Q THEN 
+				sRS														:= SEL(NOT bPass1, SEL(NOT bPass2, _RS03, _RS02), _RS01);
+				P_Alarms.M_Add_Alarm(F_Concat3(_U01, gsCycleStage, sRS), gsReactorDoorClosingError, gsSystemCannotRun);
+			END_IF
+			bTimer														:= FALSE;
+			i8Step														:= i8Step + 1;
+		END_IF
+
+	5:
+		P_M01_RS01.close_valves											:= P_M01.bRS01;										// 5		
+		P_M01_RS02.close_valves											:= P_M01.bRS02;		
+		P_M01_RS03.close_valves											:= P_M01.bRS03;
+		gsCycleStage													:= 'shutdown.wrap_up';								// 5.a
+		rTime															:= _VALVE_TIME;
+		i8Step															:= i8Step + 1;
+		
+	6:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			P_M01_RS01.co2_sensors_off									:= P_M01.bRS01;
+			P_M01_RS02.co2_sensors_off									:= P_M01.bRS02;
+			P_M01_RS03.co2_sensors_off									:= P_M01.bRS03;
+			P_M01_RS01.close_repres_valves								:= P_M01.bRS01;
+			P_M01_RS02.close_repres_valves								:= P_M01.bRS02;
+			P_M01_RS03.close_repres_valves								:= P_M01.bRS03;
+			i8Step														:= i8Step + 1;
+		END_IF
+		
+	7:
+		P_U01.bCloseXVValves											:= TRUE;
+		u01.product_vacuum_backfeed_valve								:= 0;
+		u01.product_vacuum_pump_vfd										:= 0;
+		u01.product_condensate_pump										:= FALSE;
+		u01.condensate_collection_tank_pump								:= FALSE;
+		u01.product_condenser											:= FALSE;
+		u01.dead_air_vacuum_pump										:= FALSE;
+		//u01.product_blower												:= FALSE;
+		u.product_blower_vfd											:= 0;
+		rTime															:= _PAUSE_TIME;
+		i8Step															:= i8Step + 1;
+
+	8:
+		bTimer															:= TRUE;
+		bPass1															:= NOT M01_rs1.condensate_lsl;						// 6
+		bPass2															:= NOT m01_rs2.condensate_lsl;
+		bPass3															:= NOT m01_rs2.condensate_lsl;
+		bPass4															:= NOT m01.condensate_from_cooling_and_purge_lines_lsl;
+		bPass5															:= NOT u01.product_condensate_drum_lsh;
+		bPass6															:= NOT u01.condensate_collection_tank_lsh;
+		gsCycleStage													:= 'shutdown.drain';								// 6.a
+		IF bPass1 AND bPass2 AND bPass3 AND bPass4 AND bPass5 AND bPass6 THEN
+			bTimer														:= FALSE;
+ 		ELSIF tonTimer.Q THEN
+			sError														:= SEL(NOT bPass1, '', F_concat3(_RS01, ' ', gsCondensateLslError));
+			sError														:= SEL(NOT bPass2, sError, F_concat3(_RS02, ' ', gsCondensateLslError));
+			sError														:= SEL(NOT bPass3, sError, F_concat3(_RS03, ' ', gsCondensateLslError));
+			sError														:= SEL(NOT bPass4, sError, gsCondensateFromCoolingAndPurgeLinesLslError);
+			sError														:= SEL(NOT bPass5, sError, gsProductCondensateDrumLshError);
+			sError														:= SEL(NOT bPass6, sError, gsCondensateCollectionTankLshError);
+			P_Alarms.M_Add_Alarm(_U01, sError, gsCheckOperation);
+		END_IF
+		i8Step															:= 90;
+		
+//**** Close process
+	90:
+		gsCycleStage													:= 'shutdown.complete';								// 7
+		rTime															:= _PROCESS_COMPLETE_TIME;
+		i8Step															:= i8Step + 1;
+		
+	91:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			gsCycleStage												:= '';
+			i8Step														:= 0;
+		END_IF
+				
+END_CASE
+
+IF i8Step > 0 AND i8Step < 80 AND u01.shutdown_process THEN
+	gsCycleStage														:= 'shutdown.stopping';
+	i8Step																:= 81;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A9_Pressure_Drop_Test" Id="{b8bf7e66-dcdb-4668-8218-16ff48a3e793}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_U01.A9_Pressure_Drop_Test
+// Rev 1.0 - June 3, 2024
+
+CASE i9Step OF
+
+	0:	;
+
+	1:	
+		bComplete														:= FALSE;
+		gsCycleStage													:= 'pressure_drop_test.initialize';					// 3
+		i9Step															:= i9Step + 1;
+
+	2:	
+		Ax_Process_Pre_Check();																								// 3.a																			
+		IF bPreCheckDone THEN
+			IF sError = '' THEN																								// 3.a.i
+				u01.drainage_on											:= TRUE;											// 3.c
+				u01.product_vacuum_pump_vfd								:= u01.SP_product_vacuum_idle_vfd_percent;			// 3d
+				i9Step													:= i9Step + 1;
+			ELSE
+				sRS														:= '';
+				sMessage												:= gsPressureDropTestCannotRun;						// 3.a.ii
+				i9Step													:= 80;
+			END_IF
+		END_IF
+
+	3:
+		P_M01_RS01.open_repres_valves									:= P_M01.bRS01;										// 4
+		P_M01_RS02.open_repres_valves									:= P_M01.bRS02;
+		P_M01_RS03.open_repres_valves									:= P_M01.bRS03;
+		rTime															:= _VALVE_TIME;
+		i9Step															:= i9Step + 1;
+
+	4:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.repres_valves_clear) OR NOT P_M01.bRS01;
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.repres_valves_clear) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.repres_valves_clear) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 OR tonTimer.Q THEN
+			bTimer														:= FALSE;
+			i9Step														:= i9Step + 1;
+		END_IF
+		
+	5:
+		P_M01_RS01.open_all_doors										:= P_M01.bRS01;										// 5
+		P_M01_RS02.open_all_doors										:= P_M01.bRS02;
+		P_M01_RS03.open_all_doors										:= P_M01.bRS03;
+		gsCycleStage													:= 'pressure_drop_test.open_doors';					// 5.a
+		rTime															:= m01.SP_doorsopenclose_timedelay * _MINUTES;		// 5.b
+		i9Step															:= i9Step + 1;
+
+	6:
+		bTimer															:= TRUE; 
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.all_doors_open) OR NOT P_M01.bRS01;	// 5.c
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.all_doors_open) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.all_doors_open) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			iVfd_Speed													:= u01.SP_reactor_vfd_percent_step_size;			// 6
+			bVfd_Speed_Up												:= TRUE;
+			gsCycleStage												:= 'pressure_drop_test.pressure_drop_test';			// 6.a
+			rTime														:= u01.SP_reactor_vfd_percent_step_duration * _MINUTES;	// 7
+			i9Step														:= i9Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sRS															:= SEL(NOT bPass1, SEL(NOT bPass2, _RS03, _RS02), _RS01);
+			sError														:= gsReactorDoorOpeningError;
+			sMessage													:= gsPressureDropTestCannotRun;
+			i9Step														:= 80;
+		END_IF
+
+	7:
+		P_M01_RS01.fan_vfd_percent										:= SEL(P_M01.bRS01, 0, iVfd_Speed);
+		P_M01_RS02.fan_vfd_percent										:= SEL(P_M01.bRS02, 0, iVfd_Speed);
+		P_M01_RS03.fan_vfd_percent										:= SEL(P_M01.bRS03, 0, iVfd_Speed);
+		i9Step															:= SEL(iVfd_Speed = 0, i9Step + 1, i9Step + 2);		//11
+
+	8:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN																									// 8
+			bTimer														:= FALSE;
+			IF bVfd_Speed_Up THEN
+				IF iVfd_Speed + u01.SP_reactor_vfd_percent_step_size <= u01.SP_reactor_vfd_percent_maximum THEN
+					iVfd_Speed											:= iVfd_Speed + u01.SP_reactor_vfd_percent_step_size;	// 9
+				ELSE
+					bVfd_Speed_Up										:= FALSE;
+					iVfd_Speed											:= iVfd_Speed - u01.SP_reactor_vfd_percent_step_size;
+				END_IF
+			ELSE
+				IF iVfd_Speed - u01.SP_reactor_vfd_percent_step_size >= 0 THEN
+					iVfd_Speed											:= iVfd_Speed - u01.SP_reactor_vfd_percent_step_size;	// 10
+				ELSE
+					iVfd_Speed											:= 0;
+				END_IF
+			END_IF
+			i9Step														:= i9Step - 1;
+		END_IF
+
+	9:
+		bComplete														:= TRUE;
+		gsCycleStage													:= 'pressure_drop_test.close_doors';				// 11.a
+		P_M01_RS01.close_all_doors										:= P_M01.bRS01;										// 12
+		P_M01_RS02.close_all_doors										:= P_M01.bRS02;
+		P_M01_RS03.close_all_doors										:= P_M01.bRS03;
+		rTime															:= m01.SP_doorsopenclose_timedelay * _MINUTES;										// 12.a
+		i9Step															:= i9Step + 1;
+
+	10:
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.all_doors_closed) OR NOT P_M01.bRS01;	// 12.b
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.all_doors_closed) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.all_doors_closed) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			i9Step														:= i9Step + 1;
+		ELSIF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			sRS															:= SEL(NOT bPass1, SEL(NOT bPass2, _RS03, _RS02), _RS01);
+			P_Alarms.M_Add_Alarm(F_Concat3(_U01, gsCycleStage, sRS), gsReactorDoorClosingError, gsUnableToCloseDoors);
+			i9Step														:= 90;
+		END_IF
+		
+
+//**** Process error		
+	80:
+		gsCycleStage													:= 'pressure_drop_test.error';
+		P_Alarms.M_Add_Alarm(F_Concat3(_U01, sRS, gsCycleStage), sError, sMessage);
+		i9Step															:= i9Step + 1;
+
+//**** Stop process		
+	81:
+		u01.product_vacuum_pump_vfd										:= 0;
+		P_M01_RS01.fan_vfd_percent										:= 0;
+		//P_M01_RS02.fan_vfd_percent										:= 0;
+		//P_M01_RS03.fan_vfd_percent										:= 0;
+		i9Step															:= 90;
+		
+//**** Close process
+	90:
+		gsCycleStage													:= SEL(bComplete, 'pressure_drop_test.failed', 'pressure_drop_test.complete');	// 13
+		u01.drainage_on													:= FALSE;
+		rTime															:= _PROCESS_COMPLETE_TIME;
+		i9Step															:= i9Step + 1;
+		
+	91:
+		bTimer															:= TRUE;
+		IF tonTimer.Q THEN
+			bTimer														:= FALSE;
+			gsCycleStage												:= '';
+			i9Step														:= 0;
+		END_IF
+				
+END_CASE
+
+IF i9Step > 0 AND i9Step < 80 AND u01.shutdown_process THEN
+	gsCycleStage														:= 'pressure_drop_test.stopping';
+	i9Step																:= 81;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="Ax_Process_Pre_Check" Id="{d59aaf0d-9d27-45c8-bc13-c9bb5b8aaff8}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_U01.Ax_Process_Pre_Check
+// Rev 1.0 - April 30, 2024
+
+CASE iAxStep OF
+
+	0:	;
+
+	1:	
+		sError															:= '';
+		bPreCheckDone													:= FALSE;
+		P_M01_RS01.close_valves											:= P_M01.bRS01;
+		P_M01_RS02.close_valves											:= P_M01.bRS02;
+		P_M01_RS03.close_valves											:= P_M01.bRS03;
+		P_M01_RS01.retract_all_clamps									:= P_M01.bRS01;
+		P_M01_RS02.retract_all_clamps									:= P_M01.bRS02;
+		P_M01_RS03.retract_all_clamps									:= P_M01.bRS03;
+		rTime															:= _VALVE_TIME;
+		iAxStep															:= iAxStep + 1;
+	
+	2:	
+		bTimer															:= TRUE;
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.valves_clear AND m01_rs1.steam_control_valve_position < _VALVE_CLOSED) OR NOT P_M01.bRS01;
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.valves_clear AND m01_rs2.steam_control_valve_position < _VALVE_CLOSED) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.valves_clear AND m01_rs3.steam_control_valve_position < _VALVE_CLOSED) OR NOT P_M01.bRS03;
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer														:= FALSE;
+			iAxStep														:= iAxStep + 1;
+		ELSIF tonTimer.Q THEN
+			sError														:= 'Valve Error';
+			iAxStep														:= 99;
+		END_IF
+
+	3:
+		IF (P_M01_RS01.inlet_air_high_temp_count + P_M01_RS02.inlet_air_high_temp_count + P_M01_RS03.inlet_air_high_temp_count) <= _HIGH_CART_READINGS_MAX THEN
+			iAxStep														:= iAxStep + 1;
+		ELSE
+			sError														:= gsHighTempCountError;
+			iAxStep														:= 99;
+		END_IF
+
+	4:
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.R_S.all_clamps_retracted) OR NOT P_M01.bRS01; 
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.R_S.all_clamps_retracted) OR NOT P_M01.bRS02; 
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.R_S.all_clamps_retracted) OR NOT P_M01.bRS03; 
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			iAxStep														:= iAxStep + 1;
+		ELSE
+			sError														:= gsClampRetractError;
+			iAxStep														:= 99;
+		END_IF
+		
+	5:
+		IF NOT u.os_air_unsafe_temp THEN
+			iAxStep														:= iAxStep + 1;
+		ELSE
+			sError														:= gsInletAirTempRangeError;
+			iAxStep														:= 99;
+		END_IF
+		
+	6:
+		bPass1															:= (P_M01.bRS01 AND P_M01_RS01.average_pressure_within_ambient) OR NOT P_M01.bRS01;
+		bPass2															:= (P_M01.bRS02 AND P_M01_RS02.average_pressure_within_ambient) OR NOT P_M01.bRS02;
+		bPass3															:= (P_M01.bRS03 AND P_M01_RS03.average_pressure_within_ambient) OR NOT P_M01.bRS03;
+		IF NOT bPass1 OR NOT bPass2 OR NOT bPass3 THEN
+			sError														:=  gsAmbientPressureError;
+		END_IF
+		iAxStep															:= 99;
+		
+	99:
+		bTimer															:= FALSE;
+		bPreCheckDone													:= TRUE;
+		iAxStep															:= 0;
+				
+END_CASE
+
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="M_Repres_Valve_Error" Id="{83f36fa0-ccb5-4077-b38d-3796cb92f31f}">
+      <Declaration><![CDATA[METHOD M_Repres_Valve_Error : STRING
+VAR_INPUT
+END_VAR
+VAR
+	sErr																: STRING	:= '';
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_U01.M_Repres_Valve_Error
+// Rev 1.0 - March 12, 2024
+
+IF P_M01.bRS03 THEN
+	;//sErr																:= SEL(P_M01_RS03_R4.bRepresValveClear, CONCAT(_RS03, _R4), sErr);
+	//sErr																:= SEL(P_M01_RS03_R3.bRepresValveClear, CONCAT(_RS03, _R3), sErr);
+	//sErr																:= SEL(P_M01_RS03_R2.bRepresValveClear, CONCAT(_RS03, _R2), sErr);
+	//sErr																:= SEL(P_M01_RS03_R1.bRepresValveClear, CONCAT(_RS03, _R1), sErr);
+END_IF                                                                                                                                   
+IF P_M01.bRS02 THEN                                                                                                                       
+	;//sErr																:= SEL(P_M01_RS02_R4.bRepresValveClear, CONCAT(_RS02, _R4), sErr);
+	//sErr																:= SEL(P_M01_RS02_R3.bRepresValveClear, CONCAT(_RS02, _R3), sErr);
+	//sErr																:= SEL(P_M01_RS02_R2.bRepresValveClear, CONCAT(_RS02, _R2), sErr);
+	//sErr																:= SEL(P_M01_RS02_R1.bRepresValveClear, CONCAT(_RS02, _R1), sErr);
+END_IF                                                                                                                                   
+IF P_M01.bRS01 THEN                                                                                                                       
+	//sErr																:= SEL(P_M01_RS01_R4.bRepresValveClear, CONCAT(_RS01, _R4), sErr);
+	//sErr																:= SEL(P_M01_RS01_R3.bRepresValveClear, CONCAT(_RS01, _R3), sErr);
+	//sErr																:= SEL(P_M01_RS01_R2.bRepresValveClear, CONCAT(_RS01, _R2), sErr);
+	//sErr																:= SEL(P_M01_RS01.repres_valves_clear, CONCAT(_RS01, _R1), sErr);
+END_IF
+M_Repres_Valve_Error													:= SEL(sErr <> '', sErr, CONCAT(sErr, gsRepressurizationValveError));
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="P_U01">
+      <LineId Id="2368" Count="40" />
+      <LineId Id="1894" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A_Drains">
+      <LineId Id="101" Count="57" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A_IO_Points">
+      <LineId Id="1585" Count="56" />
+      <LineId Id="2127" Count="0" />
+      <LineId Id="2130" Count="15" />
+      <LineId Id="2128" Count="1" />
+      <LineId Id="2149" Count="1" />
+      <LineId Id="2153" Count="1" />
+      <LineId Id="2156" Count="3" />
+      <LineId Id="2155" Count="0" />
+      <LineId Id="2152" Count="0" />
+      <LineId Id="2151" Count="0" />
+      <LineId Id="2126" Count="0" />
+      <LineId Id="1642" Count="21" />
+      <LineId Id="2167" Count="3" />
+      <LineId Id="2166" Count="0" />
+      <LineId Id="1664" Count="4" />
+      <LineId Id="2172" Count="3" />
+      <LineId Id="2171" Count="0" />
+      <LineId Id="1669" Count="4" />
+      <LineId Id="2164" Count="1" />
+      <LineId Id="2163" Count="0" />
+      <LineId Id="1674" Count="175" />
+      <LineId Id="1856" Count="10" />
+      <LineId Id="2110" Count="2" />
+      <LineId Id="2115" Count="0" />
+      <LineId Id="2113" Count="0" />
+      <LineId Id="2116" Count="0" />
+      <LineId Id="2119" Count="0" />
+      <LineId Id="2125" Count="0" />
+      <LineId Id="2124" Count="0" />
+      <LineId Id="2121" Count="0" />
+      <LineId Id="2118" Count="0" />
+      <LineId Id="1873" Count="62" />
+      <LineId Id="2147" Count="1" />
+      <LineId Id="2146" Count="0" />
+      <LineId Id="1936" Count="101" />
+      <LineId Id="2059" Count="1" />
+      <LineId Id="2079" Count="0" />
+      <LineId Id="2062" Count="0" />
+      <LineId Id="2064" Count="1" />
+      <LineId Id="2083" Count="0" />
+      <LineId Id="2070" Count="0" />
+      <LineId Id="2072" Count="1" />
+      <LineId Id="2101" Count="2" />
+      <LineId Id="2089" Count="0" />
+      <LineId Id="2107" Count="0" />
+      <LineId Id="2104" Count="1" />
+      <LineId Id="2093" Count="1" />
+      <LineId Id="2098" Count="0" />
+      <LineId Id="2100" Count="0" />
+      <LineId Id="2086" Count="1" />
+      <LineId Id="2074" Count="1" />
+      <LineId Id="2108" Count="1" />
+      <LineId Id="2078" Count="0" />
+      <LineId Id="1399" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A_Totalizers">
+      <LineId Id="2" Count="2" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="5" Count="12" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="25" Count="1" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="36" Count="2" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="30" Count="4" />
+      <LineId Id="39" Count="1" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="19" Count="1" />
+      <LineId Id="18" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A_Weather_Station">
+      <LineId Id="2" Count="3" />
+      <LineId Id="7" Count="2" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="22" Count="1" />
+      <LineId Id="25" Count="11" />
+      <LineId Id="38" Count="8" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="47" Count="14" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A2_WarmUp">
+      <LineId Id="2" Count="7" />
+      <LineId Id="1462" Count="0" />
+      <LineId Id="1327" Count="0" />
+      <LineId Id="1442" Count="0" />
+      <LineId Id="1460" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="1443" Count="1" />
+      <LineId Id="1463" Count="1" />
+      <LineId Id="1284" Count="1" />
+      <LineId Id="920" Count="0" />
+      <LineId Id="1324" Count="0" />
+      <LineId Id="918" Count="0" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="1337" Count="0" />
+      <LineId Id="1457" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="855" Count="0" />
+      <LineId Id="22" Count="1" />
+      <LineId Id="277" Count="7" />
+      <LineId Id="1328" Count="3" />
+      <LineId Id="285" Count="7" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="1302" Count="5" />
+      <LineId Id="316" Count="0" />
+      <LineId Id="932" Count="0" />
+      <LineId Id="1465" Count="2" />
+      <LineId Id="1333" Count="0" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="1469" Count="0" />
+      <LineId Id="337" Count="3" />
+      <LineId Id="370" Count="1" />
+      <LineId Id="367" Count="0" />
+      <LineId Id="1340" Count="0" />
+      <LineId Id="341" Count="0" />
+      <LineId Id="274" Count="1" />
+      <LineId Id="368" Count="1" />
+      <LineId Id="372" Count="3" />
+      <LineId Id="386" Count="0" />
+      <LineId Id="377" Count="0" />
+      <LineId Id="1290" Count="0" />
+      <LineId Id="1450" Count="1" />
+      <LineId Id="385" Count="0" />
+      <LineId Id="376" Count="0" />
+      <LineId Id="388" Count="0" />
+      <LineId Id="379" Count="0" />
+      <LineId Id="1317" Count="0" />
+      <LineId Id="1320" Count="1" />
+      <LineId Id="1341" Count="0" />
+      <LineId Id="804" Count="0" />
+      <LineId Id="422" Count="0" />
+      <LineId Id="806" Count="0" />
+      <LineId Id="815" Count="3" />
+      <LineId Id="835" Count="0" />
+      <LineId Id="819" Count="0" />
+      <LineId Id="821" Count="0" />
+      <LineId Id="711" Count="0" />
+      <LineId Id="1107" Count="2" />
+      <LineId Id="485" Count="0" />
+      <LineId Id="487" Count="0" />
+      <LineId Id="850" Count="0" />
+      <LineId Id="482" Count="0" />
+      <LineId Id="1099" Count="1" />
+      <LineId Id="1136" Count="1" />
+      <LineId Id="1139" Count="11" />
+      <LineId Id="1291" Count="0" />
+      <LineId Id="1151" Count="15" />
+      <LineId Id="1169" Count="1" />
+      <LineId Id="1281" Count="0" />
+      <LineId Id="1171" Count="16" />
+      <LineId Id="1189" Count="3" />
+      <LineId Id="1308" Count="1" />
+      <LineId Id="1195" Count="24" />
+      <LineId Id="1292" Count="0" />
+      <LineId Id="1220" Count="0" />
+      <LineId Id="1452" Count="1" />
+      <LineId Id="1222" Count="12" />
+      <LineId Id="1236" Count="1" />
+      <LineId Id="1310" Count="2" />
+      <LineId Id="1241" Count="15" />
+      <LineId Id="1258" Count="16" />
+      <LineId Id="1454" Count="1" />
+      <LineId Id="1276" Count="2" />
+      <LineId Id="1374" Count="0" />
+      <LineId Id="1365" Count="0" />
+      <LineId Id="1383" Count="1" />
+      <LineId Id="1468" Count="0" />
+      <LineId Id="1385" Count="1" />
+      <LineId Id="1430" Count="0" />
+      <LineId Id="1396" Count="1" />
+      <LineId Id="1368" Count="0" />
+      <LineId Id="1414" Count="12" />
+      <LineId Id="1431" Count="4" />
+      <LineId Id="1427" Count="1" />
+      <LineId Id="1294" Count="0" />
+      <LineId Id="934" Count="0" />
+      <LineId Id="913" Count="0" />
+      <LineId Id="1440" Count="0" />
+      <LineId Id="914" Count="0" />
+      <LineId Id="1458" Count="0" />
+      <LineId Id="915" Count="0" />
+      <LineId Id="928" Count="0" />
+      <LineId Id="917" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="921" Count="2" />
+      <LineId Id="1449" Count="0" />
+      <LineId Id="927" Count="0" />
+      <LineId Id="924" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="1411" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="1404" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="1407" Count="0" />
+      <LineId Id="1409" Count="0" />
+      <LineId Id="1406" Count="0" />
+      <LineId Id="1439" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A3_Steam_Bypass">
+      <LineId Id="2" Count="0" />
+      <LineId Id="10" Count="6" />
+      <LineId Id="1166" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="1159" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="1460" Count="0" />
+      <LineId Id="1445" Count="11" />
+      <LineId Id="1459" Count="0" />
+      <LineId Id="1473" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="1157" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="1163" Count="0" />
+      <LineId Id="1160" Count="0" />
+      <LineId Id="1434" Count="1" />
+      <LineId Id="1164" Count="0" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="466" Count="0" />
+      <LineId Id="537" Count="0" />
+      <LineId Id="477" Count="0" />
+      <LineId Id="476" Count="0" />
+      <LineId Id="465" Count="0" />
+      <LineId Id="468" Count="0" />
+      <LineId Id="1167" Count="0" />
+      <LineId Id="1318" Count="0" />
+      <LineId Id="467" Count="0" />
+      <LineId Id="1080" Count="1" />
+      <LineId Id="1086" Count="2" />
+      <LineId Id="1092" Count="0" />
+      <LineId Id="1085" Count="0" />
+      <LineId Id="1095" Count="0" />
+      <LineId Id="1094" Count="0" />
+      <LineId Id="1089" Count="0" />
+      <LineId Id="1093" Count="0" />
+      <LineId Id="1090" Count="0" />
+      <LineId Id="1096" Count="0" />
+      <LineId Id="1320" Count="0" />
+      <LineId Id="1091" Count="0" />
+      <LineId Id="470" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="479" Count="0" />
+      <LineId Id="481" Count="1" />
+      <LineId Id="1345" Count="1" />
+      <LineId Id="494" Count="0" />
+      <LineId Id="1201" Count="3" />
+      <LineId Id="859" Count="1" />
+      <LineId Id="862" Count="0" />
+      <LineId Id="496" Count="0" />
+      <LineId Id="484" Count="0" />
+      <LineId Id="925" Count="0" />
+      <LineId Id="485" Count="0" />
+      <LineId Id="1348" Count="0" />
+      <LineId Id="492" Count="0" />
+      <LineId Id="1321" Count="0" />
+      <LineId Id="509" Count="0" />
+      <LineId Id="1205" Count="0" />
+      <LineId Id="511" Count="3" />
+      <LineId Id="1206" Count="0" />
+      <LineId Id="1350" Count="5" />
+      <LineId Id="1209" Count="0" />
+      <LineId Id="1231" Count="0" />
+      <LineId Id="1169" Count="0" />
+      <LineId Id="1472" Count="0" />
+      <LineId Id="1470" Count="0" />
+      <LineId Id="1210" Count="0" />
+      <LineId Id="520" Count="0" />
+      <LineId Id="1333" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="564" Count="2" />
+      <LineId Id="578" Count="2" />
+      <LineId Id="582" Count="0" />
+      <LineId Id="567" Count="3" />
+      <LineId Id="1191" Count="0" />
+      <LineId Id="571" Count="1" />
+      <LineId Id="65" Count="2" />
+      <LineId Id="1212" Count="2" />
+      <LineId Id="71" Count="4" />
+      <LineId Id="1357" Count="0" />
+      <LineId Id="1150" Count="0" />
+      <LineId Id="1192" Count="0" />
+      <LineId Id="1237" Count="2" />
+      <LineId Id="1123" Count="2" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="100" Count="2" />
+      <LineId Id="1362" Count="0" />
+      <LineId Id="103" Count="11" />
+      <LineId Id="901" Count="0" />
+      <LineId Id="1477" Count="1" />
+      <LineId Id="1240" Count="0" />
+      <LineId Id="116" Count="1" />
+      <LineId Id="777" Count="0" />
+      <LineId Id="781" Count="0" />
+      <LineId Id="1103" Count="2" />
+      <LineId Id="1361" Count="0" />
+      <LineId Id="801" Count="17" />
+      <LineId Id="1229" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="607" Count="1" />
+      <LineId Id="863" Count="0" />
+      <LineId Id="867" Count="0" />
+      <LineId Id="864" Count="0" />
+      <LineId Id="868" Count="2" />
+      <LineId Id="902" Count="0" />
+      <LineId Id="866" Count="0" />
+      <LineId Id="875" Count="0" />
+      <LineId Id="878" Count="0" />
+      <LineId Id="880" Count="0" />
+      <LineId Id="1133" Count="1" />
+      <LineId Id="1126" Count="1" />
+      <LineId Id="1136" Count="2" />
+      <LineId Id="1135" Count="0" />
+      <LineId Id="1139" Count="0" />
+      <LineId Id="1142" Count="0" />
+      <LineId Id="1482" Count="0" />
+      <LineId Id="1143" Count="0" />
+      <LineId Id="1141" Count="0" />
+      <LineId Id="1144" Count="3" />
+      <LineId Id="1149" Count="0" />
+      <LineId Id="1140" Count="0" />
+      <LineId Id="1128" Count="1" />
+      <LineId Id="904" Count="1" />
+      <LineId Id="876" Count="0" />
+      <LineId Id="882" Count="0" />
+      <LineId Id="877" Count="0" />
+      <LineId Id="612" Count="1" />
+      <LineId Id="884" Count="0" />
+      <LineId Id="895" Count="0" />
+      <LineId Id="906" Count="3" />
+      <LineId Id="913" Count="0" />
+      <LineId Id="892" Count="0" />
+      <LineId Id="900" Count="0" />
+      <LineId Id="893" Count="0" />
+      <LineId Id="896" Count="0" />
+      <LineId Id="916" Count="0" />
+      <LineId Id="982" Count="0" />
+      <LineId Id="914" Count="0" />
+      <LineId Id="894" Count="0" />
+      <LineId Id="886" Count="0" />
+      <LineId Id="614" Count="0" />
+      <LineId Id="987" Count="1" />
+      <LineId Id="998" Count="0" />
+      <LineId Id="989" Count="0" />
+      <LineId Id="1483" Count="0" />
+      <LineId Id="1001" Count="0" />
+      <LineId Id="999" Count="0" />
+      <LineId Id="1005" Count="0" />
+      <LineId Id="996" Count="0" />
+      <LineId Id="1367" Count="0" />
+      <LineId Id="1366" Count="0" />
+      <LineId Id="997" Count="0" />
+      <LineId Id="984" Count="0" />
+      <LineId Id="1002" Count="0" />
+      <LineId Id="1368" Count="0" />
+      <LineId Id="1003" Count="0" />
+      <LineId Id="1021" Count="0" />
+      <LineId Id="1369" Count="0" />
+      <LineId Id="985" Count="1" />
+      <LineId Id="615" Count="1" />
+      <LineId Id="1006" Count="3" />
+      <LineId Id="1011" Count="0" />
+      <LineId Id="630" Count="1" />
+      <LineId Id="1012" Count="1" />
+      <LineId Id="1016" Count="1" />
+      <LineId Id="1484" Count="0" />
+      <LineId Id="1022" Count="2" />
+      <LineId Id="1018" Count="0" />
+      <LineId Id="1020" Count="0" />
+      <LineId Id="1019" Count="0" />
+      <LineId Id="1014" Count="0" />
+      <LineId Id="1025" Count="2" />
+      <LineId Id="1029" Count="1" />
+      <LineId Id="1032" Count="0" />
+      <LineId Id="1028" Count="0" />
+      <LineId Id="1015" Count="0" />
+      <LineId Id="1033" Count="0" />
+      <LineId Id="1036" Count="1" />
+      <LineId Id="1047" Count="0" />
+      <LineId Id="1054" Count="0" />
+      <LineId Id="1039" Count="3" />
+      <LineId Id="1485" Count="0" />
+      <LineId Id="1043" Count="0" />
+      <LineId Id="1063" Count="0" />
+      <LineId Id="1065" Count="0" />
+      <LineId Id="1068" Count="0" />
+      <LineId Id="1066" Count="0" />
+      <LineId Id="1064" Count="0" />
+      <LineId Id="1038" Count="0" />
+      <LineId Id="1035" Count="0" />
+      <LineId Id="1154" Count="0" />
+      <LineId Id="1156" Count="0" />
+      <LineId Id="658" Count="0" />
+      <LineId Id="660" Count="1" />
+      <LineId Id="1071" Count="2" />
+      <LineId Id="1373" Count="0" />
+      <LineId Id="666" Count="7" />
+      <LineId Id="675" Count="2" />
+      <LineId Id="1374" Count="0" />
+      <LineId Id="678" Count="12" />
+      <LineId Id="929" Count="0" />
+      <LineId Id="1479" Count="1" />
+      <LineId Id="693" Count="10" />
+      <LineId Id="1248" Count="2" />
+      <LineId Id="1461" Count="0" />
+      <LineId Id="1251" Count="1" />
+      <LineId Id="1444" Count="0" />
+      <LineId Id="1253" Count="0" />
+      <LineId Id="1396" Count="0" />
+      <LineId Id="1399" Count="8" />
+      <LineId Id="1286" Count="5" />
+      <LineId Id="1393" Count="0" />
+      <LineId Id="1388" Count="0" />
+      <LineId Id="1408" Count="0" />
+      <LineId Id="1486" Count="0" />
+      <LineId Id="1413" Count="1" />
+      <LineId Id="1416" Count="4" />
+      <LineId Id="1391" Count="0" />
+      <LineId Id="1381" Count="0" />
+      <LineId Id="1411" Count="0" />
+      <LineId Id="1424" Count="0" />
+      <LineId Id="1389" Count="0" />
+      <LineId Id="1392" Count="0" />
+      <LineId Id="1425" Count="5" />
+      <LineId Id="1297" Count="2" />
+      <LineId Id="1442" Count="0" />
+      <LineId Id="1300" Count="0" />
+      <LineId Id="1481" Count="0" />
+      <LineId Id="1302" Count="6" />
+      <LineId Id="1462" Count="0" />
+      <LineId Id="1310" Count="3" />
+      <LineId Id="1436" Count="0" />
+      <LineId Id="1438" Count="3" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A8_Shutdown">
+      <LineId Id="2" Count="8" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="212" Count="0" />
+      <LineId Id="161" Count="0" />
+      <LineId Id="214" Count="2" />
+      <LineId Id="244" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="163" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="166" Count="2" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="169" Count="1" />
+      <LineId Id="248" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="173" Count="5" />
+      <LineId Id="205" Count="0" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="195" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="206" Count="0" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="199" Count="0" />
+      <LineId Id="208" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="254" Count="1" />
+      <LineId Id="257" Count="0" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="258" Count="0" />
+      <LineId Id="264" Count="0" />
+      <LineId Id="259" Count="2" />
+      <LineId Id="236" Count="2" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="262" Count="1" />
+      <LineId Id="267" Count="0" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="211" Count="0" />
+      <LineId Id="200" Count="0" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="226" Count="0" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="301" Count="0" />
+      <LineId Id="277" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="273" Count="0" />
+      <LineId Id="250" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="284" Count="5" />
+      <LineId Id="294" Count="0" />
+      <LineId Id="290" Count="2" />
+      <LineId Id="281" Count="0" />
+      <LineId Id="295" Count="5" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="159" Count="0" />
+      <LineId Id="137" Count="2" />
+      <LineId Id="141" Count="6" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="148" Count="8" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A9_Pressure_Drop_Test">
+      <LineId Id="2" Count="5" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="354" Count="0" />
+      <LineId Id="334" Count="0" />
+      <LineId Id="39" Count="4" />
+      <LineId Id="340" Count="0" />
+      <LineId Id="339" Count="0" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="422" Count="0" />
+      <LineId Id="358" Count="0" />
+      <LineId Id="51" Count="2" />
+      <LineId Id="341" Count="1" />
+      <LineId Id="349" Count="4" />
+      <LineId Id="344" Count="0" />
+      <LineId Id="55" Count="7" />
+      <LineId Id="71" Count="5" />
+      <LineId Id="355" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="79" Count="8" />
+      <LineId Id="372" Count="0" />
+      <LineId Id="379" Count="0" />
+      <LineId Id="374" Count="1" />
+      <LineId Id="88" Count="2" />
+      <LineId Id="415" Count="0" />
+      <LineId Id="356" Count="1" />
+      <LineId Id="92" Count="1" />
+      <LineId Id="359" Count="0" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="362" Count="1" />
+      <LineId Id="101" Count="5" />
+      <LineId Id="380" Count="1" />
+      <LineId Id="383" Count="0" />
+      <LineId Id="385" Count="0" />
+      <LineId Id="390" Count="0" />
+      <LineId Id="389" Count="0" />
+      <LineId Id="384" Count="0" />
+      <LineId Id="387" Count="0" />
+      <LineId Id="391" Count="1" />
+      <LineId Id="394" Count="1" />
+      <LineId Id="393" Count="0" />
+      <LineId Id="382" Count="0" />
+      <LineId Id="107" Count="1" />
+      <LineId Id="368" Count="0" />
+      <LineId Id="367" Count="0" />
+      <LineId Id="398" Count="0" />
+      <LineId Id="396" Count="0" />
+      <LineId Id="190" Count="4" />
+      <LineId Id="196" Count="10" />
+      <LineId Id="418" Count="0" />
+      <LineId Id="208" Count="3" />
+      <LineId Id="397" Count="0" />
+      <LineId Id="265" Count="5" />
+      <LineId Id="409" Count="0" />
+      <LineId Id="405" Count="0" />
+      <LineId Id="407" Count="0" />
+      <LineId Id="410" Count="2" />
+      <LineId Id="408" Count="0" />
+      <LineId Id="314" Count="2" />
+      <LineId Id="318" Count="0" />
+      <LineId Id="421" Count="0" />
+      <LineId Id="319" Count="6" />
+      <LineId Id="414" Count="0" />
+      <LineId Id="327" Count="3" />
+      <LineId Id="401" Count="3" />
+      <LineId Id="400" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.Ax_Process_Pre_Check">
+      <LineId Id="335" Count="75" />
+      <LineId Id="58" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.M_Repres_Valve_Error">
+      <LineId Id="6" Count="3" />
+      <LineId Id="42" Count="3" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="56" Count="3" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="30" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

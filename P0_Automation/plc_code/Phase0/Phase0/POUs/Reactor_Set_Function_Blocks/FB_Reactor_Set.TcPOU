@@ -1,0 +1,3782 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Reactor_Set" Id="{7a14df60-c425-4007-b6c2-e2f870fc0897}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Reactor_Set
+VAR_IN_OUT
+	U																	: Utility;
+	R_S																	: Reactor_Set;
+	Stop_Reactor_Set													: BOOL;
+	Clear_Reactor_Set_Pause												: BOOL;
+	test_error															: BOOL;
+END_VAR
+VAR_INPUT
+	RS_Name																: STRING;
+	Cycle_Mode															: STRING;
+	Fan_Setpoint														: REAL;
+	RS_number															: INT;
+END_VAR
+VAR_OUTPUT
+	Cycle_Stage															: STRING;
+	Remaining_Time														: REAL;
+	Current_Step														: INT;
+	Machine_State														: INT;
+	Status																: INT;
+	Process_Running														: BOOL;
+	Pause_Reactor_Set													: BOOL;
+	Reactor_Set_Stopped													: BOOL;
+	Repressurization_Running											: BOOL;
+	Adsorption_Running													: BOOL;
+	Evacuation_Running													: BOOL;
+	Desorption_Running													: BOOL;
+	Utility_Error														: BOOL;
+	Stop_M01_RS															: BOOL;
+	Cancel_Reactor_Set													: BOOL;
+	Cancel_All_Reactor_Sets												: BOOL;
+	Process_Complete													: BOOL;
+	Done																: BOOL;
+END_VAR
+VAR
+	eState																: E_MachineState;
+	i																	: INT;
+	iStatePointer														: INT;
+	iLength																: INT;
+	iStateMode															: ARRAY[0..9] OF INT;
+	
+	sSafeShutdownError1													: STRING;
+	sSafeShutdownError2													: STRING;
+	sSafeShutdownError3													: STRING;
+	sUtilityError														: STRING;
+	sReactorError														: STRING;
+	sCancelError														: STRING;
+	sPauseError															: STRING;
+	sRetryError															: STRING;
+	sLastRetryError														: STRING;
+	sError																: STRING;
+	sMessage															: STRING;
+	sLeakageAcceptable													: STRING;
+	sLeakageUnacceptable												: STRING;
+
+	rTime																: REAL;
+	rTime1																: REAL;
+	rTime2																: REAL;
+	rTime3																: REAL;
+	rSP1																: REAL;
+	rSP2																: REAL;
+	rSP3																: REAL;
+	rR1SavedPressure													: REAL;
+	rR2SavedPressure													: REAL;
+	rR3SavedPressure													: REAL;
+	rR4SavedPressure													: REAL;
+	rIncrementalMove													: REAL;
+	rPosition															: REAL;
+	
+	tTime																: TIME;
+	
+	iStep																: INT;
+	i4Step																: INT;
+	i5Step																: INT;
+	i6Step																: INT;
+	i7Step																: INT;
+	iSS1Step															: INT;
+	iSS2Step															: INT;
+	iSS3Step															: INT;
+	iStartStep															: INT;
+	iStatus																: INT;
+	iRestartProcess														: INT;
+	iErrorProcess														: INT;
+	iRestartStep														: INT;
+	iRetryCount															: INT;
+	iR1Leakage															: INT;
+	iR2Leakage															: INT;
+	iR3Leakage															: INT;
+	iR4Leakage															: INT;
+	iCycleCount															: INT;
+	iMaxSorbentTempErrorCount											: INT;
+	iSSType																: INT;
+	iSafeShutdown														: INT;
+	iSafeShutdownRS														: INT;
+
+	bMultiProcess														: BOOL;
+	bEndProcess															: BOOL;
+	bSPAdjust															: BOOL;
+	bPaused																: BOOL;
+	bClearingCycle														: BOOL;
+	bRepressurizationDone												: BOOL;
+	bAdsorptionDone														: BOOL;
+	bEvacuationDone														: BOOL;
+	bDesorptionDone									        			: BOOL;
+	bPass1																: BOOL;
+	bPass2																: BOOL;
+	bPass3																: BOOL;
+	bPass4																: BOOL;
+	bPass5																: BOOL;
+	bPass6																: BOOL;
+	bLowPressure														: BOOL;
+	bStop																: BOOL;
+	bTimer1																: BOOL;
+	bTimer2																: BOOL;
+	bTimer3																: BOOL;
+	bRunning															: BOOL;
+	bDrainError															: BOOL;
+	bPumpOn																: BOOL;
+	bPumpTimeOut														: BOOL;									
+	bDrainResetToLSL													: BOOL;
+	bProcessStarted														: BOOL;
+	bEvacuationRSError													: BOOL;
+	bDesorptionRSError													: BOOL;
+	bDesorptionErrorCheck												: BOOL;
+	bStopAfterDesorption												: BOOL;
+	bStopAfterEvacuation												: BOOL;
+	bSafeShutdownOn														: BOOL;
+	
+	rtrigStart															: R_TRIG;
+	rtrigPaused															: R_TRIG;
+	rtrigHolding														: R_TRIG;
+	rtrigIdle															: R_TRIG;
+	rtrigRepressurization												: R_TRIG;
+	rtrigAdsorption														: R_TRIG;
+	rtrigEvacuation														: R_TRIG;
+	rtrigDesorption														: R_TRIG;
+	rtrigDrainLSHOn														: R_TRIG;
+	
+	tonTimer1															: TON;
+	tonTimer2															: TON;
+	tonTimer3															: TON;
+	tonPause															: TON;
+	tonDrain															: TON;
+	tonProcess															: TON;
+	
+	tRestartTime														: TIME;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - FB_Reactor_Set
+// Rev 1.0 - May 13, 2024
+
+A_Clear_Variables();
+
+iLength																	:= LEN(Cycle_Mode);
+rtrigStart(CLK:= iLength > 0);
+IF rtrigStart.Q AND iSS1Step = 0 AND iSS2Step = 0 AND iSS3Step = 0 THEN
+	IF Cycle_Mode = '0' THEN
+		bClearingCycle													:= TRUE;											// This acts as if the cycle ran so the reactor set cycle counter will stay in sync with the other reactor sets		
+	ELSE
+		bProcessStarted													:= TRUE;
+		IF Pause_Reactor_Set THEN
+			bPaused														:= TRUE;
+		ELSE
+			iStartStep													:= 1;
+			Process_Running												:= TRUE;
+			FOR i := 1 TO iLENGTH DO
+				iStateMode[i]											:= STRING_TO_INT(MID(Cycle_Mode, 1, i));
+			END_FOR
+			bMultiProcess												:= iLength > 1;
+			IF bMultiProcess AND iRestartProcess > 0 THEN
+				iStatePointer											:= iRestartProcess;
+				iStartStep												:= iRestartStep;
+				iRestartProcess											:= 0;
+				Machine_State											:= eHolding;
+			ELSE
+				iRestartProcess											:= 0;
+				iStatePointer											:= 1;
+				Machine_State											:= iStateMode[1];
+			END_IF
+		END_IF
+	END_IF
+END_IF
+
+rtrigIdle(				CLK:= eState <= eIdle);
+rtrigPaused(			CLk:= bPaused);
+rtrigHolding(			CLK:= Machine_State = eHolding);
+rtrigRepressurization(	CLK:= Machine_State = eRepressurization);
+rtrigAdsorption(		CLK:= Machine_State = eAdsorption);
+rtrigEvacuation(		CLK:= Machine_State = eEvacuation);
+rtrigDesorption(		CLK:= Machine_State = eDesorption);
+
+IF rtrigPaused.Q THEN
+	bPaused																:= FALSE;
+	eState																:= ePause;
+ELSIF rtrigHolding.Q THEN
+	eState																:= eHolding;
+ELSIF rtrigRepressurization.Q THEN
+	bRepressurizationDone												:= FALSE;
+	i4Step																:= iStartStep;
+	eState																:= eRepressurization;
+ELSIF rtrigAdsorption.Q THEN
+	bAdsorptionDone														:= FALSE;
+	i5Step																:= iStartStep;
+	eState																:= eAdsorption;
+ELSIF rtrigEvacuation.Q THEN
+	bEvacuationDone														:= FALSE;
+	i6Step																:= iStartStep;
+	eState																:= eEvacuation;
+ELSIF rtrigDesorption.Q THEN
+	bDesorptionDone														:= FALSE;
+	i7Step																:= iStartStep;
+	eState																:= eDesorption;
+ELSIF rtrigIdle.Q THEN
+	bProcessStarted														:= FALSE;
+	eState																:= eIdle;
+END_IF
+
+
+CASE eState OF
+	
+	eIdle:
+		A1_Idle();
+		
+	eHolding:
+		A2_Holding();
+		
+	eRepressurization:
+		IF bRepressurizationDone THEN
+			Repressurization_Running									:= FALSE;
+			IF bMultiProcess THEN
+				eState													:= SEL(bStop, eChangeState, ePause);
+			ELSE
+				Status													:= SEL(bStop, eRepressurization_Complete, Status);
+				eState													:= ePause;
+			END_IF
+		ELSIF bStop THEN
+			Status														:= eStopping_Process;
+		ELSE
+			Status														:= eRepressurization_Running;
+			Repressurization_Running									:= TRUE;
+		END_IF
+
+	eAdsorption:
+		IF bAdsorptionDone THEN
+			Adsorption_Running											:= FALSE;
+			IF bMultiProcess THEN
+				eState													:= SEL(bStop, eChangeState, ePause);
+			ELSE
+				Status													:= SEL(bStop, eAdsorption_Complete, Status);
+				eState													:= ePause;
+			END_IF
+		ELSIF bStop THEN
+			Status														:= eStopping_Process;
+		ELSE
+			Status														:= eAdsorption_Running;
+			Adsorption_Running											:= TRUE;
+		END_IF
+
+	eEvacuation:
+		IF bEvacuationDone THEN
+			Evacuation_Running											:= FALSE;
+			IF bMultiProcess THEN
+				eState													:= SEL(bStop, eChangeState, ePause);
+			ELSE
+				Status													:= SEL(bStop, eEvacuation_Complete, Status);
+				eState													:= ePause;
+			END_IF
+		ELSIF bStop THEN
+			Status														:= eStopping_Process;
+		ELSE
+			Status														:= eEvacuation_Running;
+			Evacuation_Running											:= TRUE;
+		END_IF
+		
+	eDesorption:
+		IF bDesorptionDone THEN
+			Desorption_Running											:= FALSE;
+			IF bMultiProcess THEN
+				eState													:= SEL(bStop, eChangeState, ePause);
+			ELSE
+				Status													:= SEL(bStop, eDesorption_Complete, Status);
+				eState													:= ePause;
+			END_IF
+		ELSIF bStop THEN
+			Status														:= eStopping_Process;
+		ELSE
+			Status														:= eDesorption_Running;
+			Desorption_Running											:= TRUE;
+		END_IF
+		
+	eChangeState:
+		iStatePointer													:= iStatePointer + 1;
+		IF iStatePointer > iLength THEN
+			Process_Complete											:= TRUE;
+			Done														:= TRUE;
+			eState														:= eIdle;
+		ELSIF iStateMode[iStatePointer] = 0 THEN
+			Status														:= eStopping_Process;
+			bStop														:= TRUE;
+			bMultiProcess												:= FALSE;
+			eState														:= ePause;
+		ELSE
+			Machine_State												:= iStateMode[iStatePointer];
+		END_IF
+	
+	ePause:
+		Machine_State													:= ePause;
+		IF tonPause.Q THEN
+			IF iSSType = 1 THEN
+				iSSType													:= 0;
+				iSS1Step												:= 1;
+				eState													:= eSafeShutdown1;
+			ELSIF iSSType = 2 THEN
+				iSSType													:= 0;
+				iSS2Step												:= 1;
+				eState													:= eSafeShutdown2;
+			ELSIF iSSType = 3 THEN
+				iSSType													:= 0;
+				iSS3Step												:= 1;
+				eState													:= eSafeShutdown3;
+			ELSE
+				Done													:= TRUE;
+				eState													:= eIdle;
+			END_IF
+		END_IF
+		
+	eSafeShutdown1:
+		Machine_State													:= eSafeShutdown1;
+		A_SafeShutdown1_Test();
+		IF iSS1Step	= 0 THEN
+			eState														:= ePause;
+		END_IF
+	
+	eSafeShutdown2:
+		Machine_State													:= eSafeShutdown2;
+		A_SafeShutdown2_Test();
+		IF iSS2Step	= 0 THEN
+			eState														:= ePause;
+		END_IF
+	
+	eSafeShutdown3:
+		Machine_State													:= eSafeShutdown3;
+		A_SafeShutdown3_Test();
+		IF iSS3Step	= 0 THEN
+			eState														:= ePause;
+		END_IF
+	
+END_CASE
+
+bRunning																:= eState >= eHolding AND eState <= ePause;
+
+//A4_Repressurization_Test();
+A4_Repressurization_Test_Auto();
+//A5_Adsorption_Test();
+A5_Adsorption_Test_Auto();
+//A6_Evacuation_Test();
+A6_Evacuation_Test_Auto();
+//A7_Desorption_Test();
+A7_Desorption_Test_Auto();
+//A_Drain_Reactor_Set();
+
+tonTimer1(IN:= bTimer1, PT:= REAL_TO_TIME(rTime1));
+tonTimer2(IN:= bTimer2, PT:= REAL_TO_TIME(rTime2));
+tonTimer3(IN:= bTimer3, PT:= REAL_TO_TIME(rTime3));
+
+Remaining_Time															:= 0;
+IF Process_Running THEN
+	IF bTimer1 THEN
+		Remaining_Time													:= rTime1 - TIME_TO_REAL(tonTimer1.ET);
+	ELSIF bTimer2 THEN
+		Remaining_Time													:= rTime2 - TIME_TO_REAL(tonTimer2.ET);
+	ELSIF bTimer3 THEN
+		Remaining_Time													:= rTime3 - TIME_TO_REAL(tonTimer3.ET);
+	END_IF
+END_IF
+
+tonPause(IN:= eState = ePause, PT:= _TIMEOUT_RESET);
+tonProcess(IN:= bProcessStarted, PT:= T#10H);
+]]></ST>
+    </Implementation>
+    <Action Name="A_Check_Process" Id="{6ec7fe9a-742c-414a-a60e-a55eaa5d8982}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A_ClearProcess
+// Rev 1.0 - May 13, 2024
+
+Current_Step															:= iStep;
+bEndProcess																:= FALSE;
+IF Stop_Reactor_Set THEN																									// Reactor Set can be stopped both internally and externally
+	Stop_Reactor_Set													:= FALSE;											// Clear flag
+	bEndProcess															:= TRUE;											// Set flag to end process
+ELSE
+	IF sSafeShutdownError1 <> '' THEN
+		iSSType															:= 1; 	
+		sError															:= sSafeShutdownError1;
+		sSafeShutdownError1												:= '';
+		sMessage														:= gsSafeShutdown1;
+		bEndProcess														:= TRUE;
+	ELSIF sSafeShutdownError2 <> '' THEN
+		iSSType															:= 2; 	
+		sError															:= sSafeShutdownError2;
+		sSafeShutdownError2												:= '';
+		sMessage														:= gsSafeShutdown2;
+		bEndProcess														:= TRUE;
+	ELSIF sSafeShutdownError3 <> '' THEN
+		iSSType															:= 3; 	
+		sError															:= sSafeShutdownError3;
+		sSafeShutdownError3												:= '';
+		sMessage														:= gsSafeShutdown3;
+		bEndProcess														:= TRUE;
+	ELSIF sUtilityError <> '' THEN																							//@ Times used - 3
+		sError															:= sUtilityError;
+		Utility_Error													:= TRUE;
+		iStep															:= 98;
+	ELSIF sReactorError <> '' THEN																							//@ Times used - 43
+		sError															:= sReactorError;
+  		bEndProcess														:= TRUE;
+	ELSIF sPauseError <> '' THEN																							//@ Times used - 2
+		sError															:= sPauseError;
+		iRestartProcess													:= F_SetProcess(eRepressurization, Cycle_Mode);		// Set restart to Repressurization
+		Pause_Reactor_Set												:= TRUE;
+		bEndProcess														:= TRUE;
+	ELSIF sRetryError <> '' THEN																							//@ Times used - 1
+		sError															:= sRetryError;
+		tRestartTime													:= tonProcess.ET;									// Save time to start retry attempt
+		iRestartProcess													:= iStatePointer;									// Get current process machine state
+		iErrorProcess													:= iStatePointer;									// Save machine state for later reference
+		IF sError = sLastRetryError THEN																					// If the same error occured,
+			iRetryCount													:= iRetryCount + 1;									// increment the retry counter
+			IF iRetryCount >= _RETRY_ATTEMPTS THEN																			// If retry attempts have maxed out,
+				sMessage												:= gsUserProcessRestart;							// let user know in the message	they must now manually restart	
+				iRestartProcess											:= 0;												// Clear the restart variables
+				iRetryCount												:= 0;
+				sLastRetryError											:= '';
+				Pause_Reactor_Set										:= TRUE;
+				Stop_M01_RS												:= TRUE;
+			END_IF
+		ELSE
+			iRetryCount													:= 1;												// Increment retry counter
+			sLastRetryError												:= sError;											// Save error message for later reference	
+		END_IF
+		bEndProcess														:= TRUE;
+	END_IF
+	IF iErrorProcess > 0 AND iErrorProcess <> iStatePointer THEN
+		iRestartProcess													:= 0;
+		iErrorProcess													:= 0;
+		iRetryCount														:= 0;
+		iRestartStep													:= 1;
+		sLastRetryError													:= '';
+	END_IF
+	IF sError <> '' THEN
+		P_Alarms.M_Add_Alarm(RS_Name, F_Concat3(Cycle_Stage, ' ', sError), sMessage);
+		sError															:= '';
+	END_IF
+END_IF
+
+IF bEndProcess THEN
+	bTimer1								 								:= FALSE;
+	bTimer2								 								:= FALSE;
+	bStop																:= TRUE;
+	Stop_M01_RS															:= TRUE;											// Stop Reactor in P_M01.A_AutoMode
+	iStep																:= SEL(bMultiProcess, 80, 90);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Clear_Variables" Id="{0dbcb2f7-e4a4-40b8-8807-7ed3a1095350}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A_Clear_Variables
+// Rev 1.0 - June 3, 2024
+
+R_S.extend_all_clamps													:= FALSE;
+R_S.retract_all_clamps													:= FALSE;
+R_S.open_all_doors														:= FALSE;
+R_S.close_all_doors														:= FALSE;
+R_S.close_all_valves													:= FALSE;
+R_S.co2_sensors_off														:= FALSE;
+R_S.co2_inside_sensors_on												:= FALSE;
+R_S.co2_outside_sensors_on												:= FALSE;
+R_S.open_repres_valves													:= FALSE;
+R_S.close_repres_valves													:= FALSE;
+Utility_Error															:= FALSE;
+//Stop_Reactor_Set														:= FALSE;
+Cancel_Reactor_Set														:= FALSE;
+Cancel_All_Reactor_Sets													:= FALSE;
+Stop_M01_RS																:= FALSE;
+sSafeShutdownError1														:= '';
+sSafeShutdownError2														:= '';
+sSafeShutdownError3														:= '';
+sUtilityError															:= '';
+sReactorError															:= '';
+sPauseError																:= '';
+sRetryError																:= '';
+IF Clear_Reactor_Set_Pause THEN
+	Clear_Reactor_Set_Pause												:= FALSE;
+	Pause_Reactor_Set													:= FALSE;
+END_IF
+IF NOT U.auto_mode_on THEN
+	iMaxSorbentTempErrorCount											:= 0;
+	iCycleCount															:= 0;	
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Drain_Reactor_Set" Id="{1d4eeb92-89ea-4631-b611-8a78ca35984b}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A_Drain_Reactor_Set
+// Rev 1.0 - March 8, 2024
+
+IF gbDrainageOn THEN																										// 4.1.1
+	
+	bLowPressure														:= NOT R_S.R1_reactor_pres_error AND R_S.R1_reactor_pres < u01.SP_drainage_function_cutoff_pressure;
+	bLowPressure														:= bLowPressure AND NOT R_S.R2_reactor_pres_error AND R_S.R2_reactor_pres < u01.SP_drainage_function_cutoff_pressure;
+	bLowPressure														:= bLowPressure AND NOT R_S.R3_reactor_pres_error AND R_S.R3_reactor_pres < u01.SP_drainage_function_cutoff_pressure;
+	bLowPressure														:= bLowPressure AND NOT R_S.R4_reactor_pres_error AND R_S.R4_reactor_pres < u01.SP_drainage_function_cutoff_pressure;
+	IF bLowPressure THEN
+		bPumpOn															:= FALSE;											// 1.b
+	ELSE
+		rtrigDrainLSHOn(CLK:= R_S.condensate_lsh);
+		IF rtrigDrainLSHOn.Q THEN
+			bDrainResetToLSL											:= TRUE;
+		END_IF
+		IF bDrainResetToLSL AND R_S.condensate_lsl THEN
+			bPumpOn														:= TRUE;
+		ELSE
+			bPumpOn														:= FALSE;
+			bDrainResetToLSL											:= FALSE;
+		END_IF
+	END_IF
+	
+	IF tonDrain.Q THEN
+		P_Alarms.M_Add_Alarm(RS_Name, gsReactorDrainError, gsProcessStopsAtEOC);
+		bPumpOn															:= FALSE;
+		bDrainError														:= TRUE;
+		Cancel_Reactor_Set												:= TRUE; 
+	END_IF
+	tonDrain(IN:= R_S.condensate_lsh AND NOT bDrainError, PT:= REAL_TO_TIME(u01.SP_maximum_duration_to_drain_reactor_set * _SECONDS));
+	bPumpTimeOut														:= tonDrain.ET > REAL_TO_TIME(u01.SP_duration_to_drain_reactor_set * _SECONDS);
+	
+	IF NOT R_S.condensate_lsh THEN
+		bDrainError														:= FALSE;
+	END_IF
+
+	R_S.condensate_pump													:= bPumpOn AND NOT bDrainError AND NOT bPumpTimeOut;
+	
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_SafeShutdown1" Id="{58f17301-1562-48ea-8e64-b48970d6c6b8}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A_SafeShutdown1
+// Rev 1.0 - May 10, 2024
+
+CASE iSS1Step OF
+	
+	0:	;
+		
+	1:	
+		sError															:= '';
+		sMessage														:= gsUnableToEvacuateReactorSet;
+		rTime2															:= m01.SP_evacuation_duration * 3 * _MINUTES;
+		iSS1Step														:= iSS1Step + 1;
+		
+	2:
+		bTimer2															:= TRUE;											// 1
+		Cycle_Stage														:= 'evacuation.safe_shutdown_1';					// 1.a
+		U.dead_air_vacuum_pump											:= TRUE;											// 2
+		R_S.close_all_doors												:= TRUE;											// 3
+		rTime1															:= m01.SP_doorsopenclose_timedelay * _MINUTES;
+		iSS1Step														:= iSS1Step + 1;
+		
+	3:
+		bTimer1															:= TRUE;
+		IF R_S.all_doors_closed THEN
+			bTimer1														:= FALSE;
+			R_S.close_repres_valves										:= TRUE;											// 4
+			rTime1														:= _VALVE_TIME;
+			iSS1Step													:= iSS1Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sError														:= gsDoorsNotClosedError;
+			iSS1Step													:= 80;
+		END_IF
+		
+	4:
+		bTimer1															:= TRUE;
+		IF R_S.repres_valve_error = '' THEN
+			bTimer1														:= FALSE;
+			IF R_S.all_clamps_extended THEN
+				iSS1Step												:= iSS1Step + 2;
+			ELSE
+				R_S.extend_all_clamps									:= TRUE;											// 5
+				rTime1													:= m01.SP_extend_wallace_clamp_duration * _MINUTES;
+				iSS1Step												:= iSS1Step + 1;
+			END_IF
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sError														:= gsRepressurizationValveError;
+			iSS1Step													:= 80;
+		END_IF
+		
+	5:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			iSS1Step													:= iSS1Step + 1;
+		END_IF
+		
+	6:
+		IF U.dead_air_line_pres < R_S.average_reactor_pressure THEN															// 6
+			R_S.dead_air_valve											:= TRUE;											// 7
+			iSS1Step													:= iSS1Step + 1;
+		ELSIF TIME_TO_REAL(tonTimer2.ET) > (m01.SP_evacuation_duration * 2 * _MINUTES) THEN
+			sError														:= 	gsUnableToEvacuateLinesError;
+			iSS1Step													:= 80;
+		END_IF
+		
+	7:
+		IF tonTimer2.Q THEN																									// 8
+			bTimer2														:= FALSE;
+			IF R_S.average_reactor_pressure >= m01.SP_evacuation_unacceptable_pressure THEN									// 8.c
+				sError													:= gsInsufficientVacuumPressureError;
+			ELSIF R_S.average_reactor_pressure > m01.SP_evacuation_ideal_pressure THEN										// 8.b
+				sError													:= gsVacuumPressureAcceptableBotNotIdealError;
+			END_IF
+			iSS1Step													:= 80;												// else 8.a
+		END_IF
+		
+	80:
+		R_S.dead_air_valve												:= FALSE;											// 9
+		U.dead_air_vacuum_pump											:= FALSE;											// 10
+		bTimer2															:= FALSE;											// 11
+		R_S.co2_sensors_off												:= TRUE;											// 12
+		IF sError <> '' THEN
+			P_Alarms.M_Add_Alarm(RS_Name, sError, sMessage);
+		END_IF
+		//Stop_Reactor_Set												:= TRUE;
+		iSS1Step														:= 0;												// 13
+		
+END_CASE
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_SafeShutdown1_Test" Id="{22813013-862b-477a-aebe-1f913cf9ad11}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A_SafeShutdown1_Test
+// Rev 1.0 - May 10, 2024
+
+CASE iSS1Step OF
+	
+	0:	;
+		
+	1:	
+		Cycle_Stage														:= 'ss_1';
+		rTime1															:= 5 * _SECONDS;
+		iSS1Step														:= iSS1Step + 1;
+		
+	2:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			iSS1Step													:= 80;
+		END_IF
+		
+	80:
+		//Stop_Reactor_Set												:= TRUE;
+		iSS1Step														:= 0;
+		
+END_CASE
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_SafeShutdown2" Id="{0478f4ba-01d4-49ea-b425-2c3385e0af09}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A_SafeShutdown2
+// Rev 1.0 - May 10, 2024
+
+CASE iSS2Step OF
+	
+	0:	;
+		
+	1:	
+		sError															:= '';
+		sMessage														:= gsUnableToEvacuateReactorSet;
+		rTime2															:= m01.SP_evacuation_duration * 3 * _MINUTES;
+		iSS2Step														:= iSS2Step + 1;
+		
+	2:
+		bTimer2															:= TRUE;											// 1
+		Cycle_Stage														:= 'evacuation.safe_shutdown_2';					// 1.a
+		R_S.close_all_doors												:= TRUE;											// 2
+		rTime1															:= m01.SP_doorsopenclose_timedelay * _MINUTES;
+		iSS2Step														:= iSS2Step + 1;
+		
+	3:
+		bTimer1															:= TRUE;
+		IF R_S.all_doors_closed THEN
+			bTimer1														:= FALSE;
+			R_S.close_repres_valves										:= TRUE;											// 3
+			rTime1														:= _VALVE_TIME;
+			iSS2Step													:= iSS2Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sError														:= gsDoorsNotClosedError;
+			iSS2Step													:= 80;
+		END_IF
+		
+	4:
+		bTimer1															:= TRUE;
+		IF R_S.repres_valve_error = '' THEN
+			bTimer1														:= FALSE;
+			IF R_S.all_clamps_extended THEN
+				iSS2Step												:= iSS2Step + 2;
+			ELSE
+				R_S.extend_all_clamps									:= TRUE;											// 4
+				rTime1													:= m01.SP_extend_wallace_clamp_duration * _MINUTES;
+				iSS2Step												:= iSS2Step + 1;
+			END_IF
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sError														:= gsRepressurizationValveError;
+			iSS2Step													:= 80;
+		END_IF
+		
+	5:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			iSS2Step													:= iSS2Step + 1;
+		END_IF
+		
+	6:
+		U.product_condenser												:= TRUE;											// 5
+		U.product_vacuum_outlet_isolation_valve							:= TRUE;											// 6
+		U.product_vacuum_bypass_valve									:= TRUE;											// 7
+		U.product_vacuum_pump_isolation_valve							:= TRUE;											// 8
+		U.product_vacuum_backfeed_valve									:= _CLOSED;											// 9
+		U.product_vacuum_pump_vfd										:= u01.SP_product_vacuum_running_vfd_percent;		// 10
+		U.cooling_line_pre_condenser_valve								:= TRUE;											// 11
+		iSS2Step														:= iSS2Step + 1;
+
+	7:	
+		IF U.post_condenser_line_pres < R_S.average_reactor_pressure THEN													// 12
+			R_S.cooling_valve											:= TRUE;											// 13
+			iSS2Step													:= iSS2Step + 1;
+		ELSIF TIME_TO_REAL(tonTimer2.ET) > (m01.SP_evacuation_duration * 2 * _MINUTES) THEN					
+			sError														:= 	gsUnableToEvacuateLinesError;
+			iSS2Step													:= 80;
+		END_IF
+		
+	8:
+		IF tonTimer2.Q THEN																									// 14
+			bTimer2														:= FALSE;
+			IF R_S.average_reactor_pressure >= m01.SP_evacuation_unacceptable_pressure THEN									// 14.c
+				sError													:= gsInsufficientVacuumPressureError;
+				sMessage												:= gsSorbentDamaged;
+			ELSIF R_S.average_reactor_pressure > m01.SP_evacuation_ideal_pressure THEN										// 14.b
+				sError													:= gsVacuumPressureAcceptableBotNotIdealError;
+			END_IF
+			iSS2Step													:= 80;												// else 14.a
+		END_IF
+		
+	80:
+		R_S.cooling_valve												:= FALSE;											// 15
+		U.product_vacuum_pump_vfd										:= u01.SP_product_vacuum_idle_vfd_percent;			// 16
+		U.product_vacuum_outlet_isolation_valve							:= FALSE;											// 17
+		U.product_vacuum_bypass_valve									:= FALSE;
+		U.product_vacuum_pump_isolation_valve							:= FALSE;
+		U.cooling_line_pre_condenser_valve								:= FALSE;
+		U.product_condenser												:= FALSE;											// 18
+		U.dead_air_vacuum_pump											:= FALSE;
+		bTimer2															:= FALSE;											// 19
+		R_S.co2_sensors_off												:= TRUE;											// 20
+		IF sError <> '' THEN
+			P_Alarms.M_Add_Alarm(RS_Name, sError, sMessage);
+		END_IF
+		//Stop_Reactor_Set												:= TRUE;
+		iSS2Step														:= 0;												// 21
+		
+END_CASE
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_SafeShutdown2_Test" Id="{364a4e67-4c9d-48d1-b46d-bc8794f2a1ff}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A_SafeShutdown2_Test
+// Rev 1.0 - May 13, 2024
+
+CASE iSS2Step OF
+	
+	0:	;
+		
+	1:	
+		Cycle_Stage														:= 'ss_2';
+		rTime1															:= 5 * _SECONDS;
+		iSS2Step														:= iSS2Step + 1;
+		
+	2:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			iSS2Step													:= 80;
+		END_IF
+		
+	80:
+		//Stop_Reactor_Set												:= TRUE;
+		iSS2Step														:= 0;
+		
+END_CASE
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_SafeShutdown3" Id="{90b810eb-e64f-407b-bff1-57ccd17da43f}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A_SafeShutdown3
+// Rev 1.0 - May 10, 2024
+
+CASE iSS3Step OF
+	
+	0:	;
+		
+	1:	
+		sError															:= '';
+		sMessage														:= gsUnableToEvacuateReactorSet;
+		rTime2															:= m01.SP_evacuation_duration * 3 * _MINUTES;
+		iSS3Step														:= iSS3Step + 1;
+		
+	2:
+		bTimer2															:= TRUE;											// 1
+		Cycle_Stage														:= 'evacuation.safe_shutdown_3';					// 1.a
+		R_S.close_all_doors												:= TRUE;											// 2
+		rTime1															:= m01.SP_doorsopenclose_timedelay * _MINUTES;
+		iSS3Step														:= iSS3Step + 1;
+		
+	3:
+		bTimer1															:= TRUE;
+		IF R_S.all_doors_closed THEN
+			bTimer1														:= FALSE;
+			R_S.close_repres_valves										:= TRUE;											// 3
+			rTime1														:= _VALVE_TIME;
+			iSS3Step													:= iSS3Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sError														:= gsDoorsNotClosedError;
+			iSS3Step													:= 80;
+		END_IF
+		
+	4:
+		bTimer1															:= TRUE;
+		IF R_S.repres_valve_error = '' THEN
+			bTimer1														:= FALSE;
+			R_S.extend_all_clamps										:= TRUE;											// 4
+			rTime1														:= m01.SP_extend_wallace_clamp_duration * _MINUTES;
+			iSS3Step													:= iSS3Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sError														:= gsRepressurizationValveError;
+			iSS3Step													:= 80;
+		END_IF
+
+	5:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			U.dead_air_vacuum_pump										:= TRUE;											// 5
+			iSS3Step													:= iSS3Step + 1;
+		END_IF
+	
+	6:
+		IF U.dead_air_line_pres < R_S.average_reactor_pressure THEN															// 6
+			R_S.dead_air_valve											:= TRUE;											// 7
+			iSS3Step													:= iSS3Step + 1;
+		ELSIF TIME_TO_REAL(tonTimer2.ET) > (m01.SP_evacuation_duration * 2 * _MINUTES) THEN
+			sError														:= 	gsUnableToEvacuateLinesError;
+			iSS3Step													:= 80;
+		END_IF
+		
+	7:
+		IF tonTimer2.Q THEN																									// 8
+			bTimer2														:= FALSE;
+			IF R_S.average_reactor_pressure >= m01.SP_evacuation_unacceptable_pressure THEN									// 8.c
+				sError													:= gsInsufficientVacuumPressureError;
+				sMessage												:= gsSorbentDamaged;
+			ELSIF R_S.average_reactor_pressure > m01.SP_evacuation_ideal_pressure THEN										// 8.b
+				sError													:= gsVacuumPressureAcceptableBotNotIdealError;
+			END_IF
+			iSS3Step													:= 80;												// else 8.a
+		END_IF
+		
+	80:
+		R_S.dead_air_valve												:= FALSE;											// 9
+		U.dead_air_vacuum_pump											:= FALSE;											// 10
+		bTimer2															:= FALSE;											// 11
+		R_S.co2_sensors_off												:= TRUE;											// 12
+		IF sError <> '' THEN
+			P_Alarms.M_Add_Alarm(RS_Name, sError, sMessage);
+		END_IF
+		//Stop_Reactor_Set												:= TRUE;
+		iSS3Step														:= 0;												// 13
+		
+END_CASE
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_SafeShutdown3_Test" Id="{0f2a7dc4-daa9-42c5-aa00-88efb77213a4}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A_SafeShutdown3_Test
+// Rev 1.0 - May 13, 2024
+
+CASE iSS3Step OF
+	
+	0:	;
+		
+	1:	
+		Cycle_Stage														:= 'ss_3';
+		rTime1															:= 5 * _SECONDS;
+		iSS3Step														:= iSS3Step + 1;
+		
+	2:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			iSS3Step													:= 80;
+		END_IF
+		
+	80:
+		//Stop_Reactor_Set												:= TRUE;
+		iSS3Step														:= 0;
+		
+END_CASE
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A1_Idle" Id="{f9da58c1-f853-41c1-a061-a5899835c823}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A1_Idle
+// Rev 1.0 - May 8, 2024
+
+Machine_State															:= eIdle;
+Cycle_Stage																:= 'idle.idle';
+sError																	:= '';
+i4Step																	:= 0;
+i5Step																	:= 0;
+i6Step																	:= 0;
+i7Step																	:= 0;
+iSS1Step																:= 0;
+Current_Step															:= 0;
+Remaining_Time															:= 0;
+Current_Step															:= 0;
+Status																	:= 0;
+bMultiProcess															:= FALSE;
+bTimer1																	:= FALSE;
+bTimer2																	:= FALSE;
+bStop																	:= FALSE;
+bStopAfterDesorption													:= FALSE;
+bStopAfterEvacuation													:= FALSE;
+Process_Running															:= FALSE;
+Process_Complete														:= FALSE;
+IF bClearingCycle THEN
+	Done																:= TRUE;
+	bClearingCycle														:= FALSE;
+ELSE
+	Done																:= FALSE;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A2_Holding" Id="{9e6e43e6-ad7c-4a19-a64f-78b30135e164}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A2_Holding
+// Rev 1.0 - February 29, 2024
+
+IF tonProcess.ET >= tRestartTime THEN
+	Machine_State														:= iStateMode[iStatePointer];
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A4_Repressurization" Id="{2ecadb33-89a1-48b6-98f5-80de0078733a}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A4_Repressurization
+// Rev 1.0 - May 13, 2024
+
+CASE i4Step OF
+	
+	0:	;
+		
+	1:
+		Cycle_Stage														:= 'repressurization.initialize';					// 2.a.i and 4.i
+		iRestartStep													:= 1;												// Save pause information if needed
+		tRestartTime													:= tonProcess.ET;
+		rTime2															:= m01.SP_repressurization_duration * _MINUTES;
+		IF R_S.reactor_pressure_error <> '' THEN
+			sReactorError												:= R_S.reactor_pressure_error;
+			sMessage													:= gsProcessCannotRun;
+		ELSIF R_S.inlet_air_high_temp_count > _INLET_AIR_MAX_COUNT THEN
+			sReactorError												:= F_Concat3(INT_TO_STRING(R_S.inlet_air_high_temp_count), ' ', gsSorbentTemperatureError);
+			sMessage													:= gsProcessCannotRun;
+		ELSE
+			i4Step														:= i4Step + 1;
+		END_IF
+			
+	2:
+		IF NOT bMultiProcess THEN
+			IF R_S.average_reactor_pressure_within_ambient THEN																// 2.a.ii
+				sReactorError											:= gsReactorsAtAmbientPressure;
+				sMessage												:= gsProcessComplete;
+			ELSIF NOT R_S.all_clamps_retracted THEN																			// 2.a.iv
+				sReactorError											:= gsDoorClampsExtendedError;
+				sMessage												:= gsProcessCannotRun;
+			ELSE
+				i4Step													:= i4Step + 1;
+			END_IF
+		ELSE
+			i4Step														:= i4Step + 1;
+		END_IF
+
+	3:
+		bTimer2															:= TRUE;											// 4
+		U.drainage_on													:= TRUE;											// 5.a
+		R_S.close_all_valves											:= TRUE;											// 5.b
+		rTime1															:= _VALVE_TIME;
+		i4Step															:= i4Step + 1;
+		
+	4:
+		bTimer1															:= TRUE;
+		IF R_S.valves_clear THEN
+			bTimer1														:= FALSE;
+			i4Step														:= i4Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= SEL(R_S.Steam_Control_Valve_Closed, gsSteamControlValveError, '');
+			sReactorError												:= SEL(R_S.dead_air_valve_clear, gsDeadAirValveError, sReactorError);
+			sReactorError												:= SEL(R_S.purge_valve_clear, gsPurgeValveError, sReactorError); 
+			sReactorError												:= SEL(R_S.cooling_valve_clear, gsCoolingValveError, sReactorError);
+			sReactorError												:= SEL(R_S.steam_header_valve_clear, gsSteamHeaderValveError, sReactorError);
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+
+	5:
+		IF R_S.vacuum_cooling_high_temp_count <= _VAC_COOLING_MAX_COUNT THEN												// 5.d
+			R_S.co2_outside_sensors_on									:= TRUE;											// 6
+			R_S.open_repres_valves										:= TRUE;											// 7
+			Cycle_Stage													:= 'repressurization.repressurization';				// 7.i
+			rTime1														:= _VALVE_TIME;
+			i4Step														:= i4Step + 1;
+		ELSE																												// 5.d.i
+			sRetryError													:= F_Concat3(INT_TO_STRING(R_S.vacuum_cooling_high_temp_count), ' ', gsSorbentTemperatureError);
+			sMessage													:= gsProcessRestart;
+		END_IF
+		
+	6:
+		bTimer1															:= TRUE;
+		IF R_S.repres_valve_error = '' THEN
+			i4Step														:= i4Step + 1;
+		ELSIF tonTimer1.Q THEN
+			sReactorError												:= R_S.repres_valve_error;
+			sMessage													:= gsProcessCannotRun;
+		END_IF
+
+	7:
+		IF tonTimer2.Q THEN																									// 8
+			bTimer2														:= FALSE;
+			IF R_S.average_reactor_pressure_within_ambient THEN																// 9
+				R_S.co2_sensors_off										:= TRUE;											// 10
+				i4Step													:= 99;
+			ELSE
+				IF R_S.average_reactor_pressure < (m01.SP_vacuum_cooling_target_pressure * _PRESSURE_PERCENT) THEN			// 9.a
+					sPauseError											:= gsReactorSetFailedToPressurizeError;
+					sMessage											:= gsReactorIsUnderVacuum;
+					R_S.close_repres_valves								:= TRUE;
+				ELSE																										// 9.b		///! - Narrative not implemented here 
+					sReactorError										:= gsReactorSetFailedToPressurizeError;
+					sMessage											:= gsProcessCannotContinue;
+				END_IF
+			END_IF
+		END_IF
+	
+	80:																														// Manual process closing
+		Cycle_Stage														:= 'repressurization.stopping';
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.close_repres_valves											:= TRUE;
+		U.drainage_on													:= FALSE;
+		rTime1															:= _STOPPING_TIME;
+		i4Step															:= i4Step + 1;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i4Step														:= 99;
+		END_IF
+		
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'repressurization.stopping';
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.close_repres_valves											:= TRUE;
+		U.drainage_on													:= FALSE;
+		rTime1															:= _STOPPING_TIME;
+		i4Step															:= i4Step + 1;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i4Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i4Step															:= 98;
+		
+	99:
+		bRepressurizationDone											:= TRUE;
+		Current_Step													:= 0;
+		i4Step															:= 0;
+	
+END_CASE
+
+IF i4Step > 0 AND i4Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF (giEvacuationErrorRS + giDesorptionErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN
+			Cancel_Reactor_Set											:= TRUE;
+		ELSIF U.os_air_unsafe_temp THEN
+			Stop_Reactor_Set											:= TRUE;
+		END_IF
+	END_IF
+	iStep																:= i4Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i4Step																:= iStep;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A4_Repressurization_Test" Id="{754a3da5-03af-4044-b9fa-b4481f24ea64}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A4_Repressurization_Test
+// Rev 1.0 - June 3, 2024
+
+CASE i4Step OF
+	
+	0:	;
+		
+	1:
+		Cycle_Stage														:= 'repressurization.initialize';					// 2.a.i and 4.i
+		iRestartStep													:= 1;												// Save pause information if needed
+		tRestartTime													:= tonProcess.ET;
+		rTime2															:= m01.SP_repressurization_duration * _MINUTES;
+		IF R_S.reactor_pressure_error <> '' THEN
+			sReactorError												:= R_S.reactor_pressure_error;
+			sMessage													:= gsProcessCannotRun;
+		ELSE
+			U.drainage_on												:= TRUE;											// 5.a
+			R_S.close_all_valves										:= TRUE;											// 5.b
+			rTime1														:= _VALVE_TIME;
+			i4Step														:= i4Step + 1;
+		END_IF
+			
+	2:
+		bTimer1															:= TRUE;
+		IF R_S.valves_clear THEN
+			bTimer1														:= FALSE;
+			i4Step														:= i4Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= SEL(R_S.Steam_Control_Valve_Closed, gsSteamControlValveError, '');
+			sReactorError												:= SEL(R_S.dead_air_valve_clear, gsDeadAirValveError, sReactorError);
+			sReactorError												:= SEL(R_S.purge_valve_clear, gsPurgeValveError, sReactorError); 
+			sReactorError												:= SEL(R_S.cooling_valve_clear, gsCoolingValveError, sReactorError);
+			sReactorError												:= SEL(R_S.steam_header_valve_clear, gsSteamHeaderValveError, sReactorError);
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+
+	3:
+		bTimer2															:= TRUE;
+		IF R_S.average_reactor_pressure <= m01.SP_repres_preslimit_clampsretract THEN
+			R_S.retract_all_clamps										:= TRUE;
+			rTime1														:= 30 * _SECONDS;
+			i4Step														:= i4Step + 1;
+		ELSIF tonTimer2.Q THEN
+			sReactorError												:= gsRepressurizationError;
+		END_IF
+		
+	4:
+		bTimer1															:= TRUE;
+		IF R_S.all_clamps_retracted THEN																					// 2.a.iv
+			bTimer1														:= FALSE;
+			R_S.open_repres_valves										:= TRUE;
+			i4Step														:= i4Step + 2;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= gsDoorClampsExtendedError;
+			sMessage													:= gsProcessCannotRun;
+		END_IF
+		
+	5:
+		bTimer1															:= TRUE;											// 4
+		IF R_S.dead_air_valve_clear THEN
+			bTimer1														:= FALSE;
+			i4Step														:= i4Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= gsDeadAirValveError;
+		END_IF
+
+	6:
+		IF R_S.average_reactor_pressure	>= m01.SP_repres_pres_highlimit THEN		
+			i4Step														:= 99;
+		END_IF			
+			
+	7:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			R_S.open_repres_valves										:= FALSE;
+			i4Step														:= 99;
+		END_IF
+	
+	80:																														// Manual process closing
+		Cycle_Stage														:= 'repressurization.stopping';
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.close_repres_valves											:= TRUE;
+		U.drainage_on													:= FALSE;
+		rTime1															:= _STOPPING_TIME;
+		i4Step															:= i4Step + 1;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i4Step														:= 99;
+		END_IF
+		
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'repressurization.stopping';
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.close_repres_valves											:= TRUE;
+		U.drainage_on													:= FALSE;
+		rTime1															:= _STOPPING_TIME;
+		i4Step															:= i4Step + 1;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i4Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i4Step															:= 98;
+		
+	99:
+		bRepressurizationDone											:= TRUE;
+		Current_Step													:= 0;
+		i4Step															:= 0;
+	
+END_CASE
+
+IF i4Step > 0 AND i4Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF (giEvacuationErrorRS + giDesorptionErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN
+			Cancel_Reactor_Set											:= TRUE;
+		ELSIF U.os_air_unsafe_temp THEN
+			Stop_Reactor_Set											:= TRUE;
+		END_IF
+	END_IF
+	iStep																:= i4Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i4Step																:= iStep;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A4_Repressurization_Test_Auto" Id="{d54f4594-5373-4b55-adb1-657d529ab07c}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A4_Repressurization_Test
+// Rev 1.0 - June 3, 2024
+
+CASE i4Step OF
+	
+	0:	;
+		
+	1:
+		Cycle_Stage														:= 'repressurization.initialize';					// 2.a.i and 4.i
+		rTime1														:= _VALVE_TIME;
+		i4Step														:= i4Step + 1;
+			
+	2:
+		bTimer1															:= TRUE;
+		IF sita_bits[4].1 THEN 
+			bTimer1														:= FALSE;
+			i4Step														:= 90;
+		ELSIF tonTimer1.Q AND  sita_bits[4].2 THEN 
+			bTimer1														:= FALSE;
+			sReactorError												:= 'Repress Error';
+			sMessage													:= 'Auto Test';
+		END_IF
+		
+	
+	80:																														// Manual process closing
+		Cycle_Stage														:= 'repressurization.stopping';
+		rTime1															:= _STOPPING_TIME;
+		i4Step															:= i4Step + 1;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i4Step														:= 99;
+		END_IF
+		
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'repressurization.stopping';
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.close_repres_valves											:= TRUE;
+		U.drainage_on													:= FALSE;
+		rTime1															:= _STOPPING_TIME;
+		i4Step															:= i4Step + 1;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i4Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i4Step															:= 98;
+		
+	99:
+		bRepressurizationDone											:= TRUE;
+		Current_Step													:= 0;
+		i4Step															:= 0;
+	
+END_CASE
+
+IF i4Step > 0 AND i4Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF (giEvacuationErrorRS + giDesorptionErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN
+			Cancel_Reactor_Set											:= TRUE;
+		ELSIF U.os_air_unsafe_temp THEN
+			Stop_Reactor_Set											:= TRUE;
+		END_IF
+	END_IF
+	iStep																:= i4Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i4Step																:= iStep;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A5_Adsorption" Id="{595711b7-e9f6-47c2-8c76-55c4b171f9d1}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A5_Adsorption
+// Rev 1.0 - May 13, 2024
+
+CASE i5Step OF
+	
+	0:	;
+		
+	1:
+		Cycle_Stage														:= 'adsorption.initialize';							// 2.d
+		iRestartStep													:= 1;
+		rTime2															:= m01.SP_adsorption_duration;						// 12
+		IF R_S.reactor_pressure_error <> '' THEN
+			sReactorError												:= R_S.reactor_pressure_error;
+			sMessage													:= gsProcessCannotRun;
+		ELSIF R_S.inlet_air_high_temp_count > _INLET_AIR_MAX_COUNT THEN
+			sReactorError												:= F_Concat3(INT_TO_STRING(R_S.inlet_air_high_temp_count), ' ', gsSorbentTemperatureError);
+			sMessage													:= gsProcessCannotRun;
+		ELSE
+			i5Step														:= i5Step + 1;
+		END_IF
+			
+	2:
+		IF NOT bMultiProcess THEN
+			IF R_S.average_reactor_pressure_within_ambient THEN																// 2.c
+				sReactorError											:= gsReactorsAtAmbientPressure;
+				sMessage												:= gsProcessComplete;
+			ELSIF NOT R_S.all_clamps_retracted THEN																			// 2.a
+				sReactorError											:= gsDoorClampsExtendedError;
+				sMessage												:= gsProcessCannotRun;
+			ELSIF u.os_air_unsafe_temp THEN																					// 2.b
+				sReactorError											:= gsOutsideTempRangeError;
+				sMessage												:= gsProcessCannotRun;
+			ELSE
+				i5Step													:= i5Step + 1;
+			END_IF
+		ELSE
+			i5Step														:= i5Step + 1;
+		END_IF
+
+	3:
+		bTimer2															:= TRUE;											// 4
+		IF R_S.r1_inlet_co2 < m01.SP_minimum_desired_inlet_co2_concentration_during_adsorption THEN							// 5.a
+			sError														:= gsAdsorptionInletCo2LowError;
+			sMessage													:= gsAdsorptionCo2LowCheck;
+		END_IF
+		R_S.close_all_valves											:= TRUE;											// 5.b
+		U.drainage_on													:= TRUE;											// 5.d
+		R_S.fan_vfd_percent												:= 0;												// 5.e
+		rTime1															:= _VALVE_TIME;
+		i5Step															:= i5Step + 1;
+		
+	4:
+		bTimer1															:= TRUE;
+		IF R_S.valves_clear THEN
+			bTimer1														:= FALSE;
+			i5Step														:= i5Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= SEL(R_S.steam_control_valve_closed, gsSteamControlValveError, '');
+			sReactorError												:= SEL(R_S.dead_air_valve_clear, gsDeadAirValveError, sReactorError);
+			sReactorError												:= SEL(R_S.purge_valve_clear, gsPurgeValveError, sReactorError);
+			sReactorError												:= SEL(R_S.cooling_valve_clear, gsCoolingValveError, sReactorError);
+			sReactorError												:= SEL(R_S.steam_header_valve_clear, gsSteamHeaderValveError, sReactorError);
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+
+	5:
+		R_S.open_repres_valves											:= TRUE;											// 6
+		rTime1															:= _VALVE_TIME;
+		i5Step															:= i5Step + 1;
+
+	6:
+		bTimer1															:= TRUE;
+		IF R_S.repres_valve_error = '' THEN
+			bTimer1														:= FALSE;
+			R_S.co2_outside_sensors_on									:= TRUE;											// 7
+			R_S.open_all_doors											:= TRUE;											// 8
+			Cycle_Stage													:= 'adsorption.open_doors';							// 8.a
+			rTime1														:= m01.SP_doorsopenclose_timedelay * _MINUTES;		// 8.b
+			i5Step														:= i5Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= R_S.repres_valve_error;
+			sMessage													:= gsProcessCannotRun;
+		END_IF
+							
+	7:
+		bTimer1															:= TRUE;
+		IF R_S.all_doors_open THEN
+			bTimer1														:= FALSE;
+			R_S.fan_vfd_percent											:= Fan_setpoint;									// 9
+			Cycle_Stage													:= 'adsorption.turn_on_fans';						// 9.a
+			rSP1														:= m01.SP_unacceptable_duration_from_adsorption_start_until_sorbent_cool * _MINUTES;	// 10.c
+			rSP2														:= m01.SP_undesirable_duration_from_adsorption_start_until_sorbent_cool * _MINUTES;		// 10.b
+			rSP3														:= m01.SP_target_duration_from_adsorption_start_until_sorbent_cool * _MINUTES;			// 10.a
+			i5Step														:= i5Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= gsDoorsNotOpenError;
+			sMessage													:= gsProcessCannotRun;
+		END_IF
+		
+	8:
+		rTime															:= TIME_TO_REAL(tonTimer2.ET);
+		IF rTime >= rSP1 THEN																								// 10.c
+			IF R_S.inlet_air_high_temp_count = 0 THEN																		// 10.c.i
+				sPauseError												:= gsAdsorptionUnacceptableTimeError;
+				sMessage												:= gsReactorSetWillPause;												
+			ELSE
+				sSafeShutdownError1										:= gsAdsorptionTimeOutError;						// 10.c.ii - Safe Shutdown 1
+			END_IF
+		ELSIF rTime >= rSP2 THEN																							// 10.b
+			IF R_S.inlet_air_high_temp_count = 0 THEN
+				sError													:= gsAdsorptionAcceptableButNotIdealTimeError;																
+				i5Step													:= i5Step + 1;
+			END_IF
+		ELSIF rTime >= rSP3 THEN																							// 10.c
+			IF R_S.inlet_air_high_temp_count = 0 THEN																	
+				i5Step													:= i5Step + 1;
+			END_IF
+		END_IF
+
+	9:
+		R_S.co2_inside_sensors_on										:= TRUE;											// 11
+		Cycle_Stage														:= 'adsorption.adsorption';							// 11.a
+		i5Step 															:= i5Step + 1;
+		
+	10:
+		IF tonTimer2.Q THEN																									// 12
+			bTimer2														:= FALSE;
+			R_S.fan_vfd_percent											:= 0;
+			Cycle_Stage													:= 'adsorption.turn_off_fans';						// 12.a
+			rTime1														:= _FAN_SHUTDOWN_TIME;
+			i5Step														:= i5Step + 1;
+		END_IF
+
+	11:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;	
+			R_S.close_all_doors											:= TRUE;											// 13
+			Cycle_Stage													:= 'adsorption.close_doors';						// 13.a
+			rTime1														:= m01.SP_doorsopenclose_timedelay * _MINUTES;										// 13.b
+			i5Step														:= i5Step + 1;
+		END_IF
+		
+	12:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			R_S.co2_sensors_off											:= TRUE;											// 14
+			rTime1														:= m01.SP_dead_time_in_cycle_duration;				// 15
+			Cycle_Stage													:= 'adsorption.cycle_dead_time';					// 15.a
+			i5Step														:= i5Step + 1;
+		END_IF
+		
+	13:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i5Step														:= 99;
+		END_IF
+				
+	80:																														// Manual process closing
+		Cycle_Stage														:= 'adsorption.stopping';
+		R_S.fan_vfd_percent												:= 0;
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.close_repres_valves											:= TRUE;
+		rTime1															:= _STOPPING_TIME;
+		i5Step															:= i5Step + 1;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i5Step														:= 99;
+		END_IF
+		
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'adsorption.stopping';
+		R_S.fan_vfd_percent												:= 0;
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.close_repres_valves											:= TRUE;
+		rTime1															:= _STOPPING_TIME;
+		i5Step															:= i5Step + 1;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i5Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i5Step															:= 98;
+		
+	99:
+		bAdsorptionDone													:= TRUE;
+		bTimer2															:= FALSE;
+		U.drainage_on													:= FALSE;
+		Current_Step													:= 0;
+		i5Step															:= 0;
+	
+END_CASE
+
+IF i5Step > 0 AND i5Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF sSafeShutdownError1 <> '' AND giSafeShutdown1RS = 0 THEN
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF (giEvacuationErrorRS + giDesorptionErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN
+			Cancel_Reactor_Set											:= TRUE;
+		ELSIF U.os_air_unsafe_temp THEN
+			Stop_Reactor_Set											:= TRUE;
+		END_IF
+	END_IF
+	iStep																:= i5Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i5Step																:= iStep;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A5_Adsorption_Test" Id="{b320dbf0-895a-4407-bdf8-77442686e4f4}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A5_Adsorption_Test
+// Rev 1.0 - June 3, 2024
+
+CASE i5Step OF	
+
+	0:	;
+		
+	1:
+		Cycle_Stage														:= 'adsorption.initialize';							// 2.d
+		//iRestartStep													:= 1;
+		rTime2															:= m01.SP_adsorption_duration * _MINUTES;			// 12
+		IF R_S.reactor_pressure_error <> '' THEN
+			sReactorError												:= R_S.reactor_pressure_error;
+			sMessage													:= gsProcessCannotRun;
+		ELSE
+			R_S.retract_all_clamps 										:= TRUE;
+			rTime1														:= m01.SP_clampsretract_timedelay;
+			i5Step														:= i5Step + 1;
+		END_IF
+			
+	2:
+		IF NOT bMultiProcess THEN
+			IF R_S.average_reactor_pressure_within_ambient THEN																// 2.c
+				sReactorError											:= gsReactorsAtAmbientPressure;
+				sMessage												:= gsProcessComplete;
+			ELSE
+				i5Step													:= i5Step + 1;
+			END_IF
+		ELSE
+			i5Step														:= i5Step + 1;
+		END_IF
+
+	3:
+		bTimer1															:= TRUE;
+		IF R_S.all_clamps_retracted THEN																					// 2.a
+			bTimer1														:= FALSE;
+			i5Step														:= i5Step + 1;
+		ELSE
+			sReactorError												:= gsDoorClampsExtendedError;
+			sMessage													:= gsProcessCannotRun;
+		END_IF
+		
+	4:
+		R_S.close_all_valves											:= TRUE;											// 5.b
+		U.drainage_on													:= TRUE;											// 5.d
+		R_S.fan_vfd_percent												:= 0;												// 5.e
+		rTime1															:= _VALVE_TIME;
+		i5Step															:= i5Step + 1;
+		
+	5:
+		bTimer1															:= TRUE;
+		IF R_S.valves_clear THEN
+			bTimer1														:= FALSE;
+			i5Step														:= i5Step + 2;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= SEL(R_S.steam_control_valve_closed, gsSteamControlValveError, '');
+			sReactorError												:= SEL(R_S.dead_air_valve_clear, gsDeadAirValveError, sReactorError);
+			sReactorError												:= SEL(R_S.purge_valve_clear, gsPurgeValveError, sReactorError);
+			sReactorError												:= SEL(R_S.cooling_valve_clear, gsCoolingValveError, sReactorError);
+			sReactorError												:= SEL(R_S.steam_header_valve_clear, gsSteamHeaderValveError, sReactorError);
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+
+	6:
+		R_S.open_repres_valves											:= TRUE;											// 6
+		rTime1															:= _VALVE_TIME;
+		i5Step															:= i5Step + 1;
+
+	7:
+		bTimer1															:= TRUE;
+		IF R_S.repres_valve_error = '' THEN
+			bTimer1														:= FALSE;
+			R_S.co2_inside_sensors_on									:= TRUE;											// 7
+			R_S.open_all_doors											:= TRUE;											// 8
+			Cycle_Stage													:= 'adsorption.open_doors';							// 8.a
+			rTime1														:= m01.SP_doorsopenclose_timedelay * _MINUTES;		// 8.b
+			i5Step														:= i5Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= R_S.repres_valve_error;
+			sMessage													:= gsProcessCannotRun;
+		END_IF
+							
+	8:
+		bTimer1															:= TRUE;
+		//IF R_S.all_doors_open THEN
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			R_S.close_repres_valves										:= TRUE;		
+			R_S.fan_vfd_percent											:= Fan_setpoint;									// 9
+			Cycle_Stage													:= 'adsorption.turn_on_fans';						// 9.a
+		
+			i5Step														:= i5Step + 1;
+		END_IF
+		
+	9:
+		IF R_S.sorbent_high_temp <=  m01.SP_adsorption_sorbent_hightemp_startco2analyzer THEN 
+				i5Step														:= i5Step + 1;
+		END_IF
+
+	10:
+		//R_S.co2_inside_sensors_on										:= TRUE;											// 11
+		bTimer2															:= TRUE;	
+		Cycle_Stage														:= 'adsorption.adsorption';							// 11.a
+		IF R_S.R1_outlet_co2 >= m01.SP_adsorption_outletco2_highlimit AND tonTimer2.Q THEN
+			bTimer2															:= FALSE;	
+			i5Step 															:= i5Step + 1;
+		END_IF
+		
+	11:
+		
+		R_S.fan_vfd_percent											:= 0;
+		Cycle_Stage													:= 'adsorption.turn_off_fans';						// 12.a
+		rTime1														:= _FAN_SHUTDOWN_TIME;
+		i5Step														:= i5Step + 1;
+	
+
+	12:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;	
+			R_S.close_all_doors											:= TRUE;											// 13
+			Cycle_Stage													:= 'adsorption.close_doors';						// 13.a
+			rTime1														:= m01.SP_doorsopenclose_timedelay * _MINUTES;										// 13.b
+			i5Step														:= i5Step + 1;
+		END_IF
+		
+	13:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			R_S.co2_sensors_off											:= TRUE;											// 14
+			rTime1														:= m01.SP_dead_time_in_cycle_duration;				// 15
+			Cycle_Stage													:= 'adsorption.cycle_dead_time';					// 15.a
+			i5Step														:= i5Step + 1;
+		END_IF
+		
+	14:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i5Step														:= 99;
+		END_IF
+				
+	80:																														// Manual process closing
+		Cycle_Stage														:= 'adsorption.stopping';
+		R_S.fan_vfd_percent												:= 0;
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.close_repres_valves											:= TRUE;
+		rTime1															:= _STOPPING_TIME;
+		i5Step															:= i5Step + 1;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i5Step														:= 99;
+		END_IF
+		
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'adsorption.stopping';
+		R_S.fan_vfd_percent												:= 0;
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.close_repres_valves											:= TRUE;
+		rTime1															:= _STOPPING_TIME;
+		i5Step															:= i5Step + 1;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i5Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i5Step															:= 98;
+		
+	99:
+		bAdsorptionDone													:= TRUE;
+		//bTimer2															:= FALSE;
+		U.drainage_on													:= FALSE;
+		Current_Step													:= 0;
+		i5Step															:= 0;
+	
+END_CASE
+
+IF i5Step > 0 AND i5Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF sSafeShutdownError1 <> '' AND giSafeShutdown1RS = 0 THEN
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF (giEvacuationErrorRS + giDesorptionErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN
+			Cancel_Reactor_Set											:= TRUE;
+		ELSIF U.os_air_unsafe_temp THEN
+			Stop_Reactor_Set											:= TRUE;
+		END_IF
+	END_IF
+	iStep																:= i5Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i5Step																:= iStep;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A5_Adsorption_Test_Auto" Id="{7fb8031a-7fe0-460a-9991-2ce1a25466f4}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A5_Adsorption_Test
+// Rev 1.0 - June 3, 2024
+
+CASE i5Step OF	
+
+	0:	;
+		
+	1:
+		Cycle_Stage														:= 'adsorption.initialize';							// 2.d
+		//iRestartStep													:= 1;
+		rTime1														:= 5 * _SECONDS;
+		i5Step														:= i5Step + 1;
+		
+			
+	2:
+		bTimer1 := TRUE;
+		IF sita_bits[3].1 THEN 
+			bTimer1 := FALSE;
+			i5Step := 90;
+		ELSIF tonTimer1.Q AND  sita_bits[3].2 THEN 
+			bTimer1														:= FALSE;
+			sReactorError												:= 'Adsorption Error';
+			sMessage													:= 'Auto Test';
+		END_IF
+
+	
+	80:																														// Manual process closing
+		Cycle_Stage														:= 'adsorption.stopping';
+		rTime1															:= _STOPPING_TIME;
+		i5Step															:= i5Step + 1;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i5Step														:= 99;
+		END_IF
+		
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'adsorption.stopping';
+		rTime1															:= _STOPPING_TIME;
+		i5Step															:= i5Step + 1;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i5Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i5Step															:= 98;
+		
+	99:
+		bAdsorptionDone													:= TRUE;
+		//bTimer2															:= FALSE;
+		U.drainage_on													:= FALSE;
+		Current_Step													:= 0;
+		i5Step															:= 0;
+	
+END_CASE
+
+IF i5Step > 0 AND i5Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF sSafeShutdownError1 <> '' AND giSafeShutdown1RS = 0 THEN
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF (giEvacuationErrorRS + giDesorptionErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN
+			Cancel_Reactor_Set											:= TRUE;
+		ELSIF U.os_air_unsafe_temp THEN
+			Stop_Reactor_Set											:= TRUE;
+		END_IF
+	END_IF
+	iStep																:= i5Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i5Step																:= iStep;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A6_Evacuation" Id="{cd508d62-bd0f-400f-86db-e7e2eaa9a6dc}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_State_Machine.A6_Evacuation
+// Rev 1.0 - May 13, 2024
+
+CASE i6Step OF
+	
+	0:	;
+	
+	1:
+		Cycle_Stage														:= 'evacuation.initialize';							// 1.a
+		iRestartStep													:= 1;
+		rTime2															:= m01.SP_evacuation_duration;
+		IF U.utility_error <> '' THEN																						// 2
+			sUtilityError												:= U.utility_error;
+			sMessage													:= gsSystemCannotRun;
+		ELSIF R_S.reactor_pressure_error <> '' THEN
+			sReactorError												:= R_S.reactor_pressure_error;
+			sMessage													:= gsReactorSetCannotRun;
+		ELSE
+			R_S.close_all_doors											:= TRUE;
+			rTime1														:= m01.SP_doorsopenclose_timedelay * _MINUTES;
+			i6Step														:= i6Step + 1;
+		END_IF
+		
+	2:
+		bTimer1															:= TRUE;
+		IF R_S.all_doors_closed THEN																						// 1.c.ii
+			bTimer1														:= FALSE;
+			R_S.close_all_valves										:= TRUE;											// 4.a
+			rTime1														:= _VALVE_TIME; 
+			i6Step														:= i6Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= gsDoorsNotClosedError;
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+
+	3:
+		bTimer1															:= TRUE;
+		bTimer2															:= TRUE;											// 3
+		IF R_S.valves_clear THEN
+			bTimer1														:= FALSE;
+			U.product_vacuum_backfeed_valve								:= _OPEN;											// 4.a.ii
+			rTime1														:= _VALVE_TIME; 
+			i6Step														:= i6Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= SEL(R_S.steam_control_valve_closed, gsSteamControlValveError, '');
+			sReactorError												:= SEL(R_S.dead_air_valve_clear, gsDeadAirValveError, sReactorError);
+			sReactorError												:= SEL(R_S.purge_valve_clear, gsPurgeValveError, sReactorError);
+			sReactorError												:= SEL(R_S.cooling_valve_clear, gsCoolingValveError, sReactorError);
+			sReactorError												:= SEL(R_S.steam_header_valve_clear, gsSteamHeaderValveError, sReactorError);
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+
+	4:
+		bTimer1															:= TRUE;
+		IF U.product_vacuum_backfeed_valve_open THEN
+			bTimer1														:= FALSE;
+			U.drainage_on												:= TRUE;											// 4.c
+			R_S.co2_outside_sensors_on									:= TRUE;											// 5
+			R_S.close_repres_valves										:= TRUE;											// 6
+			rTime1														:= _VALVE_TIME; 
+			i6Step														:= i6Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sUtilityError												:= gsProductVacuumBackfeedValveError;
+			sMessage													:= gsSystemCannotRun;
+		END_IF
+			
+	5:		
+		bTimer1															:= TRUE;	
+		IF R_S.repres_valve_error = '' THEN
+			bTimer1														:= FALSE;
+			R_S.extend_all_clamps										:= TRUE;											// 7
+			U.dead_air_vacuum_pump										:= TRUE;											// 8
+			Cycle_Stage													:= 'evacuation.evacuate_lines';						// 8.a
+			i6Step														:= i6Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= R_S.repres_valve_error;
+			sMessage													:= gsProcessCannotRun;
+		END_IF
+		
+	6:
+		IF U.dead_air_line_pres < m01.SP_evacuation_unacceptable_pressure THEN												// 9
+			R_S.dead_air_valve											:= TRUE;											// 9.a
+			Cycle_Stage													:= 'evacuation.evacuation';							// 10
+			i6Step														:= i6Step + 1;			
+		ELSIF tonTimer2.Q OR U.dead_air_line_pres_error THEN																// 9.b
+			bTimer2														:= FALSE;
+			sReactorError												:= gsUnableToEvacuateLinesError;					// Raise error & stop reactor set				
+			sMessage													:= gsSystemWillStop;
+			bEvacuationRSError											:= TRUE;											// Stop evacuation for all reactor sets in evacuation. Allow other reactor sets to complete their current cycle.
+		END_IF
+		 
+	7:
+		IF tonTimer2.Q THEN																									// 11
+			bTimer2														:= FALSE;											// 14
+			iStatus														:= F_LowMidHigh(R_S.average_reactor_pressure, m01.SP_evacuation_ideal_pressure, m01.SP_evacuation_unacceptable_pressure, 0);
+			IF iStatus = eLow THEN																							// 11.a
+				i6Step													:= i6Step + 1;
+			ELSIF iStatus = eMid THEN																						// 11.b
+				sError													:= gsVacuumPressureAcceptableBotNotIdealError;
+				sMessage												:= gsProcessWillContinue;
+				i6Step													:= i6Step + 1;
+			ELSE																											// 11.c
+				sReactorError											:= gsInsufficientVacuumPressureError;
+				sMessage												:= gsReactorSetWillPause;
+			END_IF
+		END_IF
+	
+	8:
+		R_S.dead_air_valve												:= FALSE;											// 12
+		U.dead_air_vacuum_pump											:= FALSE;											// 13
+		IF R_S.all_clamps_extended THEN																						// 15
+			i6Step														:= i6Step + 1;
+		ELSE
+			sReactorError												:= gsClampExtendError;
+			sMessage													:= gsProcessCannotContinue;
+		END_IF
+
+	9:
+		Cycle_Stage														:= 'evacuation.leak_check';							// 16
+		rTime2															:= m01.SP_leak_test_duration;						// 17
+		rR1SavedPressure												:= R_S.R1_reactor_pres;
+		rR2SavedPressure												:= R_S.R2_reactor_pres;
+		rR3SavedPressure												:= R_S.R3_reactor_pres;
+		rR4SavedPressure												:= R_S.R4_reactor_pres;
+		i6Step															:= i6Step + 1;
+
+	10:
+		bTimer2															:= TRUE;
+		IF tonTimer2.Q THEN																									// 18
+			bTimer2														:= FALSE;
+			rR1SavedPressure											:= R_S.R1_reactor_pres - rR1SavedPressure;
+			rR2SavedPressure											:= R_S.R2_reactor_pres - rR2SavedPressure;
+			rR3SavedPressure											:= R_S.R3_reactor_pres - rR3SavedPressure;
+			rR4SavedPressure											:= R_S.R4_reactor_pres - rR4SavedPressure;
+			rSP1														:= m01.SP_target_pressure_change;
+			rSP2														:= m01.SP_unacceptable_pressure_change;
+			iR1Leakage													:= F_LowMidHigh(rR1SavedPressure, rSP1, rSP2, 0);
+			iR2Leakage													:= F_LowMidHigh(rR2SavedPressure, rSP1, rSP2, 0);
+			iR3Leakage													:= F_LowMidHigh(rR3SavedPressure, rSP1, rSP2, 0);
+			iR4Leakage													:= F_LowMidHigh(rR4SavedPressure, rSP1, rSP2, 0);
+			sLeakageAcceptable											:= SEL(iR1Leakage = 1, '', 'R1 ');
+			sLeakageAcceptable											:= SEL(iR2Leakage = 1, sLeakageAcceptable, CONCAT(sLeakageAcceptable, 'R2 '));
+			sLeakageAcceptable											:= SEL(iR3Leakage = 1, sLeakageAcceptable, CONCAT(sLeakageAcceptable, 'R3 '));
+			sLeakageAcceptable											:= SEL(iR4Leakage = 1, sLeakageAcceptable, CONCAT(sLeakageAcceptable, 'R4 '));
+			sLeakageUnacceptable										:= SEL(iR1Leakage = 2, '', 'R1 ');
+			sLeakageUnacceptable										:= SEL(iR2Leakage = 2, sLeakageUnacceptable, CONCAT(sLeakageUnacceptable, 'R2 '));
+			sLeakageUnacceptable										:= SEL(iR3Leakage = 2, sLeakageUnacceptable, CONCAT(sLeakageUnacceptable, 'R3 '));
+			sLeakageUnacceptable										:= SEL(iR4Leakage = 2, sLeakageUnacceptable, CONCAT(sLeakageUnacceptable, 'R4 '));
+			IF sLeakageUnacceptable = '' THEN
+				R_S.vacuum_holding										:= TRUE;											// 18.a.i
+				R_S.co2_sensors_off										:= TRUE;											// 19
+				IF sLeakageAcceptable <> '' THEN
+					sError												:= CONCAT(sLeakageAcceptable, gsVacuumPressureAcceptableBotNotIdealError);		// 18.b.i
+					sMessage											:= gsReactorSetWillContinue;
+				END_IF																										// else 18.a
+				i6Step													:= 99;
+			ELSE
+				R_S.vacuum_holding										:= FALSE;											// 18.c.ii
+				sReactorError											:= CONCAT(sLeakageUnacceptable, gsVacuumPressureUnacceptableError);				// 18.c.i
+				sMessage												:= gsReactorSetWillPause;
+			END_IF
+		END_IF			
+		
+	80:																														// Stop process
+		Cycle_Stage														:= 'evacuation.stopping';
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.dead_air_valve												:= FALSE;
+		U.dead_air_vacuum_pump											:= FALSE;
+		U.product_vacuum_backfeed_valve									:= _CLOSED;
+		rTime1															:= _STOPPING_TIME;
+		i6Step															:= i6Step + 1;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i6Step														:= 99;
+		END_IF
+
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'evacuation.stopping';
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.dead_air_valve												:= FALSE;
+		U.dead_air_vacuum_pump											:= FALSE;
+		U.product_vacuum_backfeed_valve									:= _CLOSED;
+		rTime1															:= _STOPPING_TIME;
+		i6Step															:= i6Step + 1;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i6Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i6Step															:= 98;
+		
+	99:
+		IF bStopAfterEvacuation THEN
+			bStop														:= TRUE;
+			Stop_M01_RS													:= TRUE;											// Stop Reactor in P_M01.A_AutoMode
+			bStopAfterEvacuation										:= FALSE;
+		END_IF
+		bEvacuationDone													:= TRUE;
+		U.drainage_on													:= FALSE;
+		Current_Step													:= 0;
+		i6Step															:= 0;
+	
+END_CASE
+
+IF i6Step > 0 AND i6Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF bEvacuationRSError AND giEvacuationErrorRS = 0 THEN															// Error occured in this reactor set
+			bEvacuationRSError											:= FALSE;
+			giEvacuationErrorRS											:= RS_Number;										// Save reactor set number to handle error in other reactor sets
+		ELSIF giDesorptionErrorRS > 0 THEN
+			bStopAfterEvacuation										:= TRUE;
+		ELSIF U.os_air_unsafe_temp OR (giEvacuationErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN 
+			Stop_Reactor_Set											:= TRUE;
+		END_IF
+	END_IF
+	iStep																:= i6Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i6Step																:= iStep;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A6_Evacuation_Test" Id="{f61283cf-bd53-411a-b295-99a0bade7a7d}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_State_Machine.A6_Evacuation_Test
+// Rev 1.0 - June 3, 2024
+
+CASE i6Step OF
+	
+	0:	;
+	
+	1:
+		Cycle_Stage														:= 'evacuation.initialize';							// 1.a
+		iRestartStep													:= 1;
+		rTime2															:= m01.SP_evacuation_duration;
+		IF U.utility_error <> '' THEN																						// 2
+			sUtilityError												:= U.utility_error;
+			sMessage													:= gsSystemCannotRun;
+		ELSIF R_S.reactor_pressure_error <> '' THEN
+			sReactorError												:= R_S.reactor_pressure_error;
+			sMessage													:= gsReactorSetCannotRun;
+		ELSE
+			R_S.close_all_doors											:= TRUE;
+			rTime1														:= m01.SP_doorsopenclose_timedelay * _MINUTES;
+			i6Step														:= i6Step + 1;
+		END_IF
+		
+	2:
+		bTimer1															:= TRUE;
+		//IF R_S.all_doors_closed THEN
+		IF NOT R_S.all_doors_open THEN																						// 1.c.ii
+			bTimer1														:= FALSE;
+			R_S.close_all_valves										:= TRUE;											// 4.a
+			rTime1														:= _VALVE_TIME; 
+			i6Step														:= i6Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= gsDoorsNotClosedError;
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+
+	3:
+		bTimer1															:= TRUE;
+		bTimer2															:= TRUE;											// 3
+		IF R_S.valves_clear THEN
+			bTimer1														:= FALSE;
+			//U.product_vacuum_backfeed_valve								:= _OPEN;											// 4.a.ii
+			//rTime1														:= _VALVE_TIME; 
+			i6Step														:= i6Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= SEL(R_S.steam_control_valve_closed, gsSteamControlValveError, '');
+			sReactorError												:= SEL(R_S.dead_air_valve_clear, gsDeadAirValveError, sReactorError);
+			sReactorError												:= SEL(R_S.purge_valve_clear, gsPurgeValveError, sReactorError);
+			sReactorError												:= SEL(R_S.cooling_valve_clear, gsCoolingValveError, sReactorError);
+			sReactorError												:= SEL(R_S.steam_header_valve_clear, gsSteamHeaderValveError, sReactorError);
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+
+	4:
+		//bTimer1															:= TRUE;
+		//IF U.product_vacuum_backfeed_valve_open THEN
+			//bTimer1														:= FALSE;
+			//U.drainage_on												:= TRUE;											// 4.c
+			R_S.co2_outside_sensors_on									:= TRUE;											// 5
+			R_S.close_repres_valves										:= TRUE;											// 6
+			rTime1														:= _VALVE_TIME; 
+			i6Step														:= i6Step + 1;
+		//ELSIF tonTimer1.Q THEN
+			//bTimer1														:= FALSE;
+			//sUtilityError												:= gsSystemCannotRun;
+		//END_IF
+			
+	5:		
+		bTimer1															:= TRUE;	
+		IF R_S.repres_valve_error = '' THEN
+			bTimer1														:= FALSE;
+			R_S.extend_all_clamps										:= TRUE;											// 7
+			U.dead_air_vacuum_pump										:= TRUE;											// 8
+			R_S.dead_air_valve											:= TRUE;											// 9.a
+			Cycle_Stage													:= 'evacuation.evacuation';							// 10
+//			Cycle_Stage													:= 'evacuation.evacuate_lines';						// 8.a
+			i6Step														:= i6Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= R_S.repres_valve_error;
+			sMessage													:= gsProcessCannotRun;
+		END_IF
+		
+	6:
+		IF U.dead_air_line_pres <= m01.SP_evacuation_unacceptable_pressure THEN												// 9
+			i6Step														:= i6Step + 2;			
+		//ELSIF tonTimer2.Q OR U.dead_air_line_pres_error THEN
+		ELSIF U.dead_air_line_pres_error THEN																// 9.b
+			bTimer2														:= FALSE;
+			sReactorError												:= gsUnableToEvacuateLinesError;					// Raise error & stop reactor set				
+			sMessage													:= gsSystemWillStop;
+			bEvacuationRSError											:= TRUE;											// Stop evacuation for all reactor sets in evacuation. Allow other reactor sets to complete their current cycle.
+		END_IF
+		 
+	7:
+		IF tonTimer2.Q THEN																									// 11
+			bTimer2														:= FALSE;											// 14
+			iStatus														:= F_LowMidHigh(R_S.average_reactor_pressure, m01.SP_evacuation_ideal_pressure, m01.SP_evacuation_unacceptable_pressure, 0);
+			IF iStatus = eLow THEN																							// 11.a
+				i6Step													:= i6Step + 1;
+			ELSIF iStatus = eMid THEN																						// 11.b
+				sError													:= gsVacuumPressureAcceptableBotNotIdealError;
+				sMessage												:= gsProcessWillContinue;
+				i6Step													:= i6Step + 1;
+			ELSE																											// 11.c
+				sReactorError											:= gsInsufficientVacuumPressureError;
+				sMessage												:= gsReactorSetWillPause;
+			END_IF
+		END_IF
+	
+	8:
+		R_S.dead_air_valve												:= FALSE;											// 12
+		U.dead_air_vacuum_pump											:= FALSE;											// 13
+		i6Step															:= 99;
+//		IF R_S.all_clamps_extended THEN																						// 15
+//			i6Step														:= 99;
+//		ELSE
+//			sReactorError												:= gsClampExtendError;
+//			sMessage													:= gsProcessCannotContinue;
+//		END_IF
+
+	9:
+		Cycle_Stage														:= 'evacuation.leak_check';							// 16
+		rTime2															:= m01.SP_leak_test_duration;						// 17
+		rR1SavedPressure												:= R_S.R1_reactor_pres;
+		rR2SavedPressure												:= R_S.R2_reactor_pres;
+		rR3SavedPressure												:= R_S.R3_reactor_pres;
+		rR4SavedPressure												:= R_S.R4_reactor_pres;
+		i6Step															:= i6Step + 1;
+
+	10:
+		bTimer2															:= TRUE;
+		IF tonTimer2.Q THEN																									// 18
+			bTimer2														:= FALSE;
+			rR1SavedPressure											:= R_S.R1_reactor_pres - rR1SavedPressure;
+			rR2SavedPressure											:= R_S.R2_reactor_pres - rR2SavedPressure;
+			rR3SavedPressure											:= R_S.R3_reactor_pres - rR3SavedPressure;
+			rR4SavedPressure											:= R_S.R4_reactor_pres - rR4SavedPressure;
+			rSP1														:= m01.SP_target_pressure_change;
+			rSP2														:= m01.SP_unacceptable_pressure_change;
+			iR1Leakage													:= F_LowMidHigh(rR1SavedPressure, rSP1, rSP2, 0);
+			iR2Leakage													:= F_LowMidHigh(rR2SavedPressure, rSP1, rSP2, 0);
+			iR3Leakage													:= F_LowMidHigh(rR3SavedPressure, rSP1, rSP2, 0);
+			iR4Leakage													:= F_LowMidHigh(rR4SavedPressure, rSP1, rSP2, 0);
+			sLeakageAcceptable											:= SEL(iR1Leakage = 1, '', 'R1 ');
+			sLeakageAcceptable											:= SEL(iR2Leakage = 1, sLeakageAcceptable, CONCAT(sLeakageAcceptable, 'R2 '));
+			sLeakageAcceptable											:= SEL(iR3Leakage = 1, sLeakageAcceptable, CONCAT(sLeakageAcceptable, 'R3 '));
+			sLeakageAcceptable											:= SEL(iR4Leakage = 1, sLeakageAcceptable, CONCAT(sLeakageAcceptable, 'R4 '));
+			sLeakageUnacceptable										:= SEL(iR1Leakage = 2, '', 'R1 ');
+			sLeakageUnacceptable										:= SEL(iR2Leakage = 2, sLeakageUnacceptable, CONCAT(sLeakageUnacceptable, 'R2 '));
+			sLeakageUnacceptable										:= SEL(iR3Leakage = 2, sLeakageUnacceptable, CONCAT(sLeakageUnacceptable, 'R3 '));
+			sLeakageUnacceptable										:= SEL(iR4Leakage = 2, sLeakageUnacceptable, CONCAT(sLeakageUnacceptable, 'R4 '));
+			IF sLeakageUnacceptable = '' THEN
+				R_S.vacuum_holding										:= TRUE;											// 18.a.i
+				R_S.co2_sensors_off										:= TRUE;											// 19
+				IF sLeakageAcceptable <> '' THEN
+					sError												:= CONCAT(sLeakageAcceptable, gsVacuumPressureAcceptableBotNotIdealError);		// 18.b.i
+					sMessage											:= gsReactorSetWillContinue;
+				END_IF																										// else 18.a
+				i6Step													:= 99;
+			ELSE
+				R_S.vacuum_holding										:= FALSE;											// 18.c.ii
+				sReactorError											:= CONCAT(sLeakageUnacceptable, gsVacuumPressureUnacceptableError);				// 18.c.i
+				sMessage												:= gsReactorSetWillPause;
+			END_IF
+		END_IF			
+		
+	80:																														// Stop process
+		Cycle_Stage														:= 'evacuation.stopping';
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.dead_air_valve												:= FALSE;
+		U.dead_air_vacuum_pump											:= FALSE;
+		U.product_vacuum_backfeed_valve									:= _CLOSED;
+		rTime1															:= _STOPPING_TIME;
+		i6Step															:= i6Step + 1;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i6Step														:= 99;
+		END_IF
+
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'evacuation.stopping';
+		R_S.co2_sensors_off												:= TRUE;
+		R_S.dead_air_valve												:= FALSE;
+		U.dead_air_vacuum_pump											:= FALSE;
+		U.product_vacuum_backfeed_valve									:= _CLOSED;
+		rTime1															:= _STOPPING_TIME;
+		i6Step															:= i6Step + 1;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i6Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i6Step															:= 98;
+		
+	99:
+		IF bStopAfterEvacuation THEN
+			bStop														:= TRUE;
+			Stop_M01_RS													:= TRUE;											// Stop Reactor in P_M01.A_AutoMode
+			bStopAfterEvacuation										:= FALSE;
+		END_IF
+		bEvacuationDone													:= TRUE;
+		U.drainage_on													:= FALSE;
+		Current_Step													:= 0;
+		i6Step															:= 0;
+	
+END_CASE
+
+IF i6Step > 0 AND i6Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF bEvacuationRSError AND giEvacuationErrorRS = 0 THEN															// Error occured in this reactor set
+			bEvacuationRSError											:= FALSE;
+			giEvacuationErrorRS											:= RS_Number;										// Save reactor set number to handle error in other reactor sets
+		ELSIF giDesorptionErrorRS > 0 THEN
+			bStopAfterEvacuation										:= TRUE;
+		ELSIF U.os_air_unsafe_temp OR (giEvacuationErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN 
+			Stop_Reactor_Set											:= TRUE;
+		END_IF
+	END_IF
+	iStep																:= i6Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i6Step																:= iStep;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A6_Evacuation_Test_Auto" Id="{426572ec-5413-4f00-b5c9-efa47cbb2c8d}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_State_Machine.A6_Evacuation_Test
+// Rev 1.0 - June 3, 2024
+
+CASE i6Step OF
+	
+	0:	;
+	
+	1:
+		Cycle_Stage														:= 'evacuation.initialize';							// 1.a
+		iRestartStep													:= 1;
+		rTime2															:= m01.SP_evacuation_duration;
+		IF U.utility_error <> '' THEN																						// 2
+			sUtilityError												:= U.utility_error;
+			sMessage													:= gsSystemCannotRun;
+		ELSE
+			rTime1														:= 10 * _seconds;
+			i6Step														:= i6Step + 1;
+		END_IF
+		
+	2:
+		bTimer1															:= TRUE;
+		//IF R_S.all_doors_closed THEN
+		IF sita_bits[1].1 THEN																						// 1.c.ii
+			bTimer1														:= FALSE;
+			i6Step														:= 90;
+		ELSIF tonTimer1.Q  AND sita_bits[1].2 THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= gsDoorsNotClosedError;
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+		
+	80:																														// Stop process
+		Cycle_Stage														:= 'evacuation.stopping';
+		rTime1															:= _STOPPING_TIME;
+		i6Step															:= i6Step + 1;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i6Step														:= 99;
+		END_IF
+
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'evacuation.stopping';
+		rTime1															:= _STOPPING_TIME;
+		i6Step															:= i6Step + 1;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i6Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i6Step															:= 98;
+		
+	99:
+		bEvacuationDone													:= TRUE;
+		Current_Step													:= 0;
+		i6Step															:= 0;
+	
+END_CASE
+
+IF i6Step > 0 AND i6Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF bEvacuationRSError AND giEvacuationErrorRS = 0 THEN															// Error occured in this reactor set
+			bEvacuationRSError											:= FALSE;
+			giEvacuationErrorRS											:= RS_Number;										// Save reactor set number to handle error in other reactor sets
+		ELSIF giDesorptionErrorRS > 0 THEN
+			bStopAfterEvacuation										:= TRUE;
+		ELSIF U.os_air_unsafe_temp OR (giEvacuationErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN 
+			Stop_Reactor_Set											:= TRUE;
+		END_IF
+	END_IF
+	iStep																:= i6Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i6Step																:= iStep;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A7_Desorption" Id="{5100e4b7-74ae-4062-9ef9-c75826bb55d2}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A7_Desorption
+// Rev 1.0 - May 13, 2024
+
+CASE i7Step OF
+	
+	0:	;
+		
+	1:
+		Cycle_Stage														:= 'desorption.initialize';							// 4.a
+		bDesorptionErrorCheck											:= FALSE;
+		bSPAdjust														:= FALSE;
+		iRestartStep													:= 1;
+		iCycleCount														:= iCycleCount + 1;
+		rTime1															:= 5 * _SECONDS;
+		rTime2															:= m01.SP_steam_pressurization_and_purge_duration * _MINUTES;
+		rTime3															:= rTime2 + (m01.SP_vacuum_cooling_duration * _MINUTES);
+		IF R_S.reactor_pressure_error <> '' THEN
+			sReactorError												:= R_S.reactor_pressure_error;
+			sMessage													:= gsProcessCannotRun;
+		ELSE
+			i7Step														:= i7Step + 1;
+		END_IF
+			
+	2:
+		IF NOT bMultiProcess THEN
+			IF NOT R_S.all_clamps_extended THEN																				// 2.a
+				sReactorError											:= gsDoorClampsExtendedError;
+				sMessage												:= gsProcessCannotRun;
+			END_IF
+		ELSE
+			i7Step														:= i7Step + 1;
+		END_IF
+
+	3:
+		bTimer2															:= TRUE;											// 4 - Desorption and Purge Timer
+		bTimer3															:= TRUE;											// 5 - Desorption Purge and Evaporative Cooling Timer
+		R_S.close_all_valves											:= TRUE;											// 6.a
+		rTime1															:= _VALVE_TIME;
+		i7Step															:= i7Step + 1;
+		
+	4:
+		bTimer1															:= TRUE;
+		IF R_S.valves_clear THEN
+			bTimer1														:= FALSE;
+			U.product_vacuum_backfeed_valve								:= _OPEN;											// 6.b
+			rTime1														:= _VALVE_TIME;
+			i7Step														:= i7Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= SEL(R_S.steam_control_valve_closed, gsSteamControlValveError, '');
+			sReactorError												:= SEL(R_S.dead_air_valve_clear, gsDeadAirValveError, sReactorError);
+			sReactorError												:= SEL(R_S.purge_valve_clear, gsPurgeValveError, sReactorError); 
+			sReactorError												:= SEL(R_S.cooling_valve_clear, gsCoolingValveError, sReactorError);
+			sReactorError												:= SEL(R_S.steam_header_valve_clear, gsSteamHeaderValveError, sReactorError);
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+
+	5:
+		bTimer1															:= TRUE;
+		IF U.product_vacuum_backfeed_valve_open THEN																		// 6.a
+			bTimer1														:= FALSE;
+			i7Step														:= i7Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sUtilityError												:= gsProductVacuumBackfeedValveError;
+			sMessage													:= gsReactorSetCannotRun;
+		END_IF
+	
+	6:
+		iStatus															:= F_LowMidHigh(m01.steam_temp_near_rs1, m01.SP_module_steam_line_low_temperature, m01.SP_module_steam_line_high_temperature, 0);
+		IF NOT U.boiler_ready OR iStatus = eLow THEN																		// 7 & 8.a
+			sReactorError												:= gsBoilerError;									// Stop this reactor set (no Safe Shutdown needed)
+			bDesorptionRSError											:= TRUE;
+		ELSIF iStatus = eHigh THEN																							// 8.c
+			sSafeShutdownError2											:= gsDesorptionHighSteamLineTemp;
+		ELSE																												// 8.b
+			i7Step														:= i7Step + 1;
+		END_IF
+		
+	7:
+		iStatus															:= F_LowMidHigh(m01.steam_manifold_line_pres, m01.SP_module_steam_line_low_pressure, m01.SP_module_steam_line_high_pressure, 0);
+		IF iStatus = eLow THEN																								// 9.a
+			sReactorError												:= gsSteamPressureLowError;							// Stop this reactor set (no Safe Shutdown needed)
+			bDesorptionRSError											:= TRUE;
+		ELSIF iStatus = eHigh THEN																							// 9.c
+			sSafeShutdownError2											:= gsSteamPressureHighError;
+		ELSE																												// 9.b
+			U.drainage_on												:= TRUE;											// 10
+			U.product_vacuum_pump_vfd									:= u01.SP_product_vacuum_idle_vfd_percent;			// 11
+			i7Step														:= i7Step + 1;
+		END_IF
+		
+	8:	IF R_S.reactor_vacuum_status = eMid THEN																			// 12.b
+			sError														:= gsReactorPressureAboveDesiredLevelError;
+			sMessage													:= gsProcessWillContinue;
+		ELSIF R_S.reactor_vacuum_status = eHigh THEN																		// 12.c
+			sReactorError												:= gsReactorPressureAboveAcceptableLevelError;
+			sMessage													:= gsReactorSetWillStop;
+		ELSE																												// 12.a
+			R_S.co2_outside_sensors_on									:= TRUE;											// 13
+			i7Step														:= 20;
+		END_IF
+
+	20:																														//// 3.4.3.2 - Steam Pressurization
+		R_S.steam_header_valve											:= TRUE;											// 1
+		rTime1															:= _VALVE_TIME;
+		i7Step															:= i7Step + 1;
+		
+	21:
+		bTimer1															:= TRUE;
+		IF R_S.steam_header_valve_clear THEN
+			bTimer1														:= FALSE;											// 2
+			rIncrementalMove											:= m01.SP_initial_maximum_steam_valve_percent_open / (m01.SP_steam_pressure_control_valve_initial_opening_duration * 120);
+			rPosition													:= rIncrementalMove;
+			R_S.steam_control_valve_mode								:= eManual;
+			R_S.steam_control_valve										:= rPosition;
+			rTime1														:= _SECONDS * 0.5;									// Half second interval update
+			Cycle_Stage													:= 'desorption.pressurization.steam';				// 2.a
+			i7Step														:= i7Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sSafeShutdownError2											:= gsSteamHeaderValveError;
+		END_IF
+		
+	22:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			tonTimer1(IN:= FALSE);
+			rPosition													:= rPosition + rIncrementalMove;
+			R_S.steam_control_valve										:= rPosition;
+			IF rPosition >= m01.SP_initial_maximum_steam_valve_percent_open THEN
+				 R_S.steam_control_valve								:= m01.SP_initial_maximum_steam_valve_percent_open;
+				 bTimer1												:= FALSE;
+				 i7Step													:= i7Step + 1;
+			END_IF
+		END_IF
+	
+	23:
+		R_S.steam_control_valve_setpoint								:= m01.SP_steam_purge_pressure;						// 3
+		R_S.steam_control_valve_control_point							:= R_S.average_reactor_pressure;
+		R_S.steam_control_valve_mode									:= eAuto;
+		i7Step															:= i7Step + 1;
+
+	24:
+		IF R_S.average_reactor_pressure >= m01.SP_start_steam_purge_reactor_pressure THEN
+			i7Step														:= SEL(m01.SP_vacuum_assisted_purge, 40, 30);		// 4.a
+		ELSIF tonTimer2.Q THEN																								// 4.b
+			bTimer2														:= FALSE;
+			sError														:= gsSteamFailedToPressurizeReactorError;
+			sMessage													:= gsReactorSetWillStopAtEndOfCycle;
+			Cancel_Reactor_Set											:= TRUE;
+			i7Step														:= 50;
+		END_IF								
+
+		
+	25:																														// 2.b
+		R_S.steam_header_valve											:= FALSE;
+		R_S.steam_control_valve_mode									:= eManual;
+		R_S.steam_control_valve											:= 0;
+		u.product_condenser												:= TRUE;
+		iMaxSorbentTempErrorCount										:= iMaxSorbentTempErrorCount + 1;
+		sError															:= gsSorbentTemperatureError;
+		sMessage														:= gsReactorSetWillContinue;
+		IF iMaxSorbentTempErrorCount / iCycleCount >= 0.15 THEN
+			sMessage													:= gsReactorSetWillStopAtEndOfCycle;
+			Cancel_Reactor_Set											:= TRUE;
+		END_IF
+		i7Step															:= i7Step + 1;
+		
+	26:
+		IF tonTimer2.Q THEN
+			bTimer2														:= FALSE;
+			i7Step														:= 50;
+		END_IF
+
+	
+	27:																														// 2.c
+		R_S.steam_header_valve											:= FALSE;
+		R_S.steam_control_valve_mode									:= eManual;
+		R_S.steam_control_valve											:= 0;
+		R_S.steam_control_valve_mode									:= eManual;
+		R_S.steam_control_valve											:= 0;
+		sSafeShutdownError2												:= gsSteamPressureHighError;
+
+		
+	28:																														// 2.d
+		u.product_vacuum_pump_isolation_valve							:= FALSE;
+		R_S.purge_valve													:= FALSE;
+		R_S.cooling_valve												:= FALSE;
+		R_S.steam_header_valve											:= FALSE;
+		u.product_vacuum_pump_vfd										:= u01.SP_product_vacuum_idle_vfd_percent;
+		sSafeShutdownError2												:= gsPostCondenserLineHighTempError;
+	
+
+//// 3.4.3.3 - Vacuum Assisted Purge
+	30:																													
+		u.product_vacuum_bypass_valve									:= FALSE;											// 1.a
+		rTime1															:= _VALVE_TIME;
+		i7Step															:= i7Step + 1;
+		
+	31:
+		bTimer1															:= TRUE;
+		IF u.product_vacuum_bypass_valve_clear THEN
+			bTimer1														:= FALSE;
+			u.product_vacuum_pump_vfd									:= u01.SP_product_vacuum_running_vfd_percent;		// 1.b
+			u.product_condenser											:= TRUE;
+			u.product_vacuum_pump_isolation_valve						:= TRUE;
+			u.product_vacuum_outlet_isolation_valve						:= TRUE;
+			u.product_blower											:= TRUE;
+			u.purge_product_pre_condenser_valve							:= TRUE;
+			i7Step														:= i7Step + 1;
+		ELSIF tonTimer1.Q THEN
+			;	///@ valve error TBD
+		END_IF
+
+	32:
+		u.product_vacuum_backfeed_valve_setpoint						:= m01.SP_steam_purge_pressure;						// 2
+		u.product_vacuum_backfeed_valve_mode							:= eAuto;
+		rSP1															:= m01.SP_steam_purge_pressure;
+		rSP1															:= rSP1 - (rSP1 * m01.SP_percent_from_steam_purge_target_pressure * 0.01);
+		i7Step															:= i7Step + 1;
+		
+	33:
+		IF u.product_vacuum_pres >= rSP1 THEN																				// 3
+			R_S.purge_valve												:= TRUE;											// 3.a
+			Cycle_Stage													:= 'desorption.steam_vacuum_assisted';				// 3.b
+			i7Step														:= i7Step + 1;
+		ELSIF R_S.sorbent_high_temp > m01.SP_maximum_target_sorbent_temperature_during_purge AND NOT bSPAdjust THEN			// 2.a
+			rSP1														:= m01.SP_steam_purge_pressure - m01.SP_steam_purge_pressure_decrease;
+			u.product_vacuum_backfeed_valve_setpoint					:= rSP1;
+			rSP1														:= rSP1 - (rSP1 * m01.SP_percent_from_steam_purge_target_pressure * 0.01);
+			bSPAdjust													:= TRUE;
+		ELSIF tonTimer2.Q THEN																								// 3.c
+			bTimer2														:= FALSE;
+			sSafeShutdownError3											:= gsDesorptionPurgeLinePressureError;
+		END_IF
+		
+	34:
+		IF tonTimer2.Q THEN																									// 4
+			R_S.steam_header_valve										:= FALSE;											// 4.a
+			R_S.steam_control_valve_mode								:= eManual;											// 4.a.i
+			R_S.steam_control_valve										:= 0;
+			bTimer2														:= FALSE;											// 4.b
+			i7Step														:= 50;						
+		END_IF
+
+		
+//// 3.4.3.4 - No vacuum purge			
+	40:																														
+		u.product_vacuum_backfeed_valve_mode							:= eManual;											// 1.a
+		u.product_vacuum_backfeed_valve									:= 0;
+		u.product_condenser												:= TRUE;
+		u.product_vacuum_bypass_valve									:= TRUE;
+		u.purge_product_pre_condenser_valve								:= TRUE;
+		u.product_blower												:= TRUE;
+		i7Step															:= i7Step + 1;
+	
+	41:
+		IF u.pre_condenser_line_pres < R_S.average_reactor_pressure THEN													// 2
+			R_S.purge_valve												:= TRUE;											// 2.b
+			Cycle_Stage													:= 'desorption.steam_no_vacuum';					// 2.c
+			i7Step														:= i7Step + 1;
+		ELSIF tonTimer2.Q THEN
+			bTimer2														:= FALSE;
+			sSafeShutdownError2											:= gsDesorptionPurgeLinePressureError;
+		END_IF
+	
+	42:
+		R_S.steam_control_valve_setpoint								:= m01.SP_steam_purge_pressure;						// 3
+		R_S.steam_control_valve_control_point							:= u.product_vacuum_pres;		///@ u.pre_condenser_line_pres????
+		R_S.steam_control_valve_mode									:= eAuto;
+		i7Step															:= i7Step + 1;
+		
+	43:
+		IF tonTimer2.Q THEN																									// 4
+			R_S.steam_header_valve										:= FALSE;											// 4.a
+			R_S.steam_control_valve_mode								:= eManual;											// 4.a.i
+			R_S.steam_control_valve										:= 0;
+			bTimer2														:= FALSE;											// 4.b
+			i7Step														:= 99;						
+		END_IF
+
+
+//// 3.4.3.5 - Vacuum cooling	
+	50:
+		R_S.purge_valve													:= FALSE;											// 1.a
+		u.purge_product_pre_condenser_valve								:= FALSE;
+		u.product_vacuum_bypass_valve									:= FALSE;
+		u.product_vacuum_pump_isolation_valve							:= TRUE;
+		u.product_vacuum_backfeed_valve									:= _CLOSED;
+		u.product_vacuum_backfeed_valve_mode							:= eManual;
+		u.product_vacuum_outlet_isolation_valve							:= TRUE;
+		u.product_vacuum_pump_vfd										:= u01.SP_product_vacuum_running_vfd_percent;
+		u.cooling_line_pre_condenser_valve								:= TRUE;
+		rTime1															:= _VALVE_TIME;
+		i7Step															:= i7Step + 1;
+		
+	51:
+		bTimer1															:= TRUE;
+		bPass1															:= R_S.purge_valve_clear;
+		bPass1															:= u.purge_product_pre_condenser_valve_clear;
+		bPass3															:= u.product_vacuum_bypass_valve_clear;
+		bPass4															:= u.product_vacuum_backfeed_valve_closed;
+		bPass5															:= u.product_vacuum_outlet_isolation_valve_clear;
+		bPass6															:= u.cooling_line_pre_condenser_valve_clear;
+		IF bPass1 AND bPass2 AND bPass3 AND bPass4 AND bPass5 AND bPass6 THEN 
+			bTimer1														:= FALSE;
+			i7Step														:= i7Step + 1;
+		ELSIF tonTimer1.Q THEN
+			;	///@ Valve error
+		END_IF
+
+	52:
+		IF u.product_vacuum_pres < R_S.average_reactor_pressure THEN														///@ Timer function?
+			R_S.cooling_valve											:= TRUE;											// 1.b
+			Cycle_Stage													:= 'desorption.cooling';							// 1.c
+			i7Step														:= i7Step + 1;			
+		END_IF
+
+	53:
+		IF tonTimer3.Q THEN																									// 2
+			u.product_blower											:= FALSE;											// 3
+			u.product_vacuum_pump_isolation_valve						:= FALSE;											// 4.a
+			u.cooling_line_pre_condenser_valve							:= FALSE;
+			R_S.cooling_valve											:= FALSE;
+			u.product_vacuum_pump_vfd									:= u01.SP_product_vacuum_idle_vfd_percent;			// 5
+			u.product_vacuum_backfeed_valve								:= _OPEN;											// 5.a
+			Cycle_Stage													:= 'desorption.wrap_up';							// 5.b
+			i7Step														:= i7Step + 1;
+		END_IF
+			
+	54:
+		iStatus															:= F_LowMidHigh(R_S.average_reactor_pressure, m01.SP_vacuum_cooling_target_pressure, m01.SP_vacuum_cooling_unacceptable_pressure, 0);	// 6
+		IF iStatus = eHigh THEN																								// 6.c
+			sSafeShutdownError3											:= gsVacuumPressureUnacceptableError;
+		ELSIF iStatus = eMid THEN																							// 6.b
+			sError														:= gsVacuumCoolingAcceptableButNotIdealError;
+			sMessage													:= gsProcessWillContinue;
+		END_IF
+		i7Step															:= i7Step + 1;										// 6.a
+		
+	55:
+		R_S.retract_all_clamps											:= TRUE;
+		rTime1															:= m01.SP_clampsretract_timedelay * _MINUTES;
+		i7Step															:= i7Step + 1;
+		
+	56:
+		IF R_S.all_clamps_retracted THEN
+			bTimer1														:= FALSE;
+			bTimer2														:= FALSE;
+			bTimer3														:= FALSE;
+			R_S.co2_sensors_off											:= TRUE;
+			i7Step														:= 99;
+		ELSIF tonTimer1.Q THEN
+			sPauseError													:= gsClampRetractError;
+			sMessage													:= gsReactorSetWillStop;
+		END_IF
+		
+		
+	80:																														// Manual process closing
+		Cycle_Stage														:= 'desorption.stopping';
+		U.product_vacuum_backfeed_valve									:= _CLOSED;
+		rTime1															:= _STOPPING_TIME;
+		i7Step															:= 81;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i7Step														:= 99;
+		END_IF
+
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'desorption.stopping';
+		U.product_vacuum_backfeed_valve									:= _CLOSED;											///@ Close valves & turn off pumps
+		rTime1															:= _STOPPING_TIME;
+		i7Step															:= 91;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i7Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i7Step															:= 98;
+		
+	99:
+		IF bStopAfterDesorption THEN
+			bStop														:= TRUE;
+			Stop_M01_RS													:= TRUE;											// Stop Reactor in P_M01.A_AutoMode
+			bStopAfterDesorption										:= FALSE;
+		END_IF
+		bDesorptionDone													:= TRUE;
+		Current_Step													:= 0;
+		i7Step															:= 0;
+	
+END_CASE
+
+IF i7Step > 0 AND i7Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF bDesorptionRSError AND giDesorptionErrorRS = 0 THEN
+			bDesorptionRSError											:= FALSE;
+			giDesorptionErrorRS											:= RS_Number;
+			sMessage													:= gsReactorSetWillStopEvacWillFinishOthersWillCompleteCycle;
+		ELSIF (sSafeShutdownError2 <> '' OR sSafeShutdownError3 <> '') AND giSafeShutdown23RS = 0 THEN
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF (giDesorptionErrorRS + giSafeShutdown23RS) > 0 THEN
+			Stop_Reactor_Set											:= TRUE;
+		ELSIF (giEvacuationErrorRS + giSafeShutdown1RS) > 0 THEN
+			Cancel_Reactor_Set											:= TRUE;
+		ELSIF U.os_air_unsafe_temp THEN																							// 5.e
+			bStopAfterDesorption										:= TRUE;
+		END_IF
+		IF NOT bDesorptionErrorCheck THEN
+			IF R_S.steam_header_valve_not_closed THEN
+				IF R_S.desorption_high_temp_count > _DESORP_MAX_COUNT THEN														//3.4.3.2_2.b
+					bDesorptionErrorCheck								:= TRUE;
+					i7Step												:= 25;
+				ELSIF R_S.average_reactor_pressure > m01.SP_maximum_safe_reactor_steam_pressure THEN							//3.4.3.2_2.c
+					bDesorptionErrorCheck								:= TRUE;
+					i7Step												:= 27;
+				END_IF
+			ELSIF NOT u.product_vacuum_pump_isolation_valve_closed THEN
+				IF u.post_condenser_line_temp > u01.SP_maximum_inlet_product_vacuum_temperature THEN							//3.4.3.2_2.d
+					bDesorptionErrorCheck								:= TRUE;
+					i7Step												:= 28;
+				END_IF
+			END_IF
+		END_IF
+	END_IF
+	iStep																:= i7Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i7Step																:= iStep;
+END_IF	
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A7_Desorption_Test" Id="{64b66c6d-be92-49a7-80c1-a34cbffc87f4}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A7_Desorption_Test
+// Rev 1.0 - June 3, 2024
+
+CASE i7Step OF
+	
+	0:	;
+		
+	1:
+		Cycle_Stage														:= 'desorption.initialize';							// 4.a
+		rTime1															:= 5 * _SECONDS;
+		rTime2															:= m01.SP_steam_pressurization_and_purge_duration * _MINUTES;
+		rTime3															:= rTime2 + (m01.SP_vacuum_cooling_duration * _MINUTES);
+		IF R_S.reactor_pressure_error <> '' THEN
+			sReactorError												:= R_S.reactor_pressure_error;
+			sMessage													:= gsProcessCannotRun;
+		ELSE
+			i7Step														:= i7Step + 1;
+		END_IF
+			
+	2:
+		bTimer1															:= TRUE;
+		U.cooling_line_pre_condenser_valve								:= TRUE;
+		U.purge_product_pre_condenser_valve								:= TRUE;
+		U.product_vacuum_pump_isolation_valve 							:= TRUE;
+		U.product_vacuum_outlet_isolation_valve 						:= TRUE;
+		U.product_vacuum_backfeed_valve									:= 50;											// 6.b
+		rTime1															:= _VALVE_TIME;
+		i7Step															:= i7Step + 1;
+
+	3:
+		//bTimer1															:= TRUE;
+		IF U.purge_product_line_pres < m01.SP_start_steam_purge_reactor_pressure AND U.pre_condenser_line_pres < m01.SP_start_steam_purge_reactor_pressure THEN
+			U.steam_header_volume_total_enable							:= TRUE;
+			U.cooling_line_pre_condenser_valve							:= FALSE;
+			R_S.steam_header_valve										:= TRUE;
+			R_S.steam_control_valve										:= _OPEN;
+			i7Step														:= i7Step + 1;
+		END_IF
+		
+	4:
+		IF R_S.average_reactor_pressure >= m01.SP_maximum_target_steam_pressure THEN
+			R_S.purge_valve 											:= TRUE;
+			U.product_vacuum_pump_vfd									:= u01.SP_product_vacuum_running_vfd_percent;
+			U.product_vacuum_backfeed_valve								:= u01.SP_product_vacuum_backfeed_valve;
+			i7Step														:= i7Step + 1;
+		END_IF
+		
+	5:
+		bTimer2															:= TRUE;
+		IF (U01.SP_mass_flow_totalizer <> 0 AND U01.SP_mass_flow_totalizer >= u01.steam_header_volume_total) OR tonTimer2.Q THEN
+			bTimer2														:= FALSE;
+			i7Step														:= i7Step + 1;
+		END_IF
+	
+	6:
+		R_S.steam_header_valve											:= FALSE;
+		R_S.purge_valve													:= FALSE;
+		R_S.steam_control_valve											:= _CLOSED;
+		U.product_vacuum_backfeed_valve									:= _CLOSED;
+		U.cooling_line_pre_condenser_valve								:= FALSE;
+		U.purge_product_pre_condenser_valve								:= FALSE;
+		U.product_vacuum_pump_vfd										:= 100;
+		U.product_blower_vfd											:= 100;
+		R_S.cooling_valve												:= TRUE;
+		i7Step															:= i7Step + 1;
+		
+	7:
+		IF R_S.sorbent_high_temp <= 58 THEN
+			R_S.cooling_valve											:= FALSE;
+			U.product_vacuum_backfeed_valve								:= 50;
+			U.product_vacuum_pump_vfd									:= 50;
+			u.product_blower_vfd										:= 0;
+			i7Step														:= 99;
+		END_IF
+		
+	80:																														// Manual process closing
+		Cycle_Stage														:= 'desorption.stopping';
+		U.product_vacuum_backfeed_valve									:= _CLOSED;
+		rTime1															:= _STOPPING_TIME;
+		i7Step															:= 81;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i7Step														:= 99;
+		END_IF
+
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'desorption.stopping';
+		U.product_vacuum_backfeed_valve									:= _CLOSED;											///@ Close valves & turn off pumps
+		rTime1															:= _STOPPING_TIME;
+		i7Step															:= 91;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i7Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i7Step															:= 98;
+		
+	99:
+		IF bStopAfterDesorption THEN
+			bStop														:= TRUE;
+			Stop_M01_RS													:= TRUE;											// Stop Reactor in P_M01.A_AutoMode
+			bStopAfterDesorption										:= FALSE;
+		END_IF
+		bDesorptionDone													:= TRUE;
+		U.steam_header_volume_total_enable								:= FALSE;
+		Current_Step													:= 0;
+		i7Step															:= 0;
+	
+END_CASE
+
+IF i7Step > 0 AND i7Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF bDesorptionRSError AND giDesorptionErrorRS = 0 THEN
+			bDesorptionRSError											:= FALSE;
+			giDesorptionErrorRS											:= RS_Number;
+			sMessage													:= gsReactorSetWillStopEvacWillFinishOthersWillCompleteCycle;
+		ELSIF (sSafeShutdownError2 <> '' OR sSafeShutdownError3 <> '') AND giSafeShutdown23RS = 0 THEN
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF (giDesorptionErrorRS + giSafeShutdown23RS) > 0 THEN
+			Stop_Reactor_Set											:= TRUE;
+		ELSIF (giEvacuationErrorRS + giSafeShutdown1RS) > 0 THEN
+			Cancel_Reactor_Set											:= TRUE;
+		ELSIF U.os_air_unsafe_temp THEN																							// 5.e
+			bStopAfterDesorption										:= TRUE;
+		END_IF
+		IF NOT bDesorptionErrorCheck THEN
+			IF R_S.steam_header_valve_not_closed THEN
+				IF R_S.desorption_high_temp_count > _DESORP_MAX_COUNT THEN														//3.4.3.2_2.b
+					bDesorptionErrorCheck								:= TRUE;
+					i7Step												:= 25;
+				ELSIF R_S.average_reactor_pressure > m01.SP_maximum_safe_reactor_steam_pressure THEN							//3.4.3.2_2.c
+					bDesorptionErrorCheck								:= TRUE;
+					i7Step												:= 27;
+				END_IF
+			ELSIF NOT u.product_vacuum_pump_isolation_valve_closed THEN
+				IF u.post_condenser_line_temp > u01.SP_maximum_inlet_product_vacuum_temperature THEN							//3.4.3.2_2.d
+					bDesorptionErrorCheck								:= TRUE;
+					i7Step												:= 28;
+				END_IF
+			END_IF
+		END_IF
+	END_IF
+	iStep																:= i7Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i7Step																:= iStep;
+END_IF	
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A7_Desorption_Test_Auto" Id="{10fe6351-b58a-4f94-86df-2ed2ccdb3398}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A7_Desorption_Test
+// Rev 1.0 - June 3, 2024
+
+CASE i7Step OF
+	
+	0:	;
+		
+	1:
+		Cycle_Stage														:= 'desorption.initialize';							// 4.a
+		rTime1															:= 5 * _SECONDS;
+		rTime2															:= m01.SP_steam_pressurization_and_purge_duration * _MINUTES;
+		rTime3															:= rTime2 + (m01.SP_vacuum_cooling_duration * _MINUTES);
+		i7Step															:= i7Step + 1;
+		
+			
+	2:
+		bTimer1															:= TRUE;
+		IF sita_bits[2].1 THEN 
+			bTimer1														:= FALSE;
+			i7Step														:= 90;
+		ELSIF tonTimer1.Q AND  sita_bits[2].2 THEN 
+			bTimer1														:= FALSE;
+			sReactorError												:= 'Desorption Error';
+			sMessage													:= 'Auto Test';
+		END_IF
+
+	
+		
+	80:																														// Manual process closing
+		Cycle_Stage														:= 'desorption.stopping';
+		U.product_vacuum_backfeed_valve									:= _CLOSED;
+		rTime1															:= _STOPPING_TIME;
+		i7Step															:= 81;
+		
+	81:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i7Step														:= 99;
+		END_IF
+
+	90:																														// Automatic process stopping
+		Cycle_Stage														:= 'desorption.stopping';
+		rTime1															:= _STOPPING_TIME;
+		i7Step															:= 91;
+		
+	91:
+		bTimer1															:= TRUE;
+		IF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			i7Step														:= 99;
+		END_IF
+		
+	98:																														// Utility error hold - cleared by P_M01
+		i7Step															:= 98;
+		
+	99:
+		IF bStopAfterDesorption THEN
+			bStop														:= TRUE;
+			Stop_M01_RS													:= TRUE;											// Stop Reactor in P_M01.A_AutoMode
+			bStopAfterDesorption										:= FALSE;
+		END_IF
+		bDesorptionDone													:= TRUE;
+		Current_Step													:= 0;
+		i7Step															:= 0;
+	
+END_CASE
+
+IF i7Step > 0 AND i7Step < 80 THEN
+	IF bMultiProcess THEN
+		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+			giSafeShutdown1RS											:= RS_Number;
+		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF bDesorptionRSError AND giDesorptionErrorRS = 0 THEN
+			bDesorptionRSError											:= FALSE;
+			giDesorptionErrorRS											:= RS_Number;
+			sMessage													:= gsReactorSetWillStopEvacWillFinishOthersWillCompleteCycle;
+		ELSIF (sSafeShutdownError2 <> '' OR sSafeShutdownError3 <> '') AND giSafeShutdown23RS = 0 THEN
+			giSafeShutdown23RS											:= RS_Number;
+		ELSIF (giDesorptionErrorRS + giSafeShutdown23RS) > 0 THEN
+			Stop_Reactor_Set											:= TRUE;
+		ELSIF (giEvacuationErrorRS + giSafeShutdown1RS) > 0 THEN
+			Cancel_Reactor_Set											:= TRUE;
+		ELSIF U.os_air_unsafe_temp THEN																							// 5.e
+			bStopAfterDesorption										:= TRUE;
+		END_IF
+		IF NOT bDesorptionErrorCheck THEN
+			IF R_S.steam_header_valve_not_closed THEN
+				IF R_S.desorption_high_temp_count > _DESORP_MAX_COUNT THEN														//3.4.3.2_2.b
+					bDesorptionErrorCheck								:= TRUE;
+					i7Step												:= 25;
+				ELSIF R_S.average_reactor_pressure > m01.SP_maximum_safe_reactor_steam_pressure THEN							//3.4.3.2_2.c
+					bDesorptionErrorCheck								:= TRUE;
+					i7Step												:= 27;
+				END_IF
+			ELSIF NOT u.product_vacuum_pump_isolation_valve_closed THEN
+				IF u.post_condenser_line_temp > u01.SP_maximum_inlet_product_vacuum_temperature THEN							//3.4.3.2_2.d
+					bDesorptionErrorCheck								:= TRUE;
+					i7Step												:= 28;
+				END_IF
+			END_IF
+		END_IF
+	END_IF
+	iStep																:= i7Step;
+	Current_Step														:= iStep;
+	A_Check_Process();
+	i7Step																:= iStep;
+END_IF	
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="FB_Reactor_Set">
+      <LineId Id="17828" Count="114" />
+      <LineId Id="17944" Count="15" />
+      <LineId Id="17961" Count="72" />
+      <LineId Id="18353" Count="0" />
+      <LineId Id="18034" Count="0" />
+      <LineId Id="18352" Count="0" />
+      <LineId Id="18204" Count="0" />
+      <LineId Id="18035" Count="1" />
+      <LineId Id="18203" Count="0" />
+      <LineId Id="18037" Count="18" />
+      <LineId Id="13091" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Check_Process">
+      <LineId Id="442" Count="79" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Clear_Variables">
+      <LineId Id="104" Count="32" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_Drain_Reactor_Set">
+      <LineId Id="2" Count="3" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="35" Count="1" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="7" Count="17" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="28" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_SafeShutdown1">
+      <LineId Id="2" Count="2" />
+      <LineId Id="9" Count="4" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="23" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="29" Count="8" />
+      <LineId Id="39" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="75" Count="2" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="53" Count="1" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="85" Count="1" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="87" Count="2" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="125" Count="1" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="102" Count="1" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="104" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="96" Count="1" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="132" Count="2" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_SafeShutdown1_Test">
+      <LineId Id="2" Count="2" />
+      <LineId Id="9" Count="4" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="31" Count="4" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_SafeShutdown2">
+      <LineId Id="2" Count="2" />
+      <LineId Id="9" Count="4" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="23" Count="1" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="30" Count="7" />
+      <LineId Id="39" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="75" Count="2" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="53" Count="1" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="85" Count="1" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="143" Count="3" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="88" Count="1" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="125" Count="1" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="102" Count="1" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="104" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="156" Count="1" />
+      <LineId Id="164" Count="2" />
+      <LineId Id="169" Count="1" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="132" Count="2" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_SafeShutdown2_Test">
+      <LineId Id="2" Count="2" />
+      <LineId Id="9" Count="4" />
+      <LineId Id="173" Count="13" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_SafeShutdown3">
+      <LineId Id="2" Count="2" />
+      <LineId Id="9" Count="4" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="23" Count="1" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="30" Count="7" />
+      <LineId Id="39" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="75" Count="2" />
+      <LineId Id="53" Count="1" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="85" Count="1" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="87" Count="2" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="125" Count="1" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="102" Count="1" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="104" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="149" Count="1" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="132" Count="2" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_SafeShutdown3_Test">
+      <LineId Id="2" Count="2" />
+      <LineId Id="9" Count="4" />
+      <LineId Id="151" Count="14" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A1_Idle">
+      <LineId Id="2" Count="1" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="96" Count="1" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="55" Count="3" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="64" Count="1" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="155" Count="1" />
+      <LineId Id="68" Count="1" />
+      <LineId Id="149" Count="1" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="152" Count="1" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="144" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A2_Holding">
+      <LineId Id="7" Count="2" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="4" Count="2" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A4_Repressurization">
+      <LineId Id="1143" Count="139" />
+      <LineId Id="1294" Count="0" />
+      <LineId Id="1315" Count="0" />
+      <LineId Id="1295" Count="0" />
+      <LineId Id="1311" Count="0" />
+      <LineId Id="1316" Count="0" />
+      <LineId Id="1312" Count="0" />
+      <LineId Id="1285" Count="1" />
+      <LineId Id="1309" Count="1" />
+      <LineId Id="1287" Count="6" />
+      <LineId Id="136" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A4_Repressurization_Test">
+      <LineId Id="1272" Count="14" />
+      <LineId Id="1290" Count="0" />
+      <LineId Id="1436" Count="2" />
+      <LineId Id="1291" Count="3" />
+      <LineId Id="1440" Count="12" />
+      <LineId Id="1496" Count="0" />
+      <LineId Id="1490" Count="0" />
+      <LineId Id="1497" Count="0" />
+      <LineId Id="1495" Count="0" />
+      <LineId Id="1494" Count="0" />
+      <LineId Id="1498" Count="4" />
+      <LineId Id="1491" Count="0" />
+      <LineId Id="1463" Count="0" />
+      <LineId Id="1489" Count="0" />
+      <LineId Id="1299" Count="0" />
+      <LineId Id="1460" Count="0" />
+      <LineId Id="1516" Count="0" />
+      <LineId Id="1459" Count="0" />
+      <LineId Id="1458" Count="0" />
+      <LineId Id="1533" Count="0" />
+      <LineId Id="1300" Count="1" />
+      <LineId Id="1307" Count="0" />
+      <LineId Id="1514" Count="1" />
+      <LineId Id="1504" Count="2" />
+      <LineId Id="1508" Count="5" />
+      <LineId Id="1316" Count="0" />
+      <LineId Id="1461" Count="0" />
+      <LineId Id="1519" Count="0" />
+      <LineId Id="1524" Count="0" />
+      <LineId Id="1520" Count="1" />
+      <LineId Id="1527" Count="1" />
+      <LineId Id="1531" Count="1" />
+      <LineId Id="1530" Count="0" />
+      <LineId Id="1369" Count="59" />
+      <LineId Id="136" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A4_Repressurization_Test_Auto">
+      <LineId Id="1272" Count="8" />
+      <LineId Id="1437" Count="0" />
+      <LineId Id="1291" Count="0" />
+      <LineId Id="1293" Count="1" />
+      <LineId Id="1440" Count="0" />
+      <LineId Id="1535" Count="6" />
+      <LineId Id="1534" Count="0" />
+      <LineId Id="1530" Count="0" />
+      <LineId Id="1369" Count="2" />
+      <LineId Id="1375" Count="53" />
+      <LineId Id="136" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A5_Adsorption">
+      <LineId Id="1265" Count="29" />
+      <LineId Id="1495" Count="1" />
+      <LineId Id="1297" Count="174" />
+      <LineId Id="1485" Count="2" />
+      <LineId Id="1489" Count="2" />
+      <LineId Id="1474" Count="3" />
+      <LineId Id="1492" Count="1" />
+      <LineId Id="1478" Count="6" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A5_Adsorption_Test">
+      <LineId Id="1643" Count="2" />
+      <LineId Id="1429" Count="0" />
+      <LineId Id="1628" Count="0" />
+      <LineId Id="1627" Count="0" />
+      <LineId Id="1430" Count="7" />
+      <LineId Id="1440" Count="0" />
+      <LineId Id="1635" Count="0" />
+      <LineId Id="1646" Count="0" />
+      <LineId Id="1442" Count="7" />
+      <LineId Id="1455" Count="0" />
+      <LineId Id="1457" Count="4" />
+      <LineId Id="1647" Count="0" />
+      <LineId Id="1462" Count="0" />
+      <LineId Id="1650" Count="0" />
+      <LineId Id="1652" Count="0" />
+      <LineId Id="1655" Count="0" />
+      <LineId Id="1660" Count="0" />
+      <LineId Id="1657" Count="2" />
+      <LineId Id="1656" Count="0" />
+      <LineId Id="1651" Count="0" />
+      <LineId Id="1463" Count="0" />
+      <LineId Id="1661" Count="0" />
+      <LineId Id="1470" Count="28" />
+      <LineId Id="1636" Count="0" />
+      <LineId Id="1500" Count="12" />
+      <LineId Id="1639" Count="0" />
+      <LineId Id="1513" Count="0" />
+      <LineId Id="1640" Count="0" />
+      <LineId Id="1514" Count="1" />
+      <LineId Id="1518" Count="1" />
+      <LineId Id="1524" Count="2" />
+      <LineId Id="1544" Count="0" />
+      <LineId Id="1631" Count="1" />
+      <LineId Id="1545" Count="2" />
+      <LineId Id="1642" Count="0" />
+      <LineId Id="1548" Count="0" />
+      <LineId Id="1633" Count="0" />
+      <LineId Id="1641" Count="0" />
+      <LineId Id="1549" Count="0" />
+      <LineId Id="1634" Count="0" />
+      <LineId Id="1550" Count="2" />
+      <LineId Id="1554" Count="72" />
+      <LineId Id="1405" Count="2" />
+      <LineId Id="1413" Count="3" />
+      <LineId Id="1418" Count="10" />
+      <LineId Id="1408" Count="4" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A5_Adsorption_Test_Auto">
+      <LineId Id="1643" Count="2" />
+      <LineId Id="1429" Count="0" />
+      <LineId Id="1628" Count="0" />
+      <LineId Id="1627" Count="0" />
+      <LineId Id="1430" Count="3" />
+      <LineId Id="1635" Count="0" />
+      <LineId Id="1442" Count="4" />
+      <LineId Id="1663" Count="1" />
+      <LineId Id="1666" Count="0" />
+      <LineId Id="1668" Count="3" />
+      <LineId Id="1667" Count="0" />
+      <LineId Id="1647" Count="0" />
+      <LineId Id="1586" Count="2" />
+      <LineId Id="1592" Count="11" />
+      <LineId Id="1607" Count="19" />
+      <LineId Id="1405" Count="2" />
+      <LineId Id="1413" Count="3" />
+      <LineId Id="1418" Count="10" />
+      <LineId Id="1408" Count="4" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A6_Evacuation">
+      <LineId Id="1253" Count="202" />
+      <LineId Id="1489" Count="4" />
+      <LineId Id="1456" Count="8" />
+      <LineId Id="1481" Count="2" />
+      <LineId Id="1485" Count="2" />
+      <LineId Id="1467" Count="4" />
+      <LineId Id="1479" Count="1" />
+      <LineId Id="1472" Count="6" />
+      <LineId Id="128" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A6_Evacuation_Test">
+      <LineId Id="1405" Count="25" />
+      <LineId Id="1649" Count="0" />
+      <LineId Id="1431" Count="39" />
+      <LineId Id="1472" Count="7" />
+      <LineId Id="1645" Count="1" />
+      <LineId Id="1480" Count="9" />
+      <LineId Id="1492" Count="1" />
+      <LineId Id="1647" Count="0" />
+      <LineId Id="1494" Count="24" />
+      <LineId Id="1648" Count="0" />
+      <LineId Id="1519" Count="122" />
+      <LineId Id="128" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A6_Evacuation_Test_Auto">
+      <LineId Id="1405" Count="13" />
+      <LineId Id="1422" Count="0" />
+      <LineId Id="1424" Count="6" />
+      <LineId Id="1649" Count="0" />
+      <LineId Id="1431" Count="0" />
+      <LineId Id="1434" Count="5" />
+      <LineId Id="1571" Count="2" />
+      <LineId Id="1578" Count="11" />
+      <LineId Id="1594" Count="13" />
+      <LineId Id="1613" Count="0" />
+      <LineId Id="1615" Count="26" />
+      <LineId Id="128" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A7_Desorption">
+      <LineId Id="2329" Count="388" />
+      <LineId Id="2770" Count="7" />
+      <LineId Id="2721" Count="4" />
+      <LineId Id="2761" Count="2" />
+      <LineId Id="2765" Count="2" />
+      <LineId Id="2728" Count="9" />
+      <LineId Id="2768" Count="1" />
+      <LineId Id="2738" Count="22" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A7_Desorption_Test">
+      <LineId Id="2536" Count="8" />
+      <LineId Id="2549" Count="10" />
+      <LineId Id="2981" Count="1" />
+      <LineId Id="2985" Count="2" />
+      <LineId Id="2580" Count="2" />
+      <LineId Id="2592" Count="2" />
+      <LineId Id="2989" Count="0" />
+      <LineId Id="2995" Count="0" />
+      <LineId Id="2990" Count="0" />
+      <LineId Id="2996" Count="0" />
+      <LineId Id="2994" Count="0" />
+      <LineId Id="2997" Count="0" />
+      <LineId Id="2991" Count="1" />
+      <LineId Id="2893" Count="0" />
+      <LineId Id="2998" Count="1" />
+      <LineId Id="3001" Count="0" />
+      <LineId Id="3006" Count="0" />
+      <LineId Id="3002" Count="0" />
+      <LineId Id="3000" Count="0" />
+      <LineId Id="2894" Count="0" />
+      <LineId Id="3003" Count="0" />
+      <LineId Id="3011" Count="0" />
+      <LineId Id="3004" Count="0" />
+      <LineId Id="3010" Count="0" />
+      <LineId Id="3014" Count="0" />
+      <LineId Id="3008" Count="0" />
+      <LineId Id="3005" Count="0" />
+      <LineId Id="3015" Count="0" />
+      <LineId Id="3021" Count="0" />
+      <LineId Id="3023" Count="0" />
+      <LineId Id="3022" Count="0" />
+      <LineId Id="3024" Count="3" />
+      <LineId Id="3017" Count="0" />
+      <LineId Id="3029" Count="0" />
+      <LineId Id="3028" Count="0" />
+      <LineId Id="3030" Count="2" />
+      <LineId Id="3035" Count="0" />
+      <LineId Id="3037" Count="3" />
+      <LineId Id="3034" Count="0" />
+      <LineId Id="3018" Count="0" />
+      <LineId Id="2895" Count="35" />
+      <LineId Id="3041" Count="0" />
+      <LineId Id="2931" Count="47" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A7_Desorption_Test_Auto">
+      <LineId Id="2536" Count="8" />
+      <LineId Id="2549" Count="2" />
+      <LineId Id="2555" Count="0" />
+      <LineId Id="2557" Count="2" />
+      <LineId Id="2981" Count="0" />
+      <LineId Id="2581" Count="0" />
+      <LineId Id="3042" Count="0" />
+      <LineId Id="3044" Count="3" />
+      <LineId Id="3049" Count="0" />
+      <LineId Id="3043" Count="0" />
+      <LineId Id="2592" Count="0" />
+      <LineId Id="3034" Count="0" />
+      <LineId Id="3018" Count="0" />
+      <LineId Id="2895" Count="14" />
+      <LineId Id="2911" Count="67" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

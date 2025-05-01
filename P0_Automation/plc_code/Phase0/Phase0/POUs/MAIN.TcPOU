@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{8c00b01f-f53f-430a-a974-d67c74f40a4b}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	bStatusListLoaded													: BOOL;
+	bHalfSecondPulse													: BOOL;
+	sStatusLabel														: ARRAY[0..50] OF STRING;
+	tonHalfSecPulse														: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - Main
+// Rev 1.0 - May 13, 2024
+
+m01.plc_version															:= '24_05_13_02';
+
+IF NOT bStatusListLoaded THEN
+	A_Status_List();
+END_IF
+
+/// TIMER PULSE
+IF tonHalfSecPulse.Q THEN
+	bHalfSecondPulse													:= NOT bHalfSecondPulse;
+	tonHalfSecPulse(IN:= FALSE);
+END_IF
+tonHalfSecPulse(IN:= TRUE, PT:= T#500MS);
+
+P_U01();
+P_M01();
+P_Alarms();
+]]></ST>
+    </Implementation>
+    <Action Name="A_Status_List" Id="{bb3a678e-dd88-4169-a6cd-180f1af2a8df}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - A_Status_List
+// Rev 1.0 - February 6, 2024
+
+sStatusLabel[0] 														:= 'Idle';
+sStatusLabel[1] 														:= '';
+sStatusLabel[2]  														:= '';
+sStatusLabel[3]  														:= 'Warmup running';
+sStatusLabel[4]  														:= 'Steam Bypass running';
+sStatusLabel[5]  														:= 'Repressurization running';
+sStatusLabel[6]  														:= 'Adsorption running';
+sStatusLabel[7]  														:= 'Evacuation running';
+sStatusLabel[8]  														:= 'Desorption running';
+sStatusLabel[9]  														:= 'Shutting down';
+sStatusLabel[10]  														:= 'Pressure Test running';
+sStatusLabel[11]  														:= '';
+sStatusLabel[12]  														:= '';
+sStatusLabel[13]  														:= 'Warmup error';
+sStatusLabel[14]  														:= 'Steam Bypass error';
+sStatusLabel[15]  														:= 'Repressurization error';
+sStatusLabel[16]  														:= 'Adsorption error';
+sStatusLabel[17]  														:= 'Evacuation error';
+sStatusLabel[18]  														:= 'Desorption error';
+sStatusLabel[19]  														:= 'Pressure Test error';
+sStatusLabel[20]  														:= '';
+sStatusLabel[21]  														:= '';
+sStatusLabel[22]  														:= '';
+sStatusLabel[23]  														:= 'Warmup complete';
+sStatusLabel[24]  														:= 'Steam Bypass complete';
+sStatusLabel[25]  														:= 'Repressurization complete';
+sStatusLabel[26]  														:= 'Adsorption complete';
+sStatusLabel[27]  														:= 'Evacuation complete';
+sStatusLabel[28]  														:= 'Desoprtion complete';
+sStatusLabel[29]  														:= 'Shutdown complete';
+sStatusLabel[30]  														:= 'Pressure Test complete';
+sStatusLabel[31]  														:= '';
+sStatusLabel[32]  														:= 'No Reactor selected';
+sStatusLabel[33]  														:= 'Stopping process';
+sStatusLabel[34]  														:= 'Resetting';
+sStatusLabel[35]														:= 'Saving data';
+sStatusLabel[36]  														:= '';
+sStatusLabel[37]  														:= '';
+sStatusLabel[38]  														:= '';
+sStatusLabel[39]  														:= '';
+sStatusLabel[40]  														:= 'Error';
+	                                    		
+bStatusListLoaded														:= TRUE;]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="MAIN">
+      <LineId Id="125" Count="18" />
+      <LineId Id="54" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.A_Status_List">
+      <LineId Id="2" Count="1" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="5" Count="4" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="14" Count="5" />
+      <LineId Id="47" Count="1" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="24" Count="5" />
+      <LineId Id="49" Count="1" />
+      <LineId Id="30" Count="1" />
+      <LineId Id="34" Count="5" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="52" Count="4" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="43" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Digital_Out" Id="{44a3c38a-9336-46ac-9842-79adbf3bc743}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Digital_Out
+VAR_OUTPUT
+	Output																: BOOL;
+END_VAR
+VAR_IN_OUT
+	Input1																: BOOL;
+	Input2																: BOOL;
+END_VAR
+VAR
+	blast1																: BOOL;
+	blast2																: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - FB_Digital_Out
+// Rev 1.0 - March 29, 2024
+
+// Allows two inputs (HMI/Utility vs Reactor Set) to control one point. Output mirrors the last input (On or Off) and both inputs are changed to the new value.
+
+IF Input1 <> bLast1 THEN
+	bLast1																:= Input1;
+	Input2																:= Input1;
+	bLast2																:= Input1;
+ELSIF Input2 <> bLast2 THEN
+	bLast2																:= Input2;
+	Input1																:= Input2;
+	bLast1																:= Input2;
+END_IF
+Output																	:= Input1;
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Digital_Out">
+      <LineId Id="95" Count="1" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="98" Count="7" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="118" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

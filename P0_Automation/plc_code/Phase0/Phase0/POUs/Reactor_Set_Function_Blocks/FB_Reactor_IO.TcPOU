@@ -1,0 +1,712 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Reactor_IO" Id="{32d6c989-cb84-4a88-81eb-bcfd090dd38e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Reactor_IO
+VAR_IN_OUT
+	fan_vfd																: REAL;
+	inlet_co2_pump														: BOOL;
+	inlet_co2_sol														: BOOL;
+	outlet_co2_pump														: BOOL;
+	outlet_co2_sol														: BOOL;
+	repres_valve														: BOOL;
+	inlet_door_clamps_extend											: BOOL;
+	outlet_door_clamps_extend											: BOOL;
+	inlet_door_clamps_retract											: BOOL;
+	outlet_door_clamps_retract											: BOOL;
+	inlet_door_open														: BOOL;
+	inlet_door_close													: BOOL;
+	outlet_door_open													: BOOL;
+	outlet_door_close													: BOOL;
+	fan_vfd_reset														: BOOL;
+END_VAR
+VAR_INPUT
+	RSet																: STRING;
+	React																: STRING;
+	Power_On															: BOOL;
+	
+	TT_01_01															: INT;
+	TT_01_01_offset														: REAL;
+	TT_01_01_error														: BOOL;
+	TT_01_03															: INT;
+	TT_01_03_offset														: REAL;
+	TT_01_03_error														: BOOL;
+	TT_02_01															: INT;
+	TT_02_01_offset														: REAL;
+	TT_02_01_error														: BOOL;
+	TT_02_03															: INT;
+	TT_02_03_offset														: REAL;
+	TT_02_03_error														: BOOL;
+	TT_03_01															: INT;
+	TT_03_01_offset														: REAL;
+	TT_03_01_error														: BOOL;
+	TT_03_03															: INT;
+	TT_03_03_offset														: REAL;
+	TT_03_03_error														: BOOL;
+	TT_04_01															: INT;
+	TT_04_01_offset														: REAL;
+	TT_04_01_error														: BOOL;
+	TT_04_03															: INT;
+	TT_04_03_offset														: REAL;
+	TT_04_03_error														: BOOL;
+	TT_05_01															: INT;
+	TT_05_01_offset														: REAL;
+	TT_05_01_error														: BOOL;
+	TT_05_03															: INT;
+	TT_05_03_offset														: REAL;
+	TT_05_03_error														: BOOL;
+	TT_06_01															: INT;
+	TT_06_01_offset														: REAL;
+	TT_06_01_error														: BOOL;
+	TT_06_03															: INT;
+	TT_06_03_offset														: REAL;
+	TT_06_03_error														: BOOL;
+	TT_07_01															: INT;
+	TT_07_01_offset														: REAL;
+	TT_07_01_error														: BOOL;
+	TT_07_03															: INT;
+	TT_07_03_offset														: REAL;
+	TT_07_03_error														: BOOL;
+	TT_08_01															: INT;
+	TT_08_01_offset														: REAL;
+	TT_08_01_error														: BOOL;
+	TT_08_03															: INT;
+	TT_08_03_offset														: REAL;
+	TT_08_03_error														: BOOL;
+	TT_09_01															: INT;
+	TT_09_01_offset														: REAL;
+	TT_09_01_error														: BOOL;
+	TT_09_03															: INT;
+	TT_09_03_offset														: REAL;
+	TT_09_03_error														: BOOL;
+	TT_10_01															: INT;
+	TT_10_01_offset														: REAL;
+	TT_10_01_error														: BOOL;
+	TT_10_03															: INT;
+	TT_10_03_offset														: REAL;
+	TT_10_03_error														: BOOL;
+	TT_11_01															: INT;
+	TT_11_01_offset														: REAL;
+	TT_11_01_error														: BOOL;
+	TT_11_03															: INT;
+	TT_11_03_offset														: REAL;
+	TT_11_03_error														: BOOL;
+	TT_12_01															: INT;
+	TT_12_01_offset														: REAL;
+	TT_12_01_error														: BOOL;
+	TT_12_03															: INT;
+	TT_12_03_offset														: REAL;
+	TT_12_03_error														: BOOL;
+	
+	bRepresValve														: BOOL;
+	repres_valve_open													: BOOL;
+	repres_valve_closed													: BOOL;
+	
+	fan_vfd_status														: WORD;
+	fan_vfd_velocity													: WORD;
+	fan_vfd_input														: REAL;
+	fan_vfd_enable														: BOOL;
+	fan_vfd_ecat_state													: BOOL;
+	fan_vfd_current														: DINT;
+	fan_vfd_temp														: INT;
+	
+	inlet_door_left_clamps_extended		 								: BOOL;
+	inlet_door_right_clamps_extended	 								: BOOL;
+	outlet_door_left_clamps_extended	 								: BOOL;
+	outlet_door_right_clamps_extended									: BOOL;
+	extend_clamps														: BOOL;
+	retract_clamps														: BOOL;
+	
+	inlet_door_left_open												: BOOL;
+	inlet_door_right_open												: BOOL;
+	outlet_door_left_open												: BOOL;
+	outlet_door_right_open												: BOOL;
+	inlet_door_left_closed												: BOOL;
+	inlet_door_right_closed												: BOOL;
+	outlet_door_left_closed												: BOOL;
+	outlet_door_right_closed											: BOOL;
+	open_doors															: BOOL;
+	close_doors															: BOOL;
+	
+	co2_sensor_config													: INT;
+END_VAR
+VAR_OUTPUT
+	AT_01_pump															: BOOL;
+	inlet_co2_pump_cmd_status											: BOOL;
+	AT_01_sol															: BOOL;
+	inlet_co2_sol_cmd_status											: BOOL;
+	AT_03_pump															: BOOL;
+	outlet_co2_pump_cmd_status											: BOOL;
+	AT_03_sol															: BOOL;
+	outlet_co2_sol_cmd_status											: BOOL;
+	XV_02																: BOOL;
+	repres_valve_open_cmd_status										: BOOL;
+	repres_valve_clear													: BOOL;
+
+	reactor_wall_temp													: REAL;
+	reactor_wall_temp_error												: BOOL;
+	outlet_line_temp													: REAL;
+	outlet_line_temp_error												: BOOL;
+	
+	cart01_front_temp													: REAL;						
+	cart01_front_temp_error 											: BOOL;
+	cart01_back_temp													: REAL;
+	cart01_back_temp_error 												: BOOL;
+	cart02_front_temp													: REAL;						
+	cart02_front_temp_error 											: BOOL;
+	cart02_back_temp													: REAL;
+	cart02_back_temp_error 												: BOOL;
+	cart03_front_temp													: REAL;						
+	cart03_front_temp_error 											: BOOL;
+	cart03_back_temp													: REAL;
+	cart03_back_temp_error 												: BOOL;
+	cart04_front_temp													: REAL;						
+	cart04_front_temp_error 											: BOOL;
+	cart04_back_temp													: REAL;
+	cart04_back_temp_error 												: BOOL;
+	cart05_front_temp													: REAL;						
+	cart05_front_temp_error 											: BOOL;
+	cart05_back_temp													: REAL;
+	cart05_back_temp_error 												: BOOL;
+	cart06_front_temp													: REAL;						
+	cart06_front_temp_error 											: BOOL;
+	cart06_back_temp													: REAL;
+	cart06_back_temp_error 												: BOOL;
+	cart07_front_temp													: REAL;						
+	cart07_front_temp_error 											: BOOL;
+	cart07_back_temp													: REAL;
+	cart07_back_temp_error 												: BOOL;
+	cart08_front_temp													: REAL;						
+	cart08_front_temp_error 											: BOOL;
+	cart08_back_temp													: REAL;
+	cart08_back_temp_error 												: BOOL;
+	cart09_front_temp													: REAL;						
+	cart09_front_temp_error 											: BOOL;
+	cart09_back_temp													: REAL;
+	cart09_back_temp_error 												: BOOL;
+	cart10_front_temp													: REAL;						
+	cart10_front_temp_error 											: BOOL;
+	cart10_back_temp													: REAL;
+	cart10_back_temp_error 												: BOOL;
+	cart11_front_temp													: REAL;						
+	cart11_front_temp_error 											: BOOL;
+	cart11_back_temp													: REAL;
+	cart11_back_temp_error 												: BOOL;
+	cart12_front_temp													: REAL;						
+	cart12_front_temp_error 											: BOOL;
+	cart12_back_temp													: REAL;
+	cart12_back_temp_error 												: BOOL;
+	
+	sorbent_low_temp													: REAL;
+	sorbent_high_temp													: REAL;
+	sorbent_average_temp												: REAL;
+
+	fan_vfd_control														: WORD;
+	fan_vfd_target_vel													: WORD;
+	fan_vfd_enabled														: BOOL;
+	fan_vfd_error														: BOOL;
+	fan_vfd_output														: REAL;
+	fan_vfd_current_amps												: REAL;
+	fan_vfd_temp_degC													: REAL;
+	
+	vacuum_cooling_high_temp_count										: INT;
+	adsorption_high_temp_count											: INT;
+	desorption_high_temp_count											: INT;
+	
+	inlet_door_left_clamps_extend										: BOOL;
+	inlet_door_right_clamps_extend										: BOOL;
+	outlet_door_left_clamps_extend										: BOOL;
+	outlet_door_right_clamps_extend										: BOOL;
+	inlet_door_left_clamps_retract										: BOOL;
+	inlet_door_right_clamps_retract										: BOOL;
+	outlet_door_left_clamps_retract										: BOOL;
+	outlet_door_right_clamps_retract									: BOOL;
+
+	inlet_doors_clamps_extended											: BOOL;
+	outlet_doors_clamps_extended										: BOOL;
+	inlet_doors_clamps_retracted										: BOOL;
+	outlet_doors_clamps_retracted										: BOOL;
+	door_clamps_extended												: BOOL;
+	door_clamps_retracted												: BOOL;
+	
+	open_inlet_door														: BOOL;
+	close_inlet_door													: BOOL;
+	open_outlet_door													: BOOL;
+	close_outlet_door													: BOOL;
+	doors_open															: BOOL;
+	doors_closed														: BOOL;
+	
+END_VAR
+VAR
+	iNo																	: INT		:= 1;
+	sRSR																: STRING;
+	
+	fb_Repres_Valve														: FB_Digital_Out();
+	fb_Fan_Vfd_Input													: FB_Analog_Out();
+	fb_Fan																: FB_VFD();
+
+	rtrigCo2															: R_TRIG;
+	iCo2Old																: INT;
+	
+	tonFan																: TON;
+	rRpm																: REAL;
+	rRpmOld																: REAL		:= 0;
+
+	rtrigSorbentErrorCheck												: R_TRIG;
+	i																	: INT;
+	iCount																: ARRAY [0..23] OF INT;
+
+	iInletAirSetpoint													: INT	:= 0;
+	iTempCount															: INT;
+	iHighTempCount														: INT;
+	rTempTotal															: REAL;
+	rTempSP																: REAL;
+	rMin																: REAL;
+	rMax																: REAL;
+	bInterlock															: BOOL;
+	
+	cart01_temp_front_calc												: FB_Temperature;
+	cart01_temp_back_calc												: FB_Temperature;
+	cart02_temp_front_calc												: FB_Temperature;
+	cart02_temp_back_calc												: FB_Temperature;
+	cart03_temp_front_calc												: FB_Temperature;
+	cart03_temp_back_calc												: FB_Temperature;
+	cart04_temp_front_calc												: FB_Temperature;
+	cart04_temp_back_calc												: FB_Temperature;
+	cart05_temp_front_calc												: FB_Temperature;
+	cart05_temp_back_calc												: FB_Temperature;
+	cart06_temp_front_calc												: FB_Temperature;
+	cart06_temp_back_calc												: FB_Temperature;
+	cart07_temp_front_calc												: FB_Temperature;
+	cart07_temp_back_calc												: FB_Temperature;
+	cart08_temp_front_calc												: FB_Temperature;
+	cart08_temp_back_calc												: FB_Temperature;
+	cart09_temp_front_calc												: FB_Temperature;
+	cart09_temp_back_calc												: FB_Temperature;
+	cart10_temp_front_calc												: FB_Temperature;
+	cart10_temp_back_calc												: FB_Temperature;
+	cart11_temp_front_calc												: FB_Temperature;
+	cart11_temp_back_calc												: FB_Temperature;
+	cart12_temp_front_calc												: FB_Temperature;
+	cart12_temp_back_calc												: FB_Temperature;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - FB_Reactor_IO
+// Rev 1.0 - April 26, 2024
+
+sRSR																	:= CONCAT(RSet, React);
+
+// CO2 SENSOR HANDLING - Tested 4/1/24
+rtrigCo2(CLK:= co2_sensor_config <> iCo2Old);
+IF rtrigCo2.Q THEN
+	iCo2Old																:= co2_sensor_config;
+	IF co2_sensor_config = 1 THEN
+		inlet_co2_pump													:= TRUE;
+		inlet_co2_sol													:= TRUE;
+		outlet_co2_pump													:= TRUE;
+		outlet_co2_sol													:= TRUE;
+	ELSIF co2_sensor_config = 2 THEN
+		inlet_co2_pump													:= TRUE;
+		inlet_co2_sol													:= FALSE;
+		outlet_co2_pump													:= TRUE;
+		outlet_co2_sol													:= FALSE;
+	ELSE
+		inlet_co2_pump													:= FALSE;
+		inlet_co2_sol													:= FALSE;
+		outlet_co2_pump													:= FALSE;
+		outlet_co2_sol													:= FALSE;
+	END_IF
+END_IF
+
+// OUTPUTS
+AT_01_pump																:= inlet_co2_pump;
+inlet_co2_pump_cmd_status												:= inlet_co2_pump;
+
+AT_01_sol																:= inlet_co2_sol;
+inlet_co2_sol_cmd_status												:= inlet_co2_sol;
+
+AT_03_pump																:= outlet_co2_pump;
+outlet_co2_pump_cmd_status												:= outlet_co2_pump;
+
+AT_03_sol																:= outlet_co2_sol;
+outlet_co2_sol_cmd_status												:= outlet_co2_sol;
+
+fb_Repres_Valve(Input1:= repres_valve, Input2:= bRepresValve, Output=> XV_02);
+repres_valve_open_cmd_status											:= bRepresValve;
+repres_valve_clear														:= (bRepresValve AND repres_valve_open) OR (NOT bRepresValve AND repres_valve_closed);
+
+// SORBENT TEMPERATURE HANDLING
+rtrigSorbentErrorCheck(CLK:= MAIN.bHalfSecondPulse);
+IF rtrigSorbentErrorCheck.Q THEN
+	A_Sorbent_Temperatures();
+END_IF
+
+// FAN
+fb_Fan_Vfd_Input(Input1:= fan_vfd, Input2:= fan_vfd_input);
+tonFan(IN:= fan_vfd <> rRpmOld, PT:= INT_TO_TIME((iNo - 1) * _FAN_DELAY_TIME));
+IF tonFan.Q THEN
+	rRpmOld																:= fan_vfd;
+	rRpm																:= fan_vfd * _FAN_RPM_FACTOR;
+END_IF
+fb_Fan(	Enable_Vfd														:= NOT fan_vfd_ecat_state AND fan_vfd_enable,
+		Fault_Reset														:= fan_vfd_reset, 
+		Rpm																:= rRpm, 
+		Minimum_Speed													:= _FAN_SPEED_MIN,
+		Maximum_Speed													:= _FAN_SPEED_MAX, 
+		StatusWord														:= fan_vfd_status, 
+		ControlWord														=> fan_vfd_control, 
+		TargetRpm														=> fan_vfd_target_vel, 
+		Ready															=> fan_vfd_enabled,
+		Error															=> fan_vfd_error);
+fan_vfd_output															:= WORD_TO_REAL(fan_vfd_velocity) / _FAN_RPM_FACTOR;
+fan_vfd_current_amps													:= DINT_TO_REAL(fan_vfd_current)/100;
+fan_vfd_temp_degC														:= INT_TO_REAL(fan_vfd_temp);
+IF fan_vfd_reset THEN
+	fan_vfd_reset														:= FALSE;
+END_IF
+
+// DOORS & CLAMPS
+doors_open																:= inlet_door_left_open AND inlet_door_right_open AND outlet_door_left_open AND outlet_door_right_open;
+doors_closed															:= inlet_door_left_closed AND inlet_door_right_closed AND outlet_door_left_closed AND outlet_door_right_closed;
+
+inlet_doors_clamps_extended												:= inlet_door_left_clamps_extended AND inlet_door_right_clamps_extended;
+outlet_doors_clamps_extended											:= outlet_door_left_clamps_extended AND outlet_door_right_clamps_extended;	
+inlet_doors_clamps_retracted											:= NOT inlet_door_left_clamps_extended AND NOT inlet_door_right_clamps_extended;
+outlet_doors_clamps_retracted											:= NOT outlet_door_left_clamps_extended AND NOT outlet_door_right_clamps_extended;	
+door_clamps_extended													:= inlet_doors_clamps_extended AND outlet_doors_clamps_extended;
+door_clamps_retracted													:= NOT inlet_doors_clamps_extended AND NOT outlet_doors_clamps_extended;
+
+IF inlet_door_open OR open_doors THEN
+	bInterlock															:= inlet_doors_clamps_retracted;
+	close_inlet_door													:= NOT bInterlock;
+	open_inlet_door														:= bInterlock;
+	inlet_door_open														:= FALSE;
+ELSIF inlet_door_close OR close_doors THEN
+	bInterlock															:= inlet_doors_clamps_retracted;
+	open_inlet_door														:= NOT bInterlock;
+	close_inlet_door													:= bInterlock;
+	inlet_door_close													:= FALSE;
+END_IF
+IF outlet_door_open OR open_doors THEN
+	bInterlock															:=  outlet_doors_clamps_retracted;
+	close_outlet_door													:= NOT bInterlock;
+	open_outlet_door													:= bInterlock;
+	outlet_door_open													:= FALSE;
+ELSIF outlet_door_close OR close_doors THEN
+	bInterlock															:= outlet_doors_clamps_retracted;
+	open_outlet_door													:= NOT bInterlock;
+	close_outlet_door													:= bInterlock;
+	outlet_door_close													:= FALSE;
+END_IF
+
+// CLAMPS
+IF inlet_door_clamps_extend OR extend_clamps THEN
+	bInterlock															:=  TRUE ; // inlet_door_left_closed AND inlet_door_right_closed;
+//	bInterlock															:=  inlet_door_left_closed AND inlet_door_right_closed;
+	inlet_door_left_clamps_retract										:= NOT bInterlock;
+	inlet_door_right_clamps_retract										:= NOT bInterlock;
+	inlet_door_left_clamps_extend										:= bInterlock;
+	inlet_door_right_clamps_extend										:= bInterlock;
+	inlet_door_clamps_extend											:= FALSE;
+ELSIF inlet_door_clamps_retract OR retract_clamps THEN
+	inlet_door_left_clamps_extend										:= FALSE;
+	inlet_door_right_clamps_extend										:= FALSE;
+	inlet_door_left_clamps_retract										:= TRUE;
+	inlet_door_right_clamps_retract										:= TRUE;
+	inlet_door_clamps_retract											:= FALSE;
+END_IF
+IF outlet_door_clamps_extend OR extend_clamps THEN
+	bInterlock															:= TRUE ; // outlet_door_left_closed AND outlet_door_right_closed;
+//	bInterlock															:= outlet_door_left_closed AND outlet_door_right_closed;
+	outlet_door_left_clamps_retract										:= NOT bInterlock;
+	outlet_door_right_clamps_retract									:= NOT bInterlock;
+	outlet_door_left_clamps_extend										:= bInterlock;
+	outlet_door_right_clamps_extend										:= bInterlock;
+	outlet_door_clamps_extend											:= FALSE;
+ELSIF outlet_door_clamps_retract or retract_clamps THEN
+	outlet_door_left_clamps_extend										:= FALSE;
+	outlet_door_right_clamps_extend										:= FALSE;
+	outlet_door_left_clamps_retract										:= TRUE;
+	outlet_door_right_clamps_retract									:= TRUE;
+	outlet_door_clamps_retract											:= FALSE;
+END_IF
+]]></ST>
+    </Implementation>
+    <Action Name="A_Sorbent_Temperatures" Id="{55a3bf1c-b7a4-4a44-a132-1ee2c82ca5d5}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - FB_ReatorIO.A_Sorbent_Temperatures
+// Rev 1.0 - April 25, 2024
+
+sorbent_low_temp																:= 1000;
+sorbent_high_temp																:= -1000;
+
+rTempTotal																:= 0;
+iTempCount																:= 0;
+
+cart01_front_temp														:= F_Temperature(TT_01_01, TT_01_01_offset);
+cart01_front_temp_error 												:= TT_01_01_error OR iCount[0] < 30;
+cart01_back_temp														:= F_Temperature(TT_01_03, TT_01_03_offset);
+cart01_back_temp_error 													:= TT_01_03_Error OR iCount[1] < 30;
+cart01_temp_front_calc(Error:= TT_01_01_error, Temp:= cart01_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart01_temp_back_calc(Error:= TT_01_03_Error, Temp:= cart01_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart02_front_temp														:= F_Temperature(TT_02_01, TT_02_01_offset);
+cart02_front_temp_error 												:= TT_02_01_error OR iCount[2] < 30;
+cart02_back_temp														:= F_Temperature(TT_02_03, TT_02_03_offset);
+cart02_back_temp_error 													:= TT_02_03_Error OR iCount[3] < 30;
+cart02_temp_front_calc(Error:= TT_02_01_error, Temp:= cart02_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart02_temp_back_calc(Error:= TT_02_03_Error, Temp:= cart02_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart03_front_temp														:= F_Temperature(TT_03_01, TT_03_01_offset);
+cart03_front_temp_error 												:= TT_03_01_error OR iCount[4] < 30;
+cart03_back_temp														:= F_Temperature(TT_03_03, TT_03_03_offset);
+cart03_back_temp_error 													:= TT_03_03_Error OR iCount[5] < 30;
+cart03_temp_front_calc(Error:= TT_03_01_error, Temp:= cart03_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart03_temp_back_calc(Error:= TT_03_03_Error, Temp:= cart03_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart04_front_temp														:= F_Temperature(TT_04_01, TT_04_01_offset);
+cart04_front_temp_error 												:= TT_04_01_error OR iCount[6] < 30;
+cart04_back_temp														:= F_Temperature(TT_04_03, TT_04_03_offset);
+cart04_back_temp_error 													:= TT_04_03_Error OR iCount[7] < 30;
+cart04_temp_front_calc(Error:= TT_04_01_error, Temp:= cart04_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart04_temp_back_calc(Error:= TT_04_03_Error, Temp:= cart04_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart05_front_temp														:= F_Temperature(TT_05_01, TT_05_01_offset);
+cart05_front_temp_error 												:= TT_05_01_error OR iCount[8] < 30;
+cart05_back_temp														:= F_Temperature(TT_05_03, TT_05_03_offset);
+cart05_back_temp_error 													:= TT_05_03_Error OR iCount[9] < 30;
+cart05_temp_front_calc(Error:= TT_05_01_error, Temp:= cart05_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart05_temp_back_calc(Error:= TT_05_03_Error, Temp:= cart05_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart06_front_temp														:= F_Temperature(TT_06_01, TT_06_01_offset);
+cart06_front_temp_error 												:= TT_06_01_error OR iCount[10] < 30;
+cart06_back_temp														:= F_Temperature(TT_06_03, TT_06_03_offset);
+cart06_back_temp_error 													:= TT_06_03_Error OR iCount[11] < 30;
+cart06_temp_front_calc(Error:= TT_06_01_error, Temp:= cart06_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart06_temp_back_calc(Error:= TT_06_03_Error, Temp:= cart06_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart07_front_temp														:= F_Temperature(TT_07_01, TT_07_01_offset);
+cart07_front_temp_error 												:= TT_07_01_error OR iCount[12] < 30;
+cart07_back_temp														:= F_Temperature(TT_07_03, TT_07_03_offset);
+cart07_back_temp_error 													:= TT_07_03_Error OR iCount[13] < 30;
+cart07_temp_front_calc(Error:= TT_07_01_error, Temp:= cart07_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart07_temp_back_calc(Error:= TT_07_03_Error, Temp:= cart07_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart08_front_temp														:= F_Temperature(TT_08_01, TT_08_01_offset);
+cart08_front_temp_error 												:= TT_08_01_error OR iCount[14] < 30;
+cart08_back_temp														:= F_Temperature(TT_08_03, TT_08_03_offset);
+cart08_back_temp_error 													:= TT_08_03_Error OR iCount[15] < 30;
+cart08_temp_front_calc(Error:= TT_08_01_error, Temp:= cart08_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart08_temp_back_calc(Error:= TT_08_03_Error, Temp:= cart08_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart09_front_temp														:= F_Temperature(TT_09_01, TT_09_01_offset);
+cart09_front_temp_error 												:= TT_09_01_error OR iCount[16] < 30;
+cart09_back_temp														:= F_Temperature(TT_09_03, TT_09_03_offset);
+cart09_back_temp_error 													:= TT_09_03_Error OR iCount[17] < 30;
+cart09_temp_front_calc(Error:= TT_09_01_error, Temp:= cart09_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart09_temp_back_calc(Error:= TT_09_03_Error, Temp:= cart09_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart10_front_temp														:= F_Temperature(TT_10_01, TT_10_01_offset);
+cart10_front_temp_error 												:= TT_10_01_error OR iCount[18] < 30;
+cart10_back_temp														:= F_Temperature(TT_10_03, TT_10_03_offset);
+cart10_back_temp_error 													:= TT_10_03_Error OR iCount[19] < 30;
+cart10_temp_front_calc(Error:= TT_10_01_error, Temp:= cart10_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart10_temp_back_calc(Error:= TT_10_03_Error, Temp:= cart10_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart11_front_temp														:= F_Temperature(TT_11_01, TT_11_01_offset);
+cart11_front_temp_error 												:= TT_11_01_error OR iCount[20] < 30;
+cart11_back_temp														:= F_Temperature(TT_11_03, TT_11_03_offset);
+cart11_back_temp_error 													:= TT_11_03_Error OR iCount[21] < 30;
+cart11_temp_front_calc(Error:= TT_11_01_error, Temp:= cart11_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart11_temp_back_calc(Error:= TT_11_03_Error, Temp:= cart11_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+cart12_front_temp														:= F_Temperature(TT_12_01, TT_12_01_offset);
+cart12_front_temp_error 												:= TT_12_01_error OR iCount[22] < 30;
+cart12_back_temp														:= F_Temperature(TT_12_03, TT_12_03_offset);
+cart12_back_temp_error 													:= TT_12_03_Error OR iCount[23] < 30;
+cart12_temp_front_calc(Error:= TT_12_01_error, Temp:= cart12_front_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+cart12_temp_back_calc(Error:= TT_12_03_Error, Temp:= cart12_back_temp, Low:= sorbent_low_temp, High:= sorbent_high_temp, Total:= rTempTotal, Counter:= iTempCount);
+
+sorbent_average_temp													:= SEL(iTempCount > 0, 0, rTempTotal / iTempCount);
+
+FOR i:= 0 TO 23 DO
+	iCount[i]															:= iCount[i] + 1;
+	IF iCount[i] > 30 THEN
+		iCount[i]														:= 30;
+	END_IF
+END_FOR
+
+iHighTempCount															:= 0;
+rMin																	:= u01.SP_minimum_reasonable_sorbent_TC_reading;
+rMax																	:= u01.SP_maximum_reasonable_sorbent_TC_reading;
+IF iInletAirSetpoint = 0 THEN
+	rTempSP																:= m01.SP_vacuum_cooling_target_temperature;
+ELSIF iInletAirSetpoint = 1 THEN
+	rTempSP																:= m01.SP_maximum_inlet_air_temperature_during_adsorption;
+ELSE
+	rTempSP																:= m01.SP_maximum_sorbent_temperature_during_desorption;
+END_IF
+
+IF TT_01_01_Error OR cart01_front_temp < rMin OR cart01_front_temp > rMax THEN
+	iCount[0]															:= 0;
+ELSIF cart01_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_01_03_Error OR cart01_back_temp < rMin OR cart01_back_temp > rMax THEN
+	iCount[1]															:= 0;
+ELSIF cart01_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_02_01_Error OR cart02_front_temp < rMin OR cart02_front_temp > rMax THEN
+	iCount[2]															:= 0;
+ELSIF cart02_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_02_03_Error OR cart02_back_temp < rMin OR cart02_back_temp > rMax THEN
+	iCount[3]															:= 0;
+ELSIF cart02_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_03_01_Error OR cart03_front_temp < rMin OR cart03_front_temp > rMax THEN
+	iCount[4]															:= 0;
+ELSIF cart03_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_03_03_Error OR cart03_back_temp < rMin OR cart03_back_temp > rMax THEN
+	iCount[5]															:= 0;
+ELSIF cart03_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_04_01_Error OR cart04_front_temp < rMin OR cart04_front_temp > rMax THEN
+	iCount[6]															:= 0;
+ELSIF cart04_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_04_03_Error OR cart04_back_temp < rMin OR cart04_back_temp > rMax THEN
+	iCount[7]															:= 0;
+ELSIF cart04_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_05_01_Error OR cart05_front_temp < rMin OR cart05_front_temp > rMax THEN
+	iCount[8]															:= 0;
+ELSIF cart05_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_05_03_Error OR cart05_back_temp < rMin OR cart05_back_temp > rMax THEN
+	iCount[9]															:= 0;
+ELSIF cart05_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_06_01_Error OR cart06_front_temp < rMin OR cart06_front_temp > rMax THEN
+	iCount[10]															:= 0;
+ELSIF cart06_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_06_03_Error OR cart06_back_temp < rMin OR cart06_back_temp > rMax THEN
+	iCount[11]															:= 0;
+ELSIF cart06_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_07_01_Error OR cart07_front_temp < rMin OR cart07_front_temp > rMax THEN
+	iCount[12]															:= 0;
+ELSIF cart07_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_07_03_Error OR cart07_back_temp < rMin OR cart07_back_temp > rMax THEN
+	iCount[13]															:= 0;
+ELSIF cart07_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_08_01_Error OR cart08_front_temp < rMin OR cart08_front_temp > rMax THEN
+	iCount[14]															:= 0;
+ELSIF cart08_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_08_03_Error OR cart08_back_temp < rMin OR cart08_back_temp > rMax THEN
+	iCount[15]															:= 0;
+ELSIF cart08_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_09_01_Error OR cart09_front_temp < rMin OR cart09_front_temp > rMax THEN
+	iCount[16]															:= 0;
+ELSIF cart09_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_09_03_Error OR cart09_back_temp < rMin OR cart09_back_temp > rMax THEN
+	iCount[17]															:= 0;
+ELSIF cart09_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_10_01_Error OR cart10_front_temp < rMin OR cart10_front_temp > rMax THEN
+	iCount[18]															:= 0;
+ELSIF cart10_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_10_03_Error OR cart10_back_temp < rMin OR cart10_back_temp > rMax THEN
+	iCount[19]															:= 0;
+ELSIF cart10_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_11_01_Error OR cart11_front_temp < rMin OR cart11_front_temp > rMax THEN
+	iCount[20]															:= 0;
+ELSIF cart11_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_11_03_Error OR cart11_back_temp < rMin OR cart11_back_temp > rMax THEN
+	iCount[21]															:= 0;
+ELSIF cart11_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF TT_12_01_Error OR cart12_front_temp < rMin OR cart12_front_temp > rMax THEN
+	iCount[22]															:= 0;
+ELSIF cart12_front_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF TT_12_03_Error OR cart12_back_temp < rMin OR cart12_back_temp > rMax THEN
+	iCount[23]															:= 0;
+ELSIF cart12_back_temp > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF iInletAirSetpoint = 0 THEN
+	vacuum_cooling_high_temp_count										:= iHighTempCount;
+ELSIF iInletAirSetpoint = 1 THEN
+	adsorption_high_temp_count											:= iHighTempCount;
+ELSE
+	desorption_high_temp_count											:= iHighTempCount;
+END_IF
+iInletAirSetpoint														:= SEL(iInletAirSetpoint = 2, iInletAirSetpoint + 1, 0);;
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="FB_Reactor_IO">
+      <LineId Id="6117" Count="67" />
+      <LineId Id="6541" Count="0" />
+      <LineId Id="6831" Count="0" />
+      <LineId Id="6185" Count="68" />
+      <LineId Id="1886" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_IO.A_Sorbent_Temperatures">
+      <LineId Id="2" Count="1" />
+      <LineId Id="453" Count="0" />
+      <LineId Id="5" Count="12" />
+      <LineId Id="255" Count="76" />
+      <LineId Id="95" Count="30" />
+      <LineId Id="332" Count="120" />
+      <LineId Id="247" Count="7" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

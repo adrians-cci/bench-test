@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="Global_Alarms" Id="{e7617498-7fbc-4eea-8b34-2d52f9d3df2c}">
+    <Declaration><![CDATA[// Phase 0 - Global_Alarms
+// Rev 1.0 - May 14, 2024
+
+VAR_GLOBAL
+	
+	giAlarmCount														: INT		:= 0;
+	gsAlarms															: ARRAY[0.._ALARM_COUNT] OF STRING;
+	gsMessages															: ARRAY[0.._ALARM_COUNT] OF STRING;
+
+	gsAmbientPressureError												: STRING	:= 'Ambient pressure error';
+	gsAdsorptionAcceptableButNotIdealTimeError							: STRING	:= 'Adsorption time to cool acceptable but not ideal';
+	gsAdsorptionTimeOutError											: STRING	:= 'Adsorption - sorbent failed to cool';
+	gsAdsorptionUnacceptableTimeError									: STRING	:= 'Adsorption time to cool unacceptable';
+	gsAdsorptionInletCo2LowError										: STRING	:= 'Adsorption inlet co2 concentration low';
+	gsAirFlowSensorError												: STRING	:= 'Air flow sensor error (FT-01)';
+	gsBoilerError														: STRING	:= 'Boiler pressure error';
+	gsBoilerOutletPresSensorError										: STRING	:= 'Boiler outlet pressure sensor error (PT-07)';
+	gsBoilerOutletTempSensorError										: STRING	:= 'Boiler outlet temperature sensor error (TT-06)';
+	gsClampExtendError													: STRING	:= 'Clamp extend error';
+	gsClampRetractError													: STRING	:= 'Clamp retract error';
+	gsCondensateCollectionDrainError									: STRING	:= 'Condensate collection tank not draining';
+	gsCondensateCollectionTankFlowSensorError							: STRING	:= 'Condensate collection tank flow sensor error (FT-07)';
+	gsCondensateCollectionTankLevelSensorError							: STRING	:= 'Condensate collection tank level sensor error (LT-02)';
+	gsCondensateCollectionTankLshError									: STRING	:= 'Condensate collection tank high limit switch error (LS-06)';
+	gsCondensateCollectionTankOutletLineTempSensorError					: STRING	:= 'Condensate collection tank outlet line temperature sensor error (TT-08)';
+	gsCondensateCollectionTankO2SensorError								: STRING	:= 'Condensate collection tank o2 sensor error (AT-05)';
+	gsCondensateCollectionTankPhSensorError								: STRING	:= 'Condensate collection tank ph sensor error (AT-04)';
+	gsCondensateCollectionTankTempSensorError							: STRING	:= 'Condensate collection tank temperature sensor error (TT-07)';
+	gsCondensateCollectionTankTurbiditySensorError						: STRING	:= 'Condensate collection tank turbidity sensor error (AT-06)';
+	gsCondesateFlowSensorError											: STRING	:= 'Condensate flow sensor error (FT-02)';
+	gsCondensateFromCoolingAndPurgeLinesLslError						: STRING	:= 'Condensate from cooling and purge lines low limit switch error (LS-03)';
+	gsCondensateLslError												: STRING	:= 'Condensate low limit switch error (LS-01)';
+	gsCondensateProductDrainError										: STRING	:= 'Module product/cooling line not draining';	
+	gsCondensateTempSensorError											: STRING	:= 'Condensate temperature sensor error (TT-12)';	
+	gsCoolingValveError													: STRING	:= 'Cooling valve error (XV-06)';
+	gsDeadAirFlowSensorError											: STRING	:= 'Dead air flow sensor error (FT-01)';
+	gsDeadAirLineCo2SensorError											: STRING	:= 'Dead air line co2 sensor error (AT-01)';
+	gsDeadAirLinePresSensorError										: STRING	:= 'Dead air line pressure sensor error (PT-01)';
+	gsDeadAirValveError													: STRING	:= 'Dead air valve error (XV-04)';
+	gsDesiredCycleCountError											: STRING	:= 'Desired cycle count error';
+	gsDesorptionHighSteamLineTemp										: STRING	:= 'Desorption - High steam line temperature';
+	gsDesorptionPurgeLinePressureError									: STRING	:= 'Desorption - Unable to purge';
+	gsDoorClampsExtendedError											: STRING	:= 'Door clamps extended';
+	gsDoorsNotClosedError												: STRING	:= 'Door not closed error';
+	gsDoorsNotOpenError													: STRING	:= 'Door not open error';
+	gsFanDiffPresSensorError											: STRING	:= 'Fan differential pressure sensor error (PDT-03)';
+	gsFilterDiffPresSensorError											: STRING	:= 'Filter differential pressure sensor error (PDT-01)';
+	gsHighTempCountError												: STRING	:= 'High Temp Count Error';
+	gsInletAirHighTempCountError										: STRING	:= 'Inlet air high temperature count error';
+	gsInletAirTempRangeError											: STRING	:= 'Inlet air temperature range error';
+    gsInletCO2SensorError												: STRING	:= 'Inlet CO2 sensor error (AT-01)';
+    gsInletH2OSensorError												: STRING	:= 'Inlet H2O sensor error (AT-02)';
+	gsInletDoorLeftClampsExtendedError									: STRING	:= 'Left inlet door clamps extended error (XV-01)'; 
+	gsInletDoorRightClampsExtendedError									: STRING	:= 'Right inlet door clamps extended error (XV-01)'; 
+	gsInstrumentAirCompPresSensorError									: STRING	:= 'Instrument air compressor pressure sensor error (PT-08)';
+	gsInstrumentAirCompTempSensorError									: STRING	:= 'Instrument air compressor temperature sensor error (TT-09)';
+	gsInsufficientVacuumPressureError									: STRING	:= 'Insufficient vacuum pressure reached';
+	gsNoReactorSetsSelected												: STRING	:= 'No reactor sets selected';
+    gsOutletCO2SensorError												: STRING	:= 'Outlet CO2 sensor error (AT-03)';
+    gsOutletH2OSensorError												: STRING	:= 'Outlet H2O sensor error (AT-04)';
+	gsOutletDoorLeftClampsExtendedError									: STRING	:= 'Left outlet door clamps extended error (XV-03)'; 
+	gsOutletDoorRightClampsExtendedError								: STRING	:= 'Right outlet door clamps extended error (XV-03)'; 
+	gsOutsideTempRangeError												: STRING	:= 'Outside air temperature out of range';
+	gsPneumaticLineTempError											: STRING	:= 'Pneumatic line temperature out of range (TT-09)';
+	gsPostCondenserLinePresSensorError									: STRING	:= 'Post condenser line pressure sensor error (PT-04)';
+	gsPostCondenserLineHighTempError									: STRING	:= 'Post condenser line high temperature error';
+	gsPostCondenserLineTempSensorError									: STRING	:= 'Post condenser line temperature sensor error (TT-03)';
+	gsPreCondenserLinePresSensorError									: STRING	:= 'Pre condenser line pressure sensor error (PT-03)';
+	gsPreCondenserLineTempSensorError									: STRING	:= 'Pre condenser line temperature sensor error (TT-02)';
+	gsProductCondensateDrainError										: STRING	:= 'Product condensate not draining';
+	gsProductCondensateDrainValveError									: STRING	:= 'Product condensate drain valve error';
+	gsProductCondensateDrumLshError										: STRING	:= 'Product condensate drum high limit switch error (LS-02)';
+	gsProductCondensateDrumLevelSensorError								: STRING	:= 'Product condensate not draining';
+	gsProductCondenserPumpOutletLiquidFlowSensorError					: STRING	:= 'Product condenser pump outlet temperature sensor error (TT-05)';
+	gsProductCondenserPumpOutletTempSensorError							: STRING	:= 'Product condenser pump outlet temperature sensor error (TT-05)';
+	gsProductOutletH2oSensorError										: STRING	:= 'Product outlet h2o sensor error (AT-07A)';
+	gsProductOutletTemperatureSensorError								: STRING	:= 'Product outlet h2o sensor error (AT-07B)';
+	gsProductCo2SampleH2oSensorError									: STRING	:= 'Product outlet h2o sensor error (AT-02B)';
+	gsProductOutletCo2SensorError										: STRING	:= 'Product outlet co2 sensor error (AT-02A)';
+	gsProductOutletO2SensorError										: STRING	:= 'Product outlet o2 sensor error (AT-03)';
+	gsProductOutletPresSensorError										: STRING	:= 'Product outlet pressure sensor error (PT-06)';
+	gsProductOutletTempSensorError										: STRING	:= 'Product outlet temperature sensor error (TT-04)';
+	gsProductOutletMassFlowSensorError									: STRING	:= 'Product outlet mass flow sensor error (FT-03)';
+	gsProductOutletVolumetricFlowSensorError							: STRING	:= 'Product outlet volumetric flow sensor error (FT-02)';
+	gsProductVacuumBackfeedValveError									: STRING	:= 'Product vacuum backfeed valve error (PCV-01)';
+	gsProductVacuumOutletIsoValveError									: STRING	:= 'Product vacuum outlet isolation valve error (XV-05)';
+	gsProductVacuumPumpIsoValveError									: STRING	:= 'Product vacuum pump isolation valve error (XV-03)';
+	gsProductVacuumPumpError											: STRING	:= 'Product vacuum pump error (P-02) - ';
+	gsProductVacuumPresSensorError										: STRING	:= 'Product vacuum pressure sensor error (PT-05)';
+	gsPurgeProductLinePresLowError										: STRING	:= 'Purge product line pressure low error';
+	gsPurgeProductLinePresSensorError									: STRING	:= 'Purge product line pressure sensor error (PT-02)';
+	gsPurgeProductLineTempSensorError									: STRING	:= 'Purge product line temperature sensor error (TT-01)';
+	gsPurgeValveError													: STRING	:= 'Purge valve error (XV-05)';
+	gsReactorDrainError													: STRING	:= 'Reactor not draining';	
+	gsReactorDoorClosingError											: STRING	:= 'Failed to close door valves';									// Complete
+	gsReactorDoorOpeningError											: STRING	:= 'Failed to open door valves';									// Complete
+	gsReactorsAtAmbientPressure											: STRING	:= 'Reactors at ambient pressure';
+	gsReactorPressureAboveAcceptableLevelError							: STRING	:= 'Reactor pressure above acceptable level';
+	gsReactorPressureAboveDesiredLevelError								: STRING	:= 'Reactor pressure above desired level';
+	gsReactorPresError													: STRING	:= 'Reactor pressure error';
+	gsReactorPresSensorError											: STRING	:= 'Reactor pressure sensor error  (PT_01)';
+	gsReactorSetFailedToPressurizeError									: STRING	:= 'Reactor set failed to pressurize';
+	gsReactorValvesNotClosedError										: STRING	:= 'Reactor valves are not closed';
+	gsRepressurizationValveError										: STRING	:= 'Repressurization valve error (XV-02)';	
+	gsRepressurizationError												: STRING	:= 'Repressurization error';	
+	gsSorbentDiffPresSensorError										: STRING	:= 'Sorbent differential pressure sensor error (PDT-02)';
+	gsSorbentTemperatureError											: STRING	:= 'Sorbent temperatures above safe temperature';
+	gsSteamBypassMinFlowRateError										: STRING	:= 'Steam bypass minimum flow rate error';
+	gsSteamControlValveError											: STRING	:= 'Steam control valve error (PCV-01)';
+	gsSteamFailedToPressurizeReactorError								: STRING	:= 'Steam failed to pressurize reactor to purge pressure';
+	gsSteamHeaderFlowSensorError										: STRING	:= 'Steam header flow sensor error (FT-06)';
+	gsSteamHeaderValveError												: STRING	:= 'Steam header valve error (XV-07)';
+	gsSteamManifoldLinePresSensorError									: STRING	:= 'Steam manifold line pressure sensro error (PT_02)';
+	gsSteamPressureHighError											: STRING	:= 'High steam pressure';
+	gsSteamPressureLowError												: STRING	:= 'Low steam pressure';
+	gsSteamTemperatureLowError											: STRING	:= 'Low steam temperature';
+	gsSteamTempNearRS01SensorError										: STRING	:= 'Steam temperature near RS01 sensor error (TT-10)';
+	gsSteamTempNearRS03SensorError										: STRING	:= 'Steam temperature near RS03 sensor error (TT-11)';
+	gsTapWaterToBoilerFlowSensorError									: STRING	:= 'Tap water to boiler flow sensor error';
+	gsUnableToEvacuateLinesError										: STRING	:= 'Unable to evacuate lines in time';
+	gsVacuumCoolingUnacceptableError									: STRING	:= 'Vacuum cooling temperature reached was unacceptable';
+	gsVacuumCoolingAcceptableButNotIdealError							: STRING	:= 'Vacuum cooling temperature reached was acceptable but not ideal';
+	gsVacuumPressureUnacceptableError									: STRING	:= 'Vacuum pressure reached was unacceptable';
+	gsVacuumPressureAcceptableBotNotIdealError							: STRING	:= 'Vacuum pressure reached was acceptable but not ideal';
+	gsWarmupNotRunError													: STRING	:= 'Warmup has not run';
+	gsWeatherHumiditySensorError										: STRING	:= 'Weather humidity sensor error (AT-07)';
+	gsWeatherPresureSensorError											: STRING	:= 'Weather pressure sensor error (PT-09)';
+	gsWeatherWindSpeedSensorError										: STRING	:= 'Weather wind speed sensor error (AT-08)';
+	gsWeatherWindDirectionSensorError									: STRING	:= 'Weather wind direction sensor error (WDT-01)';
+	gsWeatherTempSensorError											: STRING	:= 'Weather temperature sensor error (TT-10)';
+	gsWeatherNoiseLevelSensorError										: STRING	:= 'Weather noise level sensor error (NT-01)';
+	
+	gsMessageTBD			: STRING	:= 'TBD';
+	gsAdsorptionCo2LowCheck												: STRING	:= 'Check inlet co2 sensor';
+	gsCheckOperation													: STRING	:= 'Check sensor operation';
+	gsExtraRepressurizationTimeAllowed									: STRING	:= 'Extra repressurization time allowed';
+	gsPressureDropTestCannotRun											: STRING	:= 'Pressure drop test cannot run';
+	gsProcessCannotContinue												: STRING	:= 'Process cannot continue';
+	gsProcessCannotRun													: STRING	:= 'Process cannot run';
+	gsProcessCannotRunAdsorptionWillContinue							: STRING	:= 'Process cannot run - Adsorption will continue';
+	gsProcessStopsAtEOA													: STRING	:= 'Process will stop at end of Adsorption';
+	gsProcessStopsAtEOC													: STRING	:= 'Process will stop at end of current cycle';
+	gsProcessWillContinue												: STRING	:= 'Process will continue';
+	gsProcessComplete													: STRING	:= 'Process complete';
+	gsProcessRestart													: STRING	:= 'Process will attempt to restart on next cycle';
+	gsReactorIsUnderVacuum												: STRING	:= 'Reactor is under vacuum';
+	gsReactorSetCannotRun												: STRING	:= 'Reactor set cannot run';
+	gsReactorSetWillContinue											: STRING	:= 'Reactor set will continue';
+	gsReactorSetWillPause												: STRING	:= 'Reactor set will pause';
+	gsReactorSetWillStop												: STRING	:= 'Reactor set will stop';
+	gsReactorSetWillStopAtEndOfCycle									: STRING	:= 'Reactor set will stop at end of cycle';
+	gsReactorSetsInEvacuationWillContinue								: STRING	:= 'Reactor sets in Evacuation will finish, others will stop';
+	gsReactorSetWillStopEvacWillFinishOthersWillCompleteCycle			: STRING	:= 'Reactor set will stop, Evacuation will finish, others will complete cycle';
+	gsRunWarmup															: STRING	:= 'Run warm up';													
+	gsSafeShutdown1														: STRING	:= 'System will do a Safe Shutdown 1';
+	gsSafeShutdown2														: STRING	:= 'System will do a Safe Shutdown 2';
+	gsSafeShutdown3														: STRING	:= 'System will do a Safe Shutdown 3';
+	gsSorbentDamaged													: STRING	:= 'Sorbent damaged';
+	gsSteamBypassWillContinueWOAdsorption								: STRING	:= 'Steam Bypass will continue without Adsorption';
+	gsSystemCannotRun													: STRING	:= 'System cannot run';
+	gsSystemWillStop													: STRING	:= 'System will stop';
+	gsSystemWillStopAfterDesorption										: STRING	:= 'System will stop after Desorption';
+	gsUnableToCloseDoors												: STRING	:= 'Unable to close doors';
+	gsUnableToEvacuateReactorSet										: STRING	:= 'Unable to evacuate reactor set';
+	gsUserProcessRestart												: STRING	:= 'User must restart for process to continue';
+	gsWarmupWillContinue												: STRING	:= 'Warm up will continue';													
+	gsWarmupWillContinueWOAdsorption									: STRING	:= 'Warm up will continue without Adsorption';
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Module" Id="{7a393ab0-b02c-411d-a06d-f8f691978e47}">
+    <Declaration><![CDATA[// Phase 0 - Module
+// Rev 1.0 - December 25, 2023
+
+TYPE Module :
+STRUCT
+	
+	condensate_from_cooling_and_purge_lines_lsl					: BOOL;
+	condensate_from_cooling_and_purge_lines_lsh					: BOOL;
+	                                                	
+	condensate_from_cooling_and_purge_lines_pump				: BOOL;
+                                                    	
+	condensate_flow												: REAL;
+	condensate_flow_error										: BOOL;
+	steam_manifold_line_pres									: REAL;
+	steam_manifold_line_pres_error								: BOOL;
+                                                    	
+	steam_temp_near_rs1											: REAL;
+	steam_temp_near_rs1_error									: BOOL;
+	steam_temp_near_rs3											: REAL;
+	steam_temp_near_rs3_error									: BOOL;
+	condensate_temp												: REAL;
+	condensate_temp_error										: BOOL;
+	                                                	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

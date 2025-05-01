@@ -1,0 +1,898 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="P_M01_RS01_R4" Id="{36687b0c-06f5-4244-959c-cefa246769f6}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_M01_RS01_R4
+VAR_INPUT
+	bExtendAllClamps													: BOOL;
+	bRetractAllClamps													: BOOL;
+	bOpenAllDoors														: BOOL;
+	bCloseAllDoors														: BOOL;
+END_VAR
+VAR_OUTPUT
+	iInletAirHighTempCount												: INT;
+	iVacuumCoolingHighTempCount											: INT;
+	bAllClampsExtended													: BOOL;
+	bAllClampsRetracted													: BOOL;
+	bAllDoorsOpen														: BOOL;
+	bAllDoorsClosed														: BOOL;
+END_VAR
+VAR
+	react																: Reactor;
+	iNo																	: INT		:= 1;
+	sRSR																: STRING;
+	
+	sInletDoorLeftError													: STRING;
+	sInletDoorRightError												: STRING;
+	sOutletDoorLeftError												: STRING;
+	sOutletDoorRightError												: STRING;
+	
+	fbInletCO2Pump														: FB_Digital_Out();
+	fbInletCO2Sol														: FB_Digital_Out();
+	fbOutletCO2Pump														: FB_Digital_Out();
+	fbOutletCO2Sol														: FB_Digital_Out();
+	fbRepresValve														: FB_Digital_Out();
+	
+	fbFanVFDInput														: FB_Analog_Out();
+	fbFan																: FB_VFD();
+	tonFan																: TON;
+	rRpm																: REAL;
+	rRpmOld																: REAL		:= 0;
+
+	rtrigSorbentErrorCheck												: R_TRIG;
+	i																	: INT;
+	iCount																: ARRAY [0..23] OF INT;
+
+	fbInletDoor															: FB_Door();
+	AxisInletDoorLeft													: AXIS_REF;
+	AxisInletDoorRight													: AXIS_REF;
+	fbInletDoorOpen														: FB_Digital_Out();
+	fbInletDoorClose													: FB_Digital_Out();
+	fbInletDoorLeftOpen													: FB_Digital_Out();
+	fbInletDoorLeftClose												: FB_Digital_Out();
+	fbInletDoorRightOpen												: FB_Digital_Out();
+	fbInletDoorRightClose												: FB_Digital_Out();
+	fbInletDoorLeftRetract												: FB_Digital_Out();
+	fbInletDoorRightRetract												: FB_Digital_Out();
+	
+	fbOutletDoor														: FB_Door();
+	AxisOutletDoorLeft													: AXIS_REF;
+	AxisOutletDoorRight													: AXIS_REF;
+	fbOutletDoorOpen													: FB_Digital_Out();
+	fbOutletDoorClose													: FB_Digital_Out();
+	fbOutletDoorLeftOpen												: FB_Digital_Out();
+	fbOutletDoorLeftClose												: FB_Digital_Out();
+	fbOutletDoorRightOpen												: FB_Digital_Out();
+	fbOutletDoorRightClose												: FB_Digital_Out();
+	fbOutletDoorLeftRetract												: FB_Digital_Out();
+	fbOutletDoorRightRetract											: FB_Digital_Out();
+	
+	bInletAirCount														: BOOL;
+	iTempCount															: INT;
+	iHighTempCount														: INT;
+	rTempTotal															: REAL;
+	rTempSP																: REAL;
+	rMin																: REAL;
+	rMax																: REAL;
+	
+	
+	cart01_temp_front_calc												: FB_Temperature;
+	cart01_temp_back_calc												: FB_Temperature;
+	cart02_temp_front_calc												: FB_Temperature;
+	cart02_temp_back_calc												: FB_Temperature;
+	cart03_temp_front_calc												: FB_Temperature;
+	cart03_temp_back_calc												: FB_Temperature;
+	cart04_temp_front_calc												: FB_Temperature;
+	cart04_temp_back_calc												: FB_Temperature;
+	cart05_temp_front_calc												: FB_Temperature;
+	cart05_temp_back_calc												: FB_Temperature;
+	cart06_temp_front_calc												: FB_Temperature;
+	cart06_temp_back_calc												: FB_Temperature;
+	cart07_temp_front_calc												: FB_Temperature;
+	cart07_temp_back_calc												: FB_Temperature;
+	cart08_temp_front_calc												: FB_Temperature;
+	cart08_temp_back_calc												: FB_Temperature;
+	cart09_temp_front_calc												: FB_Temperature;
+	cart09_temp_back_calc												: FB_Temperature;
+	cart10_temp_front_calc												: FB_Temperature;
+	cart10_temp_back_calc												: FB_Temperature;
+	cart11_temp_front_calc												: FB_Temperature;
+	cart11_temp_back_calc												: FB_Temperature;
+	cart12_temp_front_calc												: FB_Temperature;
+	cart12_temp_back_calc												: FB_Temperature;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - P_M01_RS01_R4
+// Rev 1.0 - February 27, 2024
+
+sRSR																	:= CONCAT(_RS1, _R4);
+
+m01_rs1_r4.inlet_co2													:= F_AnalogIn(m01_rs1_r4.AT_01, m01_rs1_r4.inlet_co2_low, m01_rs1_r4.inlet_co2_high, m01_rs1_r4.inlet_co2_min, m01_rs1_r4.inlet_co2_offset);
+react.inlet_co2_error													:= m01_rs1_r4.inlet_co2_error;
+
+m01_rs1_r4.inlet_h2o													:= F_AnalogIn(m01_rs1_r4.AT_02, m01_rs1_r4.inlet_h2o_low, m01_rs1_r4.inlet_h2o_high, m01_rs1_r4.inlet_h2o_min, m01_rs1_r4.inlet_h2o_offset);
+react.inlet_h2o_error													:= m01_rs1_r4.inlet_h2o_error;
+
+m01_rs1_r4.outlet_co2													:= F_AnalogIn(m01_rs1_r4.AT_03, m01_rs1_r4.outlet_co2_low, m01_rs1_r4.outlet_co2_high, m01_rs1_r4.outlet_co2_min, m01_rs1_r4.outlet_co2_offset);
+react.outlet_co2_error													:= m01_rs1_r4.outlet_co2_error;
+
+m01_rs1_r4.outlet_h2o													:= F_AnalogIn(m01_rs1_r4.AT_04, m01_rs1_r4.outlet_h2o_low, m01_rs1_r4.outlet_h2o_high, m01_rs1_r4.outlet_h2o_min, m01_rs1_r4.outlet_h2o_offset);
+react.outlet_h2o_error													:= m01_rs1_r4.outlet_h2o_error;
+
+m01_rs1_r4.air_flow														:= F_AnalogIn(m01_rs1_r4.FT_01, m01_rs1_r4.air_flow_low, m01_rs1_r4.air_flow_high, m01_rs1_r4.air_flow_min, m01_rs1_r4.air_flow_offset);
+react.air_flow_error													:= m01_rs1_r4.air_flow_error;
+
+m01_rs1_r4.filter_diff_pres												:= F_AnalogIn(m01_rs1_r4.PDT_01, m01_rs1_r4.filter_diff_pres_low, m01_rs1_r4.filter_diff_pres_high, m01_rs1_r4.filter_diff_pres_min, m01_rs1_r4.filter_diff_pres_offset);
+react.filter_diff_pres_error											:= m01_rs1_r4.filter_diff_pres_error;
+
+m01_rs1_r4.sorbent_diff_pres											:= F_AnalogIn(m01_rs1_r4.PDT_02, m01_rs1_r4.sorbent_diff_pres_low, m01_rs1_r4.sorbent_diff_pres_high, m01_rs1_r4.sorbent_diff_pres_min, m01_rs1_r4.sorbent_diff_pres_offset);
+react.sorbent_diff_pres_error											:= m01_rs1_r4.sorbent_diff_pres_error;
+
+m01_rs1_r4.fan_diff_pres												:= F_AnalogIn(m01_rs1_r4.PDT_03, m01_rs1_r4.fan_diff_pres_low, m01_rs1_r4.fan_diff_pres_high, m01_rs1_r4.fan_diff_pres_min, m01_rs1_r4.fan_diff_pres_offset);
+react.fan_diff_pres_error												:= m01_rs1_r4.fan_diff_pres_error;
+
+m01_rs1_r4.reactor_pres													:= F_AnalogIn(m01_rs1_r4.PT_01, m01_rs1_r4.reactor_pres_low, m01_rs1_r4.reactor_pres_high, m01_rs1_r4.reactor_pres_min, m01_rs1_r4.reactor_pres_offset);
+react.reactor_pres_error												:= m01_rs1_r4.reactor_pres_error;
+
+IF _RS1_R4 = eFully THEN
+	m01_rs1.inlet_co2_master											:= m01_rs1_r4.inlet_co2;
+	m01_rs1.inlet_h2o_master											:= m01_rs1_r4.inlet_h2o;
+	m01_rs1.outlet_co2_master											:= m01_rs1_r4.outlet_co2;				
+	m01_rs1.outlet_h2o_master											:= m01_rs1_r4.outlet_h2o;
+	m01_rs1.air_flow_master												:= m01_rs1_r4.air_flow;
+	m01_rs1.filter_diff_pres_master										:= m01_rs1_r4.filter_diff_pres;	
+	m01_rs1.sorbent_diff_pres_master									:= m01_rs1_r4.sorbent_diff_pres;
+	m01_rs1.fan_diff_pres_master										:= m01_rs1_r4.fan_diff_pres;
+ELSIF _RS1_R4 = eMostly THEN
+	m01_rs1_r4.inlet_co2												:= m01_rs1.inlet_co2_master;				
+	m01_rs1_r4.inlet_h2o												:= m01_rs1.inlet_h2o_master;				
+	m01_rs1_r4.outlet_h2o												:= m01_rs1.outlet_h2o_master;				
+ELSE
+	m01_rs1_r4.inlet_co2												:= m01_rs1.inlet_co2_master;				
+	m01_rs1_r4.inlet_h2o												:= m01_rs1.inlet_h2o_master;				
+	m01_rs1_r4.outlet_co2												:= m01_rs1.outlet_co2_master;				
+	m01_rs1_r4.outlet_h2o												:= m01_rs1.outlet_h2o_master;				
+	m01_rs1_r4.air_flow													:= m01_rs1.air_flow_master;					
+	m01_rs1_r4.filter_diff_pres											:= m01_rs1.filter_diff_pres_master;			
+	m01_rs1_r4.sorbent_diff_pres										:= m01_rs1.sorbent_diff_pres_master;		
+	m01_rs1_r4.fan_diff_pres											:= m01_rs1.fan_diff_pres_master;			
+END_IF
+
+react.inlet_co2															:= m01_rs1_r4.inlet_co2;
+react.inlet_h2o															:= m01_rs1_r4.inlet_h2o;
+react.outlet_co2														:= m01_rs1_r4.outlet_co2;
+react.outlet_h2o														:= m01_rs1_r4.outlet_h2o;
+react.air_flow															:= m01_rs1_r4.air_flow;
+react.filter_diff_pres													:= m01_rs1_r4.filter_diff_pres;
+react.sorbent_diff_pres													:= m01_rs1_r4.sorbent_diff_pres;
+react.fan_diff_pres														:= m01_rs1_r4.fan_diff_pres;
+react.reactor_pres														:= m01_rs1_r4.reactor_pres;
+
+
+fbInletCO2Pump(Input1:= m01_rs1_r4.inlet_co2_pump, Input2:= react.inlet_co2_pump);
+m01_rs1_r4.AT_01_pump													:= react.inlet_co2_pump;
+m01_rs1_r4.inlet_co2_pump_cmd_status									:= react.inlet_co2_pump;
+
+fbInletCO2Sol(Input1:= m01_rs1_r4.inlet_co2_sol, Input2:= react.inlet_co2_sol);
+m01_rs1_r4.AT_01_sol													:= react.inlet_co2_sol;
+m01_rs1_r4.inlet_co2_sol_cmd_status										:= react.inlet_co2_sol;
+
+fbOutletCO2Pump(Input1:= m01_rs1_r4.outlet_co2_pump, Input2:= react.outlet_co2_pump);
+m01_rs1_r4.AT_03_pump													:= react.outlet_co2_pump;
+m01_rs1_r4.outlet_co2_pump_cmd_status									:= react.outlet_co2_pump;
+
+fbOutletCO2Sol(Input1:= m01_rs1_r4.outlet_co2_sol, Input2:= react.outlet_co2_sol);
+m01_rs1_r4.AT_03_sol													:= react.outlet_co2_sol;
+m01_rs1_r4.outlet_co2_sol_cmd_status									:= react.outlet_co2_sol;
+
+fbRepresValve(Input1:= m01_rs1_r4.repres_valve, Input2:= react.repressurization_valve);
+m01_rs1_r4.XV_02														:= react.repressurization_valve;
+m01_rs1_r4.repres_valve_open_cmd_status									:= react.repressurization_valve;
+react.repressurization_valve_clear										:= (m01_rs1_r4.XV_02 AND m01_rs1_r4.repres_valve_open) OR (NOT m01_rs1_r4.XV_02 AND m01_rs1_r4.repres_valve_closed);
+
+
+m01_rs1_r4.reactor_wall_temp											:= F_Temperature(m01_rs1_r4.TT_05, m01_rs1_r4.reactor_wall_temp_offset);
+react.reactor_wall_temp_error											:= m01_rs1_r4.reactor_wall_temp_error;
+
+m01_rs1_r4.outlet_line_temp												:= F_Temperature(m01_rs1_r4.TT_06, m01_rs1_r4.outlet_line_temp_offset);
+react.outlet_line_temp_error											:= m01_rs1_r4.outlet_line_temp_error;
+
+
+rtrigSorbentErrorCheck(CLK:= MAIN.bHalfSecondPulse);
+IF rtrigSorbentErrorCheck.Q THEN
+	A_Sorbent_Temperatures();
+	m01_rs1_r4.temp_low													:= react.temp_low;
+	m01_rs1_r4.temp_high												:= react.temp_high;
+	m01_rs1_r4.temp_average												:= react.temp_average;
+	
+END_IF
+
+fbFanVFDInput(Input1:= m01_rs1_r4.fan_vfd, Input2:= react.fan_vfd);
+IF tonFan.Q THEN
+	rRpmOld																:= react.fan_vfd;
+	rRpm																:= rRpmOld * _RPM_FACTOR;
+	rRpm																:= SEL(rRpm > _FAN_SPEED_MAX, rRpm, _FAN_SPEED_MAX);
+END_IF
+
+fbFan(	Enable															:= m01_rs1_r4.fan_vfd_enable,
+		Rpm																:= rRpm, 
+		StatusWord														:= m01_rs1_r4.fan_vfd_status, 
+		ControlWord														=> m01_rs1_r4.fan_vfd_control, 
+		TargetRpm														=> , 
+		Ready															=> m01_rs1_r4.fan_vfd_enabled, 
+		Error															=> m01_rs1_r4.fan_vfd_error);                              
+react.fan_vfd_output													:= WORD_TO_REAL(m01_rs1_r4.fan_vfd_velocity);
+tonFan(IN:= react.fan_vfd <> rRpmOld, PT:= INT_TO_TIME((iNo - 1) * _FAN_DELAY_TIME + 500));
+
+A_Wallace_Valves();
+]]></ST>
+    </Implementation>
+    <Action Name="A_Sorbent_Temperatures" Id="{894d893a-f870-448d-a3bc-214a17b4d04d}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01_RS01_R4.A_Sorbent_Temperatures
+// Rev 1.0 - February 6, 2024
+
+
+react.temp_low															:= 1000;
+react.temp_high															:= -1000;
+
+rTempTotal																:= 0;
+iTempCount																:= 0;
+
+m01_rs1_r4.cart01_front_temp											:= F_Temperature(m01_rs1_r4._01_TT_01, m01_rs1_r4.cart01_front_temp_offset);
+react.cart01_temp_front													:= m01_rs1_r4.cart01_front_temp;
+m01_rs1_r4.cart01_front_temp_error 										:= m01_rs1_r4._01_TT_01_Error OR iCount[0] < 30;
+react.cart01_temp_front_error											:= m01_rs1_r4.cart01_front_temp_error;
+m01_rs1_r4.cart01_back_temp												:= F_Temperature(m01_rs1_r4._01_TT_03, m01_rs1_r4.cart01_back_temp_offset);
+react.cart01_temp_back													:= m01_rs1_r4.cart01_back_temp;
+m01_rs1_r4.cart01_back_temp_error 										:= m01_rs1_r4._01_TT_03_Error OR iCount[1] < 30;
+react.cart01_temp_back_error											:= m01_rs1_r4.cart01_back_temp_error;
+cart01_temp_front_calc(error:= react.cart01_temp_front_error, temp:= react.cart01_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart01_temp_back_calc(error:= react.cart01_temp_back_error, temp:= react.cart01_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart02_front_temp											:= F_Temperature(m01_rs1_r4._02_TT_01, m01_rs1_r4.cart02_front_temp_offset);
+react.cart02_temp_front													:= m01_rs1_r4.cart02_front_temp;
+m01_rs1_r4.cart02_front_temp_error 										:= m01_rs1_r4._02_TT_01_Error OR iCount[2] < 30;
+react.cart02_temp_front_error											:= m01_rs1_r4.cart02_front_temp_error;
+m01_rs1_r4.cart02_back_temp												:= F_Temperature(m01_rs1_r4._02_TT_03, m01_rs1_r4.cart02_back_temp_offset);
+react.cart02_temp_back													:= m01_rs1_r4.cart02_back_temp;
+m01_rs1_r4.cart02_back_temp_error										:= m01_rs1_r4._02_TT_03_Error OR iCount[3] < 30;
+react.cart02_temp_back_error											:= m01_rs1_r4.cart02_back_temp_error;
+cart02_temp_front_calc(error:= react.cart02_temp_front_error, temp:= react.cart02_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart02_temp_back_calc(error:= react.cart02_temp_back_error, temp:= react.cart02_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart03_front_temp											:= F_Temperature(m01_rs1_r4._03_TT_01, m01_rs1_r4.cart03_front_temp_offset);
+react.cart03_temp_front													:= m01_rs1_r4.cart03_front_temp;
+m01_rs1_r4.cart03_front_temp_error 										:= m01_rs1_r4._03_TT_01_Error OR iCount[4] < 30;
+react.cart03_temp_front_error											:= m01_rs1_r4.cart03_front_temp_error;
+m01_rs1_r4.cart03_back_temp												:= F_Temperature(m01_rs1_r4._03_TT_03, m01_rs1_r4.cart03_back_temp_offset);
+react.cart03_temp_back													:= m01_rs1_r4.cart03_back_temp;
+m01_rs1_r4.cart03_back_temp_error 										:= m01_rs1_r4._03_TT_03_Error OR iCount[5] < 30;
+react.cart03_temp_back_error											:= m01_rs1_r4.cart03_back_temp_error;
+cart03_temp_front_calc(error:= react.cart03_temp_front_error, temp:= react.cart03_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart03_temp_back_calc(error:= react.cart03_temp_back_error, temp:= react.cart03_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart04_front_temp											:= F_Temperature(m01_rs1_r4._04_TT_01, m01_rs1_r4.cart04_front_temp_offset);
+react.cart04_temp_front													:= m01_rs1_r4.cart04_front_temp;
+m01_rs1_r4.cart04_front_temp_error										:= m01_rs1_r4._04_TT_01_Error OR iCount[6] < 30;
+react.cart04_temp_front_error											:= m01_rs1_r4.cart04_front_temp_error;
+m01_rs1_r4.cart04_back_temp												:= F_Temperature(m01_rs1_r4._04_TT_03, m01_rs1_r4.cart04_back_temp_offset);
+react.cart04_temp_back													:= m01_rs1_r4.cart04_back_temp;
+m01_rs1_r4.cart04_back_temp_error 										:= m01_rs1_r4._04_TT_03_Error OR iCount[7] < 30;
+react.cart04_temp_back_error											:= m01_rs1_r4.cart04_back_temp_error;
+cart04_temp_front_calc(error:= react.cart04_temp_front_error, temp:= react.cart04_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart04_temp_back_calc(error:= react.cart04_temp_back_error, temp:= react.cart04_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart05_front_temp											:= F_Temperature(m01_rs1_r4._05_TT_01, m01_rs1_r4.cart05_front_temp_offset);
+react.cart05_temp_front													:= m01_rs1_r4.cart05_front_temp;
+m01_rs1_r4.cart05_front_temp_error										:= m01_rs1_r4._05_TT_01_Error OR iCount[8] < 30;
+react.cart05_temp_front_error											:= m01_rs1_r4.cart05_front_temp_error;
+m01_rs1_r4.cart05_back_temp												:= F_Temperature(m01_rs1_r4._05_TT_03, m01_rs1_r4.cart05_back_temp_offset);
+react.cart05_temp_back													:= m01_rs1_r4.cart05_back_temp;
+m01_rs1_r4.cart05_back_temp_error										:= m01_rs1_r4._05_TT_03_Error OR iCount[9] < 30;
+react.cart05_temp_back_error											:= m01_rs1_r4.cart05_back_temp_error;
+cart05_temp_front_calc(error:= react.cart05_temp_front_error, temp:= react.cart05_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart05_temp_back_calc(error:= react.cart05_temp_back_error, temp:= react.cart05_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart06_front_temp											:= F_Temperature(m01_rs1_r4._06_TT_01, m01_rs1_r4.cart06_front_temp_offset);
+react.cart06_temp_front													:= m01_rs1_r4.cart06_front_temp;
+m01_rs1_r4.cart06_front_temp_error										:= m01_rs1_r4._06_TT_01_Error OR iCount[9] < 30;
+react.cart06_temp_front_error											:= m01_rs1_r4.cart06_front_temp_error;
+m01_rs1_r4.cart06_back_temp												:= F_Temperature(m01_rs1_r4._06_TT_03, m01_rs1_r4.cart06_back_temp_offset);
+react.cart06_temp_back													:= m01_rs1_r4.cart06_back_temp;
+m01_rs1_r4.cart06_back_temp_error										:= m01_rs1_r4._06_TT_03_Error OR iCount[11] < 30;
+react.cart06_temp_back_error											:= m01_rs1_r4.cart06_back_temp_error;
+cart06_temp_front_calc(error:= react.cart06_temp_front_error, temp:= react.cart06_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart06_temp_back_calc(error:= react.cart06_temp_back_error, temp:= react.cart06_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart07_front_temp											:= F_Temperature(m01_rs1_r4._07_TT_01, m01_rs1_r4.cart07_front_temp_offset);
+react.cart07_temp_front													:= m01_rs1_r4.cart07_front_temp;
+m01_rs1_r4.cart07_front_temp_error										:= m01_rs1_r4._07_TT_01_Error OR iCount[12] < 30;
+react.cart07_temp_front_error											:= m01_rs1_r4.cart07_front_temp_error;
+m01_rs1_r4.cart07_back_temp												:= F_Temperature(m01_rs1_r4._07_TT_03, m01_rs1_r4.cart07_back_temp_offset);
+react.cart07_temp_back													:= m01_rs1_r4.cart07_back_temp;
+m01_rs1_r4.cart07_back_temp_error										:= m01_rs1_r4._07_TT_03_Error OR iCount[13] < 30;
+react.cart07_temp_back_error											:= m01_rs1_r4.cart07_back_temp_error;
+cart07_temp_front_calc(error:= react.cart07_temp_front_error, temp:= react.cart07_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart07_temp_back_calc(error:= react.cart07_temp_back_error, temp:= react.cart07_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart08_front_temp											:= F_Temperature(m01_rs1_r4._08_TT_01, m01_rs1_r4.cart08_front_temp_offset);
+react.cart08_temp_front													:= m01_rs1_r4.cart08_front_temp;
+m01_rs1_r4.cart08_front_temp_error										:= m01_rs1_r4._08_TT_01_Error OR iCount[14] < 30;
+react.cart08_temp_front_error											:= m01_rs1_r4.cart08_front_temp_error;
+m01_rs1_r4.cart08_back_temp												:= F_Temperature(m01_rs1_r4._08_TT_03, m01_rs1_r4.cart08_back_temp_offset);
+react.cart08_temp_back													:= m01_rs1_r4.cart08_back_temp;
+m01_rs1_r4.cart08_back_temp_error										:= m01_rs1_r4._08_TT_03_Error OR iCount[15] < 30;
+react.cart08_temp_back_error											:= m01_rs1_r4.cart08_back_temp_error;
+cart08_temp_front_calc(error:= react.cart08_temp_front_error, temp:= react.cart08_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart08_temp_back_calc(error:= react.cart08_temp_back_error, temp:= react.cart08_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart09_front_temp											:= F_Temperature(m01_rs1_r4._09_TT_01, m01_rs1_r4.cart09_front_temp_offset);
+react.cart09_temp_front													:= m01_rs1_r4.cart09_front_temp;
+m01_rs1_r4.cart09_front_temp_error										:= m01_rs1_r4._09_TT_01_Error OR iCount[16] < 30;
+react.cart09_temp_front_error											:= m01_rs1_r4.cart09_front_temp_error;
+m01_rs1_r4.cart09_back_temp												:= F_Temperature(m01_rs1_r4._09_TT_03, m01_rs1_r4.cart09_back_temp_offset);
+react.cart09_temp_back													:= m01_rs1_r4.cart09_back_temp;
+m01_rs1_r4.cart09_back_temp_error										:= m01_rs1_r4._09_TT_03_Error OR iCount[17] < 30;
+react.cart09_temp_back_error											:= m01_rs1_r4.cart09_back_temp_error;
+cart09_temp_front_calc(error:= react.cart09_temp_front_error, temp:= react.cart09_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart09_temp_back_calc(error:= react.cart09_temp_back_error, temp:= react.cart09_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart10_front_temp											:= F_Temperature(m01_rs1_r4._10_TT_01, m01_rs1_r4.cart10_front_temp_offset);
+react.cart10_temp_front													:= m01_rs1_r4.cart10_front_temp;
+m01_rs1_r4.cart10_front_temp_error										:= m01_rs1_r4._10_TT_01_Error OR iCount[18] < 30;
+react.cart10_temp_front_error											:= m01_rs1_r4.cart10_front_temp_error;
+m01_rs1_r4.cart10_back_temp												:= F_Temperature(m01_rs1_r4._10_TT_03, m01_rs1_r4.cart10_back_temp_offset);
+react.cart10_temp_back													:= m01_rs1_r4.cart10_back_temp;
+m01_rs1_r4.cart10_back_temp_error										:= m01_rs1_r4._10_TT_03_Error OR iCount[19] < 30;
+react.cart10_temp_back_error											:= m01_rs1_r4.cart10_back_temp_error;
+cart10_temp_front_calc(error:= react.cart10_temp_front_error, temp:= react.cart10_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart10_temp_back_calc(error:= react.cart10_temp_back_error, temp:= react.cart10_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart11_front_temp											:= F_Temperature(m01_rs1_r4._11_TT_01, m01_rs1_r4.cart11_front_temp_offset);
+react.cart11_temp_front													:= m01_rs1_r4.cart11_front_temp;
+m01_rs1_r4.cart11_front_temp_error										:= m01_rs1_r4._11_TT_01_Error OR iCount[20] < 30;
+react.cart11_temp_front_error											:= m01_rs1_r4.cart11_front_temp_error;
+m01_rs1_r4.cart11_back_temp												:= F_Temperature(m01_rs1_r4._11_TT_03, m01_rs1_r4.cart11_back_temp_offset);
+react.cart11_temp_back													:= m01_rs1_r4.cart11_back_temp;
+m01_rs1_r4.cart11_back_temp_error										:= m01_rs1_r4._11_TT_03_Error OR iCount[21] < 30;
+react.cart11_temp_back_error											:= m01_rs1_r4.cart11_back_temp_error;
+cart11_temp_front_calc(error:= react.cart11_temp_front_error, temp:= react.cart11_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart11_temp_back_calc(error:= react.cart11_temp_back_error, temp:= react.cart11_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+m01_rs1_r4.cart12_front_temp											:= F_Temperature(m01_rs1_r4._12_TT_01, m01_rs1_r4.cart12_front_temp_offset);
+react.cart12_temp_front													:= m01_rs1_r4.cart12_front_temp;
+m01_rs1_r4.cart12_front_temp_error										:= m01_rs1_r4._12_TT_01_Error OR iCount[22] < 30;
+react.cart12_temp_front_error											:= m01_rs1_r4.cart12_front_temp_error;
+m01_rs1_r4.cart12_back_temp												:= F_Temperature(m01_rs1_r4._12_TT_03, m01_rs1_r4.cart12_back_temp_offset);
+react.cart12_temp_back													:= m01_rs1_r4.cart12_back_temp;
+m01_rs1_r4.cart12_back_temp_error										:= m01_rs1_r4._12_TT_03_Error OR iCount[23] < 30;
+react.cart12_temp_back_error											:= m01_rs1_r4.cart12_back_temp_error;
+cart12_temp_front_calc(error:= react.cart12_temp_front_error, temp:= react.cart12_temp_front, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+cart12_temp_back_calc(error:= react.cart12_temp_back_error, temp:= react.cart12_temp_back, low_temp:= react.temp_low, high_temp:= react.temp_high, temp_total:= rTempTotal, temp_count:= iTempCount);
+
+react.temp_average														:= SEL(iTempCount > 0, 0, rTempTotal / iTempCount);
+
+FOR i:= 0 TO 23 DO
+	iCount[i]															:= iCount[i] + 1;
+	IF iCount[i] > 30 THEN
+		iCount[i]														:= 30;
+	END_IF
+END_FOR
+
+iHighTempCount															:= 0;
+rMin																	:= u01.SP_minimum_reasonable_sorbent_TC_reading;
+rMax																	:= u01.SP_maximum_reasonable_sorbent_TC_reading;
+rTempSP																	:= SEL(bInletAirCount, m01.SP_vacuum_cooling_target_temperature, m01.SP_maximum_inlet_air_temperature_during_adsorption); 
+
+IF m01_rs1_r4._01_TT_01_Error OR react.cart01_temp_front < rMin OR react.cart01_temp_front > rMax THEN
+	iCount[0]															:= 0;
+ELSIF react.cart01_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF 
+IF m01_rs1_r4._01_TT_03_Error OR react.cart01_temp_back < rMin OR react.cart01_temp_back > rMax THEN
+	iCount[1]															:= 0;
+ELSIF react.cart01_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._02_TT_01_Error OR react.cart02_temp_front < rMin OR react.cart02_temp_front > rMax THEN
+	iCount[2]															:= 0;
+ELSIF react.cart02_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._02_TT_03_Error OR react.cart02_temp_back < rMin OR react.cart02_temp_back > rMax THEN
+	iCount[3]															:= 0;
+ELSIF react.cart02_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._03_TT_01_Error OR react.cart03_temp_front < rMin OR react.cart03_temp_front > rMax THEN
+	iCount[4]															:= 0;
+ELSIF react.cart03_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._03_TT_03_Error OR react.cart03_temp_back < rMin OR react.cart03_temp_back > rMax THEN
+	iCount[5]															:= 0;
+ELSIF react.cart03_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._04_TT_01_Error OR react.cart04_temp_front < rMin OR react.cart04_temp_front > rMax THEN
+	iCount[6]															:= 0;
+ELSIF react.cart04_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._04_TT_03_Error OR react.cart04_temp_back < rMin OR react.cart04_temp_back > rMax THEN
+	iCount[7]															:= 0;
+ELSIF react.cart04_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._05_TT_01_Error OR react.cart05_temp_front < rMin OR react.cart05_temp_front > rMax THEN
+	iCount[8]															:= 0;
+ELSIF react.cart05_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._05_TT_03_Error OR react.cart05_temp_back < rMin OR react.cart05_temp_back > rMax THEN
+	iCount[9]															:= 0;
+ELSIF react.cart05_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._06_TT_01_Error OR react.cart06_temp_front < rMin OR react.cart06_temp_front > rMax THEN
+	iCount[10]															:= 0;
+ELSIF react.cart06_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._06_TT_03_Error OR react.cart06_temp_back < rMin OR react.cart06_temp_back > rMax THEN
+	iCount[11]															:= 0;
+ELSIF react.cart06_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._07_TT_01_Error OR react.cart07_temp_front < rMin OR react.cart07_temp_front > rMax THEN
+	iCount[12]															:= 0;
+ELSIF react.cart07_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._07_TT_03_Error OR react.cart07_temp_back < rMin OR react.cart07_temp_back > rMax THEN
+	iCount[13]															:= 0;
+ELSIF react.cart07_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._08_TT_01_Error OR react.cart08_temp_front < rMin OR react.cart08_temp_front > rMax THEN
+	iCount[14]															:= 0;
+ELSIF react.cart08_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._08_TT_03_Error OR react.cart08_temp_back < rMin OR react.cart08_temp_back > rMax THEN
+	iCount[15]															:= 0;
+ELSIF react.cart08_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._09_TT_01_Error OR react.cart09_temp_front < rMin OR react.cart09_temp_front > rMax THEN
+	iCount[16]															:= 0;
+ELSIF react.cart09_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._09_TT_03_Error OR react.cart09_temp_back < rMin OR react.cart09_temp_back > rMax THEN
+	iCount[17]															:= 0;
+ELSIF react.cart09_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._10_TT_01_Error OR react.cart10_temp_front < rMin OR react.cart10_temp_front > rMax THEN
+	iCount[18]															:= 0;
+ELSIF react.cart10_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._10_TT_03_Error OR react.cart10_temp_back < rMin OR react.cart10_temp_back > rMax THEN
+	iCount[19]															:= 0;
+ELSIF react.cart10_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._11_TT_01_Error OR react.cart11_temp_front < rMin OR react.cart11_temp_front > rMax THEN
+	iCount[20]															:= 0;
+ELSIF react.cart11_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._11_TT_03_Error OR react.cart11_temp_back < rMin OR react.cart11_temp_back > rMax THEN
+	iCount[21]															:= 0;
+ELSIF react.cart11_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF m01_rs1_r4._12_TT_01_Error OR react.cart12_temp_front < rMin OR react.cart12_temp_front > rMax THEN
+	iCount[22]															:= 0;
+ELSIF react.cart12_temp_front > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+IF m01_rs1_r4._12_TT_03_Error OR react.cart12_temp_back < rMin OR react.cart12_temp_back > rMax THEN
+	iCount[23]															:= 0;
+ELSIF react.cart12_temp_back > rTempSP THEN
+	iHighTempCount														:= iHighTempCount + 1;
+END_IF
+
+IF bInletAirCount THEN
+	iInletAirHighTempCount												:= iHighTempCount;
+ELSE
+	iVacuumCoolingHighTempCount											:= iHighTempCount;
+END_IF
+bInletAirCount															:= NOT bInletAirCount;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Wallace_Valves" Id="{8c298cd6-c8a9-47d4-93c4-e1a35608cc44}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01_RS01_R4.A_Wallace_Valves
+// Rev 2.0 - February 26, 2024
+
+IF bExtendAllClamps THEN
+	react.inlet_door_retract_left_clamps								:= FALSE;
+	react.inlet_door_retract_right_clamps								:= FALSE;
+	react.outlet_door_retract_left_clamps								:= FALSE;
+	react.outlet_door_retract_right_clamps								:= FALSE;
+	bExtendAllClamps													:= FALSE;
+END_IF
+IF bRetractAllClamps THEN
+	react.inlet_door_retract_left_clamps								:= TRUE;
+	react.inlet_door_retract_right_clamps								:= TRUE;
+	react.outlet_door_retract_left_clamps								:= TRUE;
+	react.outlet_door_retract_right_clamps								:= TRUE;
+	bRetractAllClamps													:= FALSE;
+END_IF	
+
+IF bOpenAllDoors THEN
+	react.inlet_door_close												:= FALSE;
+	react.outlet_door_close												:= FALSE;
+	react.inlet_door_open												:= TRUE;
+	react.outlet_door_open												:= TRUE;
+	bOpenAllDoors														:= FALSE;
+END_IF
+IF bCloseAllDoors THEN
+	react.inlet_door_open												:= FALSE;
+	react.outlet_door_open												:= FALSE;
+	react.inlet_door_close												:= TRUE;
+	react.outlet_door_close												:= TRUE;
+	bCloseAllDoors														:= FALSE;
+END_IF
+
+fbInletDoorOpen(Input1:= m01_rs1_r4.inlet_door_open, Input2:= react.inlet_door_open);
+fbInletDoorClose(Input1:= m01_rs1_r4.inlet_door_close, Input2:= react.inlet_door_close);
+fbInletDoorLeftOpen(Input1:= m01_rs1_r4.inlet_door_left_open, Input2:= react.inlet_door_left_open);
+fbInletDoorLeftClose(Input1:= m01_rs1_r4.inlet_door_left_close, Input2:= react.inlet_door_left_close);
+fbInletDoorRightOpen(Input1:= m01_rs1_r4.inlet_door_right_open, Input2:= react.inlet_door_right_open);
+fbInletDoorRightClose(Input1:= m01_rs1_r4.inlet_door_right_close, Input2:= react.inlet_door_right_close);
+
+fbInletDoorLeftRetract(Input1:= m01_rs1_r4.inlet_door_left_clamps_retract_solenoid_valve, Input2:= react.inlet_door_retract_left_clamps);
+m01_rs1_r4.XV_01_Left_Clamps_Retract									:= react.inlet_door_retract_left_clamps;
+react.inlet_door_left_clamps_extended									:= m01_rs1_r4.inlet_door_left_clamps_extended_ls;
+
+fbInletDoorRightRetract(Input1:= m01_rs1_r4.inlet_door_right_clamps_retract_solenoid_valve, Input2:= react.inlet_door_retract_right_clamps);
+m01_rs1_r4.XV_01_Right_Clamps_Retract									:= react.inlet_door_retract_right_clamps;
+react.inlet_door_right_clamps_extended									:= m01_rs1_r4.inlet_door_right_clamps_extended_ls;
+
+fbInletDoor(	tb_Enable_Doors											:= m01_rs1.tb_Enable_Doors,
+				Open_Doors												:= react.inlet_door_open, 
+				Close_Doors												:= react.inlet_door_close, 
+				tb_Reset_doors											:= P_M01_RS01.bResetDoors,
+				Open_Left_Door											:= react.inlet_door_left_open,  
+				Close_Left_Door											:= react.inlet_door_left_close, 
+				Open_Right_Door											:= react.inlet_door_right_open, 
+				Close_Right_Door										:= react.inlet_door_right_close,
+				Left_Door_Closed_LS										:= m01_rs1_r4.inlet_door_left_closed_ls, 
+				Right_Door_Closed_LS									:= m01_rs1_r4.inlet_door_right_closed_ls, 
+				Left_Door_Open_LS										:= m01_rs1_r4.inlet_door_left_open_ls, 
+				Right_Door_Open_LS										:= m01_rs1_r4.inlet_door_right_open_ls, 
+				Left_Door_Clamps_Retracted								:= NOT react.inlet_door_left_clamps_extended, 
+				Right_Door_Clamps_Retracted								:= NOT react.inlet_door_right_clamps_extended, 
+				Max_Distance_To_Move									:= _DOOR_DISTANCE_MAX, 
+				Door_Position_Left										:= m01_rs1_r4.inlet_door_left_position, 
+				Door_Position_Right										:= m01_rs1_r4.inlet_door_right_position, 
+				Door_Ratio												:= _DOOR_RATIO, 
+				Door_Speed												:= m01.SP_adsorption_valve_rotational_velocity,
+				Manual_Door_Position_Left								:= m01_rs1_r4.inlet_door_left_manual_position,
+				Manual_Door_Position_Right								:= m01_rs1_r4.inlet_door_right_manual_position, 
+				Enabled_Left											=> m01_rs1_r4.inlet_door_left_enabled, 
+				Enabled_Right											=> m01_rs1_r4.inlet_door_right_enabled, 
+				Homed_Left												=> m01_rs1_r4.inlet_door_left_homed, 
+				Homed_Right												=> m01_rs1_r4.inlet_door_right_homed, 
+				Moving_Left												=> , 
+				Moving_Right											=> , 
+				Current_Position_Left									=> m01_rs1_r4.inlet_door_left_position, 
+				Current_Position_Right									=> m01_rs1_r4.inlet_door_right_position, 
+				Done_Left												=> , 
+				Done_Right												=> , 
+				Error_Left												=> sInletDoorLeftError, 
+				Error_Right												=> sInletDoorRightError, 
+				Door_Axis_Left											:= AxisInletDoorLeft, 
+				Door_Axis_Right											:= AxisInletDoorRight);
+
+IF sInletDoorLeftError <> '0' THEN
+	P_Alarms.M_Add_Alarm(CONCAT(sRSR, 'Inlet Left '), sInletDoorLeftError, '');				
+END_IF
+IF sInletDoorRightError <> '0' THEN
+	P_Alarms.M_Add_Alarm(CONCAT(sRSR, 'Inlet Right '), sInletDoorRightError, '');				
+END_IF
+
+react.inlet_door_open													:= FALSE;				
+react.inlet_door_close													:= FALSE;				
+react.inlet_door_left_open												:= FALSE;
+react.inlet_door_left_close												:= FALSE;
+react.inlet_door_right_open												:= FALSE;
+react.inlet_door_right_close											:= FALSE;
+m01_rs1_r4.inlet_door_left_manual_position								:= -1;
+m01_rs1_r4.inlet_door_right_manual_position								:= -1;
+				
+
+fbOutletDoorOpen(Input1:= m01_rs1_r4.outlet_door_open, Input2:= react.outlet_door_open);
+fbOutletDoorClose(Input1:= m01_rs1_r4.outlet_door_close, Input2:= react.outlet_door_close);
+fbOutletDoorLeftOpen(Input1:= m01_rs1_r4.outlet_door_left_open, Input2:= react.outlet_door_left_open);
+fbOutletDoorLeftClose(Input1:= m01_rs1_r4.outlet_door_left_close, Input2:= react.outlet_door_left_close);
+fbOutletDoorRightOpen(Input1:= m01_rs1_r4.outlet_door_right_open, Input2:= react.outlet_door_right_open);
+fbOutletDoorRightClose(Input1:= m01_rs1_r4.outlet_door_right_close, Input2:= react.outlet_door_right_close);
+
+fbOutletDoorLeftRetract(Input1:= m01_rs1_r4.outlet_door_left_clamps_retract_solenoid_valve, Input2:= react.outlet_door_retract_left_clamps);
+m01_rs1_r4.XV_03_Left_Clamps_Retract									:= react.outlet_door_retract_left_clamps;
+react.outlet_door_left_clamps_extended									:= m01_rs1_r4.outlet_door_left_clamps_extended_ls;
+
+fbOutletDoorRightRetract(Input1:= m01_rs1_r4.outlet_door_right_clamps_retract_solenoid_valve, Input2:= react.outlet_door_retract_right_clamps);
+m01_rs1_r4.XV_03_Right_Clamps_Retract									:= react.outlet_door_retract_right_clamps;
+react.outlet_door_right_clamps_extended									:= m01_rs1_r4.outlet_door_right_clamps_extended_ls;
+
+fbOutletDoor(	tb_Enable_Doors											:= m01_rs1.tb_Enable_Doors,
+				Open_Doors												:= react.outlet_door_open, 
+				Close_Doors												:= react.outlet_door_close, 
+				tb_Reset_doors											:= P_M01_RS01.bResetDoors,
+				Open_Left_Door											:= react.outlet_door_left_open,
+				Close_Left_Door											:= react.outlet_door_left_close,
+				Open_Right_Door											:= react.outlet_door_right_open,
+				Close_Right_Door										:= react.outlet_door_right_close,
+				Left_Door_Closed_LS										:= m01_rs1_r4.outlet_door_left_closed_ls, 
+				Right_Door_Closed_LS									:= m01_rs1_r4.outlet_door_right_closed_ls, 
+				Left_Door_Open_LS										:= m01_rs1_r4.outlet_door_left_open_ls, 
+				Right_Door_Open_LS										:= m01_rs1_r4.outlet_door_right_open_ls, 
+				Left_Door_Clamps_Retracted								:= NOT react.outlet_door_left_clamps_extended, 
+				Right_Door_Clamps_Retracted								:= NOT react.outlet_door_right_clamps_extended, 
+				Max_Distance_To_Move									:= _DOOR_DISTANCE_MAX, 
+				Door_Position_Left										:= m01_rs1_r4.outlet_door_left_position, 
+				Door_Position_Right										:= m01_rs1_r4.outlet_door_right_position, 
+				Door_Ratio												:= _DOOR_RATIO, 
+				Door_Speed												:= m01.SP_adsorption_valve_rotational_velocity, 
+				Manual_Door_Position_Left								:= m01_rs1_r4.outlet_door_left_manual_position,
+				Manual_Door_Position_Right								:= m01_rs1_r4.outlet_door_right_manual_position, 
+				Enabled_Left											=> m01_rs1_r4.outlet_door_left_enabled, 
+				Enabled_Right											=> m01_rs1_r4.outlet_door_right_enabled, 
+				Homed_Left												=> m01_rs1_r4.outlet_door_left_homed, 
+				Homed_Right												=> m01_rs1_r4.outlet_door_right_homed, 
+				Moving_Left												=> , 
+				Moving_Right											=> , 
+				Current_Position_Left									=> m01_rs1_r4.outlet_door_left_position, 
+				Current_Position_Right									=> m01_rs1_r4.outlet_door_right_position, 
+				Done_Left												=> , 
+				Done_Right												=> , 
+				Error_Left												=> sOutletDoorLeftError, 
+				Error_Right												=> sOutletDoorRightError, 
+				Door_Axis_Left											:= AxisOutletDoorLeft, 
+				Door_Axis_Right											:= AxisOutletDoorRight);
+
+IF sOutletDoorLeftError <> '0' THEN
+	P_Alarms.M_Add_Alarm(CONCAT(sRSR, 'Outlet Left '), sOutletDoorLeftError, '');				
+END_IF
+IF sOutletDoorRightError <> '0' THEN
+	P_Alarms.M_Add_Alarm(CONCAT(sRSR, 'Outlet Right '), sOutletDoorRightError, '');				
+END_IF
+
+react.outlet_door_open													:= FALSE;
+react.outlet_door_close													:= FALSE;
+react.outlet_door_left_open												:= FALSE;
+react.outlet_door_left_close											:= FALSE;
+react.outlet_door_right_open											:= FALSE;
+react.outlet_door_right_close											:= FALSE;
+m01_rs1_r4.outlet_door_left_manual_position								:= -1;
+m01_rs1_r4.outlet_door_right_manual_position							:= -1;
+
+bAllClampsRetracted														:= NOT react.inlet_door_left_clamps_extended AND NOT react.inlet_door_right_clamps_extended AND NOT react.outlet_door_left_clamps_extended AND NOT react.outlet_door_right_clamps_extended;
+bAllClampsExtended														:= react.inlet_door_left_clamps_extended AND react.inlet_door_right_clamps_extended AND react.outlet_door_left_clamps_extended AND react.outlet_door_right_clamps_extended;
+ 
+bAllDoorsOpen															:= m01_rs1_r4.inlet_door_left_open_ls AND m01_rs1_r4.inlet_door_right_open_ls	AND m01_rs1_r4.outlet_door_left_open_ls AND m01_rs1_r4.outlet_door_right_open_ls;
+bAllDoorsClosed															:= m01_rs1_r4.inlet_door_left_closed_ls AND m01_rs1_r4.inlet_door_right_closed_ls AND m01_rs1_r4.outlet_door_left_closed_ls AND m01_rs1_r4.outlet_door_right_closed_ls;
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="P_M01_RS01_R4">
+      <LineId Id="1723" Count="5" />
+      <LineId Id="1730" Count="2" />
+      <LineId Id="1734" Count="2" />
+      <LineId Id="1738" Count="2" />
+      <LineId Id="1742" Count="2" />
+      <LineId Id="1746" Count="2" />
+      <LineId Id="1750" Count="2" />
+      <LineId Id="1754" Count="2" />
+      <LineId Id="1758" Count="2" />
+      <LineId Id="1762" Count="1" />
+      <LineId Id="1964" Count="32" />
+      <LineId Id="1963" Count="0" />
+      <LineId Id="1764" Count="56" />
+      <LineId Id="816" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01_RS01_R4.A_Sorbent_Temperatures">
+      <LineId Id="2" Count="0" />
+      <LineId Id="531" Count="0" />
+      <LineId Id="480" Count="1" />
+      <LineId Id="141" Count="1" />
+      <LineId Id="478" Count="0" />
+      <LineId Id="518" Count="2" />
+      <LineId Id="144" Count="2" />
+      <LineId Id="254" Count="0" />
+      <LineId Id="147" Count="1" />
+      <LineId Id="255" Count="0" />
+      <LineId Id="149" Count="6" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="156" Count="2" />
+      <LineId Id="275" Count="0" />
+      <LineId Id="159" Count="5" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="165" Count="2" />
+      <LineId Id="277" Count="0" />
+      <LineId Id="168" Count="5" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="174" Count="2" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="177" Count="5" />
+      <LineId Id="281" Count="0" />
+      <LineId Id="183" Count="2" />
+      <LineId Id="280" Count="0" />
+      <LineId Id="186" Count="5" />
+      <LineId Id="282" Count="0" />
+      <LineId Id="192" Count="2" />
+      <LineId Id="283" Count="0" />
+      <LineId Id="195" Count="5" />
+      <LineId Id="294" Count="0" />
+      <LineId Id="201" Count="2" />
+      <LineId Id="295" Count="0" />
+      <LineId Id="204" Count="5" />
+      <LineId Id="296" Count="0" />
+      <LineId Id="210" Count="2" />
+      <LineId Id="297" Count="0" />
+      <LineId Id="213" Count="5" />
+      <LineId Id="298" Count="0" />
+      <LineId Id="219" Count="2" />
+      <LineId Id="299" Count="0" />
+      <LineId Id="222" Count="1" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="225" Count="2" />
+      <LineId Id="300" Count="0" />
+      <LineId Id="228" Count="2" />
+      <LineId Id="301" Count="0" />
+      <LineId Id="231" Count="5" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="237" Count="2" />
+      <LineId Id="303" Count="0" />
+      <LineId Id="240" Count="5" />
+      <LineId Id="304" Count="0" />
+      <LineId Id="246" Count="2" />
+      <LineId Id="305" Count="0" />
+      <LineId Id="249" Count="2" />
+      <LineId Id="530" Count="0" />
+      <LineId Id="490" Count="0" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="2" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="352" Count="0" />
+      <LineId Id="517" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="354" Count="1" />
+      <LineId Id="510" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="351" Count="0" />
+      <LineId Id="307" Count="1" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="59" Count="1" />
+      <LineId Id="331" Count="1" />
+      <LineId Id="61" Count="1" />
+      <LineId Id="356" Count="119" />
+      <LineId Id="524" Count="0" />
+      <LineId Id="504" Count="0" />
+      <LineId Id="521" Count="0" />
+      <LineId Id="527" Count="0" />
+      <LineId Id="526" Count="0" />
+      <LineId Id="528" Count="1" />
+      <LineId Id="18" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01_RS01_R4.A_Wallace_Valves">
+      <LineId Id="2" Count="1" />
+      <LineId Id="393" Count="0" />
+      <LineId Id="415" Count="0" />
+      <LineId Id="417" Count="5" />
+      <LineId Id="399" Count="0" />
+      <LineId Id="401" Count="3" />
+      <LineId Id="412" Count="0" />
+      <LineId Id="400" Count="0" />
+      <LineId Id="432" Count="0" />
+      <LineId Id="423" Count="0" />
+      <LineId Id="444" Count="1" />
+      <LineId Id="433" Count="0" />
+      <LineId Id="437" Count="0" />
+      <LineId Id="435" Count="0" />
+      <LineId Id="434" Count="0" />
+      <LineId Id="439" Count="2" />
+      <LineId Id="446" Count="1" />
+      <LineId Id="442" Count="1" />
+      <LineId Id="438" Count="0" />
+      <LineId Id="165" Count="0" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="305" Count="3" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="178" Count="1" />
+      <LineId Id="380" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="185" Count="1" />
+      <LineId Id="381" Count="0" />
+      <LineId Id="426" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="215" Count="2" />
+      <LineId Id="281" Count="0" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="282" Count="0" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="218" Count="3" />
+      <LineId Id="322" Count="0" />
+      <LineId Id="222" Count="1" />
+      <LineId Id="225" Count="3" />
+      <LineId Id="347" Count="1" />
+      <LineId Id="229" Count="7" />
+      <LineId Id="239" Count="4" />
+      <LineId Id="212" Count="0" />
+      <LineId Id="332" Count="0" />
+      <LineId Id="294" Count="0" />
+      <LineId Id="374" Count="0" />
+      <LineId Id="334" Count="0" />
+      <LineId Id="367" Count="0" />
+      <LineId Id="338" Count="1" />
+      <LineId Id="335" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="297" Count="0" />
+      <LineId Id="314" Count="3" />
+      <LineId Id="351" Count="1" />
+      <LineId Id="295" Count="0" />
+      <LineId Id="326" Count="0" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="310" Count="3" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="202" Count="1" />
+      <LineId Id="397" Count="0" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="209" Count="1" />
+      <LineId Id="398" Count="0" />
+      <LineId Id="244" Count="3" />
+      <LineId Id="453" Count="0" />
+      <LineId Id="289" Count="3" />
+      <LineId Id="275" Count="3" />
+      <LineId Id="323" Count="1" />
+      <LineId Id="254" Count="4" />
+      <LineId Id="349" Count="1" />
+      <LineId Id="259" Count="7" />
+      <LineId Id="269" Count="5" />
+      <LineId Id="293" Count="0" />
+      <LineId Id="368" Count="5" />
+      <LineId Id="346" Count="0" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="299" Count="0" />
+      <LineId Id="318" Count="3" />
+      <LineId Id="353" Count="1" />
+      <LineId Id="427" Count="2" />
+      <LineId Id="431" Count="0" />
+      <LineId Id="448" Count="0" />
+      <LineId Id="298" Count="0" />
+      <LineId Id="452" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

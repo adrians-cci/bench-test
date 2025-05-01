@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="m01_rs3" Id="{3482313b-77eb-43ac-9cf2-4c9cae68ef62}">
+    <Declaration><![CDATA[// Phase 0 - m01_rs3
+// Rev 1.0 - April 24, 2024
+
+{attribute 'qualified_only'}
+VAR_GLOBAL
+ 
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ti_Total_Cycle_Count												: DINT; 
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ti_Cycle_Count														: INT; 
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ti_Machine_State													: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ti_Current_Step														: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Process_Running													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Repressurization_Running											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Adsorption_Running												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Evacuation_Running												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Desorption_Running												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Process_Complete													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tr_Remaining_Time													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ti_Status															: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ts_Status_Text														: STRING;		
+
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cycle_stage															: STRING;
+
+
+    /// <summary>PWR-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	power_control														: BOOL;
+    /// <summary>PWR-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	power_control_status												: BOOL;
+    /// <summary>power_cmd</summary>
+	PWR_01														AT %Q*	: BOOL;
+	circuit_breaker_no_feedback									AT %I*	: BOOL;
+	circuit_breaker_nc_feedback									AT %I*	: BOOL;
+	
+    /// <summary>LS-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_lsl												AT %I*	: BOOL;
+	
+    /// <summary>LS-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_lsh												AT %I*	: BOOL;
+
+    /// <summary>P-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_pump														: BOOL;
+    /// <summary>P-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_pump_cmd_status											: BOOL;
+    /// <summary>condensate pump</summary>
+	P_01														AT %Q*	: BOOL;
+
+    /// <summary>PCV-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_control_valve													: REAL;
+    /// <summary>PCV-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_control_valve_position										: REAL;
+    /// <summary>steam control valve</summary>
+	PCV_01														AT %Q*	: INT;
+    /// <summary>steam control valve</summary>
+	PCV_01_position												AT %I*	: INT;
+    /// <summary>PCV-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_control_valve_position_error							AT %I*	: BOOL;
+    /// <summary>PCV-01</summary>                  	           
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_control_valve_mode											: INT;			
+    /// <summary>PCV-01</summary>                  	           
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_control_valve_current_mode									: INT;			
+    /// <summary>PCV-01</summary>                  	           
+	steam_control_valve_kp												: REAL		:= 0.01; 
+    /// <summary>PCV-01</summary>                  	           
+	steam_control_valve_ki												: REAL		:= 0.01;
+    /// <summary>PCV-01</summary>                  	           
+	steam_control_valve_loop_time										: REAL		:= 2000;
+    /// <summary>PCV-01</summary>                  	           
+	steam_control_valve_iband											: REAL		:= 6;
+    /// <summary>PCV-01</summary>                  	           
+	steam_control_valve_base											: INT		:= 13110;
+    /// <summary>PCV-01</summary>                  	           
+	steam_control_valve_base_adjust										: INT		:= 10;
+		                                	        	
+    /// <summary>XV-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_valve														: BOOL;
+    /// <summary>XV-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_valve_open_cmd_status										: BOOL;
+    /// <summary>XV-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_valve_open											AT %I*	: BOOL;
+    /// <summary>XV-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_valve_closed										AT %I*	: BOOL;
+    /// <summary>dead air valve</summary>
+	XV_04														AT %Q*	: BOOL;
+	
+    /// <summary>XV-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	purge_valve															: BOOL;
+    /// <summary>XV-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_valve_open_cmd_status											: BOOL;
+    /// <summary>XV-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_valve_open											AT %I*	: BOOL;
+    /// <summary>XV-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_valve_closed											AT %I*	: BOOL;
+    /// <summary>purge valve</summary>
+	XV_05														AT %Q*	: BOOL;
+	
+    /// <summary>XV-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cooling_valve														: BOOL;
+    /// <summary>XV-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_valve_open_cmd_status										: BOOL;
+    /// <summary>XV-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_valve_open											AT %I*	: BOOL;
+    /// <summary>XV-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_valve_closed										AT %I*	: BOOL;
+    /// <summary>cooling valve</summary>
+	XV_06														AT %Q*	: BOOL;
+	
+    /// <summary>XV-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_header_valve													: BOOL;
+    /// <summary>XV-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_header_valve_open_cmd_status									: BOOL;
+    /// <summary>XV-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_header_valve_open										AT %I*	: BOOL;
+    /// <summary>XV-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_header_valve_closed									AT %I*	: BOOL;
+    /// <summary>steam header valve</summary>
+	XV_07														AT %Q*	: BOOL;
+
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

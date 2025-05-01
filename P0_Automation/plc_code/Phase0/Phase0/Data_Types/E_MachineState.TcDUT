@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_MachineState" Id="{98070847-8e62-4bf1-8cc3-9c885f60ccfc}">
+    <Declaration><![CDATA[// Phase 0 - E_MachineState
+// Rev 1.0 - March 13, 2024
+
+TYPE E_MachineState :
+(
+	eStateOff						:= 0,
+	eIdle,
+	eHolding,
+	eVacant1,
+	eRepressurization,
+	eAdsorption,
+	eEvacuation,
+	eDesorption,
+	eChangeState,
+	eSafeShutdown1,
+	eSafeShutdown2,
+	eSafeShutdown3,
+	ePause
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

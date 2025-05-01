@@ -1,0 +1,1398 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="P_M01_RS02" Id="{945091b1-fbe3-48ae-be8f-438de18d2b40}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_M01_RS02
+VAR_INPUT
+	stop_rs_automode													: BOOL;
+	clear_rs_pause												: BOOL;
+	close_valves														: BOOL;
+	close_all_doors														: BOOL;
+	open_all_doors														: BOOL;
+	retract_all_clamps													: BOOL;
+	extend_all_clamps													: BOOL;
+	open_repres_valves													: BOOL;
+	close_repres_valves													: BOOL;
+	co2_sensors_off														: BOOL;
+	co2_inside_sensors_on												: BOOL;
+	co2_outside_sensors_on												: BOOL;
+	fan_vfd_percent														: REAL		:= 0;
+END_VAR
+VAR_OUTPUT
+	repres_valves_clear													: BOOL;
+	average_pressure_within_ambient										: BOOL;
+	reactor_done														: BOOL;
+	utility_error														: BOOL;
+	cancel_reactor_set													: BOOL;
+	cancel_all_reactor_sets												: BOOL;
+	inlet_air_high_temp_count											: INT;
+	open_inlet_doors													: BOOL;
+	open_outlet_doors													: BOOL;
+	close_inlet_doors													: BOOL;
+	close_outlet_doors													: BOOL;
+	open_doors															: BOOL;
+	close_doors															: BOOL;
+	inlet_door_clamps_extend											: BOOL;
+	outlet_door_clamps_extend											: BOOL;
+	inlet_door_clamps_retract											: BOOL;
+	outlet_door_clamps_retract											: BOOL;
+	extend_clamps														: BOOL;
+	retract_clamps														: BOOL;
+END_VAR
+VAR
+	R_S																	: Reactor_Set;
+
+	fb_RS																: FB_Reactor_Set();
+	fb_RS_IO															: FB_Reactor_Set_IO();
+	fb_R1_IO															: FB_Reactor_IO();
+	fb_R2_IO															: FB_Reactor_IO();
+	fb_R3_IO															: FB_Reactor_IO();
+	fb_R4_IO															: FB_Reactor_IO();
+	
+	fb_Fan_Vfd															: FB_Analog_Out();
+	
+	rAveragePressure													: REAL;
+	rValve																: REAL;
+	rPos																: REAL;
+	rFanOldVfdPercent													: REAL		:= 0;
+	
+	iCount																: INT;
+	iVacuumStatus														: INT;
+	iError																: INT;
+	
+	bR1OverMaxPressure													: BOOL;
+	bR2OverMaxPressure													: BOOL;
+	bR3OverMaxPressure													: BOOL;
+	bR4OverMaxPressure													: BOOL;
+	
+	bR1InletCO2Error													: BOOL;
+	bR1InletH2OError													: BOOL;
+	bR1OutletCO2Error													: BOOL;
+	bR1OutletH2OError													: BOOL;
+	bR1AirFlowError														: BOOL;
+	bR1FilterDiffPresError												: BOOL;
+	bR1SorbentDiffPresError												: BOOL;
+	bR1FanDiffPresError													: BOOL;
+	bR1ReactorPresError													: BOOL;
+	
+	bR2InletCO2Error													: BOOL;
+	bR2InletH2OError													: BOOL;
+	bR2OutletCO2Error													: BOOL;
+	bR2OutletH2OError													: BOOL;
+	bR2AirFlowError														: BOOL;
+	bR2FilterDiffPresError												: BOOL;
+	bR2SorbentDiffPresError												: BOOL;
+	bR2FanDiffPresError													: BOOL;
+	bR2ReactorPresError													: BOOL;
+	
+	bR3InletCO2Error													: BOOL;
+	bR3InletH2OError													: BOOL;
+	bR3OutletCO2Error													: BOOL;
+	bR3OutletH2OError													: BOOL;
+	bR3AirFlowError														: BOOL;
+	bR3FilterDiffPresError												: BOOL;
+	bR3SorbentDiffPresError												: BOOL;
+	bR3FanDiffPresError													: BOOL;
+	bR3ReactorPresError													: BOOL;
+	
+	bR4InletCO2Error													: BOOL;
+	bR4InletH2OError													: BOOL;
+	bR4OutletCO2Error													: BOOL;
+	bR4OutletH2OError													: BOOL;
+	bR4AirFlowError														: BOOL;
+	bR4FilterDiffPresError												: BOOL;
+	bR4SorbentDiffPresError												: BOOL;
+	bR4FanDiffPresError													: BOOL;
+	bR4ReactorPresError													: BOOL;
+	
+	stop_reactor_set													: BOOL;
+	clear_reactor_set_pause												: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - P_M01_RS02
+// Rev 1.0 - May 11, 2024
+
+giEvacuationErrorRS														:= SEL(giEvacuationErrorRS = 2, giEvacuationErrorRS, 0);
+giDesorptionErrorRS														:= SEL(giDesorptionErrorRS = 2, giDesorptionErrorRS, 0);
+giSafeShutdown1RS														:= SEL(giSafeShutdown1RS = 2, giSafeShutdown1RS, 0);
+giSafeShutdown23RS														:= SEL(giSafeShutdown23RS = 2, giSafeShutdown23RS, 0);
+
+stop_reactor_set														:= stop_rs_automode;
+stop_rs_automode														:= FALSE;
+clear_reactor_set_pause													:= clear_rs_pause;
+clear_rs_pause															:= FALSE;
+
+A_Reactor_Set();
+
+// REACTOR OUTPUTS
+IF open_repres_valves OR R_S.open_repres_valves THEN
+	fb_R1_IO.bRepresValve												:= TRUE;
+	fb_R2_IO.bRepresValve												:= TRUE;
+	fb_R3_IO.bRepresValve												:= TRUE;
+	fb_R4_IO.bRepresValve												:= TRUE;
+	open_repres_valves													:= FALSE;
+END_IF
+IF close_repres_valves OR R_S.close_repres_valves THEN
+	fb_R1_IO.bRepresValve												:= FALSE;
+	fb_R2_IO.bRepresValve												:= FALSE;
+	fb_R3_IO.bRepresValve												:= FALSE;
+	fb_R4_IO.bRepresValve												:= FALSE;
+	close_repres_valves													:= FALSE;
+END_IF
+
+repres_valves_clear														:= fb_R1_IO.repres_valve_clear AND fb_R2_IO.repres_valve_clear AND fb_R3_IO.repres_valve_clear AND fb_R4_IO.repres_valve_clear;
+IF NOT repres_valves_clear THEN
+	R_S.repres_valve_error												:= SEL(fb_R4_IO.repres_valve_clear, CONCAT(_R4, gsRepressurizationValveError), '');
+	R_S.repres_valve_error												:= SEL(fb_R3_IO.repres_valve_clear, CONCAT(_R3, gsRepressurizationValveError), R_S.repres_valve_error);
+	R_S.repres_valve_error												:= SEL(fb_R2_IO.repres_valve_clear, CONCAT(_R2, gsRepressurizationValveError), R_S.repres_valve_error);
+	R_S.repres_valve_error												:= SEL(fb_R1_IO.repres_valve_clear, CONCAT(_R1, gsRepressurizationValveError), R_S.repres_valve_error);
+ELSE
+	R_S.repres_valve_error												:= '';
+END_IF
+
+fb_Fan_Vfd(Input1:= fan_vfd_percent, Input2:= R_S.fan_vfd_percent);
+IF fan_vfd_percent <> rFanOldVfdPercent THEN
+	fb_R1_IO.fan_vfd_input											:= fan_vfd_percent;
+	fb_R2_IO.fan_vfd_input											:= fan_vfd_percent;
+	fb_R3_IO.fan_vfd_input											:= fan_vfd_percent;
+	fb_R4_IO.fan_vfd_input											:= fan_vfd_percent;
+	rFanOldVfdPercent													:= fan_vfd_percent;
+END_IF
+		
+A_Reactor1_IO();
+A_Reactor2_IO();
+A_Reactor3_IO();
+A_Reactor4_IO();
+
+inlet_air_high_temp_count												:= fb_R1_IO.adsorption_high_temp_count + fb_R2_IO.adsorption_high_temp_count + fb_R3_IO.adsorption_high_temp_count + fb_R4_IO.adsorption_high_temp_count;
+R_S.inlet_air_high_temp_count											:= inlet_air_high_temp_count;
+R_S.desorption_high_temp_count											:= fb_R1_IO.desorption_high_temp_count + fb_R2_IO.desorption_high_temp_count + fb_R3_IO.desorption_high_temp_count + fb_R4_IO.desorption_high_temp_count;
+R_S.vacuum_cooling_high_temp_count										:= fb_R1_IO.vacuum_cooling_high_temp_count + fb_R2_IO.vacuum_cooling_high_temp_count + fb_R3_IO.vacuum_cooling_high_temp_count + fb_R4_IO.vacuum_cooling_high_temp_count;
+R_S.sorbent_high_temp													:= F_HighestReal(fb_R1_IO.sorbent_high_temp, fb_R2_IO.sorbent_high_temp, fb_R3_IO.sorbent_high_temp, fb_R4_IO.sorbent_high_temp);
+
+m01_rs2_r1.reactor_wall_temp											:= F_Temperature(m01_rs2_r1.TT_05, m01_rs2_r1.reactor_wall_temp_offset);
+m01_rs2_r1.outlet_line_temp												:= F_Temperature(m01_rs2_r1.TT_06, m01_rs2_r1.outlet_line_temp_offset);
+m01_rs2_r2.reactor_wall_temp											:= F_Temperature(m01_rs2_r2.TT_05, m01_rs2_r2.reactor_wall_temp_offset);
+m01_rs2_r2.outlet_line_temp												:= F_Temperature(m01_rs2_r2.TT_06, m01_rs2_r2.outlet_line_temp_offset);
+m01_rs2_r3.reactor_wall_temp											:= F_Temperature(m01_rs2_r3.TT_05, m01_rs2_r3.reactor_wall_temp_offset);
+m01_rs2_r3.outlet_line_temp												:= F_Temperature(m01_rs2_r3.TT_06, m01_rs2_r3.outlet_line_temp_offset);
+m01_rs2_r4.reactor_wall_temp											:= F_Temperature(m01_rs2_r4.TT_05, m01_rs2_r4.reactor_wall_temp_offset);
+m01_rs2_r4.outlet_line_temp												:= F_Temperature(m01_rs2_r4.TT_06, m01_rs2_r4.outlet_line_temp_offset);
+
+// CO2 SENSOR HANDLING
+IF co2_sensors_off OR R_S.co2_sensors_off THEN
+	fb_R1_IO.co2_sensor_config											:= 0;
+	fb_R2_IO.co2_sensor_config											:= 0;
+	fb_R3_IO.co2_sensor_config											:= 0;
+	fb_R4_IO.co2_sensor_config											:= 0;
+	co2_sensors_off														:= FALSE;
+ELSIF co2_inside_sensors_on OR R_S.co2_inside_sensors_on THEN
+	fb_R1_IO.co2_sensor_config											:= 1;
+	fb_R2_IO.co2_sensor_config											:= 1;
+	fb_R3_IO.co2_sensor_config											:= 1;
+	fb_R4_IO.co2_sensor_config											:= 1;
+	co2_inside_sensors_on												:= FALSE;
+ELSIF co2_outside_sensors_on OR R_S.co2_outside_sensors_on THEN
+	fb_R1_IO.co2_sensor_config											:= 2;
+	fb_R2_IO.co2_sensor_config											:= 2;
+	fb_R3_IO.co2_sensor_config											:= 2;
+	fb_R4_IO.co2_sensor_config											:= 2;
+	co2_outside_sensors_on												:= FALSE;
+END_IF
+ 
+// DOORS & CLAMPS
+inlet_door_clamps_extend												:= FALSE;	
+outlet_door_clamps_extend												:= FALSE;
+inlet_door_clamps_retract												:= FALSE;	
+outlet_door_clamps_retract												:= FALSE;
+extend_clamps															:= FALSE;
+retract_clamps															:= FALSE;
+IF extend_all_clamps OR R_S.extend_all_clamps THEN
+	extend_clamps														:= TRUE;
+	extend_all_clamps													:= FALSE;
+END_IF
+IF retract_all_clamps OR R_S.retract_all_clamps THEN
+	retract_clamps														:= TRUE;	
+	retract_all_clamps													:= FALSE;
+END_IF
+R_S.all_clamps_extended													:= fb_R1_IO.door_clamps_extended AND fb_R2_IO.door_clamps_extended AND fb_R3_IO.door_clamps_extended AND fb_R4_IO.door_clamps_extended; 
+R_S.all_clamps_retracted												:= fb_R1_IO.door_clamps_retracted AND fb_R2_IO.door_clamps_retracted AND fb_R3_IO.door_clamps_retracted AND fb_R4_IO.door_clamps_retracted;
+
+open_inlet_doors														:= FALSE;
+open_outlet_doors														:= FALSE;
+close_inlet_doors														:= FALSE;
+close_outlet_doors														:= FALSE;
+open_doors																:= FALSE;
+close_doors																:= FALSE;
+IF open_all_doors OR R_S.open_all_doors THEN
+	open_doors															:= TRUE;
+	open_all_doors														:= FALSE;
+END_IF
+fb_R1_IO.close_doors													:= FALSE;
+IF close_all_doors OR R_S.close_all_doors THEN
+	close_doors															:= TRUE;
+	close_all_doors														:= FALSE;
+END_IF
+R_S.all_doors_open														:= fb_R1_IO.doors_open AND fb_R2_IO.doors_open AND fb_R3_IO.doors_open AND fb_R4_IO.doors_open;
+R_S.all_doors_closed													:= fb_R1_IO.doors_closed AND fb_R2_IO.doors_closed AND fb_R3_IO.doors_closed AND fb_R4_IO.doors_closed;
+
+m01_rs2_r1.inlet_co2													:= F_AnalogIn(m01_rs2_r1.AT_01, m01_rs2_r1.inlet_co2_low, m01_rs2_r1.inlet_co2_high, m01_rs2_r1.inlet_co2_min, m01_rs2_r1.inlet_co2_offset);
+bR1InletCO2Error														:= P_Alarms.M_Check_Error(m01_rs2_r1.inlet_co2_error, bR1InletCO2Error, CONCAT(_RS01, _R1), gsInletCO2SensorError, gsProcessWillContinue);
+m01_rs2_r1.inlet_h2o													:= F_AnalogIn(m01_rs2_r1.AT_02, m01_rs2_r1.inlet_h2o_low, m01_rs2_r1.inlet_h2o_high, m01_rs2_r1.inlet_h2o_min, m01_rs2_r1.inlet_h2o_offset);
+bR1InletH2OError														:= P_Alarms.M_Check_Error(m01_rs2_r1.inlet_h2o_error, bR1InletH2OError, CONCAT(_RS01, _R1), gsInletH2OSensorError, gsProcessWillContinue);
+m01_rs2_r1.outlet_co2													:= F_AnalogIn(m01_rs2_r1.AT_03, m01_rs2_r1.outlet_co2_low, m01_rs2_r1.outlet_co2_high, m01_rs2_r1.outlet_co2_min, m01_rs2_r1.outlet_co2_offset);
+bR1OutletCO2Error														:= P_Alarms.M_Check_Error(m01_rs2_r1.outlet_co2_error, bR1OutletCO2Error, CONCAT(_RS01, _R1), gsOutletCO2SensorError, gsProcessWillContinue);
+m01_rs2_r1.outlet_h2o													:= F_AnalogIn(m01_rs2_r1.AT_04, m01_rs2_r1.outlet_h2o_low, m01_rs2_r1.outlet_h2o_high, m01_rs2_r1.outlet_h2o_min, m01_rs2_r1.outlet_h2o_offset);
+bR1OutletH2OError														:= P_Alarms.M_Check_Error(m01_rs2_r1.outlet_h2o_error, bR1OutletH2OError, CONCAT(_RS01, _R1), gsOutletH2OSensorError, gsProcessWillContinue);
+m01_rs2_r1.air_flow														:= F_AnalogIn(m01_rs2_r1.FT_01, m01_rs2_r1.air_flow_low, m01_rs2_r1.air_flow_high, m01_rs2_r1.air_flow_min, m01_rs2_r1.air_flow_offset);
+bR1AirFlowError															:= P_Alarms.M_Check_Error(m01_rs2_r1.air_flow_error, bR1AirFlowError, CONCAT(_RS01, _R1), gsAirFlowSensorError, gsProcessWillContinue);
+m01_rs2_r1.filter_diff_pres												:= F_AnalogIn(m01_rs2_r1.PDT_01, m01_rs2_r1.filter_diff_pres_low, m01_rs2_r1.filter_diff_pres_high, m01_rs2_r1.filter_diff_pres_min, m01_rs2_r1.filter_diff_pres_offset);
+bR1FilterDiffPresError													:= P_Alarms.M_Check_Error(m01_rs2_r1.filter_diff_pres_error, bR1FilterDiffPresError, CONCAT(_RS01, _R1), gsFilterDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r1.sorbent_diff_pres											:= F_AnalogIn(m01_rs2_r1.PDT_02, m01_rs2_r1.sorbent_diff_pres_low, m01_rs2_r1.sorbent_diff_pres_high, m01_rs2_r1.sorbent_diff_pres_min, m01_rs2_r1.sorbent_diff_pres_offset,);
+bR1SorbentDiffPresError													:= P_Alarms.M_Check_Error(m01_rs2_r1.sorbent_diff_pres_error, bR1SorbentDiffPresError, CONCAT(_RS01, _R1), gsSorbentDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r1.fan_diff_pres												:= F_AnalogIn(m01_rs2_r1.PDT_03, m01_rs2_r1.fan_diff_pres_low, m01_rs2_r1.fan_diff_pres_high, m01_rs2_r1.fan_diff_pres_min, m01_rs2_r1.fan_diff_pres_offset);
+bR1FanDiffPresError														:= P_Alarms.M_Check_Error(m01_rs2_r1.fan_diff_pres_error, bR1FanDiffPresError, CONCAT(_RS01, _R1), gsFanDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r1.reactor_pres													:= F_AnalogIn(m01_rs2_r1.PT_01, m01_rs2_r1.reactor_pres_low, m01_rs2_r1.reactor_pres_high, m01_rs2_r1.reactor_pres_min, m01_rs2_r1.reactor_pres_offset);
+bR1ReactorPresError														:= P_Alarms.M_Check_Error(m01_rs2_r1.reactor_pres_error, bR1ReactorPresError, CONCAT(_RS01, _R1), gsReactorPresSensorError, gsProcessWillContinue);
+R_S.R1_reactor_pres														:= m01_rs2_r1.reactor_pres;
+R_S.R1_reactor_pres_error												:= bR1ReactorPresError;
+bR1OverMaxPressure														:= NOT m01_rs2_r1.reactor_pres_error AND m01_rs2_r1.reactor_pres > m01.SP_maximum_safe_reactor_steam_pressure;
+
+m01_rs2_r2.inlet_co2													:= F_AnalogIn(m01_rs2_r2.AT_01, m01_rs2_r2.inlet_co2_low, m01_rs2_r2.inlet_co2_high, m01_rs2_r2.inlet_co2_min, m01_rs2_r2.inlet_co2_offset);
+bR2InletCO2Error														:= P_Alarms.M_Check_Error(m01_rs2_r2.inlet_co2_error, bR2InletCO2Error, CONCAT(_RS01, _R2), gsInletCO2SensorError, gsProcessWillContinue);
+m01_rs2_r2.inlet_h2o													:= F_AnalogIn(m01_rs2_r2.AT_02, m01_rs2_r2.inlet_h2o_low, m01_rs2_r2.inlet_h2o_high, m01_rs2_r2.inlet_h2o_min, m01_rs2_r2.inlet_h2o_offset);
+bR2InletH2OError														:= P_Alarms.M_Check_Error(m01_rs2_r2.inlet_h2o_error, bR2InletH2OError, CONCAT(_RS01, _R2), gsInletH2OSensorError, gsProcessWillContinue);
+m01_rs2_r2.outlet_co2													:= F_AnalogIn(m01_rs2_r2.AT_03, m01_rs2_r2.outlet_co2_low, m01_rs2_r2.outlet_co2_high, m01_rs2_r2.outlet_co2_min, m01_rs2_r2.outlet_co2_offset);
+bR2OutletCO2Error														:= P_Alarms.M_Check_Error(m01_rs2_r2.outlet_co2_error, bR2OutletCO2Error, CONCAT(_RS01, _R2), gsOutletCO2SensorError, gsProcessWillContinue);
+m01_rs2_r2.outlet_h2o													:= F_AnalogIn(m01_rs2_r2.AT_04, m01_rs2_r2.outlet_h2o_low, m01_rs2_r2.outlet_h2o_high, m01_rs2_r2.outlet_h2o_min, m01_rs2_r2.outlet_h2o_offset);
+bR2OutletH2OError														:= P_Alarms.M_Check_Error(m01_rs2_r2.outlet_h2o_error, bR2OutletH2OError, CONCAT(_RS01, _R2), gsOutletH2OSensorError, gsProcessWillContinue);
+m01_rs2_r2.air_flow														:= F_AnalogIn(m01_rs2_r2.FT_01, m01_rs2_r2.air_flow_low, m01_rs2_r2.air_flow_high, m01_rs2_r2.air_flow_min, m01_rs2_r2.air_flow_offset);
+bR2AirFlowError															:= P_Alarms.M_Check_Error(m01_rs2_r2.air_flow_error, bR2AirFlowError, CONCAT(_RS01, _R2), gsAirFlowSensorError, gsProcessWillContinue);
+m01_rs2_r2.filter_diff_pres												:= F_AnalogIn(m01_rs2_r2.PDT_01, m01_rs2_r2.filter_diff_pres_low, m01_rs2_r2.filter_diff_pres_high, m01_rs2_r2.filter_diff_pres_min, m01_rs2_r2.filter_diff_pres_offset);
+bR2FilterDiffPresError													:= P_Alarms.M_Check_Error(m01_rs2_r2.filter_diff_pres_error, bR2FilterDiffPresError, CONCAT(_RS01, _R2), gsFilterDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r2.sorbent_diff_pres											:= F_AnalogIn(m01_rs2_r2.PDT_02, m01_rs2_r2.sorbent_diff_pres_low, m01_rs2_r2.sorbent_diff_pres_high, m01_rs2_r2.sorbent_diff_pres_min, m01_rs2_r2.sorbent_diff_pres_offset,);
+bR2SorbentDiffPresError													:= P_Alarms.M_Check_Error(m01_rs2_r2.sorbent_diff_pres_error, bR2SorbentDiffPresError, CONCAT(_RS01, _R2), gsSorbentDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r2.fan_diff_pres												:= F_AnalogIn(m01_rs2_r2.PDT_03, m01_rs2_r2.fan_diff_pres_low, m01_rs2_r2.fan_diff_pres_high, m01_rs2_r2.fan_diff_pres_min, m01_rs2_r2.fan_diff_pres_offset);
+bR2FanDiffPresError														:= P_Alarms.M_Check_Error(m01_rs2_r2.fan_diff_pres_error, bR2FanDiffPresError, CONCAT(_RS01, _R2), gsFanDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r2.reactor_pres													:= F_AnalogIn(m01_rs2_r2.PT_01, m01_rs2_r2.reactor_pres_low, m01_rs2_r2.reactor_pres_high, m01_rs2_r2.reactor_pres_min, m01_rs2_r2.reactor_pres_offset);
+bR2ReactorPresError														:= P_Alarms.M_Check_Error(m01_rs2_r2.reactor_pres_error, bR2ReactorPresError, CONCAT(_RS01, _R2), gsReactorPresSensorError, gsProcessWillContinue);
+R_S.R2_reactor_pres														:= m01_rs2_r2.reactor_pres;
+R_S.R2_reactor_pres_error												:= bR2ReactorPresError;
+bR2OverMaxPressure														:= NOT m01_rs2_r2.reactor_pres_error AND m01_rs2_r2.reactor_pres > m01.SP_maximum_safe_reactor_steam_pressure;
+
+m01_rs2_r3.inlet_co2													:= F_AnalogIn(m01_rs2_r3.AT_01, m01_rs2_r3.inlet_co2_low, m01_rs2_r3.inlet_co2_high, m01_rs2_r3.inlet_co2_min, m01_rs2_r3.inlet_co2_offset);
+bR3InletCO2Error														:= P_Alarms.M_Check_Error(m01_rs2_r3.inlet_co2_error, bR3InletCO2Error, CONCAT(_RS01, _R3), gsInletCO2SensorError, gsProcessWillContinue);
+m01_rs2_r3.inlet_h2o													:= F_AnalogIn(m01_rs2_r3.AT_02, m01_rs2_r3.inlet_h2o_low, m01_rs2_r3.inlet_h2o_high, m01_rs2_r3.inlet_h2o_min, m01_rs2_r3.inlet_h2o_offset);
+bR3InletH2OError														:= P_Alarms.M_Check_Error(m01_rs2_r3.inlet_h2o_error, bR3InletH2OError, CONCAT(_RS01, _R3), gsInletH2OSensorError, gsProcessWillContinue);
+m01_rs2_r3.outlet_co2													:= F_AnalogIn(m01_rs2_r3.AT_03, m01_rs2_r3.outlet_co2_low, m01_rs2_r3.outlet_co2_high, m01_rs2_r3.outlet_co2_min, m01_rs2_r3.outlet_co2_offset);
+bR3OutletCO2Error														:= P_Alarms.M_Check_Error(m01_rs2_r3.outlet_co2_error, bR3OutletCO2Error, CONCAT(_RS01, _R3), gsOutletCO2SensorError, gsProcessWillContinue);
+m01_rs2_r3.outlet_h2o													:= F_AnalogIn(m01_rs2_r3.AT_04, m01_rs2_r3.outlet_h2o_low, m01_rs2_r3.outlet_h2o_high, m01_rs2_r3.outlet_h2o_min, m01_rs2_r3.outlet_h2o_offset);
+bR3OutletH2OError														:= P_Alarms.M_Check_Error(m01_rs2_r3.outlet_h2o_error, bR3OutletH2OError, CONCAT(_RS01, _R3), gsOutletH2OSensorError, gsProcessWillContinue);
+m01_rs2_r3.air_flow														:= F_AnalogIn(m01_rs2_r3.FT_01, m01_rs2_r3.air_flow_low, m01_rs2_r3.air_flow_high, m01_rs2_r3.air_flow_min, m01_rs2_r3.air_flow_offset);
+bR3AirFlowError															:= P_Alarms.M_Check_Error(m01_rs2_r3.air_flow_error, bR3AirFlowError, CONCAT(_RS01, _R3), gsAirFlowSensorError, gsProcessWillContinue);
+m01_rs2_r3.filter_diff_pres												:= F_AnalogIn(m01_rs2_r3.PDT_01, m01_rs2_r3.filter_diff_pres_low, m01_rs2_r3.filter_diff_pres_high, m01_rs2_r3.filter_diff_pres_min, m01_rs2_r3.filter_diff_pres_offset);
+bR3FilterDiffPresError													:= P_Alarms.M_Check_Error(m01_rs2_r3.filter_diff_pres_error, bR3FilterDiffPresError, CONCAT(_RS01, _R3), gsFilterDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r3.sorbent_diff_pres											:= F_AnalogIn(m01_rs2_r3.PDT_02, m01_rs2_r3.sorbent_diff_pres_low, m01_rs2_r3.sorbent_diff_pres_high, m01_rs2_r3.sorbent_diff_pres_min, m01_rs2_r3.sorbent_diff_pres_offset,);
+bR3SorbentDiffPresError													:= P_Alarms.M_Check_Error(m01_rs2_r3.sorbent_diff_pres_error, bR3SorbentDiffPresError, CONCAT(_RS01, _R3), gsSorbentDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r3.fan_diff_pres												:= F_AnalogIn(m01_rs2_r3.PDT_03, m01_rs2_r3.fan_diff_pres_low, m01_rs2_r3.fan_diff_pres_high, m01_rs2_r3.fan_diff_pres_min, m01_rs2_r3.fan_diff_pres_offset);
+bR3FanDiffPresError														:= P_Alarms.M_Check_Error(m01_rs2_r3.fan_diff_pres_error, bR3FanDiffPresError, CONCAT(_RS01, _R3), gsFanDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r3.reactor_pres													:= F_AnalogIn(m01_rs2_r3.PT_01, m01_rs2_r3.reactor_pres_low, m01_rs2_r3.reactor_pres_high, m01_rs2_r3.reactor_pres_min, m01_rs2_r3.reactor_pres_offset);
+bR3ReactorPresError														:= P_Alarms.M_Check_Error(m01_rs2_r3.reactor_pres_error, bR3ReactorPresError, CONCAT(_RS01, _R3), gsReactorPresSensorError, gsProcessWillContinue);
+R_S.R3_reactor_pres														:= m01_rs2_r3.reactor_pres;
+R_S.R3_reactor_pres_error												:= bR3ReactorPresError;
+bR3OverMaxPressure														:= NOT m01_rs2_r3.reactor_pres_error AND m01_rs2_r3.reactor_pres > m01.SP_maximum_safe_reactor_steam_pressure;
+
+m01_rs2_r4.inlet_co2													:= F_AnalogIn(m01_rs2_r4.AT_01, m01_rs2_r4.inlet_co2_low, m01_rs2_r4.inlet_co2_high, m01_rs2_r4.inlet_co2_min, m01_rs2_r4.inlet_co2_offset);
+bR4InletCO2Error														:= P_Alarms.M_Check_Error(m01_rs2_r4.inlet_co2_error, bR4InletCO2Error, CONCAT(_RS01, _R4), gsInletCO2SensorError, gsProcessWillContinue);
+m01_rs2_r4.inlet_h2o													:= F_AnalogIn(m01_rs2_r4.AT_02, m01_rs2_r4.inlet_h2o_low, m01_rs2_r4.inlet_h2o_high, m01_rs2_r4.inlet_h2o_min, m01_rs2_r4.inlet_h2o_offset);
+bR4InletH2OError														:= P_Alarms.M_Check_Error(m01_rs2_r4.inlet_h2o_error, bR4InletH2OError, CONCAT(_RS01, _R4), gsInletH2OSensorError, gsProcessWillContinue);
+m01_rs2_r4.outlet_co2													:= F_AnalogIn(m01_rs2_r4.AT_03, m01_rs2_r4.outlet_co2_low, m01_rs2_r4.outlet_co2_high, m01_rs2_r4.outlet_co2_min, m01_rs2_r4.outlet_co2_offset);
+bR4OutletCO2Error														:= P_Alarms.M_Check_Error(m01_rs2_r4.outlet_co2_error, bR4OutletCO2Error, CONCAT(_RS01, _R4), gsOutletCO2SensorError, gsProcessWillContinue);
+m01_rs2_r4.outlet_h2o													:= F_AnalogIn(m01_rs2_r4.AT_04, m01_rs2_r4.outlet_h2o_low, m01_rs2_r4.outlet_h2o_high, m01_rs2_r4.outlet_h2o_min, m01_rs2_r4.outlet_h2o_offset);
+bR4OutletH2OError														:= P_Alarms.M_Check_Error(m01_rs2_r4.outlet_h2o_error, bR4OutletH2OError, CONCAT(_RS01, _R4), gsOutletH2OSensorError, gsProcessWillContinue);
+m01_rs2_r4.air_flow														:= F_AnalogIn(m01_rs2_r4.FT_01, m01_rs2_r4.air_flow_low, m01_rs2_r4.air_flow_high, m01_rs2_r4.air_flow_min, m01_rs2_r4.air_flow_offset);
+bR4AirFlowError															:= P_Alarms.M_Check_Error(m01_rs2_r4.air_flow_error, bR4AirFlowError, CONCAT(_RS01, _R4), gsAirFlowSensorError, gsProcessWillContinue);
+m01_rs2_r4.filter_diff_pres												:= F_AnalogIn(m01_rs2_r4.PDT_01, m01_rs2_r4.filter_diff_pres_low, m01_rs2_r4.filter_diff_pres_high, m01_rs2_r4.filter_diff_pres_min, m01_rs2_r4.filter_diff_pres_offset);
+bR4FilterDiffPresError													:= P_Alarms.M_Check_Error(m01_rs2_r4.filter_diff_pres_error, bR4FilterDiffPresError, CONCAT(_RS01, _R4), gsFilterDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r4.sorbent_diff_pres											:= F_AnalogIn(m01_rs2_r4.PDT_02, m01_rs2_r4.sorbent_diff_pres_low, m01_rs2_r4.sorbent_diff_pres_high, m01_rs2_r4.sorbent_diff_pres_min, m01_rs2_r4.sorbent_diff_pres_offset,);
+bR4SorbentDiffPresError													:= P_Alarms.M_Check_Error(m01_rs2_r4.sorbent_diff_pres_error, bR4SorbentDiffPresError, CONCAT(_RS01, _R4), gsSorbentDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r4.fan_diff_pres												:= F_AnalogIn(m01_rs2_r4.PDT_03, m01_rs2_r4.fan_diff_pres_low, m01_rs2_r4.fan_diff_pres_high, m01_rs2_r4.fan_diff_pres_min, m01_rs2_r4.fan_diff_pres_offset);
+bR4FanDiffPresError														:= P_Alarms.M_Check_Error(m01_rs2_r4.fan_diff_pres_error, bR4FanDiffPresError, CONCAT(_RS01, _R4), gsFanDiffPresSensorError, gsProcessWillContinue);
+m01_rs2_r4.reactor_pres													:= F_AnalogIn(m01_rs2_r4.PT_01, m01_rs2_r4.reactor_pres_low, m01_rs2_r4.reactor_pres_high, m01_rs2_r4.reactor_pres_min, m01_rs2_r4.reactor_pres_offset);
+bR4ReactorPresError														:= P_Alarms.M_Check_Error(m01_rs2_r4.reactor_pres_error, bR4ReactorPresError, CONCAT(_RS01, _R4), gsReactorPresSensorError, gsProcessWillContinue);
+R_S.R4_reactor_pres														:= m01_rs2_r4.reactor_pres;
+R_S.R4_reactor_pres_error												:= bR4ReactorPresError;
+bR4OverMaxPressure														:= NOT m01_rs2_r4.reactor_pres_error AND m01_rs2_r4.reactor_pres > m01.SP_maximum_safe_reactor_steam_pressure;
+
+rAveragePressure														:= 0;
+iCount																	:= 0;
+iVacuumStatus															:= 0;
+iError																	:= 4;
+IF NOT m01_rs2_r1.reactor_pres_error THEN
+	rAveragePressure													:= rAveragePressure + m01_rs2_r1.reactor_pres;
+	iVacuumStatus														:= F_LowMidHigh(m01_rs2_r1.reactor_pres, m01.SP_target_desorption_starting_pressure, m01.SP_maximum_desorption_starting_pressure, iVacuumStatus);
+	iCount																:= iCount + 1;
+	iError																:= iError - 1;
+END_IF
+IF NOT m01_rs2_r2.reactor_pres_error THEN
+	rAveragePressure													:= rAveragePressure + m01_rs2_r2.reactor_pres;
+	iVacuumStatus														:= F_LowMidHigh(m01_rs2_r2.reactor_pres, m01.SP_target_desorption_starting_pressure, m01.SP_maximum_desorption_starting_pressure, iVacuumStatus);
+	iCount																:= iCount + 1;
+	iError																:= iError - 1;
+END_IF
+IF NOT m01_rs2_r3.reactor_pres_error THEN
+	rAveragePressure													:= rAveragePressure + m01_rs2_r3.reactor_pres;
+	iVacuumStatus														:= F_LowMidHigh(m01_rs2_r3.reactor_pres, m01.SP_target_desorption_starting_pressure, m01.SP_maximum_desorption_starting_pressure, iVacuumStatus);
+	iCount																:= iCount + 1;
+	iError																:= iError - 1;
+END_IF
+IF NOT m01_rs2_r4.reactor_pres_error THEN
+	rAveragePressure													:= rAveragePressure + m01_rs2_r4.reactor_pres;
+	iVacuumStatus														:= F_LowMidHigh(m01_rs2_r1.reactor_pres, m01.SP_target_desorption_starting_pressure, m01.SP_maximum_desorption_starting_pressure, iVacuumStatus);
+	iCount																:= iCount + 1;
+	iError																:= iError - 1;
+END_IF
+
+R_S.average_reactor_pressure											:= SEL(iCount > 0, 0, rAveragePressure / iCount);
+R_S.reactor_pressure_error												:= SEL(iError >= _MAX_REACTOR_ERRORS, '', F_Concat3(INT_TO_STRING(iError), ' ', gsReactorPresError));
+R_S.reactor_vacuum_status												:= iVacuumStatus;
+average_pressure_within_ambient											:= rAveragePressure >= P_M01.rMinPressureSP AND rAveragePressure <= P_M01.rMaxPressureSP;
+R_S.average_reactor_pressure_within_ambient								:= average_pressure_within_ambient;
+fb_RS_IO.reactor_over_max_pressure										:= bR1OverMaxPressure OR bR2OverMaxPressure OR bR3OverMaxPressure OR bR4OverMaxPressure;
+
+R_S.R1_inlet_co2														:= m01_rs2_r1.inlet_co2;
+
+R_S.R1_outlet_co2														:= m01_rs2_r1.outlet_co2;
+]]></ST>
+    </Implementation>
+    <Action Name="A_Reactor_Set" Id="{66b9aaa1-02a8-4f06-beb2-086a1de6d6b3}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01_RS02.A_Reactor_Set
+// Rev 1.0 - May 10, 2024
+
+fb_RS(		U															:= P_U01.u,
+			R_S															:= P_M01_RS02.R_S,
+			Stop_Reactor_Set											:= stop_reactor_set,
+			Clear_Reactor_Set_Pause										:= clear_reactor_set_pause,
+			test_error													:= gbRS02TestError,									///@@@ Temporary for testing
+			RS_Name														:= _RS02,
+			RS_Number													:= 2,
+			Cycle_Mode													:= P_M01.sCycleModeRS02,
+			Fan_Setpoint												:= m01.SP_reactor_set_2_vfd_percent,
+			Cycle_Stage													=> gsM01RS02CycleStage,
+			Remaining_Time												=> m01_rs2.tr_Remaining_Time,
+			Current_Step												=> m01_rs2.ti_Current_Step,
+			Machine_State												=> m01_rs2.ti_Machine_State,
+			Status														=> m01_rs2.ti_Status,
+			Process_Running												=> m01_rs2.tb_Process_Running,
+			Repressurization_Running									=> m01_rs2.tb_Repressurization_Running,
+			Adsorption_Running											=> m01_rs2.tb_Adsorption_Running,
+			Evacuation_Running											=> m01_rs2.tb_Evacuation_Running,
+			Desorption_Running											=> m01_rs2.tb_Desorption_Running,
+			Process_Complete											=> m01_rs2.tb_Process_Complete,
+			Utility_Error												=> utility_error,
+			Stop_M01_RS													=> stop_rs_automode,
+			Cancel_Reactor_Set											=> cancel_reactor_set,
+			Cancel_All_Reactor_Sets										=> cancel_all_reactor_sets,
+			Done														=> reactor_done);
+
+fb_RS_IO(	power_control_in											:= m01_rs2.power_control,
+			power_control_out											=> m01_rs2.power_control_status,
+			PWR_01														=> m01_rs2.PWR_01,
+			power_control_fdbk_no										:= m01_rs2.circuit_breaker_no_feedback,
+			power_control_fdbk_nc										:= m01_rs2.circuit_breaker_nc_feedback,
+			condensate_lsl_in											:= m01_rs2.condensate_lsl,
+			condensate_lsh_in											:= m01_rs2.condensate_lsh,
+			condensate_lsl_out											=> R_S.condensate_lsl,
+			condensate_lsh_out											=> R_S.condensate_lsh,
+			condensate_pump_hmi											:= m01_rs2.condensate_pump,
+			condensate_pump_plc											:= R_S.condensate_pump,
+			condensate_pump_cmd_status									=> m01_rs2.condensate_pump_cmd_status,
+			P_01														=> m01_rs2.P_01,
+			rs_close_valves												:= R_S.close_all_valves,
+			dead_air_valve_hmi											:= m01_rs2.dead_air_valve,
+			dead_air_valve_plc											:= R_S.dead_air_valve,
+			dead_air_valve_open_cmd_status								=> m01_rs2.dead_air_valve_open_cmd_status,
+			dead_air_valve_open											:= m01_rs2.dead_air_valve_open,
+			dead_air_valve_closed										:= m01_rs2.dead_air_valve_closed,
+			dead_air_valve_clear										=> R_S.dead_air_valve_clear,
+			XV_04														=> m01_rs2.XV_04,
+			purge_valve_hmi												:= m01_rs2.purge_valve,
+			purge_valve_plc												:= R_S.purge_valve,
+			purge_valve_open_cmd_status									=> m01_rs2.purge_valve_open_cmd_status,
+			purge_valve_open											:= m01_rs2.purge_valve_open,
+			purge_valve_closed											:= m01_rs2.purge_valve_closed,
+			purge_valve_clear											=> R_S.purge_valve_clear,
+			XV_05														=> m01_rs2.XV_05,
+			cooling_valve_hmi											:= m01_rs2.cooling_valve,
+			cooling_valve_plc											:= R_S.cooling_valve,
+			cooling_valve_open_cmd_status								=> m01_rs2.cooling_valve_open_cmd_status,
+			cooling_valve_open											:= m01_rs2.cooling_valve_open,
+			cooling_valve_closed										:= m01_rs2.cooling_valve_closed,
+			cooling_valve_clear											=> R_S.cooling_valve_clear,
+			XV_06														=> m01_rs2.XV_06,
+			steam_header_valve_hmi										:= m01_rs2.steam_header_valve,
+			steam_header_valve_plc										:= R_S.steam_header_valve,
+			steam_header_valve_open_cmd_status							=> m01_rs2.steam_header_valve_open_cmd_status,
+			steam_header_valve_open										:= m01_rs2.steam_header_valve_open,
+			steam_header_valve_closed									:= m01_rs2.steam_header_valve_closed,
+			steam_header_valve_not_closed								=> R_S.steam_header_valve_not_closed,
+			steam_header_valve_clear									=> R_S.steam_header_valve_clear,
+			XV_07														=> m01_rs2.XV_07,
+			steam_control_valve_hmi										:= m01_rs2.steam_control_valve,
+			steam_control_valve_plc										:= R_S.steam_control_valve,
+			steam_control_valve_mode_hmi								:= m01_rs2.steam_control_valve_mode,
+			steam_control_valve_mode_plc								:= R_S.steam_control_valve_mode,
+			steam_control_valve_current_mode							=> m01_rs2.steam_control_valve_current_mode,
+			steam_control_valve_error									:= m01_rs2.steam_control_valve_position_error,
+			steam_control_valve_position								=> R_S.steam_control_valve_position,
+			steam_control_valve_closed									=> R_S.steam_control_valve_closed,			
+			steam_control_valve_setpoint								:= R_S.steam_control_valve_setpoint,
+			steam_control_valve_control_point							:= R_S.steam_control_valve_control_point,
+			steam_control_valve_loop_time								:= m01_rs2.steam_control_valve_loop_time,
+			steam_control_valve_kp										:= m01_rs2.steam_control_valve_kp,
+			steam_control_valve_ki										:= m01_rs2.steam_control_valve_ki,
+			steam_control_valve_iband									:= m01_rs2.steam_control_valve_iband,
+			steam_control_valve_base									:= m01_rs2.steam_control_valve_base,
+			steam_control_valve_base_adjust								:= m01_rs2.steam_control_valve_base_adjust,
+			PCV_01														=> m01_rs2.PCV_01,
+			status_in													:= m01_rs2.ti_Status,
+			status_out													=> m01_rs2.ts_Status_Text,
+			valves_clear												=> R_S.valves_clear);			
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Reactor1_IO" Id="{ea6d4d14-b5d2-4377-b25c-a34ad57df42b}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01_RS02.A_Reactor1_IO
+// Rev 1.0 - April 26, 2024
+
+fb_R1_IO(	RSet														:= _RS02,
+			React														:= _R1,
+			
+			Power_On													:= m01_rs2.power_control,
+			                                                    
+			sorbent_low_temp											=> m01_rs2_r1.temp_low,
+			sorbent_high_temp											=> m01_rs2_r1.temp_high,
+			sorbent_average_temp										=> m01_rs2_r1.temp_average,
+			                                                    
+			TT_01_01													:= m01_rs2_r1._01_TT_01,
+			TT_01_01_offset												:= m01_rs2_r1.cart01_front_temp_offset,
+			TT_01_01_error												:= m01_rs2_r1._01_TT_01_Error,
+			TT_01_03													:= m01_rs2_r1._01_TT_03,               
+			TT_01_03_offset												:= m01_rs2_r1.cart01_front_temp_offset,
+			TT_01_03_error												:= m01_rs2_r1._01_TT_03_Error,         
+			TT_02_01													:= m01_rs2_r1._02_TT_01,               
+			TT_02_01_offset												:= m01_rs2_r1.cart02_front_temp_offset,
+			TT_02_01_error												:= m01_rs2_r1._02_TT_01_Error,         
+			TT_02_03													:= m01_rs2_r1._02_TT_03,               
+			TT_02_03_offset												:= m01_rs2_r1.cart02_front_temp_offset,
+			TT_02_03_error												:= m01_rs2_r1._02_TT_03_Error,         
+			TT_03_01													:= m01_rs2_r1._03_TT_01,               
+			TT_03_01_offset												:= m01_rs2_r1.cart03_front_temp_offset,
+			TT_03_01_error												:= m01_rs2_r1._03_TT_01_Error,         
+			TT_03_03													:= m01_rs2_r1._03_TT_03,               
+			TT_03_03_offset												:= m01_rs2_r1.cart03_front_temp_offset,
+			TT_03_03_error												:= m01_rs2_r1._03_TT_03_Error,         
+			TT_04_01													:= m01_rs2_r1._04_TT_01,               
+			TT_04_01_offset												:= m01_rs2_r1.cart04_front_temp_offset,
+			TT_04_01_error												:= m01_rs2_r1._04_TT_01_Error,         
+			TT_04_03													:= m01_rs2_r1._04_TT_03,               
+			TT_04_03_offset												:= m01_rs2_r1.cart04_front_temp_offset,
+			TT_04_03_error												:= m01_rs2_r1._04_TT_03_Error,         
+			TT_05_01													:= m01_rs2_r1._05_TT_01,               
+			TT_05_01_offset												:= m01_rs2_r1.cart05_front_temp_offset,
+			TT_05_01_error												:= m01_rs2_r1._05_TT_01_Error,         
+			TT_05_03													:= m01_rs2_r1._05_TT_03,               
+			TT_05_03_offset												:= m01_rs2_r1.cart05_front_temp_offset,
+			TT_05_03_error												:= m01_rs2_r1._05_TT_03_Error,         
+			TT_06_01													:= m01_rs2_r1._06_TT_01,               
+			TT_06_01_offset												:= m01_rs2_r1.cart06_front_temp_offset,
+			TT_06_01_error												:= m01_rs2_r1._06_TT_01_Error,         
+			TT_06_03													:= m01_rs2_r1._06_TT_03,               
+			TT_06_03_offset												:= m01_rs2_r1.cart06_front_temp_offset,
+			TT_06_03_error												:= m01_rs2_r1._06_TT_03_Error,         
+			TT_07_01													:= m01_rs2_r1._07_TT_01,               
+			TT_07_01_offset												:= m01_rs2_r1.cart07_front_temp_offset,
+			TT_07_01_error												:= m01_rs2_r1._07_TT_01_Error,         
+			TT_07_03													:= m01_rs2_r1._07_TT_03,               
+			TT_07_03_offset												:= m01_rs2_r1.cart07_front_temp_offset,
+			TT_07_03_error												:= m01_rs2_r1._07_TT_03_Error,         
+			TT_08_01													:= m01_rs2_r1._08_TT_01,               
+			TT_08_01_offset												:= m01_rs2_r1.cart08_front_temp_offset,
+			TT_08_01_error												:= m01_rs2_r1._08_TT_01_Error,         
+			TT_08_03													:= m01_rs2_r1._08_TT_03,               
+			TT_08_03_offset												:= m01_rs2_r1.cart08_front_temp_offset,
+			TT_08_03_error												:= m01_rs2_r1._08_TT_03_Error,         
+			TT_09_01													:= m01_rs2_r1._09_TT_01,               
+			TT_09_01_offset												:= m01_rs2_r1.cart09_front_temp_offset,
+			TT_09_01_error												:= m01_rs2_r1._09_TT_01_Error,         
+			TT_09_03													:= m01_rs2_r1._09_TT_03,               
+			TT_09_03_offset												:= m01_rs2_r1.cart09_front_temp_offset,
+			TT_09_03_error												:= m01_rs2_r1._09_TT_03_Error,         
+			TT_10_01													:= m01_rs2_r1._10_TT_01,               
+			TT_10_01_offset												:= m01_rs2_r1.cart10_front_temp_offset,
+			TT_10_01_error												:= m01_rs2_r1._10_TT_01_Error,         
+			TT_10_03													:= m01_rs2_r1._10_TT_03,               
+			TT_10_03_offset												:= m01_rs2_r1.cart10_front_temp_offset,
+			TT_10_03_error												:= m01_rs2_r1._10_TT_03_Error,         
+			TT_11_01													:= m01_rs2_r1._11_TT_01,               
+			TT_11_01_offset												:= m01_rs2_r1.cart11_front_temp_offset,
+			TT_11_01_error												:= m01_rs2_r1._11_TT_01_Error,         
+			TT_11_03													:= m01_rs2_r1._11_TT_03,               
+			TT_11_03_offset												:= m01_rs2_r1.cart11_front_temp_offset,
+			TT_11_03_error												:= m01_rs2_r1._11_TT_03_Error,         
+			TT_12_01													:= m01_rs2_r1._12_TT_01,               
+			TT_12_01_offset												:= m01_rs2_r1.cart12_front_temp_offset,
+			TT_12_01_error												:= m01_rs2_r1._12_TT_01_Error,         
+			TT_12_03													:= m01_rs2_r1._12_TT_03,               
+			TT_12_03_offset												:= m01_rs2_r1.cart12_front_temp_offset,
+			TT_12_03_error												:= m01_rs2_r1._12_TT_03_Error,         
+		    
+			cart01_front_temp											=> m01_rs2_r1.cart01_front_temp,						
+			cart01_front_temp_error 									=> m01_rs2_r1.cart01_front_temp_error,
+			cart01_back_temp											=> m01_rs2_r1.cart01_back_temp,
+			cart01_back_temp_error 										=> m01_rs2_r1.cart01_back_temp_error,
+			cart02_front_temp											=> m01_rs2_r1.cart02_front_temp,						
+			cart02_front_temp_error 									=> m01_rs2_r1.cart02_front_temp_error,
+			cart02_back_temp											=> m01_rs2_r1.cart02_back_temp,
+			cart02_back_temp_error 										=> m01_rs2_r1.cart02_back_temp_error,
+			cart03_front_temp											=> m01_rs2_r1.cart03_front_temp,						
+			cart03_front_temp_error 									=> m01_rs2_r1.cart03_front_temp_error,
+			cart03_back_temp											=> m01_rs2_r1.cart03_back_temp,
+			cart03_back_temp_error 										=> m01_rs2_r1.cart03_back_temp_error,
+			cart04_front_temp											=> m01_rs2_r1.cart04_front_temp,						
+			cart04_front_temp_error 									=> m01_rs2_r1.cart04_front_temp_error,
+			cart04_back_temp											=> m01_rs2_r1.cart04_back_temp,
+			cart04_back_temp_error 										=> m01_rs2_r1.cart04_back_temp_error,
+			cart05_front_temp											=> m01_rs2_r1.cart05_front_temp,						
+			cart05_front_temp_error 									=> m01_rs2_r1.cart05_front_temp_error,
+			cart05_back_temp											=> m01_rs2_r1.cart05_back_temp,
+			cart05_back_temp_error 										=> m01_rs2_r1.cart05_back_temp_error,
+			cart06_front_temp											=> m01_rs2_r1.cart06_front_temp,						
+			cart06_front_temp_error 									=> m01_rs2_r1.cart06_front_temp_error,
+			cart06_back_temp											=> m01_rs2_r1.cart06_back_temp,
+			cart06_back_temp_error 										=> m01_rs2_r1.cart06_back_temp_error,
+			cart07_front_temp											=> m01_rs2_r1.cart07_front_temp,						
+			cart07_front_temp_error 									=> m01_rs2_r1.cart07_front_temp_error,
+			cart07_back_temp											=> m01_rs2_r1.cart07_back_temp,
+			cart07_back_temp_error 										=> m01_rs2_r1.cart07_back_temp_error,
+			cart08_front_temp											=> m01_rs2_r1.cart08_front_temp,						
+			cart08_front_temp_error 									=> m01_rs2_r1.cart08_front_temp_error,
+			cart08_back_temp											=> m01_rs2_r1.cart08_back_temp,
+			cart08_back_temp_error 										=> m01_rs2_r1.cart08_back_temp_error,
+			cart09_front_temp											=> m01_rs2_r1.cart09_front_temp,						
+			cart09_front_temp_error 									=> m01_rs2_r1.cart09_front_temp_error,
+			cart09_back_temp											=> m01_rs2_r1.cart09_back_temp,
+			cart09_back_temp_error 										=> m01_rs2_r1.cart09_back_temp_error,
+			cart10_front_temp											=> m01_rs2_r1.cart10_front_temp,						
+			cart10_front_temp_error 									=> m01_rs2_r1.cart10_front_temp_error,
+			cart10_back_temp											=> m01_rs2_r1.cart10_back_temp,
+			cart10_back_temp_error 										=> m01_rs2_r1.cart10_back_temp_error,
+			cart11_front_temp											=> m01_rs2_r1.cart11_front_temp,						
+			cart11_front_temp_error 									=> m01_rs2_r1.cart11_front_temp_error,
+			cart11_back_temp											=> m01_rs2_r1.cart11_back_temp,
+			cart11_back_temp_error 										=> m01_rs2_r1.cart11_back_temp_error,
+			cart12_front_temp											=> m01_rs2_r1.cart12_front_temp,						
+			cart12_front_temp_error 									=> m01_rs2_r1.cart12_front_temp_error,
+			cart12_back_temp											=> m01_rs2_r1.cart12_back_temp,
+			cart12_back_temp_error 										=> m01_rs2_r1.cart12_back_temp_error,
+                                                    
+			inlet_co2_pump												:= m01_rs2_r1.inlet_co2_pump,
+			AT_01_pump													=> m01_rs2_r1.AT_01_pump,
+			inlet_co2_pump_cmd_status									=> m01_rs2_r1.inlet_co2_pump_cmd_status,
+			inlet_co2_sol												:= m01_rs2_r1.inlet_co2_sol,
+			AT_01_sol													=> m01_rs2_r1.AT_01_sol,
+			inlet_co2_sol_cmd_status									=> m01_rs2_r1.inlet_co2_sol_cmd_status,
+			outlet_co2_pump												:= m01_rs2_r1.outlet_co2_pump,
+			AT_03_pump													=> m01_rs2_r1.AT_03_pump,
+			outlet_co2_pump_cmd_status									=> m01_rs2_r1.outlet_co2_pump_cmd_status,
+			outlet_co2_sol												:= m01_rs2_r1.outlet_co2_sol,
+			AT_03_sol													=> m01_rs2_r1.AT_03_sol,
+			outlet_co2_sol_cmd_status									=> m01_rs2_r1.outlet_co2_sol_cmd_status,
+			repres_valve												:= m01_rs2_r1.repres_valve,
+			XV_02														=> m01_rs2_r1.XV_02,
+			repres_valve_open_cmd_status								=> m01_rs2_r1.repres_valve_open_cmd_status,
+			repres_valve_open											:= m01_rs2_r1.repres_valve_open,
+			repres_valve_closed											:= m01_rs2_r1.repres_valve_closed,
+    	                                                        
+			fan_vfd_control												=> m01_rs2_r1.fan_vfd_control,  		
+			fan_vfd_target_vel	 		                                => m01_rs2_r1.fan_vfd_target_vel, 
+			fan_vfd_enabled	 		                                    => m01_rs2_r1.fan_vfd_enabled, 
+			fan_vfd_error		                                        => m01_rs2_r1.fan_vfd_error,
+			fan_vfd_output												=> m01_rs2_r1.fan_vfd_output,
+			fan_vfd_reset												:= m01_rs2_r1.fan_vfd_reset,
+			fan_vfd_enable												:= m01_rs2_r1.fan_vfd_enable,
+			fan_vfd_ecat_state											:= m01_rs2_r1.fan_vfd_ecat_state,
+			fan_vfd_status												:= m01_rs2_r1.fan_vfd_status,
+			fan_vfd														:= m01_rs2_r1.fan_vfd,
+			fan_vfd_velocity											:= m01_rs2_r1.fan_vfd_velocity,
+			fan_vfd_current												:= m01_rs2_r1.fan_vfd_current,
+			fan_vfd_current_amps										=> m01_rs2_r1.fan_vfd_output_current,
+			fan_vfd_temp												:= m01_rs2_r1.fan_vfd_temp,
+			fan_vfd_temp_degC											=> m01_rs2_r1.fan_vfd_temperature,
+			                                                    
+			inlet_door_clamps_extend									:= m01_rs2_r1.inlet_door_clamps_extend,
+			outlet_door_clamps_extend									:= m01_rs2_r1.outlet_door_clamps_extend,
+			inlet_door_clamps_retract									:= m01_rs2_r1.inlet_door_clamps_retract,
+			outlet_door_clamps_retract									:= m01_rs2_r1.outlet_door_clamps_retract,
+			                                                    
+			extend_clamps												:= extend_clamps,
+			retract_clamps												:= retract_clamps,
+			                                                    
+			inlet_door_left_clamps_extend								=> m01_rs2_r1.XV_01_Left_Extend_Solenoid_Valve,
+			inlet_door_right_clamps_extend								=> m01_rs2_r1.XV_01_Right_Extend_Solenoid_Valve,
+			outlet_door_left_clamps_extend								=> m01_rs2_r1.XV_03_Left_Extend_Solenoid_Valve,
+			outlet_door_right_clamps_extend								=> m01_rs2_r1.XV_03_Right_Extend_Solenoid_Valve,
+			inlet_door_left_clamps_retract								=> m01_rs2_r1.XV_01_Left_Retract_Solenoid_Valve,
+			inlet_door_right_clamps_retract								=> m01_rs2_r1.XV_01_Right_Retract_Solenoid_Valve,
+			outlet_door_left_clamps_retract								=> m01_rs2_r1.XV_03_Left_Retract_Solenoid_Valve,
+			outlet_door_right_clamps_retract							=> m01_rs2_r1.XV_03_Right_Retract_Solenoid_Valve,
+    	                                                        
+			inlet_door_left_clamps_extended								:= m01_rs2_r1.inlet_door_left_clamps_extended_ls,  
+			inlet_door_right_clamps_extended							:= m01_rs2_r1.inlet_door_right_clamps_extended_ls, 
+			outlet_door_left_clamps_extended							:= m01_rs2_r1.outlet_door_left_clamps_extended_ls, 
+			outlet_door_right_clamps_extended							:= m01_rs2_r1.outlet_door_right_clamps_extended_ls,
+			                                                    
+			inlet_door_open												:= m01_rs2_r1.inlet_door_open,
+			inlet_door_close											:= m01_rs2_r1.inlet_door_close,
+			outlet_door_open											:= m01_rs2_r1.outlet_door_open,
+			outlet_door_close											:= m01_rs2_r1.outlet_door_close,
+			                                                    
+			open_doors													:= open_doors,
+			close_doors													:= close_doors,
+			                                                    
+			open_inlet_door												=> m01_rs2_r1.XV_01_Door_Open_Solenoid_Valve,
+			close_inlet_door											=> m01_rs2_r1.XV_01_Door_Close_Solenoid_Valve,
+			open_outlet_door											=> m01_rs2_r1.XV_03_Door_Open_Solenoid_Valve,
+			close_outlet_door											=> m01_rs2_r1.XV_03_Door_Close_Solenoid_Valve,
+			                                                    
+			inlet_door_left_open										:= m01_rs2_r1.inlet_door_left_open_ls, 
+			inlet_door_right_open										:= m01_rs2_r1.inlet_door_right_open_ls, 
+			outlet_door_left_open										:= m01_rs2_r1.outlet_door_left_open_ls, 
+			outlet_door_right_open										:= m01_rs2_r1.outlet_door_right_open_ls,
+			inlet_door_left_closed										:= m01_rs2_r1.inlet_door_left_closed_ls, 
+			inlet_door_right_closed										:= m01_rs2_r1.inlet_door_right_closed_ls, 
+			outlet_door_left_closed										:= m01_rs2_r1.outlet_door_left_closed_ls, 
+			outlet_door_right_closed									:= m01_rs2_r1.outlet_door_right_closed_ls,
+			                                                    
+			vacuum_cooling_high_temp_count								=> m01_rs2_r1.vacuum_cooling_high_temp_count,
+			adsorption_high_temp_count									=> m01_rs2_r1.adsorption_high_temp_count,
+			desorption_high_temp_count									=> m01_rs2_r1.desorption_air_high_temp_count);
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Reactor2_IO" Id="{f6fe89ca-4da7-41cf-b0ef-94e4bf6ee090}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01_RS02.A_Reactor2_IO
+// Rev 1.0 - April 26, 2024
+
+fb_R2_IO(	RSet														:= _RS02,
+			React														:= _R2,
+			
+			Power_On													:= m01_rs2.power_control,
+			                                                    
+			sorbent_low_temp											=> m01_rs2_r2.temp_low,
+			sorbent_high_temp											=> m01_rs2_r2.temp_high,
+			sorbent_average_temp										=> m01_rs2_r2.temp_average,
+			                                                    
+			TT_01_01													:= m01_rs2_r2._01_TT_01,
+			TT_01_01_offset												:= m01_rs2_r2.cart01_front_temp_offset,
+			TT_01_01_error												:= m01_rs2_r2._01_TT_01_Error,
+			TT_01_03													:= m01_rs2_r2._01_TT_03,               
+			TT_01_03_offset												:= m01_rs2_r2.cart01_front_temp_offset,
+			TT_01_03_error												:= m01_rs2_r2._01_TT_03_Error,         
+			TT_02_01													:= m01_rs2_r2._02_TT_01,               
+			TT_02_01_offset												:= m01_rs2_r2.cart02_front_temp_offset,
+			TT_02_01_error												:= m01_rs2_r2._02_TT_01_Error,         
+			TT_02_03													:= m01_rs2_r2._02_TT_03,               
+			TT_02_03_offset												:= m01_rs2_r2.cart02_front_temp_offset,
+			TT_02_03_error												:= m01_rs2_r2._02_TT_03_Error,         
+			TT_03_01													:= m01_rs2_r2._03_TT_01,               
+			TT_03_01_offset												:= m01_rs2_r2.cart03_front_temp_offset,
+			TT_03_01_error												:= m01_rs2_r2._03_TT_01_Error,         
+			TT_03_03													:= m01_rs2_r2._03_TT_03,               
+			TT_03_03_offset												:= m01_rs2_r2.cart03_front_temp_offset,
+			TT_03_03_error												:= m01_rs2_r2._03_TT_03_Error,         
+			TT_04_01													:= m01_rs2_r2._04_TT_01,               
+			TT_04_01_offset												:= m01_rs2_r2.cart04_front_temp_offset,
+			TT_04_01_error												:= m01_rs2_r2._04_TT_01_Error,         
+			TT_04_03													:= m01_rs2_r2._04_TT_03,               
+			TT_04_03_offset												:= m01_rs2_r2.cart04_front_temp_offset,
+			TT_04_03_error												:= m01_rs2_r2._04_TT_03_Error,         
+			TT_05_01													:= m01_rs2_r2._05_TT_01,               
+			TT_05_01_offset												:= m01_rs2_r2.cart05_front_temp_offset,
+			TT_05_01_error												:= m01_rs2_r2._05_TT_01_Error,         
+			TT_05_03													:= m01_rs2_r2._05_TT_03,               
+			TT_05_03_offset												:= m01_rs2_r2.cart05_front_temp_offset,
+			TT_05_03_error												:= m01_rs2_r2._05_TT_03_Error,         
+			TT_06_01													:= m01_rs2_r2._06_TT_01,               
+			TT_06_01_offset												:= m01_rs2_r2.cart06_front_temp_offset,
+			TT_06_01_error												:= m01_rs2_r2._06_TT_01_Error,         
+			TT_06_03													:= m01_rs2_r2._06_TT_03,               
+			TT_06_03_offset												:= m01_rs2_r2.cart06_front_temp_offset,
+			TT_06_03_error												:= m01_rs2_r2._06_TT_03_Error,         
+			TT_07_01													:= m01_rs2_r2._07_TT_01,               
+			TT_07_01_offset												:= m01_rs2_r2.cart07_front_temp_offset,
+			TT_07_01_error												:= m01_rs2_r2._07_TT_01_Error,         
+			TT_07_03													:= m01_rs2_r2._07_TT_03,               
+			TT_07_03_offset												:= m01_rs2_r2.cart07_front_temp_offset,
+			TT_07_03_error												:= m01_rs2_r2._07_TT_03_Error,         
+			TT_08_01													:= m01_rs2_r2._08_TT_01,               
+			TT_08_01_offset												:= m01_rs2_r2.cart08_front_temp_offset,
+			TT_08_01_error												:= m01_rs2_r2._08_TT_01_Error,         
+			TT_08_03													:= m01_rs2_r2._08_TT_03,               
+			TT_08_03_offset												:= m01_rs2_r2.cart08_front_temp_offset,
+			TT_08_03_error												:= m01_rs2_r2._08_TT_03_Error,         
+			TT_09_01													:= m01_rs2_r2._09_TT_01,               
+			TT_09_01_offset												:= m01_rs2_r2.cart09_front_temp_offset,
+			TT_09_01_error												:= m01_rs2_r2._09_TT_01_Error,         
+			TT_09_03													:= m01_rs2_r2._09_TT_03,               
+			TT_09_03_offset												:= m01_rs2_r2.cart09_front_temp_offset,
+			TT_09_03_error												:= m01_rs2_r2._09_TT_03_Error,         
+			TT_10_01													:= m01_rs2_r2._10_TT_01,               
+			TT_10_01_offset												:= m01_rs2_r2.cart10_front_temp_offset,
+			TT_10_01_error												:= m01_rs2_r2._10_TT_01_Error,         
+			TT_10_03													:= m01_rs2_r2._10_TT_03,               
+			TT_10_03_offset												:= m01_rs2_r2.cart10_front_temp_offset,
+			TT_10_03_error												:= m01_rs2_r2._10_TT_03_Error,         
+			TT_11_01													:= m01_rs2_r2._11_TT_01,               
+			TT_11_01_offset												:= m01_rs2_r2.cart11_front_temp_offset,
+			TT_11_01_error												:= m01_rs2_r2._11_TT_01_Error,         
+			TT_11_03													:= m01_rs2_r2._11_TT_03,               
+			TT_11_03_offset												:= m01_rs2_r2.cart11_front_temp_offset,
+			TT_11_03_error												:= m01_rs2_r2._11_TT_03_Error,         
+			TT_12_01													:= m01_rs2_r2._12_TT_01,               
+			TT_12_01_offset												:= m01_rs2_r2.cart12_front_temp_offset,
+			TT_12_01_error												:= m01_rs2_r2._12_TT_01_Error,         
+			TT_12_03													:= m01_rs2_r2._12_TT_03,               
+			TT_12_03_offset												:= m01_rs2_r2.cart12_front_temp_offset,
+			TT_12_03_error												:= m01_rs2_r2._12_TT_03_Error,         
+
+			cart01_front_temp											=> m01_rs2_r2.cart01_front_temp,						
+			cart01_front_temp_error 									=> m01_rs2_r2.cart01_front_temp_error,
+			cart01_back_temp											=> m01_rs2_r2.cart01_back_temp,
+			cart01_back_temp_error 										=> m01_rs2_r2.cart01_back_temp_error,
+			cart02_front_temp											=> m01_rs2_r2.cart02_front_temp,						
+			cart02_front_temp_error 									=> m01_rs2_r2.cart02_front_temp_error,
+			cart02_back_temp											=> m01_rs2_r2.cart02_back_temp,
+			cart02_back_temp_error 										=> m01_rs2_r2.cart02_back_temp_error,
+			cart03_front_temp											=> m01_rs2_r2.cart03_front_temp,						
+			cart03_front_temp_error 									=> m01_rs2_r2.cart03_front_temp_error,
+			cart03_back_temp											=> m01_rs2_r2.cart03_back_temp,
+			cart03_back_temp_error 										=> m01_rs2_r2.cart03_back_temp_error,
+			cart04_front_temp											=> m01_rs2_r2.cart04_front_temp,						
+			cart04_front_temp_error 									=> m01_rs2_r2.cart04_front_temp_error,
+			cart04_back_temp											=> m01_rs2_r2.cart04_back_temp,
+			cart04_back_temp_error 										=> m01_rs2_r2.cart04_back_temp_error,
+			cart05_front_temp											=> m01_rs2_r2.cart05_front_temp,						
+			cart05_front_temp_error 									=> m01_rs2_r2.cart05_front_temp_error,
+			cart05_back_temp											=> m01_rs2_r2.cart05_back_temp,
+			cart05_back_temp_error 										=> m01_rs2_r2.cart05_back_temp_error,
+			cart06_front_temp											=> m01_rs2_r2.cart06_front_temp,						
+			cart06_front_temp_error 									=> m01_rs2_r2.cart06_front_temp_error,
+			cart06_back_temp											=> m01_rs2_r2.cart06_back_temp,
+			cart06_back_temp_error 										=> m01_rs2_r2.cart06_back_temp_error,
+			cart07_front_temp											=> m01_rs2_r2.cart07_front_temp,						
+			cart07_front_temp_error 									=> m01_rs2_r2.cart07_front_temp_error,
+			cart07_back_temp											=> m01_rs2_r2.cart07_back_temp,
+			cart07_back_temp_error 										=> m01_rs2_r2.cart07_back_temp_error,
+			cart08_front_temp											=> m01_rs2_r2.cart08_front_temp,						
+			cart08_front_temp_error 									=> m01_rs2_r2.cart08_front_temp_error,
+			cart08_back_temp											=> m01_rs2_r2.cart08_back_temp,
+			cart08_back_temp_error 										=> m01_rs2_r2.cart08_back_temp_error,
+			cart09_front_temp											=> m01_rs2_r2.cart09_front_temp,						
+			cart09_front_temp_error 									=> m01_rs2_r2.cart09_front_temp_error,
+			cart09_back_temp											=> m01_rs2_r2.cart09_back_temp,
+			cart09_back_temp_error 										=> m01_rs2_r2.cart09_back_temp_error,
+			cart10_front_temp											=> m01_rs2_r2.cart10_front_temp,						
+			cart10_front_temp_error 									=> m01_rs2_r2.cart10_front_temp_error,
+			cart10_back_temp											=> m01_rs2_r2.cart10_back_temp,
+			cart10_back_temp_error 										=> m01_rs2_r2.cart10_back_temp_error,
+			cart11_front_temp											=> m01_rs2_r2.cart11_front_temp,						
+			cart11_front_temp_error 									=> m01_rs2_r2.cart11_front_temp_error,
+			cart11_back_temp											=> m01_rs2_r2.cart11_back_temp,
+			cart11_back_temp_error 										=> m01_rs2_r2.cart11_back_temp_error,
+			cart12_front_temp											=> m01_rs2_r2.cart12_front_temp,						
+			cart12_front_temp_error 									=> m01_rs2_r2.cart12_front_temp_error,
+			cart12_back_temp											=> m01_rs2_r2.cart12_back_temp,
+			cart12_back_temp_error 										=> m01_rs2_r2.cart12_back_temp_error,     		    
+                                                    
+			inlet_co2_pump												:= m01_rs2_r2.inlet_co2_pump,
+			AT_01_pump													=> m01_rs2_r2.AT_01_pump,
+			inlet_co2_pump_cmd_status									=> m01_rs2_r2.inlet_co2_pump_cmd_status,
+			inlet_co2_sol												:= m01_rs2_r2.inlet_co2_sol,
+			AT_01_sol													=> m01_rs2_r2.AT_01_sol,
+			inlet_co2_sol_cmd_status									=> m01_rs2_r2.inlet_co2_sol_cmd_status,
+			outlet_co2_pump												:= m01_rs2_r2.outlet_co2_pump,
+			AT_03_pump													=> m01_rs2_r2.AT_03_pump,
+			outlet_co2_pump_cmd_status									=> m01_rs2_r2.outlet_co2_pump_cmd_status,
+			outlet_co2_sol												:= m01_rs2_r2.outlet_co2_sol,
+			AT_03_sol													=> m01_rs2_r2.AT_03_sol,
+			outlet_co2_sol_cmd_status									=> m01_rs2_r2.outlet_co2_sol_cmd_status,
+			repres_valve												:= m01_rs2_r2.repres_valve,
+			XV_02														=> m01_rs2_r2.XV_02,
+			repres_valve_open_cmd_status								=> m01_rs2_r2.repres_valve_open_cmd_status,
+			repres_valve_open											:= m01_rs2_r2.repres_valve_open,
+			repres_valve_closed											:= m01_rs2_r2.repres_valve_closed,
+    	                                                        
+			fan_vfd_control												=> m01_rs2_r2.fan_vfd_control,  		
+			fan_vfd_target_vel	 		                                => m01_rs2_r2.fan_vfd_target_vel, 
+			fan_vfd_enabled	 		                                    => m01_rs2_r2.fan_vfd_enabled, 
+			fan_vfd_error		                                        => m01_rs2_r2.fan_vfd_error,
+			fan_vfd_output												=> m01_rs2_r2.fan_vfd_output,
+			fan_vfd_reset												:= m01_rs2_r2.fan_vfd_reset,
+			fan_vfd_enable												:= m01_rs2_r2.fan_vfd_enable,
+			fan_vfd_ecat_state											:= m01_rs2_r2.fan_vfd_ecat_state,
+			fan_vfd_status												:= m01_rs2_r2.fan_vfd_status,
+			fan_vfd														:= m01_rs2_r2.fan_vfd,
+			fan_vfd_velocity											:= m01_rs2_r2.fan_vfd_velocity,
+			fan_vfd_current												:= m01_rs2_r2.fan_vfd_current,
+			fan_vfd_current_amps										=> m01_rs2_r2.fan_vfd_output_current,
+			                                                    
+			inlet_door_clamps_extend									:= m01_rs2_r2.inlet_door_clamps_extend,
+			outlet_door_clamps_extend									:= m01_rs2_r2.outlet_door_clamps_extend,
+			inlet_door_clamps_retract									:= m01_rs2_r2.inlet_door_clamps_retract,
+			outlet_door_clamps_retract									:= m01_rs2_r2.outlet_door_clamps_retract,
+			                                                    
+			extend_clamps												:= extend_clamps,
+			retract_clamps												:= retract_clamps,
+			                                                    
+			inlet_door_left_clamps_extend								=> m01_rs2_r2.XV_01_Left_Extend_Solenoid_Valve,
+			inlet_door_right_clamps_extend								=> m01_rs2_r2.XV_01_Right_Extend_Solenoid_Valve,
+			outlet_door_left_clamps_extend								=> m01_rs2_r2.XV_03_Left_Extend_Solenoid_Valve,
+			outlet_door_right_clamps_extend								=> m01_rs2_r2.XV_03_Right_Extend_Solenoid_Valve,
+			inlet_door_left_clamps_retract								=> m01_rs2_r2.XV_01_Left_Retract_Solenoid_Valve,
+			inlet_door_right_clamps_retract								=> m01_rs2_r2.XV_01_Right_Retract_Solenoid_Valve,
+			outlet_door_left_clamps_retract								=> m01_rs2_r2.XV_03_Left_Retract_Solenoid_Valve,
+			outlet_door_right_clamps_retract							=> m01_rs2_r2.XV_03_Right_Retract_Solenoid_Valve,
+    	                                                        
+			inlet_door_left_clamps_extended								:= m01_rs2_r2.inlet_door_left_clamps_extended_ls,  
+			inlet_door_right_clamps_extended							:= m01_rs2_r2.inlet_door_right_clamps_extended_ls, 
+			outlet_door_left_clamps_extended							:= m01_rs2_r2.outlet_door_left_clamps_extended_ls, 
+			outlet_door_right_clamps_extended							:= m01_rs2_r2.outlet_door_right_clamps_extended_ls,
+			                                                    
+			inlet_door_open												:= m01_rs2_r2.inlet_door_open,
+			inlet_door_close											:= m01_rs2_r2.inlet_door_close,
+			outlet_door_open											:= m01_rs2_r2.outlet_door_open,
+			outlet_door_close											:= m01_rs2_r2.outlet_door_close,
+			                                                    
+			open_doors													:= open_doors,
+			close_doors													:= close_doors,
+			                                                    
+			open_inlet_door												=> m01_rs2_r2.XV_01_Door_Open_Solenoid_Valve,
+			close_inlet_door											=> m01_rs2_r2.XV_01_Door_Close_Solenoid_Valve,
+			open_outlet_door											=> m01_rs2_r2.XV_03_Door_Open_Solenoid_Valve,
+			close_outlet_door											=> m01_rs2_r2.XV_03_Door_Close_Solenoid_Valve,
+			                                                    
+			inlet_door_left_open										:= m01_rs2_r2.inlet_door_left_open_ls, 
+			inlet_door_right_open										:= m01_rs2_r2.inlet_door_right_open_ls, 
+			outlet_door_left_open										:= m01_rs2_r2.outlet_door_left_open_ls, 
+			outlet_door_right_open										:= m01_rs2_r2.outlet_door_right_open_ls,
+			inlet_door_left_closed										:= m01_rs2_r2.inlet_door_left_closed_ls, 
+			inlet_door_right_closed										:= m01_rs2_r2.inlet_door_right_closed_ls, 
+			outlet_door_left_closed										:= m01_rs2_r2.outlet_door_left_closed_ls, 
+			outlet_door_right_closed									:= m01_rs2_r2.outlet_door_right_closed_ls,
+			                                                    
+			vacuum_cooling_high_temp_count								=> m01_rs2_r2.vacuum_cooling_high_temp_count,
+			adsorption_high_temp_count									=> m01_rs2_r2.adsorption_high_temp_count,
+			desorption_high_temp_count									=> m01_rs2_r2.desorption_air_high_temp_count);
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Reactor3_IO" Id="{59b8a9f1-08ef-4200-b875-77ecc411b63e}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01_RS02.A_Reactor3_IO
+// Rev 1.0 - April 26, 2024
+
+fb_R3_IO(	RSet														:= _RS02,
+			React														:= _R3,
+			
+			Power_On													:= m01_rs2.power_control,
+			                                                    
+			sorbent_low_temp											=> m01_rs2_r3.temp_low,
+			sorbent_high_temp											=> m01_rs2_r3.temp_high,
+			sorbent_average_temp										=> m01_rs2_r3.temp_average,
+			                                                    
+			TT_01_01													:= m01_rs2_r3._01_TT_01,
+			TT_01_01_offset												:= m01_rs2_r3.cart01_front_temp_offset,
+			TT_01_01_error												:= m01_rs2_r3._01_TT_01_Error,
+			TT_01_03													:= m01_rs2_r3._01_TT_03,               
+			TT_01_03_offset												:= m01_rs2_r3.cart01_front_temp_offset,
+			TT_01_03_error												:= m01_rs2_r3._01_TT_03_Error,         
+			TT_02_01													:= m01_rs2_r3._02_TT_01,               
+			TT_02_01_offset												:= m01_rs2_r3.cart02_front_temp_offset,
+			TT_02_01_error												:= m01_rs2_r3._02_TT_01_Error,         
+			TT_02_03													:= m01_rs2_r3._02_TT_03,               
+			TT_02_03_offset												:= m01_rs2_r3.cart02_front_temp_offset,
+			TT_02_03_error												:= m01_rs2_r3._02_TT_03_Error,         
+			TT_03_01													:= m01_rs2_r3._03_TT_01,               
+			TT_03_01_offset												:= m01_rs2_r3.cart03_front_temp_offset,
+			TT_03_01_error												:= m01_rs2_r3._03_TT_01_Error,         
+			TT_03_03													:= m01_rs2_r3._03_TT_03,               
+			TT_03_03_offset												:= m01_rs2_r3.cart03_front_temp_offset,
+			TT_03_03_error												:= m01_rs2_r3._03_TT_03_Error,         
+			TT_04_01													:= m01_rs2_r3._04_TT_01,               
+			TT_04_01_offset												:= m01_rs2_r3.cart04_front_temp_offset,
+			TT_04_01_error												:= m01_rs2_r3._04_TT_01_Error,         
+			TT_04_03													:= m01_rs2_r3._04_TT_03,               
+			TT_04_03_offset												:= m01_rs2_r3.cart04_front_temp_offset,
+			TT_04_03_error												:= m01_rs2_r3._04_TT_03_Error,         
+			TT_05_01													:= m01_rs2_r3._05_TT_01,               
+			TT_05_01_offset												:= m01_rs2_r3.cart05_front_temp_offset,
+			TT_05_01_error												:= m01_rs2_r3._05_TT_01_Error,         
+			TT_05_03													:= m01_rs2_r3._05_TT_03,               
+			TT_05_03_offset												:= m01_rs2_r3.cart05_front_temp_offset,
+			TT_05_03_error												:= m01_rs2_r3._05_TT_03_Error,         
+			TT_06_01													:= m01_rs2_r3._06_TT_01,               
+			TT_06_01_offset												:= m01_rs2_r3.cart06_front_temp_offset,
+			TT_06_01_error												:= m01_rs2_r3._06_TT_01_Error,         
+			TT_06_03													:= m01_rs2_r3._06_TT_03,               
+			TT_06_03_offset												:= m01_rs2_r3.cart06_front_temp_offset,
+			TT_06_03_error												:= m01_rs2_r3._06_TT_03_Error,         
+			TT_07_01													:= m01_rs2_r3._07_TT_01,               
+			TT_07_01_offset												:= m01_rs2_r3.cart07_front_temp_offset,
+			TT_07_01_error												:= m01_rs2_r3._07_TT_01_Error,         
+			TT_07_03													:= m01_rs2_r3._07_TT_03,               
+			TT_07_03_offset												:= m01_rs2_r3.cart07_front_temp_offset,
+			TT_07_03_error												:= m01_rs2_r3._07_TT_03_Error,         
+			TT_08_01													:= m01_rs2_r3._08_TT_01,               
+			TT_08_01_offset												:= m01_rs2_r3.cart08_front_temp_offset,
+			TT_08_01_error												:= m01_rs2_r3._08_TT_01_Error,         
+			TT_08_03													:= m01_rs2_r3._08_TT_03,               
+			TT_08_03_offset												:= m01_rs2_r3.cart08_front_temp_offset,
+			TT_08_03_error												:= m01_rs2_r3._08_TT_03_Error,         
+			TT_09_01													:= m01_rs2_r3._09_TT_01,               
+			TT_09_01_offset												:= m01_rs2_r3.cart09_front_temp_offset,
+			TT_09_01_error												:= m01_rs2_r3._09_TT_01_Error,         
+			TT_09_03													:= m01_rs2_r3._09_TT_03,               
+			TT_09_03_offset												:= m01_rs2_r3.cart09_front_temp_offset,
+			TT_09_03_error												:= m01_rs2_r3._09_TT_03_Error,         
+			TT_10_01													:= m01_rs2_r3._10_TT_01,               
+			TT_10_01_offset												:= m01_rs2_r3.cart10_front_temp_offset,
+			TT_10_01_error												:= m01_rs2_r3._10_TT_01_Error,         
+			TT_10_03													:= m01_rs2_r3._10_TT_03,               
+			TT_10_03_offset												:= m01_rs2_r3.cart10_front_temp_offset,
+			TT_10_03_error												:= m01_rs2_r3._10_TT_03_Error,         
+			TT_11_01													:= m01_rs2_r3._11_TT_01,               
+			TT_11_01_offset												:= m01_rs2_r3.cart11_front_temp_offset,
+			TT_11_01_error												:= m01_rs2_r3._11_TT_01_Error,         
+			TT_11_03													:= m01_rs2_r3._11_TT_03,               
+			TT_11_03_offset												:= m01_rs2_r3.cart11_front_temp_offset,
+			TT_11_03_error												:= m01_rs2_r3._11_TT_03_Error,         
+			TT_12_01													:= m01_rs2_r3._12_TT_01,               
+			TT_12_01_offset												:= m01_rs2_r3.cart12_front_temp_offset,
+			TT_12_01_error												:= m01_rs2_r3._12_TT_01_Error,         
+			TT_12_03													:= m01_rs2_r3._12_TT_03,               
+			TT_12_03_offset												:= m01_rs2_r3.cart12_front_temp_offset,
+			TT_12_03_error												:= m01_rs2_r3._12_TT_03_Error,         
+		    
+			cart01_front_temp											=> m01_rs2_r3.cart01_front_temp,						
+			cart01_front_temp_error 									=> m01_rs2_r3.cart01_front_temp_error,
+			cart01_back_temp											=> m01_rs2_r3.cart01_back_temp,
+			cart01_back_temp_error 										=> m01_rs2_r3.cart01_back_temp_error,
+			cart02_front_temp											=> m01_rs2_r3.cart02_front_temp,						
+			cart02_front_temp_error 									=> m01_rs2_r3.cart02_front_temp_error,
+			cart02_back_temp											=> m01_rs2_r3.cart02_back_temp,
+			cart02_back_temp_error 										=> m01_rs2_r3.cart02_back_temp_error,
+			cart03_front_temp											=> m01_rs2_r3.cart03_front_temp,						
+			cart03_front_temp_error 									=> m01_rs2_r3.cart03_front_temp_error,
+			cart03_back_temp											=> m01_rs2_r3.cart03_back_temp,
+			cart03_back_temp_error 										=> m01_rs2_r3.cart03_back_temp_error,
+			cart04_front_temp											=> m01_rs2_r3.cart04_front_temp,						
+			cart04_front_temp_error 									=> m01_rs2_r3.cart04_front_temp_error,
+			cart04_back_temp											=> m01_rs2_r3.cart04_back_temp,
+			cart04_back_temp_error 										=> m01_rs2_r3.cart04_back_temp_error,
+			cart05_front_temp											=> m01_rs2_r3.cart05_front_temp,						
+			cart05_front_temp_error 									=> m01_rs2_r3.cart05_front_temp_error,
+			cart05_back_temp											=> m01_rs2_r3.cart05_back_temp,
+			cart05_back_temp_error 										=> m01_rs2_r3.cart05_back_temp_error,
+			cart06_front_temp											=> m01_rs2_r3.cart06_front_temp,						
+			cart06_front_temp_error 									=> m01_rs2_r3.cart06_front_temp_error,
+			cart06_back_temp											=> m01_rs2_r3.cart06_back_temp,
+			cart06_back_temp_error 										=> m01_rs2_r3.cart06_back_temp_error,
+			cart07_front_temp											=> m01_rs2_r3.cart07_front_temp,						
+			cart07_front_temp_error 									=> m01_rs2_r3.cart07_front_temp_error,
+			cart07_back_temp											=> m01_rs2_r3.cart07_back_temp,
+			cart07_back_temp_error 										=> m01_rs2_r3.cart07_back_temp_error,
+			cart08_front_temp											=> m01_rs2_r3.cart08_front_temp,						
+			cart08_front_temp_error 									=> m01_rs2_r3.cart08_front_temp_error,
+			cart08_back_temp											=> m01_rs2_r3.cart08_back_temp,
+			cart08_back_temp_error 										=> m01_rs2_r3.cart08_back_temp_error,
+			cart09_front_temp											=> m01_rs2_r3.cart09_front_temp,						
+			cart09_front_temp_error 									=> m01_rs2_r3.cart09_front_temp_error,
+			cart09_back_temp											=> m01_rs2_r3.cart09_back_temp,
+			cart09_back_temp_error 										=> m01_rs2_r3.cart09_back_temp_error,
+			cart10_front_temp											=> m01_rs2_r3.cart10_front_temp,						
+			cart10_front_temp_error 									=> m01_rs2_r3.cart10_front_temp_error,
+			cart10_back_temp											=> m01_rs2_r3.cart10_back_temp,
+			cart10_back_temp_error 										=> m01_rs2_r3.cart10_back_temp_error,
+			cart11_front_temp											=> m01_rs2_r3.cart11_front_temp,						
+			cart11_front_temp_error 									=> m01_rs2_r3.cart11_front_temp_error,
+			cart11_back_temp											=> m01_rs2_r3.cart11_back_temp,
+			cart11_back_temp_error 										=> m01_rs2_r3.cart11_back_temp_error,
+			cart12_front_temp											=> m01_rs2_r3.cart12_front_temp,						
+			cart12_front_temp_error 									=> m01_rs2_r3.cart12_front_temp_error,
+			cart12_back_temp											=> m01_rs2_r3.cart12_back_temp,
+			cart12_back_temp_error 										=> m01_rs2_r3.cart12_back_temp_error,  
+                                                    
+			inlet_co2_pump												:= m01_rs2_r3.inlet_co2_pump,
+			AT_01_pump													=> m01_rs2_r3.AT_01_pump,
+			inlet_co2_pump_cmd_status									=> m01_rs2_r3.inlet_co2_pump_cmd_status,
+			inlet_co2_sol												:= m01_rs2_r3.inlet_co2_sol,
+			AT_01_sol													=> m01_rs2_r3.AT_01_sol,
+			inlet_co2_sol_cmd_status									=> m01_rs2_r3.inlet_co2_sol_cmd_status,
+			outlet_co2_pump												:= m01_rs2_r3.outlet_co2_pump,
+			AT_03_pump													=> m01_rs2_r3.AT_03_pump,
+			outlet_co2_pump_cmd_status									=> m01_rs2_r3.outlet_co2_pump_cmd_status,
+			outlet_co2_sol												:= m01_rs2_r3.outlet_co2_sol,
+			AT_03_sol													=> m01_rs2_r3.AT_03_sol,
+			outlet_co2_sol_cmd_status									=> m01_rs2_r3.outlet_co2_sol_cmd_status,
+			repres_valve												:= m01_rs2_r3.repres_valve,
+			XV_02														=> m01_rs2_r3.XV_02,
+			repres_valve_open_cmd_status								=> m01_rs2_r3.repres_valve_open_cmd_status,
+			repres_valve_open											:= m01_rs2_r3.repres_valve_open,
+			repres_valve_closed											:= m01_rs2_r3.repres_valve_closed,
+    	                                                        
+			fan_vfd_control												=> m01_rs2_r3.fan_vfd_control,  		
+			fan_vfd_target_vel	 		                                => m01_rs2_r3.fan_vfd_target_vel, 
+			fan_vfd_enabled	 		                                    => m01_rs2_r3.fan_vfd_enabled, 
+			fan_vfd_error		                                        => m01_rs2_r3.fan_vfd_error,
+			fan_vfd_output												=> m01_rs2_r3.fan_vfd_output,
+			fan_vfd_reset												:= m01_rs2_r3.fan_vfd_reset,
+			fan_vfd_enable												:= m01_rs2_r3.fan_vfd_enable,
+			fan_vfd_ecat_state											:= m01_rs2_r3.fan_vfd_ecat_state,
+			fan_vfd_status												:= m01_rs2_r3.fan_vfd_status,
+			fan_vfd														:= m01_rs2_r3.fan_vfd,
+			fan_vfd_velocity											:= m01_rs2_r3.fan_vfd_velocity,
+			fan_vfd_current												:= m01_rs2_r3.fan_vfd_current,
+			fan_vfd_current_amps										=> m01_rs2_r3.fan_vfd_output_current,
+			                                                    
+			inlet_door_clamps_extend									:= m01_rs2_r3.inlet_door_clamps_extend,
+			outlet_door_clamps_extend									:= m01_rs2_r3.outlet_door_clamps_extend,
+			inlet_door_clamps_retract									:= m01_rs2_r3.inlet_door_clamps_retract,
+			outlet_door_clamps_retract									:= m01_rs2_r3.outlet_door_clamps_retract,
+			                                                    
+			extend_clamps												:= extend_clamps,
+			retract_clamps												:= retract_clamps,
+			                                                    
+			inlet_door_left_clamps_extend								=> m01_rs2_r3.XV_01_Left_Extend_Solenoid_Valve,
+			inlet_door_right_clamps_extend								=> m01_rs2_r3.XV_01_Right_Extend_Solenoid_Valve,
+			outlet_door_left_clamps_extend								=> m01_rs2_r3.XV_03_Left_Extend_Solenoid_Valve,
+			outlet_door_right_clamps_extend								=> m01_rs2_r3.XV_03_Right_Extend_Solenoid_Valve,
+			inlet_door_left_clamps_retract								=> m01_rs2_r3.XV_01_Left_Retract_Solenoid_Valve,
+			inlet_door_right_clamps_retract								=> m01_rs2_r3.XV_01_Right_Retract_Solenoid_Valve,
+			outlet_door_left_clamps_retract								=> m01_rs2_r3.XV_03_Left_Retract_Solenoid_Valve,
+			outlet_door_right_clamps_retract							=> m01_rs2_r3.XV_03_Right_Retract_Solenoid_Valve,
+    	                                                        
+			inlet_door_left_clamps_extended								:= m01_rs2_r3.inlet_door_left_clamps_extended_ls,  
+			inlet_door_right_clamps_extended							:= m01_rs2_r3.inlet_door_right_clamps_extended_ls, 
+			outlet_door_left_clamps_extended							:= m01_rs2_r3.outlet_door_left_clamps_extended_ls, 
+			outlet_door_right_clamps_extended							:= m01_rs2_r3.outlet_door_right_clamps_extended_ls,
+			                                                    
+			inlet_door_open												:= m01_rs2_r3.inlet_door_open,
+			inlet_door_close											:= m01_rs2_r3.inlet_door_close,
+			outlet_door_open											:= m01_rs2_r3.outlet_door_open,
+			outlet_door_close											:= m01_rs2_r3.outlet_door_close,
+			                                                    
+			open_doors													:= open_doors,
+			close_doors													:= close_doors,
+			                                                    
+			open_inlet_door												=> m01_rs2_r3.XV_01_Door_Open_Solenoid_Valve,
+			close_inlet_door											=> m01_rs2_r3.XV_01_Door_Close_Solenoid_Valve,
+			open_outlet_door											=> m01_rs2_r3.XV_03_Door_Open_Solenoid_Valve,
+			close_outlet_door											=> m01_rs2_r3.XV_03_Door_Close_Solenoid_Valve,
+			                                                    
+			inlet_door_left_open										:= m01_rs2_r3.inlet_door_left_open_ls, 
+			inlet_door_right_open										:= m01_rs2_r3.inlet_door_right_open_ls, 
+			outlet_door_left_open										:= m01_rs2_r3.outlet_door_left_open_ls, 
+			outlet_door_right_open										:= m01_rs2_r3.outlet_door_right_open_ls,
+			inlet_door_left_closed										:= m01_rs2_r3.inlet_door_left_closed_ls, 
+			inlet_door_right_closed										:= m01_rs2_r3.inlet_door_right_closed_ls, 
+			outlet_door_left_closed										:= m01_rs2_r3.outlet_door_left_closed_ls, 
+			outlet_door_right_closed									:= m01_rs2_r3.outlet_door_right_closed_ls,
+			                                                    
+			vacuum_cooling_high_temp_count								=> m01_rs2_r3.vacuum_cooling_high_temp_count,
+			adsorption_high_temp_count									=> m01_rs2_r3.adsorption_high_temp_count,
+			desorption_high_temp_count									=> m01_rs2_r3.desorption_air_high_temp_count);
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Reactor4_IO" Id="{fcb50bc9-e53e-4d33-b7b4-be9b1fdb25dd}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01_RS02.A_Reactor4_IO
+// Rev 1.0 - April 26, 2024
+
+fb_R4_IO(	RSet														:= _RS02,
+			React														:= _R4,
+			
+			Power_On													:= m01_rs2.power_control,
+			                                                    
+			sorbent_low_temp											=> m01_rs2_r4.temp_low,
+			sorbent_high_temp											=> m01_rs2_r4.temp_high,
+			sorbent_average_temp										=> m01_rs2_r4.temp_average,
+			                                                    
+			TT_01_01													:= m01_rs2_r4._01_TT_01,
+			TT_01_01_offset												:= m01_rs2_r4.cart01_front_temp_offset,
+			TT_01_01_error												:= m01_rs2_r4._01_TT_01_Error,
+			TT_01_03													:= m01_rs2_r4._01_TT_03,               
+			TT_01_03_offset												:= m01_rs2_r4.cart01_front_temp_offset,
+			TT_01_03_error												:= m01_rs2_r4._01_TT_03_Error,         
+			TT_02_01													:= m01_rs2_r4._02_TT_01,               
+			TT_02_01_offset												:= m01_rs2_r4.cart02_front_temp_offset,
+			TT_02_01_error												:= m01_rs2_r4._02_TT_01_Error,         
+			TT_02_03													:= m01_rs2_r4._02_TT_03,               
+			TT_02_03_offset												:= m01_rs2_r4.cart02_front_temp_offset,
+			TT_02_03_error												:= m01_rs2_r4._02_TT_03_Error,         
+			TT_03_01													:= m01_rs2_r4._03_TT_01,               
+			TT_03_01_offset												:= m01_rs2_r4.cart03_front_temp_offset,
+			TT_03_01_error												:= m01_rs2_r4._03_TT_01_Error,         
+			TT_03_03													:= m01_rs2_r4._03_TT_03,               
+			TT_03_03_offset												:= m01_rs2_r4.cart03_front_temp_offset,
+			TT_03_03_error												:= m01_rs2_r4._03_TT_03_Error,         
+			TT_04_01													:= m01_rs2_r4._04_TT_01,               
+			TT_04_01_offset												:= m01_rs2_r4.cart04_front_temp_offset,
+			TT_04_01_error												:= m01_rs2_r4._04_TT_01_Error,         
+			TT_04_03													:= m01_rs2_r4._04_TT_03,               
+			TT_04_03_offset												:= m01_rs2_r4.cart04_front_temp_offset,
+			TT_04_03_error												:= m01_rs2_r4._04_TT_03_Error,         
+			TT_05_01													:= m01_rs2_r4._05_TT_01,               
+			TT_05_01_offset												:= m01_rs2_r4.cart05_front_temp_offset,
+			TT_05_01_error												:= m01_rs2_r4._05_TT_01_Error,         
+			TT_05_03													:= m01_rs2_r4._05_TT_03,               
+			TT_05_03_offset												:= m01_rs2_r4.cart05_front_temp_offset,
+			TT_05_03_error												:= m01_rs2_r4._05_TT_03_Error,         
+			TT_06_01													:= m01_rs2_r4._06_TT_01,               
+			TT_06_01_offset												:= m01_rs2_r4.cart06_front_temp_offset,
+			TT_06_01_error												:= m01_rs2_r4._06_TT_01_Error,         
+			TT_06_03													:= m01_rs2_r4._06_TT_03,               
+			TT_06_03_offset												:= m01_rs2_r4.cart06_front_temp_offset,
+			TT_06_03_error												:= m01_rs2_r4._06_TT_03_Error,         
+			TT_07_01													:= m01_rs2_r4._07_TT_01,               
+			TT_07_01_offset												:= m01_rs2_r4.cart07_front_temp_offset,
+			TT_07_01_error												:= m01_rs2_r4._07_TT_01_Error,         
+			TT_07_03													:= m01_rs2_r4._07_TT_03,               
+			TT_07_03_offset												:= m01_rs2_r4.cart07_front_temp_offset,
+			TT_07_03_error												:= m01_rs2_r4._07_TT_03_Error,         
+			TT_08_01													:= m01_rs2_r4._08_TT_01,               
+			TT_08_01_offset												:= m01_rs2_r4.cart08_front_temp_offset,
+			TT_08_01_error												:= m01_rs2_r4._08_TT_01_Error,         
+			TT_08_03													:= m01_rs2_r4._08_TT_03,               
+			TT_08_03_offset												:= m01_rs2_r4.cart08_front_temp_offset,
+			TT_08_03_error												:= m01_rs2_r4._08_TT_03_Error,         
+			TT_09_01													:= m01_rs2_r4._09_TT_01,               
+			TT_09_01_offset												:= m01_rs2_r4.cart09_front_temp_offset,
+			TT_09_01_error												:= m01_rs2_r4._09_TT_01_Error,         
+			TT_09_03													:= m01_rs2_r4._09_TT_03,               
+			TT_09_03_offset												:= m01_rs2_r4.cart09_front_temp_offset,
+			TT_09_03_error												:= m01_rs2_r4._09_TT_03_Error,         
+			TT_10_01													:= m01_rs2_r4._10_TT_01,               
+			TT_10_01_offset												:= m01_rs2_r4.cart10_front_temp_offset,
+			TT_10_01_error												:= m01_rs2_r4._10_TT_01_Error,         
+			TT_10_03													:= m01_rs2_r4._10_TT_03,               
+			TT_10_03_offset												:= m01_rs2_r4.cart10_front_temp_offset,
+			TT_10_03_error												:= m01_rs2_r4._10_TT_03_Error,         
+			TT_11_01													:= m01_rs2_r4._11_TT_01,               
+			TT_11_01_offset												:= m01_rs2_r4.cart11_front_temp_offset,
+			TT_11_01_error												:= m01_rs2_r4._11_TT_01_Error,         
+			TT_11_03													:= m01_rs2_r4._11_TT_03,               
+			TT_11_03_offset												:= m01_rs2_r4.cart11_front_temp_offset,
+			TT_11_03_error												:= m01_rs2_r4._11_TT_03_Error,         
+			TT_12_01													:= m01_rs2_r4._12_TT_01,               
+			TT_12_01_offset												:= m01_rs2_r4.cart12_front_temp_offset,
+			TT_12_01_error												:= m01_rs2_r4._12_TT_01_Error,         
+			TT_12_03													:= m01_rs2_r4._12_TT_03,               
+			TT_12_03_offset												:= m01_rs2_r4.cart12_front_temp_offset,
+			TT_12_03_error												:= m01_rs2_r4._12_TT_03_Error,         
+		    
+			cart01_front_temp											=> m01_rs2_r4.cart01_front_temp,						
+			cart01_front_temp_error 									=> m01_rs2_r4.cart01_front_temp_error,
+			cart01_back_temp											=> m01_rs2_r4.cart01_back_temp,
+			cart01_back_temp_error 										=> m01_rs2_r4.cart01_back_temp_error,
+			cart02_front_temp											=> m01_rs2_r4.cart02_front_temp,						
+			cart02_front_temp_error 									=> m01_rs2_r4.cart02_front_temp_error,
+			cart02_back_temp											=> m01_rs2_r4.cart02_back_temp,
+			cart02_back_temp_error 										=> m01_rs2_r4.cart02_back_temp_error,
+			cart03_front_temp											=> m01_rs2_r4.cart03_front_temp,						
+			cart03_front_temp_error 									=> m01_rs2_r4.cart03_front_temp_error,
+			cart03_back_temp											=> m01_rs2_r4.cart03_back_temp,
+			cart03_back_temp_error 										=> m01_rs2_r4.cart03_back_temp_error,
+			cart04_front_temp											=> m01_rs2_r4.cart04_front_temp,						
+			cart04_front_temp_error 									=> m01_rs2_r4.cart04_front_temp_error,
+			cart04_back_temp											=> m01_rs2_r4.cart04_back_temp,
+			cart04_back_temp_error 										=> m01_rs2_r4.cart04_back_temp_error,
+			cart05_front_temp											=> m01_rs2_r4.cart05_front_temp,						
+			cart05_front_temp_error 									=> m01_rs2_r4.cart05_front_temp_error,
+			cart05_back_temp											=> m01_rs2_r4.cart05_back_temp,
+			cart05_back_temp_error 										=> m01_rs2_r4.cart05_back_temp_error,
+			cart06_front_temp											=> m01_rs2_r4.cart06_front_temp,						
+			cart06_front_temp_error 									=> m01_rs2_r4.cart06_front_temp_error,
+			cart06_back_temp											=> m01_rs2_r4.cart06_back_temp,
+			cart06_back_temp_error 										=> m01_rs2_r4.cart06_back_temp_error,
+			cart07_front_temp											=> m01_rs2_r4.cart07_front_temp,						
+			cart07_front_temp_error 									=> m01_rs2_r4.cart07_front_temp_error,
+			cart07_back_temp											=> m01_rs2_r4.cart07_back_temp,
+			cart07_back_temp_error 										=> m01_rs2_r4.cart07_back_temp_error,
+			cart08_front_temp											=> m01_rs2_r4.cart08_front_temp,						
+			cart08_front_temp_error 									=> m01_rs2_r4.cart08_front_temp_error,
+			cart08_back_temp											=> m01_rs2_r4.cart08_back_temp,
+			cart08_back_temp_error 										=> m01_rs2_r4.cart08_back_temp_error,
+			cart09_front_temp											=> m01_rs2_r4.cart09_front_temp,						
+			cart09_front_temp_error 									=> m01_rs2_r4.cart09_front_temp_error,
+			cart09_back_temp											=> m01_rs2_r4.cart09_back_temp,
+			cart09_back_temp_error 										=> m01_rs2_r4.cart09_back_temp_error,
+			cart10_front_temp											=> m01_rs2_r4.cart10_front_temp,						
+			cart10_front_temp_error 									=> m01_rs2_r4.cart10_front_temp_error,
+			cart10_back_temp											=> m01_rs2_r4.cart10_back_temp,
+			cart10_back_temp_error 										=> m01_rs2_r4.cart10_back_temp_error,
+			cart11_front_temp											=> m01_rs2_r4.cart11_front_temp,						
+			cart11_front_temp_error 									=> m01_rs2_r4.cart11_front_temp_error,
+			cart11_back_temp											=> m01_rs2_r4.cart11_back_temp,
+			cart11_back_temp_error 										=> m01_rs2_r4.cart11_back_temp_error,
+			cart12_front_temp											=> m01_rs2_r4.cart12_front_temp,						
+			cart12_front_temp_error 									=> m01_rs2_r4.cart12_front_temp_error,
+			cart12_back_temp											=> m01_rs2_r4.cart12_back_temp,
+			cart12_back_temp_error 										=> m01_rs2_r4.cart12_back_temp_error,   
+                                                    
+			inlet_co2_pump												:= m01_rs2_r4.inlet_co2_pump,
+			AT_01_pump													=> m01_rs2_r4.AT_01_pump,
+			inlet_co2_pump_cmd_status									=> m01_rs2_r4.inlet_co2_pump_cmd_status,
+			inlet_co2_sol												:= m01_rs2_r4.inlet_co2_sol,
+			AT_01_sol													=> m01_rs2_r4.AT_01_sol,
+			inlet_co2_sol_cmd_status									=> m01_rs2_r4.inlet_co2_sol_cmd_status,
+			outlet_co2_pump												:= m01_rs2_r4.outlet_co2_pump,
+			AT_03_pump													=> m01_rs2_r4.AT_03_pump,
+			outlet_co2_pump_cmd_status									=> m01_rs2_r4.outlet_co2_pump_cmd_status,
+			outlet_co2_sol												:= m01_rs2_r4.outlet_co2_sol,
+			AT_03_sol													=> m01_rs2_r4.AT_03_sol,
+			outlet_co2_sol_cmd_status									=> m01_rs2_r4.outlet_co2_sol_cmd_status,
+			repres_valve												:= m01_rs2_r4.repres_valve,
+			XV_02														=> m01_rs2_r4.XV_02,
+			repres_valve_open_cmd_status								=> m01_rs2_r4.repres_valve_open_cmd_status,
+			repres_valve_open											:= m01_rs2_r4.repres_valve_open,
+			repres_valve_closed											:= m01_rs2_r4.repres_valve_closed,
+    	                                                        
+			fan_vfd_control												=> m01_rs2_r4.fan_vfd_control,  		
+			fan_vfd_target_vel	 		                                => m01_rs2_r4.fan_vfd_target_vel, 
+			fan_vfd_enabled	 		                                    => m01_rs2_r4.fan_vfd_enabled, 
+			fan_vfd_error		                                        => m01_rs2_r4.fan_vfd_error,
+			fan_vfd_output												=> m01_rs2_r4.fan_vfd_output,
+			fan_vfd_reset												:= m01_rs2_r4.fan_vfd_reset,
+			fan_vfd_enable												:= m01_rs2_r4.fan_vfd_enable,
+			fan_vfd_ecat_state											:= m01_rs2_r4.fan_vfd_ecat_state,
+			fan_vfd_status												:= m01_rs2_r4.fan_vfd_status,
+			fan_vfd														:= m01_rs2_r4.fan_vfd,
+			fan_vfd_velocity											:= m01_rs2_r4.fan_vfd_velocity,
+			fan_vfd_current												:= m01_rs2_r4.fan_vfd_current,
+			fan_vfd_current_amps										=> m01_rs2_r4.fan_vfd_output_current,
+			                                                    
+			inlet_door_clamps_extend									:= m01_rs2_r4.inlet_door_clamps_extend,
+			outlet_door_clamps_extend									:= m01_rs2_r4.outlet_door_clamps_extend,
+			inlet_door_clamps_retract									:= m01_rs2_r4.inlet_door_clamps_retract,
+			outlet_door_clamps_retract									:= m01_rs2_r4.outlet_door_clamps_retract,
+			                                                    
+			extend_clamps												:= extend_clamps,
+			retract_clamps												:= retract_clamps,
+			                                                    
+			inlet_door_left_clamps_extend								=> m01_rs2_r4.XV_01_Left_Extend_Solenoid_Valve,
+			inlet_door_right_clamps_extend								=> m01_rs2_r4.XV_01_Right_Extend_Solenoid_Valve,
+			outlet_door_left_clamps_extend								=> m01_rs2_r4.XV_03_Left_Extend_Solenoid_Valve,
+			outlet_door_right_clamps_extend								=> m01_rs2_r4.XV_03_Right_Extend_Solenoid_Valve,
+			inlet_door_left_clamps_retract								=> m01_rs2_r4.XV_01_Left_Retract_Solenoid_Valve,
+			inlet_door_right_clamps_retract								=> m01_rs2_r4.XV_01_Right_Retract_Solenoid_Valve,
+			outlet_door_left_clamps_retract								=> m01_rs2_r4.XV_03_Left_Retract_Solenoid_Valve,
+			outlet_door_right_clamps_retract							=> m01_rs2_r4.XV_03_Right_Retract_Solenoid_Valve,
+    	                                                        
+			inlet_door_left_clamps_extended								:= m01_rs2_r4.inlet_door_left_clamps_extended_ls,  
+			inlet_door_right_clamps_extended							:= m01_rs2_r4.inlet_door_right_clamps_extended_ls, 
+			outlet_door_left_clamps_extended							:= m01_rs2_r4.outlet_door_left_clamps_extended_ls, 
+			outlet_door_right_clamps_extended							:= m01_rs2_r4.outlet_door_right_clamps_extended_ls,
+			                                                    
+			inlet_door_open												:= m01_rs2_r4.inlet_door_open,
+			inlet_door_close											:= m01_rs2_r4.inlet_door_close,
+			outlet_door_open											:= m01_rs2_r4.outlet_door_open,
+			outlet_door_close											:= m01_rs2_r4.outlet_door_close,
+			                                                    
+			open_doors													:= open_doors,
+			close_doors													:= close_doors,
+			                                                    
+			open_inlet_door												=> m01_rs2_r4.XV_01_Door_Open_Solenoid_Valve,
+			close_inlet_door											=> m01_rs2_r4.XV_01_Door_Close_Solenoid_Valve,
+			open_outlet_door											=> m01_rs2_r4.XV_03_Door_Open_Solenoid_Valve,
+			close_outlet_door											=> m01_rs2_r4.XV_03_Door_Close_Solenoid_Valve,
+			                                                    
+			inlet_door_left_open										:= m01_rs2_r4.inlet_door_left_open_ls, 
+			inlet_door_right_open										:= m01_rs2_r4.inlet_door_right_open_ls, 
+			outlet_door_left_open										:= m01_rs2_r4.outlet_door_left_open_ls, 
+			outlet_door_right_open										:= m01_rs2_r4.outlet_door_right_open_ls,
+			inlet_door_left_closed										:= m01_rs2_r4.inlet_door_left_closed_ls, 
+			inlet_door_right_closed										:= m01_rs2_r4.inlet_door_right_closed_ls, 
+			outlet_door_left_closed										:= m01_rs2_r4.outlet_door_left_closed_ls, 
+			outlet_door_right_closed									:= m01_rs2_r4.outlet_door_right_closed_ls,
+			                                                    
+			vacuum_cooling_high_temp_count								=> m01_rs2_r4.vacuum_cooling_high_temp_count,
+			adsorption_high_temp_count									=> m01_rs2_r4.adsorption_high_temp_count,
+			desorption_high_temp_count									=> m01_rs2_r4.desorption_air_high_temp_count);
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="P_M01_RS02">
+      <LineId Id="6650" Count="36" />
+      <LineId Id="7114" Count="1" />
+      <LineId Id="6687" Count="3" />
+      <LineId Id="7119" Count="2" />
+      <LineId Id="6694" Count="205" />
+      <LineId Id="7007" Count="0" />
+      <LineId Id="7006" Count="0" />
+      <LineId Id="3795" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01_RS02.A_Reactor_Set">
+      <LineId Id="146" Count="4" />
+      <LineId Id="235" Count="1" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="151" Count="82" />
+      <LineId Id="237" Count="0" />
+      <LineId Id="28" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01_RS02.A_Reactor1_IO">
+      <LineId Id="546" Count="84" />
+      <LineId Id="710" Count="46" />
+      <LineId Id="709" Count="0" />
+      <LineId Id="708" Count="0" />
+      <LineId Id="631" Count="28" />
+      <LineId Id="757" Count="3" />
+      <LineId Id="660" Count="47" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01_RS02.A_Reactor2_IO">
+      <LineId Id="760" Count="83" />
+      <LineId Id="923" Count="47" />
+      <LineId Id="844" Count="0" />
+      <LineId Id="922" Count="0" />
+      <LineId Id="845" Count="28" />
+      <LineId Id="971" Count="1" />
+      <LineId Id="874" Count="47" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01_RS02.A_Reactor3_IO">
+      <LineId Id="760" Count="84" />
+      <LineId Id="924" Count="46" />
+      <LineId Id="923" Count="0" />
+      <LineId Id="922" Count="0" />
+      <LineId Id="845" Count="28" />
+      <LineId Id="971" Count="1" />
+      <LineId Id="874" Count="47" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01_RS02.A_Reactor4_IO">
+      <LineId Id="760" Count="84" />
+      <LineId Id="924" Count="46" />
+      <LineId Id="923" Count="0" />
+      <LineId Id="922" Count="0" />
+      <LineId Id="845" Count="28" />
+      <LineId Id="971" Count="1" />
+      <LineId Id="874" Count="47" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

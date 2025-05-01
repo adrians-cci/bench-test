@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_Status" Id="{10bf8e4e-7a70-40c4-8b25-834ac9a6ac2f}">
+    <Declaration><![CDATA[// Phase 0 - E_Status
+// Rev 1.0 - January 10, 2024
+
+TYPE E_Status :
+(
+	eSystem_Idle						:= 0,
+	e1,
+	e2,
+	eWarmup_Running,							// 3	
+	eSteamBypass_Running,						// 4
+	eRepressurization_Running,					// 5
+	eAdsorption_Running,						// 6
+	eEvacuation_Running,						// 7
+	eDesorption_Running,						// 8
+	eShutting_Down,								// 9
+	ePressureTest_Running,						// 10
+	e11,
+	e12,
+	eWarmup_Error,								// 13
+	eSteamBypass_Error,							// 14
+	eRepressurization_Error,					// 15
+	eAdsorption_Error,							// 16
+	eEvacuation_Error,							// 17
+	eDesorption_Error,							// 18
+	eShutdown_Error,							// 19
+	ePressureTest_Error,						// 20
+	e21,
+	e22,
+	eWarmup_Complete,							// 23
+	eSteamBypass_Complete,						// 24
+	eRepressurization_Complete,					// 25
+	eAdsorption_Complete,						// 26
+	eEvacuation_Complete,						// 27
+	eDesorption_Complete,						// 28
+	eShutdown_Complete,							// 29
+	ePressureTest_Complete,						// 30
+	e31,
+	e32,
+	eStopping_Process,							// 33
+	eResetting,									// 34
+	eSaving_Data								// 35
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Analog_Out_Minimum" Id="{732ebd4f-67ec-4dfe-b943-21f066cb8284}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Analog_Out_Minimum
+VAR_INPUT
+	Minimum																: REAL;
+END_VAR
+VAR_IN_OUT
+	Input1																: REAL;
+	Input2																: REAL;
+END_VAR
+VAR
+	Last1																: REAL	:= -1;
+	Last2																: REAL	:= -1;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - FB_Analog_Out_Minimum
+// Rev 1.0 - April 3, 2024
+
+IF Input2 <> Last2 THEN
+	Input2																:= SEL(Input2 < Minimum, Input2, Minimum);
+	Last2																:= Input2;
+	Input1																:= Input2;
+	Last1																:= Input2;
+ELSIF Input1 <> Last1 THEN
+	Input1																:= SEL(Input1 < Minimum, Input1, Minimum);
+	Last1																:= Input1;
+	Input2																:= Input1;
+	Last2																:= Input1;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Analog_Out_Minimum">
+      <LineId Id="95" Count="3" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="99" Count="3" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="103" Count="2" />
+      <LineId Id="55" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

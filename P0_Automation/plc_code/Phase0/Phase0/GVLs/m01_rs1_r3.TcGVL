@@ -1,0 +1,848 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="m01_rs1_r3" Id="{fa9b5cda-cacc-4b93-9f4a-aa5ec1f659e5}">
+    <Declaration><![CDATA[// Phase 0 - m01_rs1_r3
+// Rev 1.0 - April 11, 2024
+
+{attribute 'qualified_only'}
+VAR_GLOBAL
+
+    /// <summary>AT-01</summary>																		// Summary defines hover over text while in twincat 3 program
+	{attribute 'OPC.UA.DA' := '1'}  				                									// OPC_UA tag
+	{attribute 'OPC.UA.DA.Access' := '1'}																// OPC_UA tag definition - '1' indicates Read Only, '2' indicates Write Only (not used), '3' indicates Read Write (default)  				                
+	inlet_co2															: REAL;							// Tag value to read (scaled)
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_co2_error												AT %I*	: BOOL;							// Combination OPC_UA tag and twincat input variable
+    /// <summary>Inlet CO2</summary>
+	AT_01														AT %I*	: INT;							// Raw input data from sensor - not available as tag
+
+    /// <summary>AT-01_pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_pump														: BOOL;
+    /// <summary>AT-01_pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_co2_pump_cmd_status											: BOOL;
+    /// <summary>Inlet CO2 pump</summary>
+	AT_01_pump													AT %Q*	: BOOL;
+    /// <summary>AT-01_solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_sol														: BOOL;
+    /// <summary>AT-01_solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_co2_sol_cmd_status											: BOOL;
+    /// <summary>Inlet CO2 solenoid</summary>
+	AT_01_sol													AT %Q*	: BOOL;
+
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_h2o															: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_h2o_error												AT %I*	: BOOL;
+    /// <summary>Inlet H20</summary>
+	AT_02														AT %I*	: INT;
+
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2															: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2_error											AT %I*	: BOOL;
+    /// <summary>Outlet CO2</summary>
+	AT_03														AT %I*	: INT;
+	
+    /// <summary>AT-03_pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_pump														: BOOL;
+    /// <summary>AT-03_pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2_pump_cmd_status											: BOOL;
+    /// <summary>Inlet CO2 pump</summary>
+	AT_03_pump													AT %Q*	: BOOL;
+    /// <summary>AT-03_solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_sol														: BOOL;
+    /// <summary>AT-03_solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_co2_sol_cmd_status											: BOOL;
+    /// <summary>Outlet CO2 solenoid</summary>
+	AT_03_sol													AT %Q*	: BOOL;
+
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_h2o															: REAL;
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_h2o_error											AT %I*	: BOOL;
+    /// <summary>Outlet H20</summary>
+	AT_04														AT %I*	: INT;
+
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	air_flow															: REAL;
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	air_flow_error												AT %I*	: BOOL;
+    /// <summary>Air flow</summary>
+	FT_01														AT %I*	: INT;
+	
+    /// <summary>PDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	filter_diff_pres													: REAL;
+    /// <summary>PDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	filter_diff_pres_error										AT %I*	: BOOL;
+    /// <summary>Filter diff pres</summary>
+	PDT_01														AT %I*	: INT;
+
+    /// <summary>PDT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	sorbent_diff_pres													: REAL;
+    /// <summary>PDT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	sorbent_diff_pres_error										AT %I*	: BOOL;
+    /// <summary>Sorbent diff pres</summary>
+	PDT_02														AT %I*	: INT;
+
+    /// <summary>PDT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_diff_pres														: REAL;
+    /// <summary>PDT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_diff_pres_error											AT %I*	: BOOL;
+    /// <summary>fan diff pres</summary>
+	PDT_03														AT %I*	: INT;
+
+     /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_pres														: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_pres_error											AT %I*	: BOOL;
+    /// <summary>Reactor pressure</summary>
+	PT_01														AT %I*	: INT;
+
+    /// <summary>TT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_wall_temp													: REAL;
+    /// <summary>Reactor wall temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	reactor_wall_temp_error										AT %I*	: BOOL;
+    /// <summary>Reactor wall temp</summary>
+	TT_05														AT %I*	: INT;
+	
+    /// <summary>TT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_line_temp													: REAL;
+    /// <summary>Outlet line temp</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_line_temp_error										AT %I*	: BOOL;
+    /// <summary>Outlet_line temp</summary>
+	TT_06														AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_vfd_enable														: BOOL :=  TRUE;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_vfd_reset														: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_enabled														: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_error														: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_vfd																: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_input														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_output														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	fan_vfd_output_current												: REAL;
+	fan_vfd_control												AT %Q*	: WORD;
+	fan_vfd_target_vel											AT %Q*	: WORD;
+	fan_vfd_status												AT %I*	: WORD;
+	fan_vfd_velocity											AT %I*	: WORD;
+	fan_vfd_ecat_state											AT %I*  : BOOL;
+	fan_vfd_current												AT %I*	: DINT;
+	fan_vfd_temp												AT %I*	: INT;
+
+    /// <summary>XV-01 Both</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_open														: BOOL;
+    /// <summary>XV-01 Both</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_close													: BOOL;
+    /// <summary>XV-01 Left</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_left_open_ls										AT %I*	: BOOL;
+    /// <summary>XV-01 Left</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_left_closed_ls									AT %I*	: BOOL;
+    /// <summary>XV-01 Right</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_right_open_ls									AT %I*	: BOOL;
+    /// <summary>XV-01 Right</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_right_closed_ls									AT %I*	: BOOL;
+    /// <summary>Inlet Door</summary>
+	XV_01_Door_Open_Solenoid_Valve								AT %Q*	: BOOL;
+    /// <summary>Inlet Door</summary>
+	XV_01_Door_Close_Solenoid_Valve								AT %Q*	: BOOL;
+	
+    /// <summary>XV-03 Both</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_open													: BOOL;
+    /// <summary>XV-03 Both</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_close													: BOOL;
+    /// <summary>XV-03 Left</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_left_open_ls									AT %I*	: BOOL;
+    /// <summary>XV-03 Left</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_left_closed_ls									AT %I*	: BOOL;
+    /// <summary>XV-03 Right</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_right_open_ls									AT %I*	: BOOL;
+    /// <summary>XV-03 Right</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_right_closed_ls									AT %I*	: BOOL;
+    /// <summary>Outlet Door</summary>
+	XV_03_Door_Open_Solenoid_Valve								AT %Q*	: BOOL;
+    /// <summary>Outlet Door</summary>
+	XV_03_Door_Close_Solenoid_Valve								AT %Q*	: BOOL;
+
+    /// <summary>XV-01 Both</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_clamps_extend											: BOOL;
+    /// <summary>XV-01 Both</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_door_clamps_retract											: BOOL;
+    /// <summary>XV-01 Left</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_left_clamps_extended_ls							AT %I*	: BOOL;
+    /// <summary>XV-01 Right</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	inlet_door_right_clamps_extended_ls							AT %I*	: BOOL;
+    /// <summary>Inlet Clamps</summary>
+	XV_01_Left_Retract_Solenoid_Valve							AT %Q*	: BOOL;
+    /// <summary>Inlet Clamps</summary>
+	XV_01_Left_Extend_Solenoid_Valve							AT %Q*	: BOOL;
+    /// <summary>Inlet Clamps</summary>
+	XV_01_Right_Retract_Solenoid_Valve							AT %Q*	: BOOL;
+    /// <summary>Inlet Clamps</summary>
+	XV_01_Right_Extend_Solenoid_Valve							AT %Q*	: BOOL;
+
+    /// <summary>XV-03 Both</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_clamps_extend											: BOOL;
+    /// <summary>XV-03 Both</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_door_clamps_retract											: BOOL;
+    /// <summary>XV-03 Left</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_left_clamps_extended_ls							AT %I*	: BOOL;
+    /// <summary>XV-03 Right</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	outlet_door_right_clamps_extended_ls						AT %I*	: BOOL;
+    /// <summary>Outlet Clamps</summary>
+	XV_03_Left_Retract_Solenoid_Valve							AT %Q*	: BOOL;
+    /// <summary>Outlet Clamps</summary>
+	XV_03_Left_Extend_Solenoid_Valve							AT %Q*	: BOOL;
+    /// <summary>Outlet Clamps</summary>
+	XV_03_Right_Retract_Solenoid_Valve							AT %Q*	: BOOL;
+    /// <summary>Outlet Clamps</summary>
+	XV_03_Right_Extend_Solenoid_Valve							AT %Q*	: BOOL;
+
+	/// <summary>XV-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	repres_valve														: BOOL;
+    /// <summary>XV-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repres_valve_open_cmd_status										: BOOL;
+    /// <summary>XV-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repres_valve_open											AT %I*	: BOOL;
+    /// <summary>XV-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	repres_valve_closed											AT %I*	: BOOL;
+    /// <summary>repres valve</summary>
+	XV_02														AT %Q*	: BOOL;
+	
+   /// <summary>01-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart01_front_temp													: REAL;
+    /// <summary>01-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart01_front_temp_error												: BOOL;
+    /// <summary>Cart01 front temperature</summary>
+	_01_TT_01													AT %I*	: INT;
+    /// <summary>Cart01 front temperature</summary>
+	_01_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>01-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart01_back_temp													: REAL;
+    /// <summary>01-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart01_back_temp_error												: BOOL;
+    /// <summary>Cart01 back temperature</summary>
+	_01_TT_03													AT %I*	: INT;
+    /// <summary>Cart01 back temperature</summary>
+	_01_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>02-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart02_front_temp													: REAL;
+    /// <summary>02-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart02_front_temp_error												: BOOL;
+    /// <summary>Cart02 front temperature</summary>
+	_02_TT_01													AT %I*	: INT;
+    /// <summary>Cart02 front temperature</summary>
+	_02_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>02-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart02_back_temp													: REAL;
+    /// <summary>02-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart02_back_temp_error												: BOOL;
+    /// <summary>Cart02 back temperature</summary>
+	_02_TT_03													AT %I*	: INT;
+    /// <summary>Cart02 back temperature</summary>
+	_02_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>03-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart03_front_temp													: REAL;
+    /// <summary>03-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart03_front_temp_error												: BOOL;
+    /// <summary>Cart03 front temperature</summary>
+	_03_TT_01													AT %I*	: INT;
+    /// <summary>Cart03 front temperature</summary>
+	_03_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>03-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart03_back_temp													: REAL;
+    /// <summary>03-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart03_back_temp_error												: BOOL;
+    /// <summary>Cart03 back temperature</summary>
+	_03_TT_03													AT %I*	: INT;
+    /// <summary>Cart03 back temperature</summary>
+	_03_TT_03_Error												AT %I*	: BOOL;
+
+    /// <summary>04-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart04_front_temp													: REAL;
+    /// <summary>04-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart04_front_temp_error												: BOOL;
+    /// <summary>Cart04 front temperature</summary>
+	_04_TT_01													AT %I*	: INT;
+    /// <summary>Cart04 front temperature</summary>
+	_04_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>04-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart04_back_temp													: REAL;
+    /// <summary>04-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart04_back_temp_error												: BOOL;
+    /// <summary>Cart04 back temperature</summary>
+	_04_TT_03													AT %I*	: INT;
+    /// <summary>Cart04 back temperature</summary>
+	_04_TT_03_Error												AT %I*	: BOOL;
+
+    /// <summary>05-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart05_front_temp													: REAL;
+    /// <summary>05-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart05_front_temp_error												: BOOL;
+    /// <summary>Cart05 front temperature</summary>
+	_05_TT_01													AT %I*	: INT;
+    /// <summary>Cart05 front temperature</summary>
+	_05_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>05-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart05_back_temp													: REAL;
+    /// <summary>05-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart05_back_temp_error												: BOOL;
+    /// <summary>Cart05 back temperature</summary>
+	_05_TT_03													AT %I*	: INT;
+    /// <summary>Cart05 back temperature</summary>
+	_05_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>06-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart06_front_temp													: REAL;
+    /// <summary>06-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart06_front_temp_error												: BOOL;
+    /// <summary>Cart06 front temperature</summary>
+	_06_TT_01													AT %I*	: INT;
+    /// <summary>Cart06 front temperature</summary>
+	_06_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>06-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart06_back_temp													: REAL;
+    /// <summary>06-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart06_back_temp_error												: BOOL;
+    /// <summary>Cart06 back temperature</summary>
+	_06_TT_03													AT %I*	: INT;
+    /// <summary>Cart06 back temperature</summary>
+	_06_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>07-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart07_front_temp													: REAL;
+    /// <summary>07-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart07_front_temp_error												: BOOL;
+    /// <summary>Cart07 front temperature</summary>
+	_07_TT_01													AT %I*	: INT;
+    /// <summary>Cart07 front temperature</summary>
+	_07_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>07-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart07_back_temp													: REAL;
+    /// <summary>07-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart07_back_temp_error												: BOOL;
+    /// <summary>Cart07 back temperature</summary>
+	_07_TT_03													AT %I*	: INT;
+    /// <summary>Cart07 back temperature</summary>
+	_07_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>08-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart08_front_temp													: REAL;
+    /// <summary>08-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart08_front_temp_error												: BOOL;
+    /// <summary>Cart08 front temperature</summary>
+	_08_TT_01													AT %I*	: INT;
+    /// <summary>Cart08 front temperature</summary>
+	_08_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>08-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart08_back_temp													: REAL;
+    /// <summary>08-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart08_back_temp_error												: BOOL;
+    /// <summary>Cart08 back temperature</summary>
+	_08_TT_03													AT %I*	: INT;
+    /// <summary>Cart08 back temperature</summary>
+	_08_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>09-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart09_front_temp													: REAL;
+    /// <summary>09-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart09_front_temp_error												: BOOL;
+    /// <summary>Cart09 front temperature</summary>
+	_09_TT_01													AT %I*	: INT;
+    /// <summary>Cart09 front temperature</summary>
+	_09_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>09-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart09_back_temp													: REAL;
+    /// <summary>09-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart09_back_temp_error												: BOOL;
+    /// <summary>Cart09 back temperature</summary>
+	_09_TT_03													AT %I*	: INT;
+    /// <summary>Cart09 back temperature</summary>
+	_09_TT_03_Error												AT %I*	: BOOL;
+	
+    /// <summary>10-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart10_front_temp													: REAL;
+    /// <summary>10-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart10_front_temp_error												: BOOL;
+    /// <summary>Cart10 front temperature</summary>
+	_10_TT_01													AT %I*	: INT;
+    /// <summary>Cart10 front temperature</summary>
+	_10_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>10-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart10_back_temp													: REAL;
+    /// <summary>10-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart10_back_temp_error												: BOOL;
+    /// <summary>Cart10 back temperature</summary>
+	_10_TT_03													AT %I*	: INT;
+    /// <summary>Cart10 back temperature</summary>
+	_10_TT_03_Error												AT %I*	: BOOL;
+
+    /// <summary>11-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart11_front_temp													: REAL;
+    /// <summary>11-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart11_front_temp_error												: BOOL;
+    /// <summary>Cart11 front temperature</summary>
+	_11_TT_01													AT %I*	: INT;
+    /// <summary>Cart11 front temperature</summary>
+	_11_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>11-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart11_back_temp													: REAL;
+    /// <summary>11-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart11_back_temp_error												: BOOL;
+    /// <summary>Cart11 back temperature</summary>
+	_11_TT_03													AT %I*	: INT;
+    /// <summary>Cart11 back temperature</summary>
+	_11_TT_03_Error												AT %I*	: BOOL;
+
+    /// <summary>12-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart12_front_temp													: REAL;
+    /// <summary>12-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart12_front_temp_error												: BOOL;
+    /// <summary>Cart12 front temperature</summary>
+	_12_TT_01													AT %I*	: INT;
+    /// <summary>Cart12 front temperature</summary>
+	_12_TT_01_Error												AT %I*	: BOOL;
+
+    /// <summary>12-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart12_back_temp													: REAL;
+    /// <summary>12-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cart12_back_temp_error												: BOOL;
+    /// <summary>Cart12 back temperature</summary>
+	_12_TT_03													AT %I*	: INT;
+    /// <summary>Cart12 back temperature</summary>
+	_12_TT_03_Error												AT %I*	: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	temp_low															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	temp_high															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	temp_average														: REAL;
+
+	desorption_air_high_temp_count										: INT;
+	adsorption_high_temp_count											: INT;
+	vacuum_cooling_high_temp_count										: INT;
+
+END_VAR
+
+VAR_GLOBAL PERSISTENT
+
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_low														: REAL;							// Tag for low point to scale input (these tags can be preset as shown or overwritten)
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_high														: REAL;							// Tag for high point to scale input
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_min														: REAL;							// Tag for minimum display value (if input is below this value, zero is displayed)
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_co2_offset													: REAL;							// Tag for offset correction value
+
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_h2o_low														: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_h2o_high														: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_h2o_min														: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	inlet_h2o_offset													: REAL;
+
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_low														: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_high														: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_min														: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_co2_offset													: REAL;
+
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_low														: REAL;
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_high														: REAL;
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_min														: REAL;
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_h2o_offset													: REAL;
+	
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	air_flow_low														: REAL;
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	air_flow_high														: REAL;
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	air_flow_min														: REAL;
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	air_flow_offset														: REAL;
+
+    /// <summary>PDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_low												: REAL;
+    /// <summary>PDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_high												: REAL;
+    /// <summary>PDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_min												: REAL;
+    /// <summary>PDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	filter_diff_pres_offset												: REAL;
+
+    /// <summary>PDT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_low												: REAL;
+    /// <summary>PDT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_high												: REAL;
+    /// <summary>PDT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_min												: REAL;
+    /// <summary>PDT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	sorbent_diff_pres_offset											: REAL;
+
+    /// <summary>PDT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_low													: REAL;
+    /// <summary>PDT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_high													: REAL;
+    /// <summary>PDT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_min													: REAL;
+    /// <summary>PDT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	fan_diff_pres_offset												: REAL;
+
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_pres_low													: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_pres_high													: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_pres_min													: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_pres_offset													: REAL;
+
+    /// <summary>TT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	reactor_wall_temp_offset											: REAL;
+
+    /// <summary>TT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	outlet_line_temp_offset												: REAL;
+
+	
+    /// <summary>01-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart01_front_temp_offset											: REAL;
+    /// <summary>10-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart01_back_temp_offset												: REAL;
+    /// <summary>02-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart02_front_temp_offset											: REAL;
+    /// <summary>02-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart02_back_temp_offset												: REAL;
+    /// <summary>03-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart03_front_temp_offset											: REAL;
+    /// <summary>03-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart03_back_temp_offset												: REAL;
+    /// <summary>04-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart04_front_temp_offset											: REAL;
+    /// <summary>04-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart04_back_temp_offset												: REAL;
+    /// <summary>05-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart05_front_temp_offset											: REAL;
+    /// <summary>05-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart05_back_temp_offset												: REAL;
+    /// <summary>06-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart06_front_temp_offset											: REAL;
+    /// <summary>06-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart06_back_temp_offset												: REAL;
+    /// <summary>07-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart07_front_temp_offset											: REAL;
+    /// <summary>07-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart07_back_temp_offset												: REAL;
+    /// <summary>08-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart08_front_temp_offset											: REAL;
+    /// <summary>08-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart08_back_temp_offset												: REAL;
+    /// <summary>09-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart09_front_temp_offset											: REAL;
+    /// <summary>09-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart09_back_temp_offset												: REAL;
+    /// <summary>10-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart10_front_temp_offset											: REAL;
+    /// <summary>10-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart10_back_temp_offset												: REAL;
+    /// <summary>11-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart11_front_temp_offset											: REAL;
+    /// <summary>11-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart11_back_temp_offset												: REAL;
+    /// <summary>12-TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart12_front_temp_offset											: REAL;
+    /// <summary>12-TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cart12_back_temp_offset												: REAL;
+	
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

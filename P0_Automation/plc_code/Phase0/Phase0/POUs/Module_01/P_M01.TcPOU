@@ -1,0 +1,529 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="P_M01" Id="{fb60791d-8094-40c4-99ca-4ff675ae8289}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_M01
+VAR PERSISTENT
+	udiCycleCountRS01													: DINT;
+	udiCycleCountRS02													: DINT;
+	udiCycleCountRS03													: DINT;
+END_VAR
+VAR
+	m																	: Module;
+	sCycleModeRS01														: STRING	:= '';
+	sCycleModeRS02														: STRING	:= '';
+	sCycleModeRS03														: STRING	:= '';
+	iRS01CyclesToRun													: INT;
+	iRS02CyclesToRun													: INT;
+	iRS03CyclesToRun													: INT;
+	iLength																: INT;
+	iReactorSetToActivate												: INT;
+	iRS01Count															: INT;
+	iRS02Count															: INT;
+	iRS03Count															: INT;
+	rtrigStart															: R_TRIG;
+	
+	bRSProcess															: BOOL;
+	bRSManual															: BOOL;
+	bRS01																: BOOL;
+	bRS02																: BOOL;
+	bRS03																: BOOL;
+	bRS01Selected														: BOOL;
+	bRS02Selected														: BOOL;
+	bRS03Selected														: BOOL;
+	bRSTimer															: BOOL;
+	bStarted															: BOOL;
+	bReactorSetSelected													: BOOL;
+	
+	rtrigRS01StartNextRS												: R_TRIG;
+	rtrigRS02StartNextRS												: R_TRIG;
+	rtrigRS03StartNextRS												: R_TRIG;
+	rtrigRS01Restart													: R_TRIG;
+	rtrigRS02Restart													: R_TRIG;
+	rtrigRS03Restart													: R_TRIG;
+	rtrigRS01Done														: R_TRIG;
+	rtrigRS02Done														: R_TRIG;
+	rtrigRS03Done														: R_TRIG;
+	rtrigRS01Offline													: R_TRIG;
+	rtrigRS02Offline													: R_TRIG;
+	rtrigRS03Offline													: R_TRIG;
+	
+	tonRSTimer															: TON;
+	
+	fb_Condensate_From_Cooling_And_Purge_Lines_Pump						: FB_Digital_Out();
+	
+	rtrigCPDrainLSHOn													: R_TRIG;
+	tonCPDrainErrorOn													: TON;
+	tonCPDrainErrorOff													: TON;
+	bCPDrainError														: BOOL;
+	
+	rMinPressureSP														: REAL; 
+	rMaxPressureSP														: REAL;
+	
+	bCondensateFlowError												: BOOL;
+	bSteamManifoldLinePresError											: BOOL;
+	bSteamTempNearRS01Error												: BOOL;
+	bSteamTempNearRS03Error												: BOOL;
+	bCondensateTempError												: BOOL;
+	
+	sModuleError														: STRING;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - P_M01
+// Rev 1.0 - May 1, 2024
+
+m01.condensate_flow														:= F_AnalogIn(m01.FT_02, m01.condensate_flow_low, m01.condensate_flow_high, m01.condensate_flow_min, m01.condensate_flow_offset);
+m.condensate_flow														:= m01.condensate_flow;
+m.condensate_flow_error													:= m01.condensate_flow_error AND NOT _CondensateFlowOff;
+bCondensateFlowError													:= P_Alarms.M_Check_Error(m01.condensate_flow_error, bCondensateFlowError, _M01, gsCondesateFlowSensorError, gsProcessCannotRun);
+
+m01.steam_manifold_line_pres											:= F_AnalogIn(m01.PT_02, m01.steam_manifold_line_pres_low, m01.steam_manifold_line_pres_high, m01.steam_manifold_line_pres_min, m01.steam_manifold_line_pres_offset);
+m.steam_manifold_line_pres												:= m01.steam_manifold_line_pres;
+m.steam_manifold_line_pres_error										:= m01.steam_manifold_line_pres_error AND NOT _SteamManifoldLinePresOff;
+bSteamManifoldLinePresError												:= P_Alarms.M_Check_Error(m01.steam_manifold_line_pres_error, bSteamManifoldLinePresError, _M01, gsSteamManifoldLinePresSensorError, gsProcessCannotRun);
+
+m.condensate_from_cooling_and_purge_lines_lsl							:= m01.condensate_from_cooling_and_purge_lines_lsl;
+m.condensate_from_cooling_and_purge_lines_lsh							:= m01.condensate_from_cooling_and_purge_lines_lsh;
+
+fb_Condensate_From_Cooling_And_Purge_Lines_Pump(Input1:= m01.condensate_from_cooling_and_purge_lines_pump, Input2:= m.condensate_from_cooling_and_purge_lines_pump, Output=> m01.P_02);
+m01.condensate_from_cooling_and_purge_lines_pump_cmd_status				:= m01.P_02;
+
+m01.steam_temp_near_rs1													:= F_Temperature(m01.TT_10, m01.steam_temp_near_rs1_offset);
+m.steam_temp_near_rs1													:= m01.steam_temp_near_rs1;
+m.steam_temp_near_rs1_error												:= m01.steam_temp_near_rs1_error AND NOT _SteamTempNearRS01Off;
+bSteamTempNearRS01Error													:= P_Alarms.M_Check_Error(m.steam_temp_near_rs1_error, bSteamTempNearRS01Error, _M01, gsSteamTempNearRS01SensorError, gsProcessCannotRun);
+
+m01.steam_temp_near_rs3													:= F_Temperature(m01.TT_11, m01.steam_temp_near_rs3_offset);
+m.steam_temp_near_rs3													:= m01.steam_temp_near_rs3;
+m.steam_temp_near_rs3_error												:= m01.steam_temp_near_rs3_error AND NOT _SteamTempNearRS03Off;
+bSteamTempNearRS03Error													:= P_Alarms.M_Check_Error(m.steam_temp_near_rs3_error, bSteamTempNearRS03Error, _M01, gsSteamTempNearRS03SensorError, gsProcessCannotRun);
+
+m01.condensate_temp														:= F_Temperature(m01.TT_12, m01.condensate_temp_offset);
+m.condensate_temp														:= m01.condensate_temp;
+m.condensate_temp_error													:= m01.condensate_temp_error AND NOT _CondensateTempOff;
+bCondensateTempError													:= P_Alarms.M_Check_Error(m.condensate_temp_error, bCondensateTempError, _M01, gsCondensateTempSensorError, gsProcessCannotRun);
+
+// Ignore if < 2 amps 
+m01.l1_current															:= SEL(m01.IT_01 > _CURRENT_MODULE_FACTOR *2,0,F_IEConvert(m01.IT_01, _CURRENT_MODULE_FACTOR));
+m01.l2_current															:= SEL(m01.IT_02 > _CURRENT_MODULE_FACTOR *2,0,F_IEConvert(m01.IT_02, _CURRENT_MODULE_FACTOR));
+m01.l3_current															:= SEL(m01.IT_03 > _CURRENT_MODULE_FACTOR *2,0,F_IEConvert(m01.IT_03, _CURRENT_MODULE_FACTOR));
+m01.l1_voltage															:= F_IEConvert(m01.VT_01, _VOLTAGE_480_FACTOR);
+m01.l2_voltage															:= F_IEConvert(m01.VT_02, _VOLTAGE_480_FACTOR);
+m01.l3_voltage															:= F_IEConvert(m01.VT_03, _VOLTAGE_480_FACTOR);
+
+A_Drain_Condensate_Product_Cooling_Lines();
+
+P_M01_RS01();
+P_M01_RS02();
+P_M01_RS03();
+
+rMinPressureSP															:= m01.SP_ambient_pressure - (m01.SP_percent_of_ambient_pressure / 100 * m01.SP_ambient_pressure); 
+rMaxPressureSP															:= m01.SP_ambient_pressure + (m01.SP_percent_of_ambient_pressure / 100 * m01.SP_ambient_pressure);
+
+sModuleError															:= SEL(bSteamManifoldLinePresError, sModuleError, gsSteamManifoldLinePresSensorError);		// Start up error
+sModuleError															:= SEL(bSteamTempNearRS01Error, sModuleError, gsSteamTempNearRS01SensorError);				// Start up error
+sModuleError															:= SEL(bSteamTempNearRS03Error, sModuleError, gsSteamTempNearRS03SensorError);				///! Not in prestart check
+sModuleError															:= SEL(bCondensateTempError, sModuleError, gsCondensateTempSensorError);					///! Not in prestart check
+sModuleError															:= SEL(bCondensateFlowError, '', gsCondesateFlowSensorError);								///! Not in prestart check
+ 
+A_AutoMode();
+]]></ST>
+    </Implementation>
+    <Action Name="A_AutoMode" Id="{09e55664-babb-4196-8f9d-296b538a2a5f}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01.A_AutoMode
+// Rev 1.0 - May 11, 2024
+
+IF m01.tb_Stop_Process OR P_M01_RS01.utility_error OR P_M01_RS02.utility_error OR P_M01_RS03.utility_error THEN 			// Stop all processes from HMI or if utility error occurs
+	u01.shutdown_process												:= TRUE;
+//	IF m01.tb_Auto_Mode_On THEN
+	P_M01_RS01.stop_rs_automode										:= TRUE;
+	P_M01_RS02.stop_rs_automode										:= TRUE;
+	P_M01_RS03.stop_rs_automode										:= TRUE;
+//	END_IF
+	bRSProcess															:= FALSE;
+	m01.tb_Stop_Process													:= FALSE;
+END_IF
+
+IF m01.tb_Cancel_Cycle OR P_M01_RS01.cancel_all_reactor_sets OR P_M01_RS02.cancel_all_reactor_sets OR P_M01_RS03.cancel_all_reactor_sets THEN																									// Complete current cycles then stop
+	iRS01CyclesToRun													:= SEL(m01_rs1.tb_Process_Running, iRS01Count, iRS01Count + 1);
+	iRS02CyclesToRun													:= SEL(m01_rs2.tb_Process_Running, iRS02Count, iRS02Count + 1);
+	iRS03CyclesToRun													:= SEL(m01_rs3.tb_Process_Running, iRS03Count, iRS03Count + 1);
+	bRS01																:= SEL(iRS01Count >= iRS01CyclesToRun, bRS01, FALSE);
+	bRS02																:= SEL(iRS02Count >= iRS02CyclesToRun, bRS02, FALSE);
+	bRS03																:= SEL(iRS03Count >= iRS03CyclesToRun, bRS03, FALSE);
+	m01.tb_Cancel_Cycle													:= FALSE;
+END_IF
+
+A_AutoMode_RS01();
+A_AutoMode_RS02();
+A_AutoMode_RS03();
+
+bReactorSetSelected														:= m01.SP_include_reactor_set_1_in_process OR m01.SP_include_reactor_set_2_in_process OR m01.SP_include_reactor_set_3_in_process;
+IF m01.ts_Cycle_Mode <> '' AND (sModuleError <> '' OR P_U01.sUtilityError <> '' OR m01.SP_desired_cycle_count = 0 OR NOT bReactorSetSelected) THEN		// Don't allow cycle if moodule or utility error occured, cycle count is zero or no reactor sets are selected
+	IF sModuleError <> '' THEN
+		P_Alarms.M_Add_Alarm(_M01, sModuleError, gsProcessCannotRun);
+	ELSIF P_U01.sUtilityError  <> '' THEN
+		P_Alarms.M_Add_Alarm(_U01, P_U01.sUtilityError, gsProcessCannotRun);
+	ELSIF m01.SP_desired_cycle_count = 0 THEN
+		P_Alarms.M_Add_Alarm(_U01, gsDesiredCycleCountError, gsProcessCannotRun);
+	ELSE
+		P_Alarms.M_Add_Alarm(_U01, gsNoReactorSetsSelected, gsProcessCannotRun);
+	END_IF
+	m01.ts_Cycle_Mode													:= '';
+END_IF
+
+iLength																	:= LEN(m01.ts_Cycle_Mode);							// Start process in this order '6745' (Evap, Desorp, Repres, Adsorp)
+rtrigStart(CLK:= iLength > 0);
+IF rtrigStart.Q THEN
+	gsCycleMode															:= m01.ts_Cycle_Mode;
+	m01.ts_Cycle_Mode													:= '';
+	iRS01CyclesToRun													:= m01.SP_desired_cycle_count;
+	iRS02CyclesToRun													:= m01.SP_desired_cycle_count;
+	iRS03CyclesToRun													:= m01.SP_desired_cycle_count;
+	bRS01																:= m01.SP_include_reactor_set_1_in_process;			// Get active reactors
+	bRS02																:= m01.SP_include_reactor_set_2_in_process;                         
+	bRS03																:= m01.SP_include_reactor_set_3_in_process;
+	IF iLength = 1 THEN																										// Single process selected
+		m01.tb_Auto_Mode_On												:= FALSE;
+		bRSManual														:= STRING_TO_INT(gsCycleMode) >= eRepressurization AND STRING_TO_INT(gsCycleMode) <= eDesorption;
+	ELSE
+		iReactorSetToActivate											:= SEL(bRS01, SEL(bRS02, SEL(bRS03, 0, 3), 2), 1);	// Determine which reactor set to start
+        IF iReactorSetToActivate > 0 THEN																					// Start process if at least one reactor set is selected              
+			bRS01Selected												:= bRS01;
+			bRS02Selected												:= bRS02;
+			bRS03Selected												:= bRS03;
+			m01_rs1.ti_Cycle_Count										:= 0;												// Completed cycles
+			m01_rs2.ti_Cycle_Count										:= 0;
+			m01_rs3.ti_Cycle_Count										:= 0;
+			iRS01Count													:= 0;												// Attempted cycles
+			iRS02Count													:= 0;
+			iRS03Count													:= 0;
+			m01.tb_Auto_Mode_On											:= TRUE;
+			bRSProcess													:= TRUE;
+		END_IF
+	END_IF
+
+	
+END_IF
+
+IF bRSManual THEN
+	
+	sCycleModeRS01														:= SEL(bRS01, sCycleModeRS01, gsCycleMode);
+	sCycleModeRS02														:= SEL(bRS02, sCycleModeRS02, gsCycleMode);
+	sCycleModeRS03														:= SEL(bRS03, sCycleModeRS03, gsCycleMode);
+	bRSManual															:= FALSE;
+	
+ELSIF bRSProcess THEN
+	
+	rtrigRS01Done(CLK:= P_M01_RS01.reactor_done);
+	IF rtrigRS01Done.Q THEN
+		sCycleModeRS01													:= '';												// Turn off cycle
+		iRS01Count														:= iRS01Count + 1;									// This counter increments regardless of reactor status if long as reactor was selected
+		IF iRS01Count >= iRS01CyclesToRun THEN
+			bRS01														:= FALSE;
+		END_IF
+		IF m01_rs1.tb_Process_Complete THEN 																				// Increment these counters once a valid cycle has run
+			m01_rs1.ti_Cycle_Count										:= m01_rs1.ti_Cycle_Count + 1;
+			udiCycleCountRS01											:= udiCycleCountRS01 + 1;
+			m01_rs1.ti_Total_Cycle_Count								:= udiCycleCountRS01;
+		END_IF
+	END_IF
+	
+	rtrigRS02Done(CLK:= P_M01_RS02.reactor_done);
+	IF rtrigRS02Done.Q THEN
+		sCycleModeRS02													:= '';
+		iRS02Count														:= iRS02Count + 1;
+		IF iRS02Count >= iRS02CyclesToRun THEN
+			bRS02														:= FALSE;
+		END_IF
+		IF m01_rs2.tb_Process_Complete THEN 
+			m01_rs2.ti_Cycle_Count										:= m01_rs2.ti_Cycle_Count + 1;
+			udiCycleCountRS02											:= udiCycleCountRS02 + 1;
+			m01_rs2.ti_Total_Cycle_Count								:= udiCycleCountRS02;
+		END_IF
+	END_IF
+	
+	rtrigRS03Done(CLK:= P_M01_RS03.reactor_done);
+	IF rtrigRS03Done.Q THEN
+		sCycleModeRS03													:= '';
+		iRS03Count														:= iRS03Count + 1;
+		IF iRS03Count >= iRS03CyclesToRun THEN
+			bRS03														:= FALSE;
+		END_IF
+		IF m01_rs3.tb_Process_Complete THEN 
+			m01_rs3.ti_Cycle_Count										:= m01_rs3.ti_Cycle_Count + 1;
+			udiCycleCountRS03											:= udiCycleCountRS03 + 1;
+			m01_rs3.ti_Total_Cycle_Count								:= udiCycleCountRS03;
+		END_IF
+	END_IF
+
+	bRSTimer															:= TRUE;
+	IF tonRSTimer.Q OR NOT bStarted THEN
+		IF iReactorSetToActivate = 1 THEN
+			IF NOT m01_rs1.tb_Process_Running THEN
+				sCycleModeRS01											:= SEL(bRS01, '0', gsCycleMode);
+				iReactorSetToActivate									:= 2;
+				bRSTimer												:= NOT bRS01;
+			END_IF
+		ELSIF iReactorSetToActivate = 2 THEN
+			IF NOT m01_rs2.tb_Process_Running THEN
+				sCycleModeRS02											:= SEL(bRS02, '0', gsCycleMode);
+				iReactorSetToActivate									:= 3;
+				bRSTimer												:= NOT bRS02;
+			END_IF
+		ELSIF iReactorSetToActivate = 3 THEN
+			IF NOT m01_rs3.tb_Process_Running THEN
+				sCycleModeRS03											:= SEL(bRS03, '0', gsCycleMode);
+				iReactorSetToActivate									:= 1;
+				bRSTimer												:= NOT bRS03;
+			END_IF
+		END_IF
+	END_IF
+	IF NOT bRS01 AND NOT bRS02 AND NOT bRS03 THEN																				// Stop process when all reactor sets are done
+		iReactorSetToActivate											:= 0;
+		P_M01_RS01.stop_rs_automode										:= TRUE;
+		P_M01_RS02.stop_rs_automode										:= TRUE;
+		P_M01_RS03.stop_rs_automode										:= TRUE;
+		bRSTimer														:= FALSE;
+		bRSProcess														:= FALSE;
+	END_IF
+	bStarted															:= TRUE;
+ELSE
+//	u01.write_persistent_data											:= TRUE;
+	sCycleModeRS01														:= '';
+	sCycleModeRS02														:= '';
+	sCycleModeRS03														:= '';
+	bRS01																:= FALSE;
+	bRS02																:= FALSE;
+	bRS03																:= FALSE;
+	giEvacuationErrorRS													:= 0;
+	bStarted															:= FALSE;
+	m01.tb_Auto_Mode_On													:= FALSE;
+	
+END_IF
+
+m01_rs1.cycle_stage														:= SEL(bRS01 AND gsCycleStage <> '', gsM01RS01CycleStage, gsCycleStage);
+m01_rs2.cycle_stage														:= SEL(bRS02 AND gsCycleStage <> '', gsM01RS02CycleStage, gsCycleStage);
+m01_rs3.cycle_stage														:= SEL(bRS03 AND gsCycleStage <> '', gsM01RS03CycleStage, gsCycleStage);
+
+tonRSTimer(IN:= bRSTimer, PT:= REAL_TO_TIME(m01.SP_cycle_start_offset_duration * _MINUTES));
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_AutoMode_RS01" Id="{fc49b2e0-a2a8-4bea-b9a9-b6cd56469bed}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01.A_AutoMode_RS01
+// Rev 1.0 - May 10, 2024
+
+rtrigRS01Restart(CLK:= m01.SP_include_reactor_set_1_in_process);
+IF rtrigRS01Restart.Q THEN
+	IF m01.tb_Auto_Mode_On AND NOT bRS01Selected THEN 
+		m01.SP_include_reactor_set_1_in_process							:= FALSE;
+	ELSE
+		bRS01															:= TRUE;
+		P_M01_RS01.clear_rs_pause										:= TRUE;
+	END_IF
+END_IF
+
+IF P_M01_RS01.stop_rs_automode THEN
+	m01.SP_include_reactor_set_1_in_process								:= FALSE;
+	bRS01Selected														:= FALSE;
+END_IF
+
+rtrigRS01Offline(CLK:= NOT m01.SP_include_reactor_set_1_in_process);
+IF rtrigRS01Offline.Q THEN
+	bRS01																:= FALSE;
+END_IF
+
+IF P_M01_RS01.cancel_reactor_set THEN
+	iRS01CyclesToRun													:= SEL(m01_rs1.tb_Process_Running, iRS01Count, iRS01Count + 1);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_AutoMode_RS02" Id="{52b085cf-9d01-4708-93a4-c137841a43c6}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01.A_AutoMode_RS02
+// Rev 1.0 - May 10, 2024
+
+rtrigRS02Restart(CLK:= m01.SP_include_reactor_set_2_in_process);
+IF rtrigRS02Restart.Q THEN
+	IF m01.tb_Auto_Mode_On AND NOT bRS02Selected THEN
+		m01.SP_include_reactor_set_2_in_process							:= FALSE;
+	ELSE
+		bRS02															:= TRUE;
+		P_M01_RS02.clear_rs_pause										:= TRUE;
+	END_IF
+END_IF
+
+IF P_M01_RS02.stop_rs_automode THEN
+	m01.SP_include_reactor_set_2_in_process								:= FALSE;
+	bRS02Selected														:= FALSE;
+END_IF
+
+rtrigRS02Offline(CLK:= NOT m01.SP_include_reactor_set_2_in_process);
+IF rtrigRS02Offline.Q THEN
+	bRS02																:= FALSE;
+END_IF
+
+IF P_M01_RS02.cancel_reactor_set THEN
+	iRS02CyclesToRun													:= SEL(m01_rs2.tb_Process_Running, iRS02Count, iRS02Count + 1);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_AutoMode_RS03" Id="{b3a7d441-32a7-4728-9585-31bd9d89c612}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01.A_AutoMode_RS03
+// Rev 1.0 - May 10, 2024
+
+rtrigRS03Restart(CLK:= m01.SP_include_reactor_set_3_in_process);
+IF rtrigRS03Restart.Q THEN
+	IF m01.tb_Auto_Mode_On AND NOT bRS03Selected THEN
+		m01.SP_include_reactor_set_3_in_process							:= FALSE;
+	ELSE
+		bRS03															:= TRUE;
+		P_M01_RS03.clear_rs_pause										:= TRUE;
+	END_IF
+END_IF
+
+IF P_M01_RS03.stop_rs_automode THEN
+	m01.SP_include_reactor_set_3_in_process								:= FALSE;
+	bRS03Selected														:= FALSE;
+END_IF
+
+rtrigRS03Offline(CLK:= NOT m01.SP_include_reactor_set_3_in_process);
+IF rtrigRS03Offline.Q THEN
+	bRS03																:= FALSE;
+END_IF
+
+IF P_M01_RS03.cancel_reactor_set THEN
+	iRS03CyclesToRun													:= SEL(m01_rs3.tb_Process_Running, iRS03Count, iRS03Count + 1);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_Drain_Condensate_Product_Cooling_Lines" Id="{cd17a143-43f1-4b7b-95f2-4ecc9b135900}">
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_M01.A_Drain_Condensate_Product_Cooling_Lines
+// Rev 1.0 - March 4, 2024
+
+IF gbDrainageOn THEN
+	IF (u01.purge_product_line_pres < u01.SP_drainage_function_cutoff_pressure) OR
+		(m01_rs1.purge_valve_closed AND m01_rs1.cooling_valve_closed AND m01_rs2.purge_valve_closed AND m01_rs2.cooling_valve_closed AND m01_rs3.purge_valve_closed AND m01_rs3.cooling_valve_closed) THEN
+		m.condensate_from_cooling_and_purge_lines_pump					:= FALSE;
+	ELSE
+		IF m.condensate_from_cooling_and_purge_lines_lsh THEN
+			m.condensate_from_cooling_and_purge_lines_pump				:= TRUE;
+		END_IF
+		IF NOT m.condensate_from_cooling_and_purge_lines_lsl THEN
+			m.condensate_from_cooling_and_purge_lines_pump				:= FALSE;
+		END_IF
+	END_IF
+	
+	rtrigCPDrainLSHOn(CLK:= tonCPDrainErrorOn.Q);
+	IF rtrigCPDrainLSHOn.Q THEN
+		P_Alarms.M_Add_Alarm(_M01, gsCondensateProductDrainError, gsProcessStopsAtEOC);
+		m.condensate_from_cooling_and_purge_lines_pump					:= FALSE;
+		bCPDrainError													:= TRUE;
+		m01.tb_Cancel_Cycle												:= TRUE;											// Complete current cycles
+	END_IF
+	tonCPDrainErrorOn(IN:= m.condensate_from_cooling_and_purge_lines_lsh AND NOT bCPDrainError, PT:= _DRAIN_TIME);
+	
+	IF tonCPDrainErrorOff.Q THEN
+		bCPDrainError													:= FALSE;
+	END_IF
+	tonCPDrainErrorOff(IN:= NOT m.condensate_from_cooling_and_purge_lines_lsh AND bCPDrainError, PT:= _DRAIN_TIME);
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="P_M01">
+      <LineId Id="1968" Count="32" />
+      <LineId Id="2275" Count="0" />
+      <LineId Id="2001" Count="8" />
+      <LineId Id="2207" Count="0" />
+      <LineId Id="2197" Count="0" />
+      <LineId Id="2017" Count="0" />
+      <LineId Id="2021" Count="11" />
+      <LineId Id="99" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01.A_AutoMode">
+      <LineId Id="1892" Count="4" />
+      <LineId Id="2065" Count="0" />
+      <LineId Id="1897" Count="2" />
+      <LineId Id="2068" Count="0" />
+      <LineId Id="1900" Count="61" />
+      <LineId Id="2072" Count="0" />
+      <LineId Id="2070" Count="0" />
+      <LineId Id="1962" Count="102" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01.A_AutoMode_RS01">
+      <LineId Id="2" Count="2" />
+      <LineId Id="9" Count="4" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="44" Count="5" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="52" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01.A_AutoMode_RS02">
+      <LineId Id="2" Count="2" />
+      <LineId Id="8" Count="4" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="13" Count="2" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="43" Count="8" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01.A_AutoMode_RS03">
+      <LineId Id="2" Count="2" />
+      <LineId Id="7" Count="4" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="19" Count="1" />
+      <LineId Id="40" Count="8" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01.A_Drain_Condensate_Product_Cooling_Lines">
+      <LineId Id="2" Count="2" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="68" Count="2" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="55" Count="3" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="54" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

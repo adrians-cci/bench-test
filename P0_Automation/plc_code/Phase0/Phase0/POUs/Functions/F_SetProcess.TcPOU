@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_SetProcess" Id="{20896656-0d86-4bc2-be72-9eb2d76c3962}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_SetProcess : INT
+VAR_INPUT
+	Process																: INT;
+	Mode																: STRING;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_SetProcess
+// Rev 1.0 - May 3, 2024
+
+F_SetProcess															:= FIND(INT_TO_STRING(Process), Mode);
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_SetProcess">
+      <LineId Id="8" Count="3" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

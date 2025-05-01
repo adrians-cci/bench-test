@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Reactor_Set" Id="{ddebf77c-d0d5-4eaa-b8d2-f52abaa70d7d}">
+    <Declaration><![CDATA[// Phase 0 - Reactor_Set
+// Rev 1.0 - May 10, 2024
+
+TYPE Reactor_Set :
+STRUCT
+		
+	all_doors_open														: BOOL;
+	all_doors_closed													: BOOL;
+	all_clamps_extended													: BOOL;
+	all_clamps_retracted												: BOOL;
+	valves_clear														: BOOL;
+	average_reactor_pressure											: REAL;
+	average_reactor_pressure_within_ambient								: BOOL;
+	reactor_vacuum_status												: INT;
+	reactor_pressure_error												: STRING;
+    
+	condensate_lsl														: BOOL;
+	condensate_lsh														: BOOL;
+    
+	steam_control_valve_position										: REAL;
+	steam_control_valve_closed											: BOOL;
+	dead_air_valve_clear												: BOOL;
+	purge_valve_clear													: BOOL;
+	cooling_valve_clear													: BOOL;
+	steam_header_valve_clear											: BOOL;
+	steam_header_valve_not_closed										: BOOL;
+    
+	R1_inlet_co2														: REAL;
+	R1_outlet_co2														: REAL;
+	
+	
+	
+	
+	R1_reactor_pres														: REAL;
+	R2_reactor_pres														: REAL;
+	R3_reactor_pres														: REAL;
+	R4_reactor_pres														: REAL;
+    
+	R1_reactor_pres_error												: BOOL;
+	R2_reactor_pres_error												: BOOL;
+	R3_reactor_pres_error												: BOOL;
+	R4_reactor_pres_error												: BOOL;
+	
+	repres_valve_error													: STRING;
+	
+	extend_all_clamps													: BOOL;
+	retract_all_clamps													: BOOL;
+	open_all_doors														: BOOL;
+	close_all_doors														: BOOL;
+	close_all_valves													: BOOL;
+	co2_sensors_off														: BOOL;
+	co2_inside_sensors_on												: BOOL;
+	co2_outside_sensors_on												: BOOL;
+	open_repres_valves													: BOOL;
+	close_repres_valves													: BOOL;
+	vacuum_holding														: BOOL;
+	
+	condensate_pump														: BOOL;
+	fan_vfd_percent														: REAL;
+    
+    /// <summary>RS_PCV-01</summary>
+	steam_control_valve													: REAL;
+	steam_control_valve_mode											: INT;
+	steam_control_valve_setpoint										: REAL;
+	steam_control_valve_control_point									: REAL;
+	dead_air_valve														: BOOL;
+    /// <summary>XV-05</summary>
+	purge_valve															: BOOL;
+    /// <summary>XV-06</summary>
+	cooling_valve														: BOOL;
+    /// <summary>XV-07</summary>
+	steam_header_valve													: BOOL;
+    
+	desorption_high_temp_count											: INT;
+	inlet_air_high_temp_count											: INT;
+	vacuum_cooling_high_temp_count										: INT;
+	sorbent_high_temp													: REAL;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

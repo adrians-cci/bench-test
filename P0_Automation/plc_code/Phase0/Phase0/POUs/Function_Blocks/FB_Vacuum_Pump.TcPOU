@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Vacuum_Pump" Id="{f5131196-6d70-43d3-9405-b0006d2daf74}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Vacuum_Pump
+VAR_IN_OUT
+	Pump_Reset															: BOOL;
+END_VAR
+VAR_INPUT
+	Enable																: BOOL;
+	Purge_Time															: REAL;
+	Safety1																: BOOL;
+	Safety2																: BOOL;
+	Safety3																: BOOL;
+END_VAR
+VAR_OUTPUT
+	Error																: INT;
+	Pump_On																: BOOL;
+	Seal_Purge_Valve													: BOOL;
+	Purge_Solenoid_Valve												: BOOL;
+END_VAR
+VAR
+	bErrorOn															: BOOL;
+	bError1																: BOOL;
+	bError2																: BOOL;
+	bError3																: BOOL;
+	bStop																: BOOL;
+	tonPurge															: TON;
+	rtrigError															: R_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - FB_Vacuum_Pump
+// Rev 1.0 - April 17, 2024
+
+Error																	:= 0;
+bError1																	:= NOT Safety1;
+bError2																	:= NOT Safety2;
+bError3																	:= NOT Safety3;
+
+rtrigError(CLK:= bError1 OR bError2 OR bError3);
+IF rtrigError.Q THEN
+	bErrorOn															:= TRUE;
+	bStop																:= FALSE;
+	Pump_On																:= FALSE;
+	Seal_Purge_Valve													:= FALSE;
+	Purge_Solenoid_Valve												:= FALSE;
+	u01.product_vacuum_pump_isolation_valve								:= FALSE;
+	u01.product_vacuum_pump_vfd											:= 0;
+	Error																:= SEL(bError1, SEL(bError2, SEL(bError3, 0, 3), 2), 1);
+END_IF
+
+IF NOT bErrorOn THEN
+	IF tonPurge.Q THEN
+		bStop															:= FALSE;
+		Pump_On															:= FALSE;
+		Purge_Solenoid_Valve											:= FALSE;
+		Seal_Purge_Valve												:= FALSE;
+		u01.product_vacuum_pump_vfd										:= 0;
+	ELSIF Enable AND NOT Pump_On THEN
+		Pump_On															:= TRUE;
+		Seal_Purge_Valve												:= TRUE;
+		u01.product_vacuum_pump_isolation_valve							:= TRUE;
+		u01.product_vacuum_pump_vfd										:= u01.SP_product_vacuum_idle_vfd_percent;
+	ELSIF NOT Enable AND Pump_On AND NOT bStop THEN
+		bStop															:= TRUE;
+		Purge_Solenoid_Valve											:= TRUE;
+		u01.product_vacuum_pump_isolation_valve							:= FALSE;
+		u01.product_vacuum_pump_vfd										:= u01.SP_product_vacuum_purge_vfd_percent;
+	END_IF
+END_IF
+
+tonPurge(IN:= bStop, PT:= REAL_TO_TIME(Purge_Time * _MINUTES));
+
+IF Pump_Reset OR NOT Enable THEN
+	bErrorOn															:= FALSE;
+	Pump_Reset															:= FALSE;
+END_IF
+
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Vacuum_Pump">
+      <LineId Id="212" Count="0" />
+      <LineId Id="170" Count="5" />
+      <LineId Id="177" Count="2" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="225" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="221" Count="0" />
+      <LineId Id="181" Count="8" />
+      <LineId Id="220" Count="0" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="191" Count="6" />
+      <LineId Id="219" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="198" Count="6" />
+      <LineId Id="224" Count="0" />
+      <LineId Id="205" Count="0" />
+      <LineId Id="207" Count="3" />
+      <LineId Id="51" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

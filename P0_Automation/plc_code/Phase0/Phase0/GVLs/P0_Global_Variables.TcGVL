@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="P0_Global_Variables" Id="{4557a8c3-046b-4b11-be20-54f3797f9da8}">
+    <Declaration><![CDATA[// Phase 0 - Global_Variables
+// Rev 1.0 - May 11, 2024
+
+VAR_GLOBAL
+
+	sita_bits															: ARRAY[1..10] OF DINT;
+
+	gbRS01TestError														: BOOL;
+	gbRS02TestError														: BOOL;
+	gbRS03TestError														: BOOL;
+	
+	gbDrainageOn														: BOOL;
+	gbSafeShutdownRunning												: BOOL;
+
+	giEvacuationErrorRS													: INT		:= 0;
+	giDesorptionErrorRS													: INT		:= 0;
+	giSafeShutdown1RS													: INT		:= 0;
+	giSafeShutdown23RS													: INT		:= 0;
+	
+	gsCycleMode															: STRING;
+	gsCycleStage														: STRING;
+	gsM01RS01CycleStage													: STRING;
+	gsM01RS02CycleStage													: STRING;
+	gsM01RS03CycleStage													: STRING;
+	
+// These values allow points in error to be bypassed for testing purposes
+	_BoilerOutletPresOff												: BOOL		:= TRUE;// FALSE;
+	_BoilerOutletTempOff                        						: BOOL		:= FALSE;
+	_CondensateCollectionTankFlowOff									: BOOL		:= FALSE;
+	_CondensateCollectionTankLevelOff									: BOOL		:= FALSE;
+	_CondensateCollectionTankO2Off										: BOOL		:= FALSE;
+	_CondensateCollectionTankOutletLineTempOff  						: BOOL		:= FALSE;
+	_CondensateCollectionTankPhOff										: BOOL		:= FALSE;
+	_CondensateCollectionTankTempOff            						: BOOL		:= FALSE;
+	_CondensateCollectionTankTurbidityOff								: BOOL		:= FALSE;
+	_DeadAirFlowOff														: BOOL		:= FALSE;
+	_DeadAirLineCo2Off													: BOOL		:= FALSE;
+	_DeadAirLinePresOff													: BOOL		:= FALSE;
+	_InstrumentAirCompPresOff                   						: BOOL		:= FALSE;
+	_InstrumentAirCompTempOff                   						: BOOL		:= TRUE;
+	_PostCondenserLinePresOff											: BOOL		:= FALSE;
+	_PostCondenserLineTempOff                   						: BOOL		:= FALSE;
+	_PreCondenserLinePresOff											: BOOL		:= FALSE;
+	_PreCondenserLineTempOff                    						: BOOL		:= FALSE;
+	_ProductCondensateDrumLevelOff										: BOOL		:= FALSE;
+	_ProductCondenserPumpOutlerLiquidFlowOff							: BOOL		:= FALSE;
+	_ProductCondenserPumpOutletTempOff          						: BOOL		:= FALSE;
+	_ProductOutletCo2Off												: BOOL		:= FALSE;
+	_ProductOutletH2oOff												: BOOL		:= FALSE;
+	_ProductCo2SampleH2oOff												: BOOL		:= FALSE;
+	_ProductOutletTemperatureOff										: BOOL		:= FALSE;
+	_ProductOutletO2Off													: BOOL		:= FALSE;
+	_ProductOutletPresOff												: BOOL		:= FALSE;
+	_ProductOutletTempOff                       						: BOOL		:= FALSE;
+	_ProductOutMassFlowOff												: BOOL		:= FALSE;
+	_ProductOutVolumetricFlowOff										: BOOL		:= FALSE;
+	_ProductVacuumPresOff												: BOOL		:= FALSE;
+	_PurgeProductLinePresOff											: BOOL		:= FALSE;
+	_PurgeProductLineTempOff											: BOOL		:= FALSE;
+	_SteamHeadFlowOff													: BOOL		:= FALSE;
+	_WaterToBoilerFlowOff												: BOOL		:= FALSE;
+	_WeatherHumidityOff													: BOOL		:= FALSE;
+	_WeatherNoiseLevelOff												: BOOL		:= FALSE;
+	_WeatherPressureOff													: BOOL		:= FALSE;
+	_WeatherTempOff														: BOOL		:= FALSE;
+	_WeatherWindDirectionOff											: BOOL		:= FALSE;
+	_WeatherWindSpeedOff												: BOOL		:= FALSE;
+
+	_CondensateFlowOff													: BOOL		:= FALSE;
+ 	_SteamManifoldLinePresOff											: BOOL		:= FALSE;
+	_SteamTempNearRS01Off												: BOOL		:= FALSE;           						
+	_SteamTempNearRS03Off												: BOOL		:= FALSE;           						
+	_CondensateTempOff													: BOOL		:= FALSE;           						
+	
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

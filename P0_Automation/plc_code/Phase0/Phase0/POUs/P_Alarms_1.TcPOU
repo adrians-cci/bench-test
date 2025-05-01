@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="P_Alarms_1" Id="{aaefda60-1fe9-4057-b28f-bcb8d3030b06}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_Alarms_1
+VAR
+	bResetAlarm															: BOOL;
+	bInQueue															: BOOL;
+	bClearAlarms														: BOOL;
+	i																	: INT;
+	iCount																: INT					:= 0;
+	tonAlarmReset														: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - P_Alarms
+// Rev 1.0 - February 26, 2024
+
+bInQueue																:= m01.ts_Alarm <> '';
+IF m01.ts_Alarm <> gsAlarms[0] THEN
+	m01.ts_Alarm														:= gsAlarms[0];
+	m01.ts_User_Message													:= gsMessages[0];
+	bResetAlarm															:= m01.ts_Alarm <> '';
+END_IF  
+
+IF tonAlarmReset.Q OR (bResetAlarm AND NOT bInQueue) THEN
+	bResetAlarm															:= FALSE;
+	m01.tb_Alarm_Active													:= TRUE;
+END_IF
+
+IF m01.tb_Acknowledge_Alarm THEN
+	m01.tb_Alarm_Active													:= FALSE;
+	FOR i := 0 TO _ALARM_COUNT DO                      	    	
+		gsAlarms[i] 													:= gsAlarms[i+1];
+		gsMessages[i]													:= gsMessages[i+1];
+	END_FOR                                 	    	
+	gsAlarms[_ALARM_COUNT]												:= '';
+	gsMessages[_ALARM_COUNT]											:= '';
+	giAlarmCount														:= giAlarmCount - 1;
+	m01.tb_Acknowledge_Alarm											:= FALSE;
+END_IF                                      	    	
+
+IF bClearAlarms THEN
+	FOR i := 0 TO _ALARM_COUNT DO                      	    	
+		gsAlarms[i] 													:= '';
+		gsMessages[i]													:= '';
+		giAlarmCount													:= 0;
+		m01.tb_Alarm_Active												:= FALSE;
+		bClearAlarms													:= FALSE;
+	END_FOR                                 	    	
+END_IF
+                                            	    	
+tonAlarmReset(IN:= bResetAlarm, PT:= T#1S);
+]]></ST>
+    </Implementation>
+    <Method Name="M_Add_Alarm" Id="{f844b63a-276d-42ec-bd59-d612e11caaa6}">
+      <Declaration><![CDATA[METHOD M_Add_Alarm 			: BOOL
+VAR_INPUT
+	Unit																: STRING;
+	Alarm																: STRING;
+	Message																: STRING;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_Alarms.M_Add_Alarm
+// Rev 1.0 - January 31, 2024
+
+IF giAlarmCount < _ALARM_COUNT THEN
+	gsAlarms[giAlarmCount]												:= CONCAT(Unit, Alarm);
+	gsMessages[giAlarmCount]											:= Message;
+	giAlarmCount														:= giAlarmCount + 1;
+END_IF
+M_Add_Alarm																:= TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Check_Error" Id="{3076920b-0fdc-48bc-9cfe-0e48d3ebc892}">
+      <Declaration><![CDATA[METHOD M_Check_Error : BOOL
+VAR_INPUT
+	Error_In															: BOOL;
+	Latch																: BOOL;
+	Unit																: STRING;
+	Alarm																: STRING;
+	Message																: STRING;
+END_VAR
+VAR
+	Error_Out															: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Phase 0 - P_Alarms.M_Check_Error
+// Rev 1.0 - March 20, 2024
+
+Error_Out																:= Latch;
+IF Error_In THEN
+	IF NOT Error_Out THEN
+		Error_Out														:= TRUE;
+		P_Alarms.M_Add_Alarm(Unit, Alarm, Message);
+	END_IF
+ELSE
+	Error_Out															:= FALSE;
+END_IF
+M_Check_Error															:= Error_Out;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="P_Alarms_1">
+      <LineId Id="20" Count="5" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="26" Count="8" />
+      <LineId Id="37" Count="2" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="42" Count="2" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="128" Count="2" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="134" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="P_Alarms_1.M_Add_Alarm">
+      <LineId Id="6" Count="1" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="P_Alarms_1.M_Check_Error">
+      <LineId Id="16" Count="2" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="15" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

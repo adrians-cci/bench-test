@@ -1,0 +1,1576 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="u01" Id="{79f93104-0706-47c0-8f43-cfaa78600f9a}">
+    <Declaration><![CDATA[// Phase 0 - u01
+// Rev 1.0 - June 3, 2024
+
+{attribute 'qualified_only'}
+VAR_GLOBAL
+
+	AT03_Power												AT %Q*		: BOOL;
+	FT02_Power												AT %Q*		: BOOL;
+	AT04_06_Power											AT %Q*		: BOOL;
+	
+	
+	shutdown_process													: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	warmup_complete														: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_bypass_complete												: BOOL;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	write_persistent_data												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	drainage_function_on_or												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	drainage_function_off_or											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	drainage_on															: BOOL;
+	
+    /// <summary>LS-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condensate_drum_lsl									AT %I*	: BOOL;
+    /// <summary>LS-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condensate_drum_lsh									AT %I*	: BOOL;
+
+    /// <summary>LS-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_lsl								AT %I*	: BOOL;
+    /// <summary>LS-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_lsh								AT %I*	: BOOL;
+
+	
+    /// <summary>B-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	boiler_package														: BOOL;
+    /// <summary>B-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	boiler_package_cmd_status											: BOOL;
+    /// <summary>boiler package</summary>
+	B_01														AT %Q*	: BOOL;
+    /// <summary>B-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	boiler_ready														: BOOL;
+
+    /// <summary>P_01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_vacuum_pump												: BOOL;
+    /// <summary>P_01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_vacuum_pump_cmd_status										: BOOL;
+    /// <summary>dead air vacuum pump</summary>
+	P_01														AT %Q*	: BOOL;
+
+    /// <summary>P-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_pump										: BOOL;
+    /// <summary>P-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_pump_cmd_status							: BOOL;
+    /// <summary>condensate collection tank pump</summary>
+	P_04														AT %Q*	: BOOL;
+
+    /// <summary>P-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condensate_pump												: BOOL;
+    /// <summary>P-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condensate_pump_cmd_status									: BOOL;
+	/// <summary>product condensate pump</summary>
+	P_03														AT %Q*	: BOOL;
+	
+
+    /// <summary>E-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condenser													: BOOL;
+    /// <summary>E-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condenser_cmd_status										: BOOL;
+    /// <summary>product condenser</summary>
+	E_01														AT %Q*	: BOOL;
+
+    /// <summary>K_01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_blower														: BOOL;
+    /// <summary>K_01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_blower_cmd_status											: BOOL;
+    /// <summary>product condenser</summary>
+	K_01														AT %Q*	: BOOL;
+	
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_blower_vfd_enable														: BOOL :=  TRUE;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_blower_vfd_reset														: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_blower_vfd_enabled														: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_blower_vfd_error														: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_blower_vfd																: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_blower_vfd_input														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_blower_vfd_output														: REAL;
+	product_blower_vfd_control												AT %Q*	: WORD;
+	product_blower_vfd_target_vel											AT %Q*	: WORD;
+	product_blower_vfd_status												AT %I*	: WORD;
+	product_blower_vfd_velocity												AT %I*	: WORD;
+	product_blower_vfd_ecat_state											AT %I*  : BOOL;
+
+    /// <summary>C_01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	instrument_air_compressor											: BOOL;
+    /// <summary>C_01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	instrument_air_compressor_cmd_status								: BOOL;
+    /// <summary>product condenser</summary>
+	C_01														AT %Q*	: BOOL;
+
+    /// <summary>TB_17</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	instrument_air_dryer												: BOOL;
+    /// <summary>TB_17</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	instrument_air_dryer_cmd_status										: BOOL;
+    /// <summary>product condenser</summary>
+	TB_17														AT %Q*	: BOOL;
+
+    /// <summary>R_01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	radiator															: BOOL;
+    /// <summary>R_01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	radiator_cmd_status													: BOOL;
+    /// <summary>product condenser</summary>
+	R_01														AT %Q*	: BOOL;
+
+    /// <summary>AT-01 pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_line_co2_pump												: BOOL;
+    /// <summary>AT-01 pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_line_co2_pump_cmd_status									: BOOL;
+    /// <summary>dead air line co2 pump</summary>
+	AT_01_pump													AT %Q*	: BOOL;
+	
+    /// <summary>AT-01_solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_line_co2_sol												: BOOL;
+    /// <summary>AT-01_solenoid</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_line_co2_sol_cmd_status									: BOOL;
+    /// <summary>dead air CO2 solenoid</summary>
+	AT_01_sol													AT %Q*	: BOOL;
+
+	
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_line_co2													: REAL;
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_line_co2_error										AT %I*	: BOOL;
+    /// <summary>dead air line co2</summary>
+	AT_01														AT %I*	: INT;
+
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_co2													: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_co2_error									AT %I*	: BOOL;
+    /// <summary>product outlet co2</summary>
+	AT_02A														AT %I*	: INT;
+    
+	/// <summary>AT-07A</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_h2o													: REAL;
+    /// <summary>AT-07A</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_h2o_error									AT %I*	: BOOL;
+	 /// <summary>product outlet h2o</summary>
+	AT_07A														AT %I*	: INT;
+	
+	/// <summary>AT-07B</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_temperature											: REAL;
+    /// <summary>AT-07B</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_temperature_error							AT %I*	: BOOL;
+	 /// <summary>product outlet h2o</summary>
+	AT_07B														AT %I*	: INT;
+	
+  
+
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_o2													: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_o2_error										AT %I*	: BOOL;
+    /// <summary>product outlet o2</summary>
+	AT_03														AT %I*	: INT;
+	
+	
+	/// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_co2sample_h2o												: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_co2sample_h2o_error									AT %I*	: BOOL;
+	 /// <summary>product outlet h2o</summary>
+	AT_02B														AT %I*	: INT;
+
+	
+	
+
+    /// <summary>AT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_ph										: REAL;
+    /// <summary>AT-04</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				            
+	condensate_collection_tank_ph_error							AT %I*	: BOOL;
+    /// <summary>condensate collection tank ph</summary>
+	AT_04														AT %I*	: INT;
+
+    /// <summary>AT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_o2										: REAL;
+    /// <summary>AT-05</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				            
+	condensate_collection_tank_o2_error							AT %I*	: BOOL;
+    /// <summary>condensate collection tank o2</summary>
+	AT_05														AT %I*	: INT;
+
+    /// <summary>AT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_turbidity								: REAL;
+    /// <summary>AT-06</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				            
+	condensate_collection_tank_turbidity_error					AT %I*	: BOOL;
+    /// <summary>condensate collection tank turbidity</summary>
+	AT_06														AT %I*	: INT;
+
+    /// <summary>AT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	weather_humidity													: REAL;
+    /// <summary>AT-07</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				            
+	weather_humidity_error										AT %I*	: BOOL;
+    /// <summary>weather humidity</summary>
+	AT_07														AT %I*	: INT;
+
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_flow														: REAL;
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_flow_error											AT %I*	: BOOL;
+    /// <summary>dead air flow</summary>
+	FT_01														AT %I*	: INT;
+
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_volumetric_flow										: REAL;
+	 /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_volumetric_flow_total								: REAL;
+	/// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                			                
+	product_outlet_volumetric_flow_total_enable							: BOOL;
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_volumetric_flow_error						AT %I*	: BOOL;
+    /// <summary>product out volumetric flow</summary>
+	FT_03														AT %I*	: INT;
+
+    /// <summary>FT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	product_outlet_mass_flow											: REAL;
+	    /// <summary>FT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	product_outlet_mass_flow_total										: REAL;
+	/// <summary>FT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                					                
+	product_outlet_mass_flow_total_enable								: BOOL;
+    /// <summary>FT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_mass_flow_error								AT %I*	: BOOL;
+    /// <summary>product outlet mass flow</summary>
+	FT_02														AT %I*	: INT;
+
+    /// <summary>FT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	product_condenser_pump_outlet_liquid_flow							: REAL;
+    /// <summary>FT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condenser_pump_outlet_liquid_flow_error				AT %I*	: BOOL;
+    /// <summary>product condenser pump liquid flow</summary>
+	FT_04														AT %I*	: INT;
+	
+    /// <summary>FT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	tap_water_to_boiler_flow											: REAL;
+	/// <summary>FT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	tap_water_to_boiler_flow_total										: REAL;
+	/// <summary>FT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                					                
+	tap_water_to_boiler_flow_total_enable								: BOOL;
+    /// <summary>FT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tap_water_to_boiler_flow_error								AT %I*	: BOOL;
+    /// <summary>tap water to boiler flow</summary>
+	FT_05														AT %I*	: INT;
+
+    /// <summary>FT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	steam_header_flow													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}
+	steam_header_volume  												: REAL;
+	 /// <summary>FT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}
+	steam_header_volume_total 											: REAL;
+	  /// <summary>FT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'} 
+	steam_header_volume_total_enable 									: BOOL;
+    /// <summary>FT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_header_flow_error										AT %I*	: BOOL;
+    /// <summary>steam header flow</summary>
+	FT_06														AT %I*	: INT;
+
+    /// <summary>FT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	condensate_collection_tank_flow										: REAL;
+    /// <summary>FT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_flow_error						AT %I*	: BOOL;
+    /// <summary>condensate collection tank flow</summary>
+	FT_07														AT %I*	: INT;
+
+    /// <summary>AT-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	weather_wind_speed													: REAL;
+    /// <summary>AT-08</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				            
+	weather_wind_speed_error									AT %I*	: BOOL;
+    /// <summary>weather wind speed</summary>
+	AT_08														AT %I*	: INT;
+
+    /// <summary>LT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	product_condensate_drum_level										: REAL;
+    /// <summary>LT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condensate_drum_level_error							AT %I*	: BOOL;
+    /// <summary>product condensate drum level</summary>
+	LT_01														AT %I*	: INT;
+
+    /// <summary>LT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  					                
+	condensate_collection_tank_level									: REAL;
+    /// <summary>LT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_level_error						AT %I*	: BOOL;
+    /// <summary>condensate collection tank flow</summary>
+	LT_02														AT %I*	: INT;
+
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_line_pres													: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	dead_air_line_pres_error									AT %I*	: BOOL;
+    /// <summary>dead air line pres</summary>
+	PT_01														AT %I*	: INT;
+	
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_product_line_pres												: REAL;
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_product_line_pres_error								AT %I*	: BOOL;
+    /// <summary>product line pres</summary>
+	PT_02														AT %I*	: INT;
+
+    /// <summary>PT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	pre_condenser_line_pres												: REAL;
+    /// <summary>PT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	pre_condenser_line_pres_error								AT %I*	: BOOL;
+    /// <summary>pre condenser line pres</summary>
+	PT_03														AT %I*	: INT;
+
+    /// <summary>PT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	post_condenser_line_pres											: REAL;
+    /// <summary>PT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	post_condenser_line_pres_error								AT %I*	: BOOL;
+    /// <summary>post condenser line pres</summary>
+	PT_04														AT %I*	: INT;
+
+    /// <summary>PT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_pres													: REAL;
+    /// <summary>PT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_pres_error									AT %I*	: BOOL;
+    /// <summary>product vacuum pres</summary>
+	PT_05														AT %I*	: INT;
+
+    /// <summary>P02-PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_inlet_pres											: REAL;
+    /// <summary>P02-PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_inlet_pres_error								AT %I*	: BOOL;
+	
+	/// <summary>PT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_pres													: REAL;
+    /// <summary>PT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_pres_error									AT %I*	: BOOL;
+    /// <summary>product outlet pres</summary>
+	PT_06														AT %I*	: INT;
+
+    /// <summary>PT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	boiler_outlet_pres													: REAL;
+    /// <summary>PT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	boiler_outlet_pres_error									AT %I*	: BOOL;
+    /// <summary>boiler outlet pres</summary>
+	PT_07														AT %I*	: INT;
+
+    /// <summary>PT-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	instrument_air_comp_pres											: REAL;
+    /// <summary>PT-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	instrument_air_comp_pres_error								AT %I*	: BOOL;
+    /// <summary>instrument air comp pres</summary>
+	PT_08														AT %I*	: INT;
+
+    /// <summary>PT-09</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	weather_pres														: REAL;
+    /// <summary>PT-09</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				            
+	weather_pres_error											AT %I*	: BOOL;
+    /// <summary>weather pres</summary>
+	PT_09														AT %I*	: INT;
+
+
+    /// <summary>TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_product_line_temp												: REAL;
+    /// <summary>TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_product_line_temp_error								AT %I*	: BOOL;
+    /// <summary>purge product line temp</summary>
+	TT_01														AT %I*	: INT;
+
+    /// <summary>TT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	pre_condenser_line_temp												: REAL;
+    /// <summary>TT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	pre_condenser_line_temp_error								AT %I*	: BOOL;
+    /// <summary>pre condenser line temp</summary>
+	TT_02														AT %I*	: INT;
+
+    /// <summary>TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	post_condenser_line_temp												: REAL;
+    /// <summary>TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	post_condenser_line_temp_error								AT %I*	: BOOL;
+    /// <summary>purge product line temp</summary>
+	TT_03														AT %I*	: INT;
+
+    /// <summary>TT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_temp													: REAL;
+    /// <summary>TT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_outlet_temp_error									AT %I*	: BOOL;
+    /// <summary>product outlet temp</summary>
+	TT_04														AT %I*	: INT;
+
+    /// <summary>TT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condenser_pump_outlet_temp									: REAL;
+    /// <summary>TT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condenser_pump_outlet_temp_error					AT %I*	: BOOL;
+    /// <summary>product condenser pump outlet temp</summary>
+	TT_05														AT %I*	: INT;
+
+    /// <summary>TT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	boiler_outlet_temp													: REAL;
+    /// <summary>TT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	boiler_outlet_temp_error									AT %I*	: BOOL;
+    /// <summary>boiler outlet temp</summary>
+	TT_06														AT %I*	: INT;
+
+    /// <summary>TT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_temp										: REAL;
+    /// <summary>TT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_temp_error						AT %I*	: BOOL;
+    /// <summary>condensate collection tank temp</summary>
+	TT_07														AT %I*	: INT;
+
+    /// <summary>TT-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_outlet_line_temp							: REAL;
+    /// <summary>TT-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_outlet_line_temp_error			AT %I*	: BOOL;
+    /// <summary>condensate collection tank outlet temp</summary>
+	TT_08														AT %I*	: INT;
+
+    /// <summary>TT-09</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	instrument_air_comp_temp											: REAL;
+    /// <summary>TT-09</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	instrument_air_comp_temp_error								AT %I*	: BOOL;
+    /// <summary>instrument air comp temp</summary>
+	TT_09														AT %I*	: INT;
+
+    /// <summary>TT-10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	weather_temp														: REAL;
+    /// <summary>TT-10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	weather_temp_error											AT %I*	: BOOL;
+    /// <summary>instrument air comp temp</summary>
+	TT_10														AT %I*	: INT;
+
+
+    /// <summary>NT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	weather_noise_level													: REAL;
+    /// <summary>NT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	weather_noise_level_error									AT %I*	: BOOL;
+    /// <summary>weather noise level</summary>
+	NT_01														AT %I*	: INT;
+
+	
+    /// <summary>WDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	weather_wind_direction												: REAL;
+    /// <summary>WDT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	weather_wind_direction_error								AT %I*	: BOOL;
+    /// <summary>weather wind direction</summary>
+	WDT_01														AT %I*	: INT;
+
+	
+    /// <summary>XV-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	cooling_line_pre_condenser_valve									: BOOL;
+    /// <summary>XV-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_line_pre_condenser_valve_open_cmd_status					: BOOL;
+    /// <summary>XV-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_line_pre_condenser_valve_open						AT %I*	: BOOL;
+    /// <summary>XV-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	cooling_line_pre_condenser_valve_closed						AT %I*	: BOOL;
+    /// <summary>cooling line pre condenser valve</summary>
+	XV_01														AT %Q*	: BOOL;
+	
+    /// <summary>XV-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	purge_product_pre_condenser_valve									: BOOL;
+    /// <summary>XV-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_product_pre_condenser_valve_open_cmd_status					: BOOL;
+    /// <summary>XV-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_product_pre_condenser_valve_open						AT %I*	: BOOL;
+    /// <summary>XV-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	purge_product_pre_condenser_valve_closed					AT %I*	: BOOL;
+    /// <summary>purge product pre condenser valve</summary>
+	XV_02														AT %Q*	: BOOL;
+	
+    /// <summary>XV-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pump_isolation_valve									: BOOL;
+    /// <summary>XV-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_pump_isolation_valve_open_cmd_status					: BOOL;
+    /// <summary>XV-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_pump_isolation_valve_open					AT %I*	: BOOL;
+    /// <summary>XV-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_pump_isolation_valve_closed					AT %I*	: BOOL;
+    /// <summary>product vacuum pump isolation valve</summary>
+	XV_03														AT %Q*	: BOOL;
+	
+    /// <summary>XV-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_bypass_valve											: BOOL;
+    /// <summary>XV-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_bypass_valve_open_cmd_status							: BOOL;
+    /// <summary>XV-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_bypass_valve_open							AT %I*	: BOOL;
+    /// <summary>XV-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_bypass_valve_closed							AT %I*	: BOOL;
+    /// <summary>product vacuum bypass valve</summary>
+	XV_04														AT %Q*	: BOOL;
+	
+    /// <summary>XV-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_outlet_isolation_valve								: BOOL;
+    /// <summary>XV-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_outlet_isolation_valve_open_cmd_status				: BOOL;
+    /// <summary>XV-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_outlet_isolation_valve_open					AT %I*	: BOOL;
+    /// <summary>XV-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_outlet_isolation_valve_closed				AT %I*	: BOOL;
+    /// <summary>product vacuum outlet isolation valve</summary>
+	XV_05														AT %Q*	: BOOL;
+	
+    /// <summary>XV-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condensate_drain_valve										: BOOL;
+    /// <summary>XV-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condensate_drain_valve_open_cmd_status						: BOOL;
+    /// <summary>XV-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condensate_drain_valve_open							AT %I*	: BOOL;
+    /// <summary>XV-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_condensate_drain_valve_closed						AT %I*	: BOOL;
+    /// <summary>product condensate drain valve</summary>
+	XV_06														AT %Q*	: BOOL;
+	
+    /// <summary>XV-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_bypass_valve													: BOOL;
+    /// <summary>XV-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_bypass_valve_open_cmd_status									: BOOL;
+    /// <summary>XV-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_bypass_valve_open										AT %I*	: BOOL;
+    /// <summary>XV-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_bypass_valve_closed									AT %I*	: BOOL;
+    /// <summary>steam bypass valve</summary>
+	XV_08														AT %Q*	: BOOL;
+    
+	/// <summary>XV-09</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_pump_outlet_valve						: BOOL;
+    /// <summary>XV-09</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_pump_outlet_valve_open_cmd_status		: BOOL;
+    /// <summary>XV-09</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_pump_outlet_valve_open			AT %I*	: BOOL;
+    /// <summary>XV-09</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_collection_tank_pump_outlet_valve_closed 		AT %I*	: BOOL;
+    /// <summary>condensate collection tank pump outlet valve</summary>
+	XV_09														AT %Q*	: BOOL;
+
+    /// <summary>PCV-01</summary>
+	product_vacuum_backfeed_valve_open									: BOOL;
+    /// <summary>PCV-01</summary>
+	product_vacuum_backfeed_valve_closed								: BOOL;
+    /// <summary>PCV-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_backfeed_valve										: REAL;
+    /// <summary>PCV-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_backfeed_valve_position								: REAL;
+    /// <summary>PCV-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_backfeed_valve_position_error				AT %I*	: BOOL;
+    /// <summary>product vacuum backfeed valve</summary>
+	PCV_01														AT %Q*	: INT;
+    /// <summary>product vacuum backfeed valve</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	PCV_01_position												AT %I*	: INT;
+    /// <summary>PCV-01</summary>                  	           
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_backfeed_valve_mode									: INT;			
+    /// <summary>PCV-01</summary>                  	           
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_backfeed_valve_current_mode							: INT;			
+    /// <summary>PCV-01</summary>                  	           
+	product_vacuum_backfeed_valve_kp									: REAL		:= 0.01; 
+    /// <summary>PCV-01</summary>                  	           
+	product_vacuum_backfeed_valve_ki									: REAL		:= 0.01;
+    /// <summary>PCV-01</summary>                  	           
+	product_vacuum_backfeed_valve_loop_time								: REAL		:= 2000;
+    /// <summary>PCV-01</summary>                  	           
+	product_vacuum_backfeed_valve_iband									: REAL		:= 6;
+    /// <summary>PCV-01</summary>                  	           
+	product_vacuum_backfeed_valve_base									: INT		:= 13110;
+    /// <summary>PCV-01</summary>                  	           
+	product_vacuum_backfeed_valve_base_adjust							: INT		:= 10;
+	
+    /// <summary>P-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pump_reset											: BOOL;												// PS 04_17_24 Added for Vacuum Pump FB reset
+    /// <summary>P-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pump_vfd_reset										: BOOL;
+	  /// <summary>P-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pump_vfd_enable										: BOOL;
+    /// <summary>P-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_pump_vfd_enabled										: BOOL;
+    /// <summary>P-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_vacuum_pump_vfd_error										: BOOL;
+    /// <summary>P-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pump_vfd												: REAL;
+    /// <summary>P-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+    /// <summary>P-02</summary>
+	product_vacuum_pump_vfd_output										: REAL;
+    /// <summary>P-02</summary>
+	product_vacuum_pump_vfd_control								AT %Q*	: WORD;
+    /// <summary>P-02</summary>
+	product_vacuum_pump_vfd_target_vel							AT %Q*	: WORD;
+    /// <summary>P-02</summary>
+	product_vacuum_pump_vfd_status								AT %I*	: WORD;
+    /// <summary>P-02</summary>
+	product_vacuum_pump_vfd_velocity							AT %I*	: WORD;
+
+    /// <summary>product_vacuum_pump_pressure</summary>
+	P02_PT_01													AT %I*	: INT;
+    /// <summary>product_vacuum_pump_cooling_jacket_temp_trip_switch</summary>
+	P02_TSH_1													AT %I*	: BOOL;
+    /// <summary>product_vacuum_pump_exhaust_temp_trip_switch</summary>
+	P02_TSH_2													AT %I*	: BOOL;
+    /// <summary>product_vacuum_pump_oil_temp_trip_switch</summary>
+	P02_TSH_3													AT %I*	: BOOL;
+    /// <summary>product_vacuum_pump_purge_solenoid_valve</summary>
+	P02_SVC_1													AT %Q*	: BOOL;
+    /// <summary>product_vacuum_pump_seal_purge_valve</summary>
+	P02_SVC_3													AT %Q*	: BOOL;
+	product_vacuum_pump_error											: INT;
+	
+	
+	  /// <summary>AT-04_pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_co2_chiller_pump											: BOOL;
+    /// <summary>AT-04_pump</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_co2_chiller_pump_cmd_status									: BOOL;
+    /// <summary>product chiller CO2 pump</summary>
+	AT_04_pump													AT %Q*	: BOOL;
+    /// <summary>AT-04_chiller</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_co2_chiller													: BOOL;
+    /// <summary>AT-04_chiller</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	product_co2_chiller_cmd_status											: BOOL;
+    /// <summary>productCO2 chiller</summary>
+	AT_04_chiller												AT %Q*	: BOOL;
+	
+	
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_480														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_480_error										AT %I*	: BOOL;
+	IT_01														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_current_480														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_current_480_error										AT %I*	: BOOL;
+	IT_02														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_current_480														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_current_480_error										AT %I*	: BOOL;
+	IT_03														AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_voltage_480														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_voltage_480_error										AT %I*	: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	VT_01														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l2_voltage_480														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_voltage_480_error										AT %I*	: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	VT_02														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l3_voltage_480														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_voltage_480_error										AT %I*	: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	VT_03														AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_208														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_208_error										AT %I*	: BOOL;
+	IT_04														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_current_208														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_current_208_error										AT %I*	: BOOL;
+	IT_05														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_current_208														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_current_208_error										AT %I*	: BOOL;
+	IT_06														AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_voltage_208														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_voltage_208_error										AT %I*	: BOOL;
+	VT_04														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_voltage_208														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_voltage_208_error										AT %I*	: BOOL;
+	VT_05														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_voltage_208														: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_voltage_208_error										AT %I*	: BOOL;
+	VT_06														AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_boiler													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l1_current_boiler_error										AT %I*	: BOOL;
+	IT_boiler_01												AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_current_boiler													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l2_current_boiler_error										AT %I*	: BOOL;
+	IT_boiler_02												AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_current_boiler													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	l3_current_boiler_error										AT %I*	: BOOL;
+	IT_boiler_03												AT %I*	: INT;
+	
+END_VAR
+
+VAR_GLOBAL PERSISTENT
+	
+	/// SCALING
+	
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_line_co2_low												: REAL;
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_line_co2_high												: REAL;
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_line_co2_min												: REAL;
+    /// <summary>AT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_line_co2_offset											: REAL;
+	
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_co2_low												: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_co2_high												: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_co2_min												: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_co2_offset											: REAL;
+	
+	/// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_co2sample_h2o_low											: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_co2sample_h2o_high											: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_co2sample_h2o_min											: REAL;
+    /// <summary>AT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_co2sample_h2o_offset										: REAL;
+	
+	
+    /// <summary>AT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_h2o_low												: REAL;
+    /// <summary>AT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_h2o_high												: REAL;
+    /// <summary>AT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_h2o_min												: REAL;
+    /// <summary>AT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_h2o_offset											: REAL;
+	
+	
+	 /// <summary>AT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_temperature_low										: REAL;
+    /// <summary>AT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_temperature_high										: REAL;
+    /// <summary>AT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_temperature_min										: REAL;
+    /// <summary>AT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_temperature_offset									: REAL;
+	
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_o2_low												: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_o2_high												: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_o2_min												: REAL;
+    /// <summary>AT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_o2_offset											: REAL;
+	
+    /// <summary>AT-04</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_ph_low									: REAL;
+    /// <summary>AT-04</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_ph_high									: REAL;
+    /// <summary>AT-04</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_ph_min									: REAL;
+    /// <summary>AT-04</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_ph_offset								: REAL;
+
+    /// <summary>AT-05</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_o2_low									: REAL;
+    /// <summary>AT-05</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_o2_high									: REAL;
+    /// <summary>AT-05</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_o2_min									: REAL;
+    /// <summary>AT-05</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_o2_offset								: REAL;
+	
+    /// <summary>AT-06</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_turbidity_low							: REAL;
+    /// <summary>AT-06</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_turbidity_high							: REAL;
+    /// <summary>AT-06</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_turbidity_min							: REAL;
+    /// <summary>AT-06</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	condensate_collection_tank_turbidity_offset							: REAL;
+	
+    /// <summary>AT-07</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_humidity_low												: REAL;
+    /// <summary>AT-07</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_humidity_high												: REAL;
+    /// <summary>AT-07</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_humidity_min												: REAL;
+    /// <summary>AT-07</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_humidity_offset												: REAL;
+	
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_flow_low													: REAL;
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_flow_high													: REAL;
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_flow_min													: REAL;
+    /// <summary>FT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_flow_offset												: REAL;
+
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_volumetric_flow_low									: REAL;
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_volumetric_flow_high									: REAL;
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_volumetric_flow_min									: REAL;
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_volumetric_flow_offset								: REAL;
+	
+    /// <summary>FT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_mass_flow_low										: REAL;
+    /// <summary>FT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_mass_flow_high										: REAL;
+    /// <summary>FT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_mass_flow_min										: REAL;
+    /// <summary>FT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_mass_flow_offset										: REAL;
+	
+	
+
+	
+	
+    /// <summary>FT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condenser_pump_outlet_liquid_flow_low						: REAL;
+    /// <summary>FT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condenser_pump_outlet_liquid_flow_high						: REAL;
+    /// <summary>FT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condenser_pump_outlet_liquid_flow_min						: REAL;
+    /// <summary>FT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condenser_pump_outlet_liquid_flow_offset					: REAL;
+	
+    /// <summary>FT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tap_water_to_boiler_flow_low										: REAL;
+    /// <summary>FT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tap_water_to_boiler_flow_high										: REAL;
+    /// <summary>FT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tap_water_to_boiler_flow_min										: REAL;
+    /// <summary>FT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tap_water_to_boiler_flow_offset										: REAL;
+
+    /// <summary>FT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_flow_low									: REAL;
+    /// <summary>FT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_flow_high								: REAL;
+    /// <summary>FT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_flow_min									: REAL;
+    /// <summary>FT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_flow_offset								: REAL;
+	
+    /// <summary>AT-08</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_wind_speed_low												: REAL;
+    /// <summary>AT-08</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_wind_speed_high												: REAL;
+    /// <summary>AT-08</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_wind_speed_min												: REAL;
+    /// <summary>AT-08</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_wind_speed_offset											: REAL;
+	
+    /// <summary>LT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condensate_drum_level_low									: REAL;
+    /// <summary>LT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condensate_drum_level_high									: REAL;
+    /// <summary>LT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condensate_drum_level_min									: REAL;
+    /// <summary>LT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condensate_drum_level_offset								: REAL;
+	
+    /// <summary>LT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_level_low								: REAL;
+    /// <summary>LT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_level_high								: REAL;
+    /// <summary>LT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_level_min								: REAL;
+    /// <summary>LT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_level_offset								: REAL;
+	
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_line_pres_low												: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_line_pres_high												: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_line_pres_min												: REAL;
+    /// <summary>PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	dead_air_line_pres_offset											: REAL;
+
+    /// <summary>FT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_header_flow_low												: REAL;
+    /// <summary>FT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_header_flow_high												: REAL;
+    /// <summary>FT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_header_flow_min												: REAL;
+    /// <summary>FT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_header_flow_offset											: REAL;
+	
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	purge_product_line_pres_low											: REAL;
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	purge_product_line_pres_high										: REAL;
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	purge_product_line_pres_min											: REAL;
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	purge_product_line_pres_offset										: REAL;
+	
+    /// <summary>PT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	pre_condenser_line_pres_low											: REAL;
+    /// <summary>PT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	pre_condenser_line_pres_high										: REAL;
+    /// <summary>PT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	pre_condenser_line_pres_min											: REAL;
+    /// <summary>PT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	pre_condenser_line_pres_offset										: REAL;
+
+    /// <summary>PT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	post_condenser_line_pres_low										: REAL;
+    /// <summary>PT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	post_condenser_line_pres_high										: REAL;
+    /// <summary>PT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	post_condenser_line_pres_min										: REAL;
+    /// <summary>PT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	post_condenser_line_pres_offset										: REAL;
+	
+    /// <summary>PT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pres_low												: REAL;
+    /// <summary>PT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pres_high											: REAL;
+    /// <summary>PT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pres_min												: REAL;
+    /// <summary>PT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_pres_offset											: REAL;
+	
+    /// <summary>P02-PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_inlet_pres_low										: REAL;
+    /// <summary>P02-PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_inlet_pres_high										: REAL;
+    /// <summary>P02-PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_inlet_pres_min										: REAL;
+    /// <summary>P02-PT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_vacuum_inlet_pres_offset									: REAL;
+	
+    /// <summary>PT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_pres_low												: REAL;
+    /// <summary>PT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_pres_high											: REAL;
+    /// <summary>PT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_pres_min												: REAL;
+    /// <summary>PT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_pres_offset											: REAL;
+
+    /// <summary>PT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	boiler_outlet_pres_low												: REAL;
+    /// <summary>PT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	boiler_outlet_pres_high												: REAL;
+    /// <summary>PT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	boiler_outlet_pres_min												: REAL;
+    /// <summary>PT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	boiler_outlet_pres_offset											: REAL;
+	
+    /// <summary>PT-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	instrument_air_comp_pres_low										: REAL;
+    /// <summary>PT-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	instrument_air_comp_pres_high										: REAL;
+    /// <summary>PT-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	instrument_air_comp_pres_min										: REAL;
+    /// <summary>PT-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	instrument_air_comp_pres_offset										: REAL;
+	
+    /// <summary>PT-09</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_pres_low													: REAL;
+    /// <summary>PT-09</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_pres_high													: REAL;
+    /// <summary>PT-09</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_pres_min													: REAL;
+    /// <summary>PT-09</summary>                        
+	{attribute 'OPC.UA.DA' := '1'}  				            
+	weather_pres_offset													: REAL;
+
+    /// <summary>TT-01</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	purge_product_line_temp_offset										: REAL;
+	
+    /// <summary>TT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	pre_condenser_line_temp_offset										: REAL;
+	
+    /// <summary>TT-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	post_condenser_line_temp_offset										: REAL;
+	
+    /// <summary>TT-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_outlet_temp_offset											: REAL;
+	
+    /// <summary>TT-05</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	product_condenser_pump_outlet_temp_offset							: REAL;
+	
+    /// <summary>TT-06</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	boiler_outlet_temp_offset											: REAL;
+	
+    /// <summary>TT-07</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_temp_offset								: REAL;
+
+	    /// <summary>TT-08</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_collection_tank_outlet_line_temp_offset					: REAL;
+	
+    /// <summary>TT-09</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	instrument_air_comp_temp_offset										: REAL;
+	
+    /// <summary>TT-10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	weather_temp_offset													: REAL;
+
+	
+	/// SET POINTS
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_acceptable_high_instrument_air_pressure							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_acceptable_low_instrument_air_pressure							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_adsorb_during_steam_bypass										: BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_adsorb_during_warmup												: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_boiler_warmup_duration											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_condensate_collection_tank_high_level							: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_condensate_collection_tank_low_level								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_drainage_function_cutoff_pressure								: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_duration_to_drain_cooling_and_purge_line_in_module				: REAL;				
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_duration_to_drain_reactor_set									: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_duration_to_drain_reactor_set							: REAL;	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_inlet_product_vacuum_temperature							: REAL;							// PS 04_30_24	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_instrument_air_pressure									: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_instrument_air_temperature								: REAL;			
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_maximum_reasonable_sorbent_TC_reading							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_instrument_air_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_instrument_air_temperature								: REAL;			
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_reasonable_sorbent_TC_reading							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_minimum_steam_bypass_flow_rate									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_product_condensate_drum_high_level								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_product_condensate_drum_low_level								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_product_vacuum_idle_vfd_percent									: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_product_vacuum_purge_vfd_percent									: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_product_vacuum_running_vfd_percent								: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_product_vacuum_purge_time										: REAL;							// PS 04_03_24
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_reactor_vfd_percent_maximum										: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_reactor_vfd_percent_step_duration								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_reactor_vfd_percent_step_size									: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_steam_bypass_duration											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_steam_bypass_immediately_after_warm_up							: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_steam_bypass_temperature											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_steam_bypass_vacuum_pressure										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_target_boiler_pressure											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_product_vacuum_backfeed_valve									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	SP_mass_flow_totalizer												: REAL;
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

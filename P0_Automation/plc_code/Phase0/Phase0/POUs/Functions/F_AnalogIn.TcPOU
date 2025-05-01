@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_AnalogIn" Id="{eb4183a5-0a89-4634-9a63-09d4c92efa4f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_AnalogIn : REAL
+VAR_INPUT
+	Input																: INT;
+	Low																	: REAL;
+	High																: REAL;
+	Minimum																: REAL;
+	Offset																: REAL;
+END_VAR
+VAR
+	Value											: REAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_AnalogIn
+// Rev 1.0 - December 28, 2023
+
+Value																	:= ((High - Low) / 32767.0) * INT_TO_REAL(Input) + Low;		// Determine output based on scale
+Value																	:= Value + Offset;											// Adjust for any user offset
+F_AnalogIn																:= SEL(ABS(Value) > Minimum, 0, Value);						// Value must be above (or below, if negative) minimum or zero is returned
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_AnalogIn">
+      <LineId Id="13" Count="5" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,333 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="m01" Id="{c4750c90-79d8-41dc-a527-3068f05bef63}">
+    <Declaration><![CDATA[// Phase 0 - m01
+// Rev 1.0 - April 25, 2024
+
+{attribute 'qualified_only'}
+VAR_GLOBAL
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	plc_version															: STRING;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	ts_Cycle_Mode														: STRING;		// Starts process based on each character in integer format
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_HMI_Active														: BOOL;			// An HMI program is running and communicating
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Acknowledge_Alarm												: BOOL;			// Clears current alarm
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Clear_Alarm_All													: BOOL;			// Clears current alarm
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Cancel_Cycle														: BOOL;			// Complete current cycle then stop
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Stop_Process														: BOOL;			// Stop current process immediately
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	tb_Reset_Process													: BOOL;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Alarm_Active														: BOOL;			// An alarm is active
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ts_Alarm															: STRING;		// Active alarm string
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ts_User_Message														: STRING;		// Message corresponding to active alarm
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	ti_Alarm_Severity													: INT;			// Alarm level (not implemented)	
+	{attribute 'OPC.UA.DA' := '1'}  
+	processAlarms														: ARRAY[0.._ALARM_COUNT] OF STRING;
+	{attribute 'OPC.UA.DA' := '1'}  
+	processAlarmsMessage												: ARRAY[0.._ALARM_COUNT] OF STRING;
+					
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	tb_Auto_Mode_On														: BOOL;			// Machine is currently in auto mode
+
+	
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_flow														: REAL;
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_flow_error										AT %I*	: BOOL;
+    /// <summary>condensate flow</summary>
+	FT_02														AT %I*	: INT;
+
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_manifold_line_pres											: REAL;
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_manifold_line_pres_error								AT %I*	: BOOL;
+    /// <summary>steam manifold line pres</summary>
+	PT_02														AT %I*	: INT;
+
+    /// <summary>LS-03</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_from_cooling_and_purge_lines_lsl					AT %I*	: BOOL;
+	
+    /// <summary>LS-04</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_from_cooling_and_purge_lines_lsh					AT %I*	: BOOL;
+
+    /// <summary>P-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_from_cooling_and_purge_lines_pump						: BOOL;
+    /// <summary>P-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_from_cooling_and_purge_lines_pump_cmd_status				: BOOL;
+    /// <summary>condensate from cooling and purge lines pump</summary>
+	P_02														AT %Q*	: BOOL;
+
+    /// <summary>TT-10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_temp_near_rs1													: REAL;
+    /// <summary>TT-10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_temp_near_rs1_error									AT %I*	: BOOL;
+    /// <summary>steam temp near rs1 error</summary>
+	TT_10														AT %I*	: INT;
+
+    /// <summary>TT-11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_temp_near_rs3													: REAL;
+    /// <summary>TT-11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	steam_temp_near_rs3_error									AT %I*	: BOOL;
+    /// <summary>steam temp near rs3 error</summary>
+	TT_11														AT %I*	: INT;
+
+    /// <summary>TT-12</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_temp														: REAL;
+    /// <summary>TT-12</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	{attribute 'OPC.UA.DA.Access' := '1'}  				                
+	condensate_temp_error										AT %I*	: BOOL;
+    /// <summary>condensate temp</summary>
+	TT_12														AT %I*	: INT;
+
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l1_current															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l1_current_error											AT %I*	: BOOL;
+	IT_01														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l2_current															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l2_current_error											AT %I*	: BOOL;
+	IT_02														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l3_current															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l3_current_error											AT %I*	: BOOL;
+	IT_03														AT %I*	: INT;
+	
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l1_voltage															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l1_volatge_error											AT %I*	: BOOL;
+	VT_01														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l2_voltage															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l2_volatge_error											AT %I*	: BOOL;
+	VT_02														AT %I*	: INT;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l3_voltage															: REAL;
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	l3_volatge_error											AT %I*	: BOOL;
+	VT_03														AT %I*	: INT;
+
+END_VAR
+
+VAR_GLOBAL PERSISTENT
+
+	/// SCALING
+	
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_flow_low													: REAL;
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_flow_high												: REAL;
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_flow_min													: REAL;
+    /// <summary>FT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_flow_offset												: REAL;
+
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_manifold_line_pres_low										: REAL;
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_manifold_line_pres_high										: REAL;
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_manifold_line_pres_min										: REAL;
+    /// <summary>PT-02</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_manifold_line_pres_offset										: REAL;
+
+    /// <summary>TT-10</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_temp_near_rs1_offset											: REAL;
+
+    /// <summary>TT-11</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	steam_temp_near_rs3_offset											: REAL;
+	
+    /// <summary>TT-12</summary>
+	{attribute 'OPC.UA.DA' := '1'}  				                
+	condensate_temp_offset												: REAL;
+
+	
+	/// SET POINTS
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_sorbent_hightemp_startco2analyzer						: REAL;		
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_outletco2_highlimit									: REAL;		
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_repres_preslimit_clampsretract									: REAL;		
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_clampsretract_timedelay											: REAL;		
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_repres_pres_highlimit											: REAL;		
+
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_doorsopenclose_timedelay											: REAL;		
+
+
+	
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_duration												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_valve_max_retries										: INT;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_adsorption_valve_rotational_velocity								: REAL;		
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_ambient_pressure													: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_cycle_start_offset_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_dead_time_in_cycle_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_desired_cycle_count												: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_evacuation_duration												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_evacuation_ideal_pressure										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_evacuation_unacceptable_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_include_reactor_set_1_in_process									: BOOL;					
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_include_reactor_set_2_in_process									: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_include_reactor_set_3_in_process									: BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_initial_maximum_steam_valve_percent_open							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_initial_steam_purge_reactor_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_leak_test_duration												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_desorption_starting_pressure								: REAL;							
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_inlet_air_temperature_during_adsorption					: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_safe_reactor_steam_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_sorbent_temperature_during_desorption					: REAL;			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_target_sorbent_temperature_during_purge					: REAL;												// PS 04_25_24			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_maximum_target_steam_pressure									: REAL;			
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_minimum_desired_inlet_co2_concentration_during_adsorption		: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_minimum_inlet_air_temperature_during_adsorption					: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_high_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_high_temperature								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_low_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_module_steam_line_low_temperature								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_percent_from_steam_purge_target_pressure							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_percent_of_ambient_pressure										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_reactor_set_1_vfd_percent										: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_reactor_set_2_vfd_percent										: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_reactor_set_3_vfd_percent										: INT;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_repressurization_duration										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_start_steam_purge_reactor_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_pressure_control_valve_initial_opening_duration			: REAL;					
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_pressurization_and_purge_duration							: REAL;						
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_purge_pressure												: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_steam_purge_pressure_decrease									: REAL;												// PS 04_25_24
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_target_desorption_starting_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_target_duration_from_adsorption_start_until_sorbent_cool			: REAL;							
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_target_pressure_change											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_unacceptable_duration_from_adsorption_start_until_sorbent_cool	: REAL;					
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_unacceptable_pressure_change										: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_undesirable_duration_from_adsorption_start_until_sorbent_cool	: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_assisted_purge											: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_duration											: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_target_pressure									: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_target_temperature								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_unacceptable_pressure								: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_vacuum_cooling_unacceptable_temperature							: REAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SP_extend_wallace_clamp_duration									: REAL;
+			
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

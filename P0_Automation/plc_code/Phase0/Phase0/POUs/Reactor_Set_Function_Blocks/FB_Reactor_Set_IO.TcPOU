@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Reactor_Set_IO" Id="{504dbce0-b9dc-49ec-a850-3df0aedca31a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Reactor_Set_IO
+VAR_IN_OUT
+	condensate_pump_hmi													: BOOL;
+	condensate_pump_plc													: BOOL;
+	dead_air_valve_hmi													: BOOL;
+	dead_air_valve_plc													: BOOL;
+	purge_valve_hmi														: BOOL;
+	purge_valve_plc														: BOOL;
+	cooling_valve_hmi													: BOOL;
+	cooling_valve_plc													: BOOL;
+	steam_header_valve_hmi												: BOOL;
+	steam_header_valve_plc												: BOOL;
+	steam_control_valve_hmi												: REAL;
+	steam_control_valve_plc												: REAL;
+	steam_control_valve_mode_hmi										: INT;
+	steam_control_valve_mode_plc										: INT;
+END_VAR
+VAR_INPUT
+	power_control_in													: BOOL;
+	power_control_fdbk_no												: BOOL;
+	power_control_fdbk_nc												: BOOL;
+	condensate_lsl_in													: BOOL;
+	condensate_lsh_in													: BOOL;
+	close_valves														: BOOL;
+	rs_close_valves														: BOOL;
+	dead_air_valve_open													: BOOL;
+	dead_air_valve_closed												: BOOL;
+	purge_valve_open													: BOOL;
+	purge_valve_closed													: BOOL;
+	cooling_valve_open													: BOOL;
+	cooling_valve_closed												: BOOL;
+	steam_header_valve_open												: BOOL;
+	steam_header_valve_closed											: BOOL;
+	reactor_over_max_pressure											: BOOL;
+	PCV_01_position														: INT;
+	status_in															: INT;
+	steam_control_valve_setpoint										: REAL;
+	steam_control_valve_control_point									: REAL;
+	steam_control_valve_loop_time										: REAL;
+	steam_control_valve_kp												: REAL;
+	steam_control_valve_ki												: REAL;
+	steam_control_valve_iband											: REAL;
+	steam_control_valve_base											: INT;
+	steam_control_valve_base_adjust										: INT;
+	steam_control_valve_error											: BOOL;
+END_VAR
+VAR_OUTPUT
+	power_control_out													: BOOL;
+	PWR_01																: BOOL;
+	condensate_lsl_out													: BOOL;
+	condensate_lsh_out													: BOOL;
+	P_01																: BOOL;
+	condensate_pump_cmd_status											: BOOL;
+	XV_04																: BOOL;
+	dead_air_valve_open_cmd_status										: BOOL;
+	dead_air_valve_clear												: BOOL;
+	XV_05																: BOOL;
+	purge_valve_open_cmd_status											: BOOL;
+	purge_valve_clear													: BOOL;
+	XV_06																: BOOL;
+	cooling_valve_open_cmd_status										: BOOL;
+	cooling_valve_clear													: BOOL;
+	XV_07																: BOOL;
+	steam_header_valve_open_cmd_status									: BOOL;
+	steam_header_valve_clear											: BOOL;
+	steam_header_valve_not_closed										: BOOL;
+	PCV_01																: INT;
+	steam_control_valve_current_mode									: INT;	
+	steam_control_valve_position										: REAL;
+	steam_control_valve_closed											: BOOL;
+	valves_clear														: BOOL;
+	status_out															: STRING;
+	sorbent_high_temp													: REAL;
+END_VAR
+VAR
+	fb_Condensate_Pump													: FB_Digital_Out();
+	fb_Dead_Air_Valve													: FB_Digital_Out();
+	fb_PurgeValve														: FB_Digital_Out();
+	fb_Cooling_Valve													: FB_Digital_Out();
+	fb_Steam_Header_Valve												: FB_Digital_Out();
+	fb_Steam_Control_Valve_Mode											: FB_Integer_Out();
+	fb_Steam_Control_Valve												: FB_Analog_Out();
+	fb_Steam_Control_Valve_PI											: FB_PI_Control();
+	
+	bSteamHeaderValve													: BOOL;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Phase 0 - FB_Reactor_Set_IO
+// Rev 1.0 - April 30, 2024
+
+power_control_out														:= power_control_fdbk_no AND NOT power_control_fdbk_nc AND NOT PWR_01 ;
+PWR_01																	:= power_control_in;
+
+status_out																:= SEL(status_in >= 0 AND status_in < 40, Main.sStatusLabel[40], Main.sStatusLabel[status_in]);
+
+condensate_lsl_out														:= condensate_lsl_in;
+condensate_lsh_out														:= condensate_lsh_in;
+
+fb_Condensate_Pump(Input1:= condensate_pump_hmi, Input2:= condensate_pump_plc, Output=> P_01);
+condensate_pump_cmd_status												:= P_01;
+
+IF close_valves OR rs_close_valves THEN
+	dead_air_valve_plc													:= FALSE;
+	purge_valve_plc														:= FALSE;
+	cooling_valve_hmi													:= FALSE;
+	steam_header_valve_hmi												:= FALSE;
+	close_valves														:= FALSE;
+	rs_close_valves														:= FALSE;
+END_IF
+
+fb_Dead_Air_Valve(Input1:= dead_air_valve_hmi, Input2:= dead_air_valve_plc, Output=> XV_04);
+dead_air_valve_open_cmd_status											:= XV_04;
+dead_air_valve_clear													:= F_ValveClear(dead_air_valve_plc, dead_air_valve_open, dead_air_valve_closed);
+
+fb_PurgeValve(Input1:= purge_valve_hmi, Input2:= purge_valve_plc, Output=> XV_05);
+XV_05																	:= purge_valve_plc;
+purge_valve_open_cmd_status												:= purge_valve_plc;
+purge_valve_clear														:= F_ValveClear(purge_valve_plc, purge_valve_open, purge_valve_closed);
+
+fb_Cooling_Valve(Input1:= cooling_valve_hmi, Input2:= cooling_valve_plc, Output=> XV_06);
+XV_06																	:= cooling_valve_plc;
+cooling_valve_open_cmd_status											:= cooling_valve_plc;
+cooling_valve_clear														:= F_ValveClear(cooling_valve_plc, cooling_valve_open, cooling_valve_closed);
+
+fb_Steam_Header_Valve(Input1:= steam_header_valve_hmi, Input2:= steam_header_valve_plc, Output=> bSteamHeaderValve);
+XV_07																	:= SEL(m01.tb_Auto_Mode_On, bSteamHeaderValve AND NOT reactor_over_max_pressure, bSteamHeaderValve);
+steam_header_valve_open_cmd_status										:= XV_07;
+steam_header_valve_clear												:= F_ValveClear(steam_header_valve_plc, steam_header_valve_open, steam_header_valve_closed);
+steam_header_valve_not_closed											:= NOT steam_header_valve_closed;
+
+fb_Steam_Control_Valve(Input1:= steam_control_valve_hmi, Input2:= steam_control_valve_plc);
+fb_Steam_Control_Valve_Mode(Input1:= steam_control_valve_mode_hmi, Input2:= steam_control_valve_mode_plc);
+fb_Steam_Control_Valve_PI(	Setpoint									:= steam_control_valve_setpoint,
+							Control										:= steam_control_valve_control_point,
+							Error										:= steam_control_valve_error,
+							Reverse										:= FALSE,
+							Kp											:= steam_control_valve_kp,           
+							Ki											:= steam_control_valve_ki,           
+							BaseAdjust									:= steam_control_valve_base_adjust,  
+							LoopTime									:= steam_control_valve_loop_time,    
+							IBand										:= steam_control_valve_iband,        
+							Base										:= steam_control_valve_base,         
+							Mode										:= steam_control_valve_mode_plc,
+							Input										:= steam_control_valve_plc,
+							Mode_Out									=> steam_control_valve_current_mode, 
+							Output										=> PCV_01);
+
+steam_control_valve_position											:= INT_TO_REAL(PCV_01_position) / _PERCENT_FACTOR; 
+steam_control_valve_closed												:= steam_control_valve_position <= _VALVE_CLOSED;
+
+valves_clear															:= dead_air_valve_clear AND purge_valve_clear AND cooling_valve_clear AND steam_header_valve_clear;
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Reactor_Set_IO">
+      <LineId Id="615" Count="63" />
+      <LineId Id="49" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

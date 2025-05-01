@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="F_HigherValue" Id="{1be1d932-f41b-4781-9a77-262a21528b4e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_HigherValue : REAL
+VAR_INPUT
+	Value1																: REAL;
+	Value2																: REAL;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// F_HigherValue
+// Rev 1.0 - February 25, 2024
+
+F_HigherValue															:= SEL(Value1 > Value2, Value2, Value1);
+]]></ST>
+    </Implementation>
+    <LineIds Name="F_HigherValue">
+      <LineId Id="16" Count="2" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
