@@ -7,6 +7,8 @@
 VAR_GLOBAL
 
 	sita_bits															: ARRAY[1..10] OF DINT;
+	
+	
 
 	gbRS01TestError														: BOOL;
 	gbRS02TestError														: BOOL;

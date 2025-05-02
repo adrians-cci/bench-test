@@ -379,6 +379,9 @@ fb_RS(		U															:= P_U01.u,
 			RS_Number													:= 2,
 			Cycle_Mode													:= P_M01.sCycleModeRS02,
 			Fan_Setpoint												:= m01.SP_reactor_set_2_vfd_percent,
+//			Evac_Service_Acked											:= P_M01.evac_service_acked,
+			Evac_Service_Assigned										:= P_M01.evac_service_assigned[2],
+			Steam_Service_Assigned										:= P_M01.steam_service_assigned[2],
 			Cycle_Stage													=> gsM01RS02CycleStage,
 			Remaining_Time												=> m01_rs2.tr_Remaining_Time,
 			Current_Step												=> m01_rs2.ti_Current_Step,
@@ -1350,7 +1353,9 @@ fb_R4_IO(	RSet														:= _RS02,
       <LineId Id="146" Count="4" />
       <LineId Id="235" Count="1" />
       <LineId Id="234" Count="0" />
-      <LineId Id="151" Count="82" />
+      <LineId Id="151" Count="3" />
+      <LineId Id="238" Count="2" />
+      <LineId Id="155" Count="78" />
       <LineId Id="237" Count="0" />
       <LineId Id="28" Count="0" />
     </LineIds>

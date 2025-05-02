@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Service_Dispatcher" Id="{a567eb61-ac7e-400e-a3c0-e91bb0f7a48e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Service_Dispatcher
+VAR_INPUT
+	i_service_req 			: ST_Util_Service_Req;
+	i_shared_rs 			: INT;		  // max number of reactor sets  the util service can be shared by 
+	i_rs_module_constrain  	: BOOL;       // true if the reactors sets cannot be par of the same module
+END_VAR
+VAR_OUTPUT
+	o_service_req			: BOOL;  // on/off request to utilities 
+	o_assigned_rs_number	: ARRAY[1..rs_count] OF UINT; // rs number that has been assigned to a service 
+	o_passiveQueue_number	: ARRAY[1..rs_count] OF UINT;
+END_VAR
+VAR
+	service_req_queue		: ARRAY [1..rs_count] OF ST_Service_Assigned_Sts;
+	idx_queue				: INT;
+	idx_queue_update		: INT;
+	trig_service_assign		: R_TRIG;
+	trig_service_release	: R_TRIG;
+	
+	service_assign			: BOOL;
+	service_release			: BOOL;
+	
+	rs_same_module			: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Add to queue 
+
+FOR idx_queue := 1 TO rs_count DO
+	IF i_service_req.request_cmd = TO_BOOL(E_Util_Service_Req.On)  THEN 
+		IF  (service_req_queue[idx_queue].rs_number = i_service_req.rs_number)  THEN
+			service_assign := FALSE;
+			EXIT;
+		ELSE
+			service_assign := TRUE;
+		END_IF
+		service_release := FALSE; // added to reset the req cmd
+	END_IF
+END_FOR
+
+FOR idx_queue := 1 TO rs_count DO
+	IF i_service_req.request_cmd = TO_BOOL(E_Util_Service_Req.Off)  THEN 
+		IF  (service_req_queue[idx_queue].rs_number = i_service_req.rs_number)  THEN
+			service_release := TRUE;
+			EXIT;
+		ELSE
+			service_release := FALSE;
+		END_IF
+		service_assign := FALSE;   // added to reset the req cmd
+	END_IF
+END_FOR
+
+
+trig_service_assign(CLK := service_assign);
+trig_service_release(CLK := service_release);
+
+
+IF trig_service_assign.Q THEN
+	FOR idx_queue := 1 TO rs_count DO
+		IF i_rs_module_constrain THEN
+			IF idx_queue = i_shared_rs THEN 
+				rs_same_module := Check_RSs_SameModule(i_rs_1 := service_req_queue[idx_queue-1].rs_number, i_rs_2 := i_service_req.rs_number);
+			ELSE
+				rs_same_module := Check_RSs_SameModule(i_rs_1 := service_req_queue[idx_queue].rs_number, i_rs_2 := i_service_req.rs_number);
+			END_IF
+		END_IF
+		IF service_req_queue[idx_queue].rs_number = i_service_req.rs_number THEN
+			EXIT;
+		ELSIF NOT service_req_queue[idx_queue].is_assigned AND  (service_req_queue[idx_queue].rs_number <> i_service_req.rs_number)  THEN 
+				IF i_rs_module_constrain AND  (idx_queue = i_shared_rs) AND  rs_same_module THEN 
+					CONTINUE;
+				ELSE
+					service_req_queue[idx_queue].is_assigned  := TRUE;
+					service_req_queue[idx_queue].rs_number := i_service_req.rs_number;
+					o_passiveQueue_number[idx_queue]		:= service_req_queue[idx_queue].rs_number;
+					EXIT;
+				END_IF
+		END_IF
+	END_FOR
+END_IF
+
+
+
+// Remove from queue
+IF trig_service_release.Q THEN
+	FOR idx_queue := 1 TO rs_count DO
+		IF service_req_queue[idx_queue].rs_number =  i_service_req.rs_number THEN
+			service_req_queue[idx_queue].rs_number := 0;
+			service_req_queue[idx_queue].is_assigned  := FALSE;
+			o_passiveQueue_number[idx_queue] 	:= service_req_queue[idx_queue].rs_number;
+			EXIT;
+		END_IF
+	END_FOR
+END_IF
+
+// Update queue
+
+FOR idx_queue := 1 TO rs_count DO
+	IF  NOT service_req_queue[idx_queue].is_assigned  THEN 
+		FOR idx_queue_update := idx_queue + 1 TO rs_count DO
+			IF i_rs_module_constrain THEN
+				IF idx_queue = i_shared_rs THEN 
+					rs_same_module := Check_RSs_SameModule(i_rs_1 := service_req_queue[idx_queue-1].rs_number, i_rs_2 := service_req_queue[idx_queue_update].rs_number);
+				ELSE
+					rs_same_module := Check_RSs_SameModule(i_rs_1 := service_req_queue[idx_queue].rs_number, i_rs_2 := service_req_queue[idx_queue_update].rs_number);
+				END_IF
+			END_IF
+			IF service_req_queue[idx_queue_update].rs_number > 0 THEN 
+				IF  NOT i_rs_module_constrain THEN 
+					service_req_queue[idx_queue] := service_req_queue[idx_queue_update];
+					service_req_queue[idx_queue_update].rs_number := 0;
+					service_req_queue[idx_queue_update].is_assigned := FALSE;
+					o_passiveQueue_number[idx_queue]:=service_req_queue[idx_queue].rs_number;
+					o_passiveQueue_number[idx_queue_update] := 0;
+					EXIT;
+				ELSIF i_rs_module_constrain AND NOT (idx_queue = i_shared_rs) THEN 
+					service_req_queue[idx_queue] := service_req_queue[idx_queue_update];
+					service_req_queue[idx_queue_update].rs_number := 0;
+					service_req_queue[idx_queue_update].is_assigned := FALSE;
+					o_passiveQueue_number[idx_queue]:=service_req_queue[idx_queue].rs_number;
+					o_passiveQueue_number[idx_queue_update] := 0;
+					EXIT;
+				ELSIF i_rs_module_constrain AND  (idx_queue = i_shared_rs) AND NOT rs_same_module THEN
+					service_req_queue[idx_queue] := service_req_queue[idx_queue_update];
+					service_req_queue[idx_queue_update].rs_number := 0;
+					service_req_queue[idx_queue_update].is_assigned := FALSE;
+					o_passiveQueue_number[idx_queue]:=service_req_queue[idx_queue].rs_number;
+					o_passiveQueue_number[idx_queue_update] := 0;
+					EXIT;
+				ELSIF i_rs_module_constrain AND  (idx_queue = i_shared_rs) AND  rs_same_module THEN
+					CONTINUE;				
+				END_IF
+			END_IF						
+		END_FOR	
+	END_IF
+END_FOR
+
+// Service on/off requet to Utilities
+
+o_service_req := service_req_queue[1].is_assigned ; // on request to utilities if queue pos #1 is populated / has a RS assigned 
+
+
+// Service assigned sts to RS controller
+
+IF i_shared_rs >= 2 THEN
+	FOR idx_queue := 1 TO i_shared_rs DO 
+		IF service_req_queue[idx_queue].is_assigned THEN 
+			o_assigned_rs_number[idx_queue] := service_req_queue[idx_queue].rs_number;
+		ELSE
+			o_assigned_rs_number[idx_queue] := 0;
+		END_IF
+	END_FOR
+ELSIF i_shared_rs = 1 THEN
+	IF service_req_queue[idx_queue].is_assigned THEN 
+		o_assigned_rs_number[1] := service_req_queue[1].rs_number;
+	ELSE
+		o_assigned_rs_number[1] := 0;
+	END_IF
+END_IF
+
+]]></ST>
+    </Implementation>
+    <Method Name="Check_RSs_SameModule" Id="{9677cf52-ebf4-48a8-aca3-650d4902e047}">
+      <Declaration><![CDATA[METHOD Check_RSs_SameModule : BOOL
+VAR_INPUT
+	i_rs_1 : UINT;
+	i_rs_2 : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+Check_RSs_SameModule := ((i_rs_1 >=1  AND i_rs_1 <= 3) AND (i_rs_2 >=1  AND i_rs_2 <= 3)) OR 
+						((i_rs_1 >=4  AND i_rs_1 <= 6) AND (i_rs_2 >=4  AND i_rs_2 <= 6)) OR 
+                        ((i_rs_1 >=7  AND i_rs_1 <= 9) AND (i_rs_2 >=7  AND i_rs_2 <= 9)) OR
+						((i_rs_1 >=10 AND i_rs_1<= 12) AND (i_rs_2 >=10 AND i_rs_2 <= 12));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Clear_Queue" Id="{ec07c837-9081-45a3-91d1-67ce24451c4a}">
+      <Declaration><![CDATA[METHOD Clear_Queue : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR idx_queue := 1 TO rs_count DO
+	service_req_queue[idx_queue].rs_number := 0;
+	service_req_queue[idx_queue].is_assigned  := FALSE;
+	o_passiveQueue_number[idx_queue] 	:= service_req_queue[idx_queue].rs_number;
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Service_Dispatcher">
+      <LineId Id="1425" Count="85" />
+      <LineId Id="1586" Count="0" />
+      <LineId Id="1585" Count="0" />
+      <LineId Id="1511" Count="4" />
+      <LineId Id="1578" Count="0" />
+      <LineId Id="1588" Count="0" />
+      <LineId Id="1516" Count="4" />
+      <LineId Id="1587" Count="0" />
+      <LineId Id="1584" Count="0" />
+      <LineId Id="1521" Count="30" />
+      <LineId Id="1581" Count="0" />
+      <LineId Id="60" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Service_Dispatcher.Check_RSs_SameModule">
+      <LineId Id="42" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="43" Count="2" />
+    </LineIds>
+    <LineIds Name="FB_Service_Dispatcher.Clear_Queue">
+      <LineId Id="16" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_Util_Service_Sts" Id="{6d028a71-1ac6-4c26-a108-38cd0449b55b}">
+    <Declaration><![CDATA[TYPE ST_Util_Service_Sts :
+STRUCT  
+	idle		: BOOL;
+	ready 		: BOOL;
+	running		: BOOL;
+	faulted		: BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -67,6 +67,21 @@ VAR
 	
 	sModuleError														: STRING;
 	
+	evac_service_acked													: BOOL;
+	steam_service_acked													: BOOL;
+	
+	deadair_pump_req													: ST_Util_Service_Req;
+	steam_system_req													: ST_Util_Service_Req;
+	
+	fb_util_service_ctrl 												: FB_Util_Service_Control;
+	
+	evac_service_assigned												: ARRAY[1..rs_count] OF BOOL;
+	evac_service_req													: ARRAY[1..rs_count] OF BOOL;
+	
+	steam_service_assigned												: ARRAY[1..rs_count] OF BOOL;
+	steam_service_req													: ARRAY[1..rs_count] OF BOOL;
+	
+	idx_rs																: INT;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -304,6 +319,13 @@ ELSE
 	
 END_IF
 
+// ========= Uitilities Service Request =========
+
+//evac_service_acked := P_M01_RS01.fb_RS.Evac_Service_Req OR P_M01_RS02.fb_RS.Evac_Service_Req OR P_M01_RS03.fb_RS.Evac_Service_Req;
+
+A_BOP_Services();
+
+
 m01_rs1.cycle_stage														:= SEL(bRS01 AND gsCycleStage <> '', gsM01RS01CycleStage, gsCycleStage);
 m01_rs2.cycle_stage														:= SEL(bRS02 AND gsCycleStage <> '', gsM01RS02CycleStage, gsCycleStage);
 m01_rs3.cycle_stage														:= SEL(bRS03 AND gsCycleStage <> '', gsM01RS03CycleStage, gsCycleStage);
@@ -405,6 +427,31 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
+    <Action Name="A_BOP_Services" Id="{330e2b98-5aa4-4be0-9f47-04105ff52474}">
+      <Implementation>
+        <ST><![CDATA[
+FOR idx_rs := 1 TO rs_count DO 
+	evac_service_assigned[idx_rs] := fb_util_service_ctrl.RSs_ServiceAssiged(i_rs_number := idx_rs, i_assigned_rs_list := fb_util_service_ctrl.dead_air_pump.assigned_rs_number);
+	steam_service_assigned[idx_rs] := fb_util_service_ctrl.RSs_ServiceAssiged(i_rs_number := idx_rs, i_assigned_rs_list := fb_util_service_ctrl.steam_system.assigned_rs_number);
+	IF idx_rs = 1 THEN
+		fb_util_service_ctrl.i_deadair_pump_req := P_M01_RS01.fb_RS.Evac_Service_Req;
+		fb_util_service_ctrl.i_steam_system_req := P_M01_RS01.fb_RS.Steam_Service_Req;
+	ELSIF idx_rs = 2 THEN
+		fb_util_service_ctrl.i_deadair_pump_req := P_M01_RS02.fb_RS.Evac_Service_Req;
+		fb_util_service_ctrl.i_steam_system_req := P_M01_RS02.fb_RS.Steam_Service_Req;
+	ELSIF idx_rs = 3 THEN
+		fb_util_service_ctrl.i_deadair_pump_req := P_M01_RS03.fb_RS.Evac_Service_Req;
+		fb_util_service_ctrl.i_steam_system_req := P_M01_RS03.fb_RS.Steam_Service_Req;
+	END_IF
+	fb_util_service_ctrl.Services_Handler(i_rs_number_service_req := idx_rs);
+END_FOR
+
+
+fb_util_service_ctrl(); 
+
+]]></ST>
+      </Implementation>
+    </Action>
     <Action Name="A_Drain_Condensate_Product_Cooling_Lines" Id="{cd17a143-43f1-4b7b-95f2-4ecc9b135900}">
       <Implementation>
         <ST><![CDATA[// Phase 0 - P_M01.A_Drain_Condensate_Product_Cooling_Lines
@@ -458,7 +505,15 @@ END_IF
       <LineId Id="1900" Count="61" />
       <LineId Id="2072" Count="0" />
       <LineId Id="2070" Count="0" />
-      <LineId Id="1962" Count="102" />
+      <LineId Id="1962" Count="96" />
+      <LineId Id="2074" Count="0" />
+      <LineId Id="2073" Count="0" />
+      <LineId Id="2076" Count="0" />
+      <LineId Id="2075" Count="0" />
+      <LineId Id="2079" Count="0" />
+      <LineId Id="2078" Count="0" />
+      <LineId Id="2077" Count="0" />
+      <LineId Id="2059" Count="5" />
       <LineId Id="1" Count="0" />
     </LineIds>
     <LineIds Name="P_M01.A_AutoMode_RS01">
@@ -499,6 +554,25 @@ END_IF
       <LineId Id="19" Count="1" />
       <LineId Id="40" Count="8" />
       <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="P_M01.A_BOP_Services">
+      <LineId Id="14" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="28" Count="1" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="33" Count="1" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="P_M01.A_Drain_Condensate_Product_Cooling_Lines">
       <LineId Id="2" Count="2" />

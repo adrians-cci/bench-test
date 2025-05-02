@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Util_Service_Control" Id="{75ea53ad-c497-4fc3-886f-89aed4badc62}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Util_Service_Control
+
+VAR_INPUT	
+
+	i_deadair_pump_req			: BOOL;
+	i_steam_system_req			: BOOL;
+	
+END_VAR
+
+VAR_OUTPUT
+	o_bop_error_estop					: BOOL;
+END_VAR
+
+VAR
+
+	deadair_pump_req		: ST_Util_Service_Req;
+	steam_system_req		: ST_Util_Service_Req;
+
+	dead_air_pump	: FB_Util_Service(shared_rs_count := 1,	module_rs_constrain := FALSE, manual_control_only := FALSE);
+	steam_system 	: FB_Util_Service(shared_rs_count := 1, module_rs_constrain := FALSE,  manual_control_only := FALSE);
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+o_bop_error_estop := P_U01.u.utility_error <> '';
+
+
+IF o_bop_error_estop  THEN
+	  Clear_Services_Queue();	 
+END_IF
+
+
+
+]]></ST>
+    </Implementation>
+    <Method Name="Clear_Services_Queue" Id="{25412217-cdcd-46c8-8993-5d4b4ee9cf64}">
+      <Declaration><![CDATA[METHOD Clear_Services_Queue : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+dead_air_pump.Clear_RS_Queue();
+steam_system.Clear_RS_Queue();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RSs_ServiceAssiged" Id="{3527ea94-ee6b-4f47-9093-c04642fcb5e8}">
+      <Declaration><![CDATA[METHOD RSs_ServiceAssiged : BOOL
+VAR_INPUT
+	i_rs_number : INT;
+	i_assigned_rs_list : ARRAY[1..rs_count] OF UINT; 
+END_VAR
+VAR
+	idx_rs : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// TRUE if a RS is assigned to an utilities service 
+
+FOR idx_rs := 1 TO rs_count DO 
+	IF i_rs_number = TO_INT(i_assigned_rs_list[idx_rs]) THEN
+		RSs_ServiceAssiged := TRUE;
+		EXIT;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Services_Handler" Id="{0dbb218f-5206-46ec-b61a-113d5d8eac7e}">
+      <Declaration><![CDATA[METHOD Services_Handler : BOOL
+VAR_INPUT
+	i_rs_number_service_req		: UINT;
+
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Services FB calls
+	
+
+deadair_pump_req.request_cmd := i_deadair_pump_req;
+deadair_pump_req.rs_number := i_rs_number_service_req;
+				 
+dead_air_pump( i_service_req := deadair_pump_req, 
+			   i_fault_req := o_bop_error_estop, 
+			   o_activeQueue_number => m01.dispatch_active_queue_dead_pump,	
+			   o_passiveQueue_number => m01.dispatch_passive_queue_dead_pump,
+			  );
+			   
+			   
+steam_system_req.request_cmd := i_steam_system_req;
+steam_system_req.rs_number := i_rs_number_service_req;			   
+
+steam_system(i_service_req := steam_system_req, 
+			i_fault_req := o_bop_error_estop,
+			o_activeQueue_number => m01.dispatch_active_queue_steam_pump,
+			o_passiveQueue_number => m01.dispatch_passive_queue_steam_pump,
+			); 	
+
+
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Util_Service_Control">
+      <LineId Id="2416" Count="0" />
+      <LineId Id="2418" Count="0" />
+      <LineId Id="2417" Count="0" />
+      <LineId Id="2343" Count="0" />
+      <LineId Id="2257" Count="1" />
+      <LineId Id="1770" Count="0" />
+      <LineId Id="2247" Count="0" />
+      <LineId Id="1837" Count="1" />
+      <LineId Id="142" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service_Control.Clear_Services_Queue">
+      <LineId Id="6" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service_Control.RSs_ServiceAssiged">
+      <LineId Id="42" Count="6" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service_Control.Services_Handler">
+      <LineId Id="47" Count="0" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="119" Count="2" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="161" Count="1" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="163" Count="0" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="127" Count="2" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="165" Count="0" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

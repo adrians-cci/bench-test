@@ -28,6 +28,9 @@
     <Compile Include="Data_Types\E_Status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Data_Types\E_Util_Service_Req.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Data_Types\E_WS_State.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -38,6 +41,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Data_Types\Reactor_Set.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data_Types\ST_Service_Assigned_Sts.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data_Types\ST_Util_Service_Req.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data_Types\ST_Util_Service_Sts.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Data_Types\Utility.TcDUT">
@@ -170,7 +182,16 @@
     <Compile Include="POUs\Function_Blocks\FB_PI_Control.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Function_Blocks\FB_Service_Dispatcher.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Function_Blocks\FB_Temperature.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Function_Blocks\FB_Util_Service_Control.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Function_Blocks\FB_Util_Service.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Function_Blocks\FB_Vacuum_Pump.TcPOU">

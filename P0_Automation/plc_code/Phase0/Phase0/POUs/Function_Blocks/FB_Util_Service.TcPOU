@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Util_Service" Id="{3b72b3e2-241a-42aa-99d1-cb01b638c9fd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Util_Service
+
+VAR_INPUT
+	i_service_req			: ST_Util_Service_Req;
+	i_fault_req				: BOOL;   // fault request from additional services
+END_VAR
+
+VAR_OUTPUT
+	o_service_sts 			: ST_Util_Service_Sts;
+	o_bService_sts			: BYTE;
+	o_activeQueue_number	:  ARRAY[1..rs_count] OF UINT;
+	o_passiveQueue_number	:  ARRAY[1..rs_count] OF UINT;
+END_VAR
+
+VAR
+	shared_rs_count  		: INT;     // max number of rs to be assigned to the util service
+	module_rs_constrain		: BOOL;		// same module assignment constrain
+	manual_control_only		: BOOL;		// manual control only 
+	
+	service_req 			: BOOL;
+	service_req_dispatcher	: BOOL;
+		
+	fb_dispatcher 			: FB_Service_Dispatcher;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+// Dispatcher call for adding the RSs to the services queue
+  
+IF  i_fault_req THEN 
+	
+	Clear_RS_Queue();
+	
+ELSE
+	
+// manage the rs assignment queue based on request form reactor set controller, max number of RSs shared by the service and the number of RSs whithin the same module that can sahre the same service 
+
+	fb_dispatcher( i_service_req := i_service_req,
+				   i_shared_rs := shared_rs_count,
+				   i_rs_module_constrain := module_rs_constrain, 
+				   o_service_req => service_req_dispatcher,
+				   o_assigned_rs_number=>o_activeQueue_number, 
+				   o_passiveQueue_number => o_passiveQueue_number);
+	   
+	
+END_IF
+
+
+
+
+
+
+
+
+]]></ST>
+    </Implementation>
+    <Property Name="assigned_rs_number" Id="{cb48a67d-34a0-4a02-88d3-de619358623f}">
+      <Declaration><![CDATA[PROPERTY assigned_rs_number : ARRAY[1..rs_count] OF UINT]]></Declaration>
+      <Get Name="Get" Id="{07de3acf-4a17-4f28-a132-a7aae0f06387}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[
+assigned_rs_number := fb_dispatcher.o_assigned_rs_number;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Clear_RS_Queue" Id="{112522e3-7923-4db0-b7d7-8ed3813f38ba}">
+      <Declaration><![CDATA[METHOD Clear_RS_Queue : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fb_dispatcher.Clear_Queue();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{ba60e78f-aa3f-4b45-b717-2f01a04f3ce6}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains 		: BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode 		: BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	shared_rs_count  	: UINT;
+	module_rs_constrain	: BOOL;
+	manual_control_only : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.shared_rs_count := shared_rs_count;
+THIS^.module_rs_constrain := module_rs_constrain;
+THIS^.manual_control_only := manual_control_only;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Util_Service">
+      <LineId Id="933" Count="0" />
+      <LineId Id="711" Count="0" />
+      <LineId Id="938" Count="0" />
+      <LineId Id="712" Count="0" />
+      <LineId Id="934" Count="0" />
+      <LineId Id="713" Count="0" />
+      <LineId Id="935" Count="0" />
+      <LineId Id="716" Count="0" />
+      <LineId Id="937" Count="0" />
+      <LineId Id="722" Count="0" />
+      <LineId Id="936" Count="0" />
+      <LineId Id="821" Count="4" />
+      <LineId Id="820" Count="0" />
+      <LineId Id="826" Count="0" />
+      <LineId Id="728" Count="1" />
+      <LineId Id="733" Count="0" />
+      <LineId Id="736" Count="6" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service.assigned_rs_number.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service.Clear_RS_Queue">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Util_Service.FB_init">
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="19" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

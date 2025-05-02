@@ -14,6 +14,9 @@ VAR_INPUT
 	Cycle_Mode															: STRING;
 	Fan_Setpoint														: REAL;
 	RS_number															: INT;
+//	Evac_Service_Acked													: BOOL;
+	Evac_Service_Assigned												: BOOL;
+	Steam_Service_Assigned												: BOOL;
 END_VAR
 VAR_OUTPUT
 	Cycle_Stage															: STRING;
@@ -34,7 +37,10 @@ VAR_OUTPUT
 	Cancel_All_Reactor_Sets												: BOOL;
 	Process_Complete													: BOOL;
 	Done																: BOOL;
+	Evac_Service_Req														: BOOL;
+	Steam_Service_Req													: BOOL;
 END_VAR
+
 VAR
 	eState																: E_MachineState;
 	i																	: INT;
@@ -463,6 +469,8 @@ IF bEndProcess THEN
 	bStop																:= TRUE;
 	Stop_M01_RS															:= TRUE;											// Stop Reactor in P_M01.A_AutoMode
 	iStep																:= SEL(bMultiProcess, 80, 90);
+	Evac_Service_Req													:= FALSE;
+	Steam_Service_Req													:= FALSE;
 END_IF
 ]]></ST>
       </Implementation>
@@ -1305,7 +1313,10 @@ CASE i4Step OF
 	1:
 		Cycle_Stage														:= 'repressurization.initialize';					// 2.a.i and 4.i
 		rTime1														:= _VALVE_TIME;
-		i4Step														:= i4Step + 1;
+		Steam_Service_Req											:= TRUE;
+		IF Steam_Service_Assigned THEN 
+			i4Step														:= i4Step + 1;
+		END_IF
 			
 	2:
 		bTimer1															:= TRUE;
@@ -1351,6 +1362,9 @@ CASE i4Step OF
 		
 	99:
 		bRepressurizationDone											:= TRUE;
+//		IF NOT bMultiProcess THEN
+		Steam_Service_Req												:= FALSE;
+//		END_IF
 		Current_Step													:= 0;
 		i4Step															:= 0;
 	
@@ -2414,7 +2428,10 @@ CASE i6Step OF
 			sMessage													:= gsSystemCannotRun;
 		ELSE
 			rTime1														:= 10 * _seconds;
-			i6Step														:= i6Step + 1;
+			Evac_Service_Req := TRUE;
+			IF Evac_Service_Assigned THEN 
+				i6Step														:= i6Step + 1;
+			END_IF
 		END_IF
 		
 	2:
@@ -2458,6 +2475,7 @@ CASE i6Step OF
 		
 	99:
 		bEvacuationDone													:= TRUE;
+		Evac_Service_Req 												:= FALSE;
 		Current_Step													:= 0;
 		i6Step															:= 0;
 	
@@ -3115,7 +3133,10 @@ CASE i7Step OF
 		rTime1															:= 5 * _SECONDS;
 		rTime2															:= m01.SP_steam_pressurization_and_purge_duration * _MINUTES;
 		rTime3															:= rTime2 + (m01.SP_vacuum_cooling_duration * _MINUTES);
-		i7Step															:= i7Step + 1;
+		Steam_Service_Req												:= TRUE;
+		IF Steam_Service_Assigned THEN 
+			i7Step															:= i7Step + 1;
+		END_IF
 		
 			
 	2:
@@ -3166,6 +3187,9 @@ CASE i7Step OF
 			bStopAfterDesorption										:= FALSE;
 		END_IF
 		bDesorptionDone													:= TRUE;
+		IF NOT bMultiProcess THEN
+			Steam_Service_Req											:= FALSE;
+		END_IF
 		Current_Step													:= 0;
 		i7Step															:= 0;
 	
@@ -3231,7 +3255,9 @@ END_IF
       <LineId Id="13091" Count="0" />
     </LineIds>
     <LineIds Name="FB_Reactor_Set.A_Check_Process">
-      <LineId Id="442" Count="79" />
+      <LineId Id="442" Count="78" />
+      <LineId Id="523" Count="1" />
+      <LineId Id="521" Count="0" />
       <LineId Id="1" Count="0" />
     </LineIds>
     <LineIds Name="FB_Reactor_Set.A_Clear_Variables">
@@ -3572,14 +3598,19 @@ END_IF
     <LineIds Name="FB_Reactor_Set.A4_Repressurization_Test_Auto">
       <LineId Id="1272" Count="8" />
       <LineId Id="1437" Count="0" />
+      <LineId Id="1542" Count="1" />
       <LineId Id="1291" Count="0" />
+      <LineId Id="1544" Count="0" />
       <LineId Id="1293" Count="1" />
       <LineId Id="1440" Count="0" />
       <LineId Id="1535" Count="6" />
       <LineId Id="1534" Count="0" />
       <LineId Id="1530" Count="0" />
       <LineId Id="1369" Count="2" />
-      <LineId Id="1375" Count="53" />
+      <LineId Id="1375" Count="29" />
+      <LineId Id="1546" Count="1" />
+      <LineId Id="1545" Count="0" />
+      <LineId Id="1405" Count="23" />
       <LineId Id="136" Count="0" />
     </LineIds>
     <LineIds Name="FB_Reactor_Set.A5_Adsorption">
@@ -3692,7 +3723,12 @@ END_IF
     <LineIds Name="FB_Reactor_Set.A6_Evacuation_Test_Auto">
       <LineId Id="1405" Count="13" />
       <LineId Id="1422" Count="0" />
-      <LineId Id="1424" Count="6" />
+      <LineId Id="1424" Count="0" />
+      <LineId Id="1654" Count="0" />
+      <LineId Id="1650" Count="0" />
+      <LineId Id="1425" Count="0" />
+      <LineId Id="1652" Count="0" />
+      <LineId Id="1426" Count="4" />
       <LineId Id="1649" Count="0" />
       <LineId Id="1431" Count="0" />
       <LineId Id="1434" Count="5" />
@@ -3700,6 +3736,7 @@ END_IF
       <LineId Id="1578" Count="11" />
       <LineId Id="1594" Count="13" />
       <LineId Id="1613" Count="0" />
+      <LineId Id="1653" Count="0" />
       <LineId Id="1615" Count="26" />
       <LineId Id="128" Count="0" />
     </LineIds>
@@ -3763,7 +3800,9 @@ END_IF
     <LineIds Name="FB_Reactor_Set.A7_Desorption_Test_Auto">
       <LineId Id="2536" Count="8" />
       <LineId Id="2549" Count="2" />
+      <LineId Id="3050" Count="1" />
       <LineId Id="2555" Count="0" />
+      <LineId Id="3052" Count="0" />
       <LineId Id="2557" Count="2" />
       <LineId Id="2981" Count="0" />
       <LineId Id="2581" Count="0" />
@@ -3775,7 +3814,9 @@ END_IF
       <LineId Id="3034" Count="0" />
       <LineId Id="3018" Count="0" />
       <LineId Id="2895" Count="14" />
-      <LineId Id="2911" Count="67" />
+      <LineId Id="2911" Count="19" />
+      <LineId Id="3053" Count="2" />
+      <LineId Id="2931" Count="47" />
       <LineId Id="1" Count="0" />
     </LineIds>
   </POU>

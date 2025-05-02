@@ -46,6 +46,17 @@ VAR_GLOBAL
 	{attribute 'OPC.UA.DA' := '1'}  				                
 	{attribute 'OPC.UA.DA.Access' := '1'}  				                
 	tb_Auto_Mode_On														: BOOL;			// Machine is currently in auto mode
+	
+	
+	
+	{attribute 'OPC.UA.DA' := '1'} 	
+	dispatch_active_queue_steam_pump 									: ARRAY[1..rs_count] OF UINT;
+	{attribute 'OPC.UA.DA' := '1'} 	
+	dispatch_passive_queue_steam_pump 									: ARRAY[1..rs_count] OF UINT;
+		{attribute 'OPC.UA.DA' := '1'} 	
+	dispatch_active_queue_dead_pump 									: ARRAY[1..rs_count] OF UINT; 
+	{attribute 'OPC.UA.DA' := '1'} 	
+	dispatch_passive_queue_dead_pump 									: ARRAY[1..rs_count] OF UINT; 
 
 	
     /// <summary>FT-02</summary>
