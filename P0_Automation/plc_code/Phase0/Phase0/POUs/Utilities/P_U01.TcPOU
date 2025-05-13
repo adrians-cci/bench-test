@@ -732,7 +732,7 @@ IF tonBoilerCheck.Q THEN
 END_IF
 
 // These Utility errors prevent any new automated cycles from running
-u.utility_error															:= SEL(NOT u.boiler_ready AND bPaul, '', gsBoilerError);
+u.utility_error															:= SEL(NOT u.boiler_ready, '', gsBoilerError);
 u.utility_error															:= SEL(bDeadAirLinePresError, u.utility_error, gsDeadAirLinePresSensorError);		
 u.utility_error															:= SEL(bPreCondenserLinePresError, u.utility_error, gsPreCondenserLinePresSensorError);
 u.utility_error															:= SEL(bProductVacuumPresError, u.utility_error, gsProductVacuumPresSensorError);

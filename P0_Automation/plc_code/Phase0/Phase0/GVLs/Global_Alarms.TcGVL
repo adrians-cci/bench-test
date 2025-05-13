@@ -132,6 +132,8 @@ VAR_GLOBAL
 	gsWeatherWindDirectionSensorError									: STRING	:= 'Weather wind direction sensor error (WDT-01)';
 	gsWeatherTempSensorError											: STRING	:= 'Weather temperature sensor error (TT-10)';
 	gsWeatherNoiseLevelSensorError										: STRING	:= 'Weather noise level sensor error (NT-01)';
+	gsCoolingLinePreCondeserValveError									: STRING	:= 'Cooling Line Pre Condenser Valve Error U-XV01';
+	gsPurgeProductPreCondenserValverError								: STRING	:= 'Purge Product PreCondenser Valve Error U-XV02';
 	
 	gsMessageTBD			: STRING	:= 'TBD';
 	gsAdsorptionCo2LowCheck												: STRING	:= 'Check inlet co2 sensor';
