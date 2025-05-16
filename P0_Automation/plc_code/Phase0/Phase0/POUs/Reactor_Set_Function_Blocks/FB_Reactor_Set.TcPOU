@@ -117,6 +117,10 @@ VAR
 	bPass4																: BOOL;
 	bPass5																: BOOL;
 	bPass6																: BOOL;
+	bPass7 																: BOOL;
+	bPass8																: BOOL;
+	bPass9 																: BOOL;
+	bPass10																: BOOL;
 	bLowPressure														: BOOL;
 	bStop																: BOOL;
 	bTimer1																: BOOL;
@@ -388,6 +392,22 @@ tonPause(IN:= eState = ePause, PT:= _TIMEOUT_RESET);
 tonProcess(IN:= bProcessStarted, PT:= T#10H);
 ]]></ST>
     </Implementation>
+    <Action Name="A_BOP_Estop" Id="{0bce8c85-c813-43df-94bf-dd0bad356e79}">
+      <Implementation>
+        <ST><![CDATA[// close and stop all BOP 
+
+U.dead_air_vacuum_pump							:= FALSE;
+U.product_blower								:= FALSE;
+U.product_vacuum_backfeed_valve					:= _CLOSED;
+U.product_vacuum_bypass_valve					:= FALSE;
+U.product_vacuum_outlet_isolation_valve			:= FALSE;
+U.product_vacuum_pump_isolation_valve			:= FALSE;
+U.product_vacuum_pump_radiator					:= FALSE;
+U.product_vacuum_pump_vfd						:= 0;
+U.steam_bypass_valve							:= FALSE;
+]]></ST>
+      </Implementation>
+    </Action>
     <Action Name="A_Check_Process" Id="{6ec7fe9a-742c-414a-a60e-a55eaa5d8982}">
       <Implementation>
         <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A_ClearProcess
@@ -420,6 +440,7 @@ ELSE
 	ELSIF sUtilityError <> '' THEN																							//@ Times used - 3
 		sError															:= sUtilityError;
 		Utility_Error													:= TRUE;
+		A_BOP_Estop();
 		iStep															:= 98;
 	ELSIF sReactorError <> '' THEN																							//@ Times used - 43
 		sError															:= sReactorError;
@@ -464,6 +485,7 @@ ELSE
 END_IF
 
 IF bEndProcess THEN
+	
 	bTimer1								 								:= FALSE;
 	bTimer2								 								:= FALSE;
 	bStop																:= TRUE;
@@ -471,6 +493,7 @@ IF bEndProcess THEN
 	iStep																:= SEL(bMultiProcess, 80, 90);
 	Evac_Service_Req													:= FALSE;
 	Steam_Service_Req													:= FALSE;
+	A_RS_Estop();
 END_IF
 ]]></ST>
       </Implementation>
@@ -555,6 +578,23 @@ IF gbDrainageOn THEN																										// 4.1.1
 	R_S.condensate_pump													:= bPumpOn AND NOT bDrainError AND NOT bPumpTimeOut;
 	
 END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="A_RS_Estop" Id="{cf93d1cd-7907-498e-85d2-f3966c7bb4c5}">
+      <Implementation>
+        <ST><![CDATA[
+// close all valves + stop pumps
+
+R_S.close_repres_valves				:= TRUE;
+R_S.cooling_valve					:= FALSE;
+R_S.dead_air_valve					:= FALSE;
+R_S.fan_vfd_percent					:= 0;
+R_S.purge_valve						:= FALSE;
+R_S.steam_control_valve_mode		:= eManual;
+R_S.steam_control_valve				:= _CLOSED;
+R_S.steam_header_valve				:= FALSE;
+
+]]></ST>
       </Implementation>
     </Action>
     <Action Name="A_SafeShutdown1" Id="{58f17301-1562-48ea-8e64-b48970d6c6b8}">
@@ -2951,7 +2991,7 @@ CASE i7Step OF
 	1:
 		Cycle_Stage														:= 'desorption.initialize';							
 		rTime2															:= m01.SP_steam_pressurization_and_purge_duration * _MINUTES;
-		rTime3															:= rTime2 + (m01.SP_vacuum_cooling_duration * _MINUTES);
+		rTime3															:= m01.SP_vacuum_cooling_duration * _MINUTES;
 		IF U.utility_error <> '' THEN																						
 			sUtilityError												:= U.utility_error;
 			sMessage													:= gsSystemCannotRun;
@@ -2965,6 +3005,7 @@ CASE i7Step OF
 				U.purge_product_pre_condenser_valve						:= TRUE;	// XV-02
 				U.product_vacuum_pump_isolation_valve 					:= TRUE;	// XV-03
 				U.product_vacuum_outlet_isolation_valve 				:= TRUE;	// XV-05
+				u.product_vacuum_backfeed_valve_mode					:= eManual;
 				U.product_vacuum_backfeed_valve							:= 50;		// PCV-01		
 				rTime1													:= _VALVE_TIME;
 				i7Step													:= i7Step + 1;
@@ -3009,12 +3050,15 @@ CASE i7Step OF
 		
 	4: 
 		Cycle_Stage														:= 'desorption.start_steam_pressurization';	
+		bTimer1 														:= TRUE;
 		// Verify steam header is at proper temperature and pressure  ???
 		bPass1															:= U.boiler_ready;
 		bPass2															:= U.boiler_outlet_temp > 100;						//  double check the temp SP !!!!
 		bPass3															:= U.cooling_line_pre_condenser_valve_clear;
 		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer1														:= FALSE;
 			U.steam_header_volume_total_enable							:= TRUE;
+			R_S.steam_control_valve_mode								:= eManual;
 			R_S.steam_control_valve										:= _OPEN;				// PCV-01 -> 100%
 			R_S.steam_header_valve										:= TRUE;				// XV-07
 			i7Step														:= i7Step + 1;
@@ -3024,45 +3068,118 @@ CASE i7Step OF
 			sUtilityError												:= SEL(bPass1, 'Steam Header Not at Temp ', sUtilityError);
 			sUtilityError												:= SEL(bPass1, gsCoolingLinePreCondeserValveError, sUtilityError);
 		END_IF
-	
+		
+	5: 
+		Cycle_Stage														:= 'desorption.steam_pressurization';
+		bTimer1 														:= TRUE;
+		bTimer2															:= TRUE;													// start timer 2 here ? 
+		bPass1															:= 	R_S.steam_header_valve_clear;
+		bPass2															:= NOT R_S.steam_control_valve_closed;
+		IF bPass1 AND bPass2 THEN
+			bTimer1														:= FALSE;			
+			i7Step														:= i7Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= SEL(bPass1,gsSteamHeaderValveError, '');	
+			sReactorError												:= SEL(bPass1,gsSteamControlValveError, sReactorError);	
+		END_IF
 		
 		
-	5:
-		Cycle_Stage														:= 'desorption.steam_pressurization';	
+	6:
+		Cycle_Stage														:= 'desorption.steam_pressurization';
+		
 		IF R_S.average_reactor_pressure >= m01.SP_maximum_target_steam_pressure THEN
 			R_S.purge_valve 											:= TRUE;
 			U.product_vacuum_pump_vfd									:= u01.SP_product_vacuum_running_vfd_percent;
+			u.product_vacuum_backfeed_valve_mode						:= eManual;
 			U.product_vacuum_backfeed_valve								:= u01.SP_product_vacuum_backfeed_valve;
+			rTime1														:= _VALVE_TIME;
 			i7Step														:= i7Step + 1;
+		ELSIF tonTimer2.Q OR R_S.sorbent_high_temp > u01.SP_maximum_reasonable_sorbent_TC_reading THEN 									
+			bTimer2 													:= FALSE;
+			sReactorError												:= SEL(bPass1,gsSteamFailedToPressurizeReactorError, '');
+			sReactorError												:= SEL(bPass1,'Sorbent Temperaure Too High ', '');	
 		END_IF
 		
-	6:
+	7: 
+	
+		Cycle_Stage														:= 'desorption.steam_purge';
+		bTimer1 														:= TRUE;
+		bPass1															:= 	R_S.purge_valve_clear;
+		bPass2															:= 	U.product_vacuum_pump_vfd_output> 0;
+		bPass3															:=  NOT U.product_vacuum_backfeed_valve_closed;
+		
+		IF bPass1 AND bPass2 AND bPass3 THEN
+			bTimer1														:= FALSE;			
+			i7Step														:= i7Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= SEL(bPass1,gsPurgeValveError, '');	
+			sUtilityError												:= SEL(bPass1,gsProductVacuumPumpError,'');	
+			sUtilityError												:= SEL(bPass1,gsProductVacuumBackfeedValveError,sUtilityError);	
+		END_IF
+		
+	8:
 		Cycle_Stage														:= 'desorption.steam_purge';	
-		bTimer2															:= TRUE;
+//		bTimer2															:= TRUE;
 		IF (U01.SP_mass_flow_totalizer <> 0 AND U01.SP_mass_flow_totalizer >= u01.steam_header_volume_total) OR tonTimer2.Q THEN
 			bTimer2														:= FALSE;
+			R_S.steam_header_valve											:= FALSE;        // RS - XV01
+			R_S.purge_valve													:= FALSE;		 // RS - XV05
+			R_S.steam_control_valve_mode									:= eManual;
+			R_S.steam_control_valve											:= _CLOSED;		// RS - PCV01
+			U.product_vacuum_backfeed_valve_mode							:= eManual;
+			U.product_vacuum_backfeed_valve									:= _CLOSED;		// U - PCV01
+			U.cooling_line_pre_condenser_valve								:= FALSE;		// U - XV01
+			U.purge_product_pre_condenser_valve								:= FALSE;		// U - XV02
+			U.product_vacuum_pump_vfd										:= 100;
+			U.product_blower_vfd											:= 100;
+			R_S.cooling_valve												:= TRUE;
+			rTime1														:= _VALVE_TIME;
 			i7Step														:= i7Step + 1;
 		END_IF
 	
-	7:
-		R_S.steam_header_valve											:= FALSE;
-		R_S.purge_valve													:= FALSE;
-		R_S.steam_control_valve											:= _CLOSED;
-		U.product_vacuum_backfeed_valve									:= _CLOSED;
-		U.cooling_line_pre_condenser_valve								:= FALSE;
-		U.purge_product_pre_condenser_valve								:= FALSE;
-		U.product_vacuum_pump_vfd										:= 100;
-		U.product_blower_vfd											:= 100;
-		R_S.cooling_valve												:= TRUE;
-		i7Step															:= i7Step + 1;
+	9:
+		Cycle_Stage														:= 'desorption.vacuum_cooling_start';	
+		bTimer1 														:= TRUE;
+		bTimer3															:= TRUE;   
+		bPass1 															:= R_S.steam_header_valve_clear;
+		bPass2 															:= R_S.purge_valve_clear;
+		bPass3															:= NOT R_S.steam_control_valve_closed;
+		bPass4 															:= NOT U.product_vacuum_backfeed_valve_closed;
+		bPass5															:= U.cooling_line_pre_condenser_valve_clear;
+		bPass6															:= U.purge_product_pre_condenser_valve_clear;
+		bPass7															:= U.product_vacuum_pump_vfd_output > 0;
+		bPass8															:= U.product_blower_vfd_output>0;
+		bPass9															:= R_S.cooling_valve_clear;
+		IF bPass1 AND bPass2 AND bPass3 AND bPass4 AND bPass5 AND bPass6 AND bPass7 AND bPass8 AND bPass9 THEN
+			bTimer1														:= FALSE;			
+			i7Step														:= i7Step + 1;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= SEL(bPass1,gsSteamHeaderValveError, '');	
+			sReactorError												:= SEL(bPass2,gsPurgeValveError, sReactorError);	
+			sReactorError												:= SEL(bPass3,gsSteamControlValveError, sReactorError);
+			sUtilityError												:= SEL(bPass4,gsProductVacuumBackfeedValveError,'');	
+			sUtilityError												:= SEL(bPass5,gsProductVacuumBackfeedValveError,sUtilityError);	
+			sUtilityError												:= SEL(bPass6,gsCoolingLinePreCondeserValveError,sUtilityError);	
+			sUtilityError												:= SEL(bPass7,gsPurgeProductPreCondenserValverError,sUtilityError);
+			sUtilityError												:= SEL(bPass8,gsProductVacuumPumpError,sUtilityError);
+			sUtilityError												:= SEL(bPass9,'Product Blower Error',sUtilityError);
+			sReactorError												:= SEL(bPass3,gsCoolingValveError, sReactorError);
+		END_IF
 		
-	8:
-		IF R_S.sorbent_high_temp <= 58 THEN
+		
+	10:
+		IF R_S.sorbent_high_temp <= 58 OR tonTimer3.Q THEN
 			R_S.cooling_valve											:= FALSE;
 			U.product_vacuum_backfeed_valve								:= 50;
 			U.product_vacuum_pump_vfd									:= 50;
 			u.product_blower_vfd										:= 0;
 			i7Step														:= 99;
+		END_IF
+		IF U.post_condenser_line_temp > 70 THEN
+			sUtilityError												:= SEL(bPass4,gsPostCondenserLineHighTempError,'');
 		END_IF
 		
 	80:																														// Manual process closing
@@ -3291,9 +3408,20 @@ END_IF
       <LineId Id="18037" Count="18" />
       <LineId Id="13091" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_BOP_Estop">
+      <LineId Id="1" Count="0" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="4" Count="8" />
+    </LineIds>
     <LineIds Name="FB_Reactor_Set.A_Check_Process">
-      <LineId Id="442" Count="78" />
+      <LineId Id="442" Count="29" />
+      <LineId Id="528" Count="0" />
+      <LineId Id="472" Count="43" />
+      <LineId Id="526" Count="0" />
+      <LineId Id="516" Count="4" />
       <LineId Id="523" Count="1" />
+      <LineId Id="527" Count="0" />
       <LineId Id="521" Count="0" />
       <LineId Id="1" Count="0" />
     </LineIds>
@@ -3316,6 +3444,17 @@ END_IF
       <LineId Id="32" Count="0" />
       <LineId Id="40" Count="0" />
       <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Reactor_Set.A_RS_Estop">
+      <LineId Id="2" Count="0" />
+      <LineId Id="1" Count="0" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="6" Count="1" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Reactor_Set.A_SafeShutdown1">
       <LineId Id="2" Count="2" />
@@ -3868,6 +4007,7 @@ END_IF
       <LineId Id="2552" Count="3" />
       <LineId Id="3045" Count="1" />
       <LineId Id="3056" Count="3" />
+      <LineId Id="3171" Count="0" />
       <LineId Id="3055" Count="0" />
       <LineId Id="3054" Count="0" />
       <LineId Id="2556" Count="0" />
@@ -3903,46 +4043,85 @@ END_IF
       <LineId Id="3096" Count="1" />
       <LineId Id="2991" Count="0" />
       <LineId Id="3084" Count="2" />
+      <LineId Id="3125" Count="0" />
       <LineId Id="3107" Count="0" />
       <LineId Id="3102" Count="2" />
       <LineId Id="3087" Count="0" />
-      <LineId Id="3090" Count="2" />
+      <LineId Id="3126" Count="0" />
+      <LineId Id="3090" Count="0" />
+      <LineId Id="3170" Count="0" />
+      <LineId Id="3091" Count="1" />
       <LineId Id="3088" Count="0" />
       <LineId Id="3099" Count="1" />
       <LineId Id="3105" Count="0" />
       <LineId Id="3108" Count="0" />
       <LineId Id="3101" Count="0" />
       <LineId Id="3089" Count="0" />
-      <LineId Id="3110" Count="1" />
+      <LineId Id="3120" Count="0" />
+      <LineId Id="3122" Count="0" />
+      <LineId Id="3124" Count="0" />
+      <LineId Id="3127" Count="0" />
+      <LineId Id="3138" Count="0" />
+      <LineId Id="3123" Count="0" />
+      <LineId Id="3121" Count="0" />
+      <LineId Id="3110" Count="0" />
+      <LineId Id="3130" Count="0" />
+      <LineId Id="3132" Count="0" />
+      <LineId Id="3131" Count="0" />
+      <LineId Id="3128" Count="0" />
+      <LineId Id="3135" Count="1" />
+      <LineId Id="3129" Count="0" />
+      <LineId Id="3111" Count="0" />
       <LineId Id="2992" Count="0" />
       <LineId Id="2893" Count="0" />
       <LineId Id="3109" Count="0" />
-      <LineId Id="2998" Count="1" />
+      <LineId Id="3137" Count="0" />
+      <LineId Id="3115" Count="0" />
+      <LineId Id="2999" Count="0" />
       <LineId Id="3001" Count="0" />
+      <LineId Id="3172" Count="0" />
       <LineId Id="3006" Count="0" />
+      <LineId Id="3143" Count="0" />
       <LineId Id="3002" Count="0" />
+      <LineId Id="3140" Count="0" />
+      <LineId Id="3145" Count="0" />
+      <LineId Id="3142" Count="0" />
+      <LineId Id="3144" Count="0" />
       <LineId Id="3000" Count="0" />
+      <LineId Id="3146" Count="4" />
+      <LineId Id="3153" Count="1" />
+      <LineId Id="3163" Count="0" />
+      <LineId Id="3162" Count="0" />
+      <LineId Id="3155" Count="6" />
+      <LineId Id="3165" Count="0" />
+      <LineId Id="3152" Count="0" />
       <LineId Id="2894" Count="0" />
       <LineId Id="3003" Count="0" />
       <LineId Id="3112" Count="0" />
       <LineId Id="3011" Count="0" />
       <LineId Id="3004" Count="0" />
       <LineId Id="3010" Count="0" />
+      <LineId Id="3174" Count="4" />
+      <LineId Id="3167" Count="0" />
+      <LineId Id="3179" Count="5" />
       <LineId Id="3014" Count="0" />
       <LineId Id="3008" Count="0" />
       <LineId Id="3005" Count="0" />
       <LineId Id="3015" Count="0" />
-      <LineId Id="3021" Count="0" />
-      <LineId Id="3023" Count="0" />
-      <LineId Id="3022" Count="0" />
-      <LineId Id="3024" Count="3" />
-      <LineId Id="3017" Count="0" />
-      <LineId Id="3029" Count="0" />
-      <LineId Id="3028" Count="0" />
+      <LineId Id="3166" Count="0" />
+      <LineId Id="3168" Count="0" />
+      <LineId Id="3216" Count="0" />
+      <LineId Id="3185" Count="14" />
+      <LineId Id="3202" Count="1" />
+      <LineId Id="3200" Count="1" />
+      <LineId Id="3204" Count="4" />
+      <LineId Id="3024" Count="0" />
+      <LineId Id="3209" Count="0" />
       <LineId Id="3030" Count="2" />
       <LineId Id="3035" Count="0" />
       <LineId Id="3037" Count="3" />
       <LineId Id="3034" Count="0" />
+      <LineId Id="3213" Count="2" />
       <LineId Id="3018" Count="0" />
       <LineId Id="2895" Count="35" />
       <LineId Id="3049" Count="1" />
