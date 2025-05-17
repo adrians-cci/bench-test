@@ -60,6 +60,7 @@ STRUCT
 	
 	condensate_pump														: BOOL;
 	fan_vfd_percent														: REAL;
+	fan_vfd_running														: BOOL;
     
     /// <summary>RS_PCV-01</summary>
 	steam_control_valve													: REAL;

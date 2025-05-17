@@ -1688,7 +1688,7 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="A5_Adsorption_Test" Id="{b320dbf0-895a-4407-bdf8-77442686e4f4}">
+    <Action Name="A5_Adsorption_Auto" Id="{b320dbf0-895a-4407-bdf8-77442686e4f4}">
       <Implementation>
         <ST><![CDATA[// Phase 0 - FB_Reactor_Set.A5_Adsorption_Test
 // Rev 1.0 - June 3, 2024
@@ -1698,9 +1698,9 @@ CASE i5Step OF
 	0:	;
 		
 	1:
-		Cycle_Stage														:= 'adsorption.initialize';							// 2.d
+		Cycle_Stage														:= 'adsorption.initialize';							
 		//iRestartStep													:= 1;
-		rTime2															:= m01.SP_adsorption_duration * _MINUTES;			// 12
+		rTime2															:= m01.SP_adsorption_duration * _MINUTES;			
 		IF R_S.reactor_pressure_error <> '' THEN
 			sReactorError												:= R_S.reactor_pressure_error;
 			sMessage													:= gsProcessCannotRun;
@@ -1710,40 +1710,34 @@ CASE i5Step OF
 			i5Step														:= i5Step + 1;
 		END_IF
 			
-	2:
-		IF NOT bMultiProcess THEN
-			IF R_S.average_reactor_pressure_within_ambient THEN																// 2.c
-				sReactorError											:= gsReactorsAtAmbientPressure;
-				sMessage												:= gsProcessComplete;
-			ELSE
-				i5Step													:= i5Step + 1;
-			END_IF
-		ELSE
-			i5Step														:= i5Step + 1;
-		END_IF
 
-	3:
+	2:
+		Cycle_Stage														:= 'adsorption.initialize.closeallvalves';	
 		bTimer1															:= TRUE;
-		IF R_S.all_clamps_retracted THEN																					// 2.a
+		IF R_S.all_clamps_retracted THEN																					
 			bTimer1														:= FALSE;
+			R_S.close_all_valves										:= TRUE;											
+			U.drainage_on												:= TRUE;											
+			R_S.fan_vfd_percent											:= 0;	
+			R_S.steam_control_valve										:= 0;
+			R_S.open_repres_valves										:= TRUE;											
+			rTime1														:= _VALVE_TIME;
 			i5Step														:= i5Step + 1;
 		ELSE
+			bTimer1														:= FALSE;
 			sReactorError												:= gsDoorClampsExtendedError;
 			sMessage													:= gsProcessCannotRun;
 		END_IF
 		
-	4:
-		R_S.close_all_valves											:= TRUE;											// 5.b
-		U.drainage_on													:= TRUE;											// 5.d
-		R_S.fan_vfd_percent												:= 0;												// 5.e
-		rTime1															:= _VALVE_TIME;
-		i5Step															:= i5Step + 1;
-		
-	5:
+	
+	3:
+		Cycle_Stage														:= 'adsorption.initialize.repressvalves';	
 		bTimer1															:= TRUE;
-		IF R_S.valves_clear THEN
+		IF R_S.valves_clear AND R_S.steam_control_valve_closed THEN
 			bTimer1														:= FALSE;
-			i5Step														:= i5Step + 2;
+			R_S.open_repres_valves										:= TRUE;
+			rTime1														:= m01.SP_repressurization_duration * _MINUTES;
+			i5Step														:= i5Step + 1;
 		ELSIF tonTimer1.Q THEN
 			bTimer1														:= FALSE;
 			sReactorError												:= SEL(R_S.steam_control_valve_closed, gsSteamControlValveError, '');
@@ -1754,86 +1748,77 @@ CASE i5Step OF
 			sMessage													:= gsReactorSetCannotRun;
 		END_IF
 
-	6:
-		R_S.open_repres_valves											:= TRUE;											// 6
-		rTime1															:= _VALVE_TIME;
-		i5Step															:= i5Step + 1;
-
-	7:
+	4: 
+		Cycle_Stage														:= 'adsorption.initialize.repressurizing';	
 		bTimer1															:= TRUE;
-		IF R_S.repres_valve_error = '' THEN
+		IF  R_S.repres_valve_error = '' AND R_S.average_reactor_pressure_within_ambient THEN
 			bTimer1														:= FALSE;
-			R_S.co2_inside_sensors_on									:= TRUE;											// 7
-			R_S.open_all_doors											:= TRUE;											// 8
-			Cycle_Stage													:= 'adsorption.open_doors';							// 8.a
-			rTime1														:= m01.SP_doorsopenclose_timedelay * _MINUTES;		// 8.b
+			R_S.open_all_doors											:= TRUE;
+			rTime1														:= m01.SP_doorsopenclose_timedelay * _MINUTES;
 			i5Step														:= i5Step + 1;
 		ELSIF tonTimer1.Q THEN
 			bTimer1														:= FALSE;
 			sReactorError												:= R_S.repres_valve_error;
 			sMessage													:= gsProcessCannotRun;
 		END_IF
-							
-	8:
-		bTimer1															:= TRUE;
-		//IF R_S.all_doors_open THEN
-		IF tonTimer1.Q THEN
-			bTimer1														:= FALSE;
-			R_S.close_repres_valves										:= TRUE;		
-			R_S.fan_vfd_percent											:= Fan_setpoint;									// 9
-			Cycle_Stage													:= 'adsorption.turn_on_fans';						// 9.a
 		
-			i5Step														:= i5Step + 1;
+	5: 
+		Cycle_Stage														:= 'adsorption.initialize.opendoors';	
+		bTimer1															:= TRUE;
+		bTimer2															:= TRUE;
+		IF R_S.all_doors_open THEN
+			bTimer1														:= FALSE;
+			R_S.fan_vfd_percent											:= 95;
+			rTime1														:= _FAN_RS_DELAY_TIME;
+		ELSIF tonTimer1.Q THEN
+			bTimer1														:= FALSE;
+			sReactorError												:= gsDoorsNotOpenError;
+			sMessage													:= gsProcessCannotRun;
+			
 		END_IF
 		
-	9:
-		IF R_S.sorbent_high_temp <=  m01.SP_adsorption_sorbent_hightemp_startco2analyzer THEN 
-				i5Step														:= i5Step + 1;
+			
+	6:
+		Cycle_Stage														:= 'adsorption.fansrunning';
+		bTimer1															:= TRUE;
+		IF R_S.sorbent_high_temp <=  m01.SP_adsorption_sorbent_hightemp_startco2analyzer AND R_S.fan_vfd_running  THEN 
+			bTimer1														:= FALSE;
+			R_S.co2_inside_sensors_on									:= TRUE;
+			R_S.close_repres_valves										:= TRUE;
+			i5Step														:= i5Step + 1;
+		ELSIF tonTimer2.Q OR NOT R_S.fan_vfd_running THEN
+			bTimer1														:= FALSE;
+			btimer2														:= FALSE;
+			sReactorError												:= SEL(tonTimer2.Q, 'Sorbent Temp too High during Adsorption', '');
+			sReactorError												:= SEL(NOT R_S.fan_vfd_running,'Fans not Running ', '');
+			sMessage													:= gsProcessCannotRun;
 		END_IF
 
-	10:
-		//R_S.co2_inside_sensors_on										:= TRUE;											// 11
-		bTimer2															:= TRUE;	
-		Cycle_Stage														:= 'adsorption.adsorption';							// 11.a
-		IF R_S.R1_outlet_co2 >= m01.SP_adsorption_outletco2_highlimit AND tonTimer2.Q THEN
-			bTimer2															:= FALSE;	
-			i5Step 															:= i5Step + 1;
+	7:
+													
+		Cycle_Stage														:= 'adsorption.adsorption';							
+		IF R_S.R1_outlet_co2 >= m01.SP_adsorption_outletco2_highlimit OR tonTimer2.Q THEN
+			bTimer2														:= FALSE;
+			rTime1														:= _FAN_SHUTDOWN_TIME;
+			R_S.fan_vfd_percent											:= 0;	
+			i5Step 														:= i5Step + 1;
 		END_IF
-		
-	11:
-		
-		R_S.fan_vfd_percent											:= 0;
-		Cycle_Stage													:= 'adsorption.turn_off_fans';						// 12.a
-		rTime1														:= _FAN_SHUTDOWN_TIME;
-		i5Step														:= i5Step + 1;
 	
-
-	12:
+	8:
+		Cycle_Stage														:= 'adsorption.fansoff';
 		bTimer1															:= TRUE;
-		IF tonTimer1.Q THEN
+		IF tonTimer1.Q AND NOT R_S.fan_vfd_running THEN
 			bTimer1														:= FALSE;	
-			R_S.close_all_doors											:= TRUE;											// 13
-			Cycle_Stage													:= 'adsorption.close_doors';						// 13.a
-			rTime1														:= m01.SP_doorsopenclose_timedelay * _MINUTES;										// 13.b
-			i5Step														:= i5Step + 1;
+			R_S.close_all_doors											:= TRUE;
+			R_S.co2_sensors_off											:= TRUE;																		
+			rTime1														:= m01.SP_doorsopenclose_timedelay * _MINUTES;										
+			i5Step														:= 90;
+		ELSIF tonTimer1.Q AND  R_S.fan_vfd_running THEN
+			bTimer1														:= FALSE;	
+			sReactorError												:= 'Fans not Stopping';
+			sMessage													:= gsProcessCannotRun;
 		END_IF
 		
-	13:
-		bTimer1															:= TRUE;
-		IF tonTimer1.Q THEN
-			bTimer1														:= FALSE;
-			R_S.co2_sensors_off											:= TRUE;											// 14
-			rTime1														:= m01.SP_dead_time_in_cycle_duration;				// 15
-			Cycle_Stage													:= 'adsorption.cycle_dead_time';					// 15.a
-			i5Step														:= i5Step + 1;
-		END_IF
-		
-	14:
-		bTimer1															:= TRUE;
-		IF tonTimer1.Q THEN
-			bTimer1														:= FALSE;
-			i5Step														:= 99;
-		END_IF
 				
 	80:																														// Manual process closing
 		Cycle_Stage														:= 'adsorption.stopping';
@@ -1865,12 +1850,11 @@ CASE i5Step OF
 			i5Step														:= 99;
 		END_IF
 		
-	98:																														// Utility error hold - cleared by P_M01
+	98:																														
 		i5Step															:= 98;
 		
 	99:
 		bAdsorptionDone													:= TRUE;
-		//bTimer2															:= FALSE;
 		U.drainage_on													:= FALSE;
 		Current_Step													:= 0;
 		i5Step															:= 0;
@@ -3831,7 +3815,7 @@ END_IF
       <LineId Id="1478" Count="6" />
       <LineId Id="1" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Reactor_Set.A5_Adsorption_Test">
+    <LineIds Name="FB_Reactor_Set.A5_Adsorption_Auto">
       <LineId Id="1643" Count="2" />
       <LineId Id="1429" Count="0" />
       <LineId Id="1628" Count="0" />
@@ -3840,40 +3824,89 @@ END_IF
       <LineId Id="1440" Count="0" />
       <LineId Id="1635" Count="0" />
       <LineId Id="1646" Count="0" />
-      <LineId Id="1442" Count="7" />
-      <LineId Id="1455" Count="0" />
-      <LineId Id="1457" Count="4" />
+      <LineId Id="1442" Count="2" />
       <LineId Id="1647" Count="0" />
       <LineId Id="1462" Count="0" />
+      <LineId Id="1696" Count="0" />
       <LineId Id="1650" Count="0" />
       <LineId Id="1652" Count="0" />
       <LineId Id="1655" Count="0" />
+      <LineId Id="1663" Count="2" />
+      <LineId Id="1667" Count="1" />
+      <LineId Id="1662" Count="0" />
       <LineId Id="1660" Count="0" />
-      <LineId Id="1657" Count="2" />
+      <LineId Id="1657" Count="0" />
+      <LineId Id="1666" Count="0" />
+      <LineId Id="1658" Count="1" />
       <LineId Id="1656" Count="0" />
       <LineId Id="1651" Count="0" />
-      <LineId Id="1463" Count="0" />
-      <LineId Id="1661" Count="0" />
-      <LineId Id="1470" Count="28" />
-      <LineId Id="1636" Count="0" />
-      <LineId Id="1500" Count="12" />
-      <LineId Id="1639" Count="0" />
-      <LineId Id="1513" Count="0" />
-      <LineId Id="1640" Count="0" />
-      <LineId Id="1514" Count="1" />
-      <LineId Id="1518" Count="1" />
-      <LineId Id="1524" Count="2" />
+      <LineId Id="1474" Count="1" />
+      <LineId Id="1697" Count="0" />
+      <LineId Id="1476" Count="2" />
+      <LineId Id="1671" Count="1" />
+      <LineId Id="1479" Count="9" />
+      <LineId Id="1669" Count="0" />
+      <LineId Id="1493" Count="0" />
+      <LineId Id="1698" Count="0" />
+      <LineId Id="1670" Count="0" />
+      <LineId Id="1673" Count="0" />
+      <LineId Id="1677" Count="0" />
+      <LineId Id="1679" Count="1" />
+      <LineId Id="1678" Count="0" />
+      <LineId Id="1674" Count="0" />
+      <LineId Id="1676" Count="0" />
+      <LineId Id="1688" Count="1" />
+      <LineId Id="1675" Count="0" />
+      <LineId Id="1681" Count="1" />
+      <LineId Id="1699" Count="0" />
+      <LineId Id="1683" Count="0" />
+      <LineId Id="1702" Count="0" />
+      <LineId Id="1494" Count="0" />
+      <LineId Id="1687" Count="0" />
+      <LineId Id="1692" Count="0" />
+      <LineId Id="1724" Count="0" />
+      <LineId Id="1684" Count="0" />
+      <LineId Id="1727" Count="0" />
+      <LineId Id="1694" Count="1" />
+      <LineId Id="1686" Count="0" />
+      <LineId Id="1685" Count="0" />
+      <LineId Id="1693" Count="0" />
+      <LineId Id="1524" Count="0" />
+      <LineId Id="1526" Count="0" />
+      <LineId Id="1700" Count="0" />
+      <LineId Id="1726" Count="0" />
       <LineId Id="1544" Count="0" />
-      <LineId Id="1631" Count="1" />
-      <LineId Id="1545" Count="2" />
-      <LineId Id="1642" Count="0" />
-      <LineId Id="1548" Count="0" />
+      <LineId Id="1728" Count="0" />
+      <LineId Id="1701" Count="0" />
+      <LineId Id="1707" Count="0" />
+      <LineId Id="1631" Count="0" />
+      <LineId Id="1703" Count="0" />
+      <LineId Id="1729" Count="0" />
+      <LineId Id="1706" Count="0" />
+      <LineId Id="1725" Count="0" />
+      <LineId Id="1704" Count="1" />
+      <LineId Id="1632" Count="0" />
+      <LineId Id="1545" Count="3" />
       <LineId Id="1633" Count="0" />
       <LineId Id="1641" Count="0" />
+      <LineId Id="1710" Count="0" />
+      <LineId Id="1708" Count="0" />
       <LineId Id="1549" Count="0" />
       <LineId Id="1634" Count="0" />
-      <LineId Id="1550" Count="2" />
-      <LineId Id="1554" Count="72" />
+      <LineId Id="1550" Count="0" />
+      <LineId Id="1711" Count="0" />
+      <LineId Id="1721" Count="0" />
+      <LineId Id="1714" Count="3" />
+      <LineId Id="1723" Count="0" />
+      <LineId Id="1719" Count="1" />
+      <LineId Id="1730" Count="0" />
+      <LineId Id="1732" Count="0" />
+      <LineId Id="1731" Count="0" />
+      <LineId Id="1733" Count="0" />
+      <LineId Id="1713" Count="0" />
+      <LineId Id="1712" Count="0" />
+      <LineId Id="1586" Count="35" />
+      <LineId Id="1623" Count="3" />
       <LineId Id="1405" Count="2" />
       <LineId Id="1413" Count="3" />
       <LineId Id="1418" Count="10" />
