@@ -170,6 +170,7 @@ A2_Warmup();
 A3_Steam_Bypass();
 A8_Shutdown();
 A9_Pressure_Drop_Test();
+A_BOP_Estop();
 u01.shutdown_process													:= FALSE;
 
 IF gsCycleMode = '2' THEN
@@ -203,6 +204,22 @@ tonAdsorptionTimer(IN:= bAdsorptionTimer, PT:= REAL_TO_TIME(m01.SP_adsorption_du
 tonWriteData(IN:= NOT bWriteData, PT:= T#30M);
 ]]></ST>
     </Implementation>
+    <Action Name="A_BOP_Estop" Id="{5c5d44f9-58ec-48e1-911e-c5376b4fba9d}">
+      <Implementation>
+        <ST><![CDATA[// close and stop all BOP 
+IF u.utility_error <>  '' AND ( m01_rs1.tb_Process_Running OR  m01_rs2.tb_Process_Running OR  m01_rs3.tb_Process_Running )  THEN
+	u.dead_air_vacuum_pump							:= FALSE;
+	u.product_blower								:= FALSE;
+	u.product_vacuum_backfeed_valve					:= _CLOSED;
+	u.product_vacuum_bypass_valve					:= FALSE;
+	u.product_vacuum_outlet_isolation_valve			:= FALSE;
+	u.product_vacuum_pump_isolation_valve			:= FALSE;
+	u.product_vacuum_pump_radiator					:= FALSE;
+	u.product_vacuum_pump_vfd						:= 0;
+	u.steam_bypass_valve							:= FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Action>
     <Action Name="A_Drains" Id="{ab317b0b-7a30-41e9-b5c6-59249957db4c}">
       <Implementation>
         <ST><![CDATA[// Phase 0 - P_U01.A_Drains
@@ -766,6 +783,8 @@ u.utility_error															:= SEL(bInstrumentAirCompPresError, u.utility_erro
 u.utility_error															:= SEL(bInstrumentAirCompTempError, u.utility_error, gsInstrumentAirCompTempSensorError);
 u.utility_error															:= SEL(bProductCondensateValveError, u.utility_error, gsProductCondensateDrainValveError);
 sUtilityError															:= u.utility_error;
+
+//P_Alarms.M_Add_Alarm('Utility', sUtilityError, 'Cycles_Stoppe');
 
 // These errors initiate a Safe Shutdown if automated cycles are running 
 IF m01.tb_Auto_Mode_On AND NOT bSafeShutdown THEN																			// Safe Shutdown 1
@@ -2057,8 +2076,16 @@ M_Repres_Valve_Error													:= SEL(sErr <> '', sErr, CONCAT(sErr, gsRepress
       </Implementation>
     </Method>
     <LineIds Name="P_U01">
-      <LineId Id="2368" Count="40" />
+      <LineId Id="2368" Count="9" />
+      <LineId Id="2566" Count="0" />
+      <LineId Id="2378" Count="30" />
       <LineId Id="1894" Count="0" />
+    </LineIds>
+    <LineIds Name="P_U01.A_BOP_Estop">
+      <LineId Id="1" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="4" Count="8" />
     </LineIds>
     <LineIds Name="P_U01.A_Drains">
       <LineId Id="101" Count="57" />
@@ -2099,7 +2126,10 @@ M_Repres_Valve_Error													:= SEL(sErr <> '', sErr, CONCAT(sErr, gsRepress
       <LineId Id="1873" Count="62" />
       <LineId Id="2147" Count="1" />
       <LineId Id="2146" Count="0" />
-      <LineId Id="1936" Count="101" />
+      <LineId Id="1936" Count="100" />
+      <LineId Id="2177" Count="0" />
+      <LineId Id="2176" Count="0" />
+      <LineId Id="2037" Count="0" />
       <LineId Id="2059" Count="1" />
       <LineId Id="2079" Count="0" />
       <LineId Id="2062" Count="0" />

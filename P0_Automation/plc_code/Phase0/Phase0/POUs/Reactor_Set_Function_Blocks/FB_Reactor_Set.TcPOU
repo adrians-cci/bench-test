@@ -441,7 +441,7 @@ ELSE
 		sError															:= sUtilityError;
 		Utility_Error													:= TRUE;
 		A_BOP_Estop();
-		iStep															:= 98;
+//		iStep															:= 98;
 	ELSIF sReactorError <> '' THEN																							//@ Times used - 43
 		sError															:= sReactorError;
   		bEndProcess														:= TRUE;
@@ -1856,6 +1856,7 @@ CASE i5Step OF
 	99:
 		bAdsorptionDone													:= TRUE;
 		U.drainage_on													:= FALSE;
+		R_S.co2_sensors_off												:= TRUE;
 		Current_Step													:= 0;
 		i5Step															:= 0;
 	
@@ -1898,6 +1899,8 @@ CASE i5Step OF
 		Cycle_Stage														:= 'adsorption.initialize';							// 2.d
 		//iRestartStep													:= 1;
 		rTime1														:= 5 * _SECONDS;
+		R_S.open_repres_valves										:= TRUE;
+		R_S.fan_vfd_percent											:= 33;
 		i5Step														:= i5Step + 1;
 		
 			
@@ -1906,10 +1909,16 @@ CASE i5Step OF
 		IF sita_bits[3].1 THEN 
 			bTimer1 := FALSE;
 			i5Step := 90;
-		ELSIF tonTimer1.Q AND  sita_bits[3].2 THEN 
-			bTimer1														:= FALSE;
-			sReactorError												:= 'Adsorption Error';
-			sMessage													:= 'Auto Test';
+		ELSIF tonTimer1.Q THEN 
+			IF (RS_number = 1 AND sita_bits[3].2) OR (RS_number = 2 AND sita_bits[5].2) THEN 
+				bTimer1														:= FALSE;
+				sReactorError												:= 'Adsorption Error - RS ';
+				sMessage													:= 'Auto Test';
+			ELSIF (RS_number = 1 AND sita_bits[3].3) OR (RS_number = 2 AND sita_bits[5].3) THEN 
+				bTimer1														:= FALSE;
+				sUtilityError												:= 'Adsorption Error - Utility';
+				sMessage													:= 'Auto Test';
+			END_IF
 		END_IF
 
 	
@@ -3094,7 +3103,8 @@ CASE i7Step OF
 		bPass3															:=  NOT U.product_vacuum_backfeed_valve_closed;
 		
 		IF bPass1 AND bPass2 AND bPass3 THEN
-			bTimer1														:= FALSE;			
+			bTimer1														:= FALSE;
+			U.drainage_on												:= TRUE;			
 			i7Step														:= i7Step + 1;
 		ELSIF tonTimer1.Q THEN
 			bTimer1														:= FALSE;
@@ -3205,6 +3215,7 @@ CASE i7Step OF
 		IF NOT bMultiProcess THEN
 			Steam_Service_Req											:= FALSE;
 		END_IF
+		U.drainage_on													:= FALSE;
 		U.steam_header_volume_total_enable								:= FALSE;
 		Current_Step													:= 0;
 		i7Step															:= 0;
@@ -3906,7 +3917,9 @@ END_IF
       <LineId Id="1713" Count="0" />
       <LineId Id="1712" Count="0" />
       <LineId Id="1586" Count="35" />
-      <LineId Id="1623" Count="3" />
+      <LineId Id="1623" Count="0" />
+      <LineId Id="1734" Count="0" />
+      <LineId Id="1624" Count="2" />
       <LineId Id="1405" Count="2" />
       <LineId Id="1413" Count="3" />
       <LineId Id="1418" Count="10" />
@@ -3920,10 +3933,17 @@ END_IF
       <LineId Id="1627" Count="0" />
       <LineId Id="1430" Count="3" />
       <LineId Id="1635" Count="0" />
+      <LineId Id="1674" Count="0" />
+      <LineId Id="1673" Count="0" />
       <LineId Id="1442" Count="4" />
       <LineId Id="1663" Count="1" />
       <LineId Id="1666" Count="0" />
-      <LineId Id="1668" Count="3" />
+      <LineId Id="1668" Count="0" />
+      <LineId Id="1675" Count="0" />
+      <LineId Id="1669" Count="2" />
+      <LineId Id="1678" Count="2" />
+      <LineId Id="1677" Count="0" />
+      <LineId Id="1676" Count="0" />
       <LineId Id="1667" Count="0" />
       <LineId Id="1647" Count="0" />
       <LineId Id="1586" Count="2" />
@@ -4125,7 +4145,9 @@ END_IF
       <LineId Id="3153" Count="1" />
       <LineId Id="3163" Count="0" />
       <LineId Id="3162" Count="0" />
-      <LineId Id="3155" Count="6" />
+      <LineId Id="3155" Count="1" />
+      <LineId Id="3217" Count="0" />
+      <LineId Id="3157" Count="4" />
       <LineId Id="3165" Count="0" />
       <LineId Id="3152" Count="0" />
       <LineId Id="2894" Count="0" />
@@ -4159,6 +4181,7 @@ END_IF
       <LineId Id="2895" Count="35" />
       <LineId Id="3049" Count="1" />
       <LineId Id="3048" Count="0" />
+      <LineId Id="3218" Count="0" />
       <LineId Id="3041" Count="0" />
       <LineId Id="2931" Count="47" />
       <LineId Id="1" Count="0" />

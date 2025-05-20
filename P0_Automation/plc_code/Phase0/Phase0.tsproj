@@ -109,8 +109,8 @@
 			<Licenses CacheOrCheckLicensesOnStartup="true">
 				<Target BkhfOrder="01279363">
 					<ManualSelect>{BDCC0070-42D5-49AE-ABF1-1D4434813D60}</ManualSelect>
-					<TargetSelect TargetId="2">{66689887-CCBD-452C-AC9A-039D997C6E66}</TargetSelect>
 					<TargetSelect TargetId="2">{BDCC0070-42D5-49AE-ABF1-1D4434813D60}</TargetSelect>
+					<TargetSelect TargetId="2">{66689887-CCBD-452C-AC9A-039D997C6E66}</TargetSelect>
 					<TargetSelect TargetId="2">{A1AF8A04-C08D-4853-A5A0-0E6C3A278A8C}</TargetSelect>
 					<LicenseDevice DongleHardwareId="2" DongleDevice="#x03020001" DongleLevel="70" DongleSystemId="{81D5101B-B360-76B9-C4DF-E462CD8834C6}" DongleSerialNumber="000br45t"/>
 				</Target>
@@ -123,7 +123,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{70247F44-0E5A-4D6F-BDCF-958D2E610C2A}" Name="Phase0" PrjFilePath="Phase0\Phase0.plcproj" TmcFilePath="Phase0\Phase0.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Phase0\Phase0.tmc" TmcHash="{D967EB17-80CA-1C89-F5C9-B7BD4E7187B9}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Phase0\Phase0.tmc" TmcHash="{58F77B63-6257-C715-8262-4820D47C4CF2}">
 					<Name>Phase0 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -148,14 +148,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2.outlet_co2_error</Name>
-							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r2.AT_02</Name>
 							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r2.outlet_co2_error</Name>
+							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r2.AT_03</Name>
@@ -168,19 +168,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2.air_flow_error</Name>
-							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r2.AT_04</Name>
 							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2.FT_01</Name>
-							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r2.air_flow_error</Name>
+							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r2.filter_diff_pres_error</Name>
@@ -188,9 +183,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2.sorbent_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r2.FT_01</Name>
+							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r2.PDT_01</Name>
@@ -198,9 +193,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2.PDT_02</Name>
-							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r2.sorbent_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r2.fan_diff_pres_error</Name>
@@ -208,9 +203,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2.reactor_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r2.PDT_02</Name>
+							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r2.PDT_03</Name>
@@ -218,9 +213,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2.PT_01</Name>
-							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r2.reactor_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r2.reactor_wall_temp_error</Name>
@@ -228,9 +223,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2.outlet_line_temp_error</Name>
-							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r2.PT_01</Name>
+							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r2.TT_05</Name>
@@ -238,9 +233,18 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
+							<Name>m01_rs1_r2.outlet_line_temp_error</Name>
+							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>m01_rs1_r2.TT_06</Name>
 							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r2.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r2.fan_vfd_status</Name>
@@ -249,10 +253,6 @@
 						<Var>
 							<Name>m01_rs1_r2.fan_vfd_velocity</Name>
 							<Type>WORD</Type>
-						</Var>
-						<Var>
-							<Name>m01_rs1_r2.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r2.fan_vfd_temp</Name>
@@ -333,18 +333,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._01_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r2._01_TT_01</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._01_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._01_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -353,8 +348,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._02_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._01_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -363,8 +358,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._02_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._02_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -373,8 +368,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._03_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._02_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -383,8 +378,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._03_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._03_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -393,8 +388,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._04_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._03_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -403,8 +398,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._04_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._04_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -413,8 +408,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._05_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._04_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -423,8 +418,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._05_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._05_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -433,8 +428,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._06_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._05_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -443,8 +438,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._06_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._06_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -453,8 +448,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._07_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._06_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -463,8 +458,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._07_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._07_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -473,8 +468,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._08_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._07_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -483,8 +478,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._08_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._08_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -493,8 +488,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._09_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._08_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -503,8 +498,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._09_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._09_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -513,8 +508,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._10_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._09_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -523,8 +518,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._10_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._10_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -533,8 +528,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._11_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._10_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -543,8 +538,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._11_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._11_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -553,8 +548,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._12_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._11_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -563,14 +558,19 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r2._12_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r2._12_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r2._12_TT_03</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r2._12_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.inlet_co2_error</Name>
@@ -588,14 +588,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.AT_02</Name>
-							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r3.outlet_co2_error</Name>
 							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r3.AT_02</Name>
+							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.AT_03</Name>
@@ -608,19 +608,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.AT_04</Name>
-							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r3.air_flow_error</Name>
 							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.filter_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r3.AT_04</Name>
+							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.FT_01</Name>
@@ -628,9 +623,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.PDT_01</Name>
-							<Comment><![CDATA[ <summary>Filter diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r3.filter_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.sorbent_diff_pres_error</Name>
@@ -638,9 +633,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.fan_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r3.PDT_01</Name>
+							<Comment><![CDATA[ <summary>Filter diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.PDT_02</Name>
@@ -648,9 +643,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.PDT_03</Name>
-							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r3.fan_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.reactor_pres_error</Name>
@@ -658,9 +653,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.reactor_wall_temp_error</Name>
-							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r3.PDT_03</Name>
+							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.PT_01</Name>
@@ -668,9 +663,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.TT_05</Name>
+							<Name>m01_rs1_r3.reactor_wall_temp_error</Name>
 							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.outlet_line_temp_error</Name>
@@ -678,13 +673,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.TT_06</Name>
-							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
+							<Name>m01_rs1_r3.TT_05</Name>
+							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r3.TT_06</Name>
+							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.fan_vfd_status</Name>
@@ -695,12 +691,16 @@
 							<Type>WORD</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3.fan_vfd_current</Name>
-							<Type>DINT</Type>
+							<Name>m01_rs1_r3.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.fan_vfd_temp</Name>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r3.fan_vfd_current</Name>
+							<Type>DINT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3.inlet_door_left_open_ls</Name>
@@ -773,18 +773,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._01_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r3._01_TT_01_Error</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._01_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._01_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -793,8 +788,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._02_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._01_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -803,8 +798,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._02_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._02_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -813,8 +808,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._03_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._02_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -823,8 +818,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._03_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._03_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -833,8 +828,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._04_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._03_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -843,8 +838,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._04_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._04_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -853,8 +848,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._05_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._04_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -863,8 +858,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._05_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._05_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -873,8 +868,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._06_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._05_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -883,8 +878,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._06_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._06_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -893,8 +888,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._07_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._06_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -903,8 +898,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._07_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._07_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -913,8 +908,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._08_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._07_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -923,8 +918,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._08_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._08_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -933,8 +928,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._09_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._08_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -943,8 +938,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._09_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._09_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -953,8 +948,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._10_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._09_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -963,8 +958,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._10_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._10_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -973,8 +968,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._11_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._10_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -983,8 +978,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._11_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._11_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -993,8 +988,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._12_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._11_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1003,14 +998,19 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r3._12_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r3._12_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r3._12_TT_03_Error</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r3._12_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4.inlet_co2_error</Name>
@@ -1028,14 +1028,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4.outlet_co2_error</Name>
-							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r4.AT_02</Name>
 							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r4.outlet_co2_error</Name>
+							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4.AT_03</Name>
@@ -1048,19 +1048,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4.air_flow_error</Name>
-							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r4.AT_04</Name>
 							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4.FT_01</Name>
-							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r4.air_flow_error</Name>
+							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4.filter_diff_pres_error</Name>
@@ -1068,9 +1063,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4.sorbent_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r4.FT_01</Name>
+							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4.PDT_01</Name>
@@ -1078,9 +1073,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4.PDT_02</Name>
-							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r4.sorbent_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4.fan_diff_pres_error</Name>
@@ -1088,9 +1083,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4.reactor_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r4.PDT_02</Name>
+							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4.PDT_03</Name>
@@ -1098,9 +1093,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4.PT_01</Name>
-							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r4.reactor_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4.reactor_wall_temp_error</Name>
@@ -1108,9 +1103,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4.outlet_line_temp_error</Name>
-							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r4.PT_01</Name>
+							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4.TT_05</Name>
@@ -1118,9 +1113,18 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
+							<Name>m01_rs1_r4.outlet_line_temp_error</Name>
+							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>m01_rs1_r4.TT_06</Name>
 							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r4.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4.fan_vfd_status</Name>
@@ -1129,10 +1133,6 @@
 						<Var>
 							<Name>m01_rs1_r4.fan_vfd_velocity</Name>
 							<Type>WORD</Type>
-						</Var>
-						<Var>
-							<Name>m01_rs1_r4.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4.fan_vfd_current</Name>
@@ -1213,18 +1213,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._01_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r4._01_TT_01</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._01_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._01_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1233,8 +1228,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._02_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._01_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1243,8 +1238,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._02_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._02_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1253,8 +1248,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._03_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._02_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1263,8 +1258,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._03_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._03_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1273,8 +1268,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._04_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._03_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1283,8 +1278,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._04_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._04_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1293,8 +1288,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._05_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._04_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1303,8 +1298,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._05_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._05_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1313,8 +1308,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._06_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._05_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1323,8 +1318,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._06_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._06_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1333,8 +1328,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._07_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._06_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1343,8 +1338,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._07_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._07_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1353,8 +1348,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._08_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._07_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1363,8 +1358,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._08_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._08_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1373,8 +1368,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._09_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._08_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1383,8 +1378,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._09_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._09_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1393,8 +1388,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._10_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._09_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1403,8 +1398,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._10_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._10_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1413,8 +1408,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._11_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._10_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1423,8 +1418,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._11_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._11_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1433,8 +1428,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._12_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._11_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -1443,14 +1438,19 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r4._12_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r4._12_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r4._12_TT_03</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r4._12_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.inlet_co2_error</Name>
@@ -1468,14 +1468,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.AT_02</Name>
-							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r1.outlet_co2_error</Name>
 							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r1.AT_02</Name>
+							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.AT_03</Name>
@@ -1488,19 +1488,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.AT_04</Name>
-							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r1.air_flow_error</Name>
 							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.filter_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r1.AT_04</Name>
+							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.FT_01</Name>
@@ -1508,9 +1503,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.PDT_01</Name>
-							<Comment><![CDATA[ <summary>Filter diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs2_r1.filter_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.sorbent_diff_pres_error</Name>
@@ -1518,9 +1513,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.fan_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r1.PDT_01</Name>
+							<Comment><![CDATA[ <summary>Filter diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.PDT_02</Name>
@@ -1528,9 +1523,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.PDT_03</Name>
-							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs2_r1.fan_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.reactor_pres_error</Name>
@@ -1538,9 +1533,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.reactor_wall_temp_error</Name>
-							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r1.PDT_03</Name>
+							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.PT_01</Name>
@@ -1548,9 +1543,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.TT_05</Name>
+							<Name>m01_rs2_r1.reactor_wall_temp_error</Name>
 							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.outlet_line_temp_error</Name>
@@ -1558,13 +1553,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.TT_06</Name>
-							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
+							<Name>m01_rs2_r1.TT_05</Name>
+							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r1.TT_06</Name>
+							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.fan_vfd_status</Name>
@@ -1575,12 +1571,16 @@
 							<Type>WORD</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1.fan_vfd_temp</Name>
-							<Type>INT</Type>
+							<Name>m01_rs2_r1.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.fan_vfd_current</Name>
 							<Type>DINT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r1.fan_vfd_temp</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1.inlet_door_left_open_ls</Name>
@@ -1653,18 +1653,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._01_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r1._01_TT_01_Error</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._01_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._01_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1673,8 +1668,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._02_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._01_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1683,8 +1678,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._02_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._02_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1693,8 +1688,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._03_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._02_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1703,8 +1698,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._03_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._03_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1713,8 +1708,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._04_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._03_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1723,8 +1718,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._04_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._04_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1733,8 +1728,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._05_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._04_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1743,8 +1738,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._05_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._05_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1753,8 +1748,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._06_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._05_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1763,8 +1758,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._06_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._06_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1773,8 +1768,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._07_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._06_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1783,8 +1778,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._07_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._07_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1793,8 +1788,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._08_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._07_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1803,8 +1798,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._08_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._08_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1813,8 +1808,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._09_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._08_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1823,8 +1818,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._09_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._09_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1833,8 +1828,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._10_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._09_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1843,8 +1838,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._10_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._10_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1853,8 +1848,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._11_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._10_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1863,8 +1858,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._11_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._11_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1873,8 +1868,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._12_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._11_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -1883,14 +1878,19 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r1._12_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r1._12_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r1._12_TT_03_Error</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r1._12_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2.inlet_co2_error</Name>
@@ -1908,14 +1908,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2.outlet_co2_error</Name>
-							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r2.AT_02</Name>
 							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r2.outlet_co2_error</Name>
+							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2.AT_03</Name>
@@ -1928,19 +1928,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2.air_flow_error</Name>
-							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r2.AT_04</Name>
 							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2.FT_01</Name>
-							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs2_r2.air_flow_error</Name>
+							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2.filter_diff_pres_error</Name>
@@ -1948,9 +1943,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2.sorbent_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r2.FT_01</Name>
+							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2.PDT_01</Name>
@@ -1958,9 +1953,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2.PDT_02</Name>
-							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs2_r2.sorbent_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2.fan_diff_pres_error</Name>
@@ -1968,9 +1963,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2.reactor_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r2.PDT_02</Name>
+							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2.PDT_03</Name>
@@ -1978,9 +1973,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2.PT_01</Name>
-							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs2_r2.reactor_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2.reactor_wall_temp_error</Name>
@@ -1988,9 +1983,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2.outlet_line_temp_error</Name>
-							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r2.PT_01</Name>
+							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2.TT_05</Name>
@@ -1998,9 +1993,18 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
+							<Name>m01_rs2_r2.outlet_line_temp_error</Name>
+							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>m01_rs2_r2.TT_06</Name>
 							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r2.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2.fan_vfd_status</Name>
@@ -2009,10 +2013,6 @@
 						<Var>
 							<Name>m01_rs2_r2.fan_vfd_velocity</Name>
 							<Type>WORD</Type>
-						</Var>
-						<Var>
-							<Name>m01_rs2_r2.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2.fan_vfd_temp</Name>
@@ -2093,18 +2093,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._01_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r2._01_TT_01</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._01_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._01_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2113,8 +2108,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._02_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._01_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2123,8 +2118,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._02_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._02_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2133,8 +2128,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._03_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._02_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2143,8 +2138,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._03_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._03_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2153,8 +2148,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._04_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._03_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2163,8 +2158,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._04_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._04_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2173,8 +2168,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._05_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._04_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2183,8 +2178,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._05_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._05_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2193,8 +2188,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._06_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._05_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2203,8 +2198,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._06_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._06_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2213,8 +2208,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._07_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._06_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2223,8 +2218,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._07_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._07_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2233,8 +2228,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._08_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._07_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2243,8 +2238,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._08_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._08_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2253,8 +2248,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._09_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._08_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2263,8 +2258,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._09_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._09_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2273,8 +2268,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._10_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._09_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2283,8 +2278,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._10_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._10_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2293,8 +2288,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._11_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._10_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2303,8 +2298,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._11_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._11_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2313,8 +2308,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._12_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._11_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2323,14 +2318,19 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r2._12_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r2._12_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r2._12_TT_03</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r2._12_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.inlet_co2_error</Name>
@@ -2348,14 +2348,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.AT_02</Name>
-							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r3.outlet_co2_error</Name>
 							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r3.AT_02</Name>
+							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.AT_03</Name>
@@ -2368,19 +2368,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.AT_04</Name>
-							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r3.air_flow_error</Name>
 							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.filter_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r3.AT_04</Name>
+							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.FT_01</Name>
@@ -2388,9 +2383,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.PDT_01</Name>
-							<Comment><![CDATA[ <summary>Filter diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs2_r3.filter_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.sorbent_diff_pres_error</Name>
@@ -2398,9 +2393,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.fan_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r3.PDT_01</Name>
+							<Comment><![CDATA[ <summary>Filter diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.PDT_02</Name>
@@ -2408,9 +2403,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.PDT_03</Name>
-							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs2_r3.fan_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.reactor_pres_error</Name>
@@ -2418,9 +2413,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.reactor_wall_temp_error</Name>
-							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r3.PDT_03</Name>
+							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.PT_01</Name>
@@ -2428,9 +2423,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.TT_05</Name>
+							<Name>m01_rs2_r3.reactor_wall_temp_error</Name>
 							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.outlet_line_temp_error</Name>
@@ -2438,13 +2433,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.TT_06</Name>
-							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
+							<Name>m01_rs2_r3.TT_05</Name>
+							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r3.TT_06</Name>
+							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.fan_vfd_status</Name>
@@ -2455,12 +2451,16 @@
 							<Type>WORD</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3.fan_vfd_current</Name>
-							<Type>DINT</Type>
+							<Name>m01_rs2_r3.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.fan_vfd_temp</Name>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r3.fan_vfd_current</Name>
+							<Type>DINT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3.inlet_door_left_open_ls</Name>
@@ -2533,18 +2533,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._01_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r3._01_TT_01_Error</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._01_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._01_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2553,8 +2548,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._02_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._01_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2563,8 +2558,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._02_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._02_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2573,8 +2568,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._03_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._02_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2583,8 +2578,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._03_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._03_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2593,8 +2588,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._04_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._03_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2603,8 +2598,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._04_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._04_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2613,8 +2608,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._05_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._04_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2623,8 +2618,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._05_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._05_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2633,8 +2628,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._06_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._05_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2643,8 +2638,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._06_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._06_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2653,8 +2648,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._07_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._06_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2663,8 +2658,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._07_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._07_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2673,8 +2668,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._08_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._07_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2683,8 +2678,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._08_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._08_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2693,8 +2688,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._09_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._08_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2703,8 +2698,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._09_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._09_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2713,8 +2708,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._10_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._09_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2723,8 +2718,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._10_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._10_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2733,8 +2728,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._11_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._10_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2743,8 +2738,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._11_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._11_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2753,8 +2748,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._12_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._11_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -2763,14 +2758,19 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r3._12_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r3._12_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r3._12_TT_03_Error</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r3._12_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4.inlet_co2_error</Name>
@@ -2788,14 +2788,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4.outlet_co2_error</Name>
-							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r4.AT_02</Name>
 							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r4.outlet_co2_error</Name>
+							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4.AT_03</Name>
@@ -2808,19 +2808,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4.air_flow_error</Name>
-							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r4.AT_04</Name>
 							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4.FT_01</Name>
-							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs2_r4.air_flow_error</Name>
+							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4.filter_diff_pres_error</Name>
@@ -2828,9 +2823,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4.sorbent_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r4.FT_01</Name>
+							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4.PDT_01</Name>
@@ -2838,9 +2833,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4.PDT_02</Name>
-							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs2_r4.sorbent_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4.fan_diff_pres_error</Name>
@@ -2848,9 +2843,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4.reactor_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r4.PDT_02</Name>
+							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4.PDT_03</Name>
@@ -2858,9 +2853,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4.PT_01</Name>
-							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs2_r4.reactor_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4.reactor_wall_temp_error</Name>
@@ -2868,9 +2863,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4.outlet_line_temp_error</Name>
-							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs2_r4.PT_01</Name>
+							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4.TT_05</Name>
@@ -2878,9 +2873,18 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
+							<Name>m01_rs2_r4.outlet_line_temp_error</Name>
+							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>m01_rs2_r4.TT_06</Name>
 							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r4.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4.fan_vfd_status</Name>
@@ -2889,10 +2893,6 @@
 						<Var>
 							<Name>m01_rs2_r4.fan_vfd_velocity</Name>
 							<Type>WORD</Type>
-						</Var>
-						<Var>
-							<Name>m01_rs2_r4.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4.fan_vfd_current</Name>
@@ -2973,18 +2973,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._01_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2_r4._01_TT_01</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._01_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._01_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -2993,8 +2988,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._02_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._01_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3003,8 +2998,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._02_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._02_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3013,8 +3008,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._03_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._02_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3023,8 +3018,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._03_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._03_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3033,8 +3028,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._04_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._03_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3043,8 +3038,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._04_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._04_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3053,8 +3048,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._05_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._04_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3063,8 +3058,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._05_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._05_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3073,8 +3068,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._06_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._05_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3083,8 +3078,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._06_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._06_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3093,8 +3088,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._07_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._06_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3103,8 +3098,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._07_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._07_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3113,8 +3108,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._08_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._07_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3123,8 +3118,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._08_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._08_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3133,8 +3128,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._09_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._08_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3143,8 +3138,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._09_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._09_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3153,8 +3148,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._10_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._09_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3163,8 +3158,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._10_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._10_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3173,8 +3168,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._11_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._10_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3183,8 +3178,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._11_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._11_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3193,8 +3188,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._12_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._11_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3203,14 +3198,19 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2_r4._12_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs2_r4._12_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2_r4._12_TT_03</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2_r4._12_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.inlet_co2_error</Name>
@@ -3228,14 +3228,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.AT_02</Name>
-							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r1.outlet_co2_error</Name>
 							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r1.AT_02</Name>
+							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.AT_03</Name>
@@ -3248,19 +3248,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.AT_04</Name>
-							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r1.air_flow_error</Name>
 							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.filter_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r1.AT_04</Name>
+							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.FT_01</Name>
@@ -3268,9 +3263,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.PDT_01</Name>
-							<Comment><![CDATA[ <summary>Filter diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs3_r1.filter_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.sorbent_diff_pres_error</Name>
@@ -3278,9 +3273,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.fan_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r1.PDT_01</Name>
+							<Comment><![CDATA[ <summary>Filter diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.PDT_02</Name>
@@ -3288,9 +3283,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.PDT_03</Name>
-							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs3_r1.fan_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.reactor_pres_error</Name>
@@ -3298,9 +3293,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.reactor_wall_temp_error</Name>
-							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r1.PDT_03</Name>
+							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.PT_01</Name>
@@ -3308,9 +3303,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.TT_05</Name>
+							<Name>m01_rs3_r1.reactor_wall_temp_error</Name>
 							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.outlet_line_temp_error</Name>
@@ -3318,13 +3313,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.TT_06</Name>
-							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
+							<Name>m01_rs3_r1.TT_05</Name>
+							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r1.TT_06</Name>
+							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.fan_vfd_status</Name>
@@ -3335,12 +3331,16 @@
 							<Type>WORD</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1.fan_vfd_temp</Name>
-							<Type>INT</Type>
+							<Name>m01_rs3_r1.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.fan_vfd_current</Name>
 							<Type>DINT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r1.fan_vfd_temp</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1.inlet_door_left_open_ls</Name>
@@ -3413,18 +3413,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._01_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r1._01_TT_01_Error</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._01_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._01_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3433,8 +3428,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._02_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._01_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3443,8 +3438,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._02_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._02_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3453,8 +3448,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._03_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._02_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3463,8 +3458,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._03_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._03_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3473,8 +3468,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._04_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._03_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3483,8 +3478,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._04_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._04_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3493,8 +3488,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._05_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._04_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3503,8 +3498,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._05_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._05_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3513,8 +3508,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._06_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._05_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3523,8 +3518,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._06_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._06_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3533,8 +3528,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._07_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._06_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3543,8 +3538,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._07_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._07_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3553,8 +3548,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._08_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._07_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3563,8 +3558,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._08_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._08_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3573,8 +3568,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._09_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._08_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3583,8 +3578,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._09_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._09_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3593,8 +3588,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._10_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._09_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3603,8 +3598,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._10_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._10_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3613,8 +3608,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._11_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._10_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3623,8 +3618,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._11_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._11_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3633,8 +3628,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._12_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._11_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -3643,14 +3638,19 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r1._12_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r1._12_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r1._12_TT_03_Error</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r1._12_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2.inlet_co2_error</Name>
@@ -3668,14 +3668,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2.outlet_co2_error</Name>
-							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r2.AT_02</Name>
 							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r2.outlet_co2_error</Name>
+							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2.AT_03</Name>
@@ -3688,19 +3688,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2.air_flow_error</Name>
-							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r2.AT_04</Name>
 							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2.FT_01</Name>
-							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs3_r2.air_flow_error</Name>
+							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2.filter_diff_pres_error</Name>
@@ -3708,9 +3703,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2.sorbent_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r2.FT_01</Name>
+							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2.PDT_01</Name>
@@ -3718,9 +3713,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2.PDT_02</Name>
-							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs3_r2.sorbent_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2.fan_diff_pres_error</Name>
@@ -3728,9 +3723,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2.reactor_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r2.PDT_02</Name>
+							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2.PDT_03</Name>
@@ -3738,9 +3733,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2.PT_01</Name>
-							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs3_r2.reactor_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2.reactor_wall_temp_error</Name>
@@ -3748,9 +3743,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2.outlet_line_temp_error</Name>
-							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r2.PT_01</Name>
+							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2.TT_05</Name>
@@ -3758,9 +3753,18 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
+							<Name>m01_rs3_r2.outlet_line_temp_error</Name>
+							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>m01_rs3_r2.TT_06</Name>
 							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r2.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2.fan_vfd_status</Name>
@@ -3769,10 +3773,6 @@
 						<Var>
 							<Name>m01_rs3_r2.fan_vfd_velocity</Name>
 							<Type>WORD</Type>
-						</Var>
-						<Var>
-							<Name>m01_rs3_r2.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2.fan_vfd_temp</Name>
@@ -3853,18 +3853,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._01_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r2._01_TT_01</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._01_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._01_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3873,8 +3868,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._02_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._01_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3883,8 +3878,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._02_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._02_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3893,8 +3888,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._03_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._02_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3903,8 +3898,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._03_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._03_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3913,8 +3908,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._04_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._03_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3923,8 +3918,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._04_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._04_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3933,8 +3928,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._05_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._04_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3943,8 +3938,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._05_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._05_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3953,8 +3948,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._06_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._05_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3963,8 +3958,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._06_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._06_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3973,8 +3968,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._07_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._06_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3983,8 +3978,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._07_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._07_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -3993,8 +3988,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._08_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._07_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4003,8 +3998,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._08_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._08_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4013,8 +4008,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._09_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._08_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4023,8 +4018,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._09_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._09_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4033,8 +4028,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._10_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._09_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4043,8 +4038,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._10_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._10_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4053,8 +4048,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._11_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._10_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4063,8 +4058,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._11_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._11_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4073,8 +4068,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._12_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._11_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4083,14 +4078,19 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r2._12_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r2._12_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r2._12_TT_03</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r2._12_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.inlet_co2_error</Name>
@@ -4108,14 +4108,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.AT_02</Name>
-							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r3.outlet_co2_error</Name>
 							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r3.AT_02</Name>
+							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.AT_03</Name>
@@ -4128,19 +4128,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.AT_04</Name>
-							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r3.air_flow_error</Name>
 							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.filter_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r3.AT_04</Name>
+							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.FT_01</Name>
@@ -4148,9 +4143,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.PDT_01</Name>
-							<Comment><![CDATA[ <summary>Filter diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs3_r3.filter_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.sorbent_diff_pres_error</Name>
@@ -4158,9 +4153,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.fan_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r3.PDT_01</Name>
+							<Comment><![CDATA[ <summary>Filter diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.PDT_02</Name>
@@ -4168,9 +4163,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.PDT_03</Name>
-							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs3_r3.fan_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.reactor_pres_error</Name>
@@ -4178,9 +4173,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.reactor_wall_temp_error</Name>
-							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r3.PDT_03</Name>
+							<Comment><![CDATA[ <summary>fan diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.PT_01</Name>
@@ -4188,9 +4183,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.TT_05</Name>
+							<Name>m01_rs3_r3.reactor_wall_temp_error</Name>
 							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.outlet_line_temp_error</Name>
@@ -4198,13 +4193,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.TT_06</Name>
-							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
+							<Name>m01_rs3_r3.TT_05</Name>
+							<Comment><![CDATA[ <summary>Reactor wall temp</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r3.TT_06</Name>
+							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.fan_vfd_status</Name>
@@ -4215,12 +4211,16 @@
 							<Type>WORD</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3.fan_vfd_current</Name>
-							<Type>DINT</Type>
+							<Name>m01_rs3_r3.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.fan_vfd_temp</Name>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r3.fan_vfd_current</Name>
+							<Type>DINT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3.inlet_door_left_open_ls</Name>
@@ -4293,18 +4293,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._01_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r3._01_TT_01_Error</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._01_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._01_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4313,8 +4308,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._02_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._01_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4323,8 +4318,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._02_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._02_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4333,8 +4328,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._03_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._02_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4343,8 +4338,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._03_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._03_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4353,8 +4348,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._04_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._03_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4363,8 +4358,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._04_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._04_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4373,8 +4368,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._05_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._04_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4383,8 +4378,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._05_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._05_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4393,8 +4388,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._06_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._05_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4403,8 +4398,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._06_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._06_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4413,8 +4408,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._07_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._06_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4423,8 +4418,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._07_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._07_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4433,8 +4428,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._08_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._07_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4443,8 +4438,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._08_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._08_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4453,8 +4448,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._09_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._08_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4463,8 +4458,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._09_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._09_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4473,8 +4468,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._10_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._09_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4483,8 +4478,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._10_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._10_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4493,8 +4488,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._11_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._10_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4503,8 +4498,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._11_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._11_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4513,8 +4508,8 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._12_TT_01</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._11_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
@@ -4523,14 +4518,19 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r3._12_TT_03</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r3._12_TT_01</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r3._12_TT_03_Error</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r3._12_TT_03</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r4.inlet_co2_error</Name>
@@ -4548,14 +4548,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4.outlet_co2_error</Name>
-							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r4.AT_02</Name>
 							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r4.outlet_co2_error</Name>
+							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r4.AT_03</Name>
@@ -4568,19 +4568,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4.air_flow_error</Name>
-							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r4.AT_04</Name>
 							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4.FT_01</Name>
-							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs3_r4.air_flow_error</Name>
+							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r4.filter_diff_pres_error</Name>
@@ -4588,9 +4583,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4.sorbent_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r4.FT_01</Name>
+							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r4.PDT_01</Name>
@@ -4598,9 +4593,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4.PDT_02</Name>
-							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs3_r4.sorbent_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r4.fan_diff_pres_error</Name>
@@ -4608,9 +4603,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4.reactor_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r4.PDT_02</Name>
+							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r4.PDT_03</Name>
@@ -4618,9 +4613,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4.PT_01</Name>
-							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs3_r4.reactor_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r4.reactor_wall_temp_error</Name>
@@ -4628,9 +4623,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4.outlet_line_temp_error</Name>
-							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs3_r4.PT_01</Name>
+							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r4.TT_05</Name>
@@ -4638,9 +4633,18 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
+							<Name>m01_rs3_r4.outlet_line_temp_error</Name>
+							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>m01_rs3_r4.TT_06</Name>
 							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3_r4.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r4.fan_vfd_status</Name>
@@ -4649,10 +4653,6 @@
 						<Var>
 							<Name>m01_rs3_r4.fan_vfd_velocity</Name>
 							<Type>WORD</Type>
-						</Var>
-						<Var>
-							<Name>m01_rs3_r4.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3_r4.fan_vfd_current</Name>
@@ -4733,18 +4733,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._01_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3_r4._01_TT_01</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._01_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._01_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4753,8 +4748,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._02_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._01_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4763,8 +4758,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._02_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._02_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4773,8 +4768,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._03_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._02_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4783,8 +4778,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._03_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._03_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4793,8 +4788,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._04_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._03_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4803,8 +4798,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._04_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._04_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4813,8 +4808,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._05_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._04_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4823,8 +4818,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._05_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._05_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4833,8 +4828,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._06_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._05_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4843,8 +4838,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._06_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._06_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4853,8 +4848,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._07_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._06_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4863,8 +4858,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._07_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._07_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4873,8 +4868,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._08_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._07_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4883,8 +4878,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._08_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._08_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4893,8 +4888,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._09_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._08_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4903,8 +4898,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._09_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._09_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4913,8 +4908,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._10_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._09_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4923,8 +4918,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._10_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._10_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4933,8 +4928,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._11_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._10_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4943,8 +4938,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._11_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._11_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4953,8 +4948,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._12_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._11_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4963,8 +4958,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3_r4._12_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs3_r4._12_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4973,13 +4968,13 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01.condensate_flow_error</Name>
-							<Comment><![CDATA[ <summary>FT-02</summary>]]></Comment>
+							<Name>m01_rs3_r4._12_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01.steam_manifold_line_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-02</summary>]]></Comment>
+							<Name>m01.condensate_flow_error</Name>
+							<Comment><![CDATA[ <summary>FT-02</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -4988,14 +4983,19 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01.PT_02</Name>
-							<Comment><![CDATA[ <summary>steam manifold line pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01.steam_manifold_line_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-02</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01.condensate_from_cooling_and_purge_lines_lsl</Name>
 							<Comment><![CDATA[ <summary>LS-03</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01.PT_02</Name>
+							<Comment><![CDATA[ <summary>steam manifold line pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01.condensate_from_cooling_and_purge_lines_lsh</Name>
@@ -5008,19 +5008,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01.TT_10</Name>
-							<Comment><![CDATA[ <summary>steam temp near rs1 error</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01.steam_temp_near_rs3_error</Name>
 							<Comment><![CDATA[ <summary>TT-11</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01.condensate_temp_error</Name>
-							<Comment><![CDATA[ <summary>TT-12</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01.TT_10</Name>
+							<Comment><![CDATA[ <summary>steam temp near rs1 error</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01.TT_11</Name>
@@ -5028,53 +5023,58 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01.TT_12</Name>
-							<Comment><![CDATA[ <summary>condensate temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01.condensate_temp_error</Name>
+							<Comment><![CDATA[ <summary>TT-12</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01.l1_current_error</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01.l2_current_error</Name>
-							<Type>BOOL</Type>
+							<Name>m01.TT_12</Name>
+							<Comment><![CDATA[ <summary>condensate temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01.IT_01</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01.IT_02</Name>
-							<Type>INT</Type>
+							<Name>m01.l2_current_error</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01.l3_current_error</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01.l1_volatge_error</Name>
-							<Type>BOOL</Type>
+							<Name>m01.IT_02</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01.IT_03</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01.VT_01</Name>
-							<Type>INT</Type>
+							<Name>m01.l1_volatge_error</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01.l2_volatge_error</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01.l3_volatge_error</Name>
-							<Type>BOOL</Type>
+							<Name>m01.VT_01</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01.VT_02</Name>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01.l3_volatge_error</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01.VT_03</Name>
@@ -5099,14 +5099,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1.PCV_01_position</Name>
-							<Comment><![CDATA[ <summary>rs steam control valve</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1.steam_control_valve_position_error</Name>
 							<Comment><![CDATA[ <summary>RS_PCV-01</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1.PCV_01_position</Name>
+							<Comment><![CDATA[ <summary>rs steam control valve</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1.dead_air_valve_open</Name>
@@ -5164,14 +5164,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1.outlet_co2_error</Name>
-							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r1.AT_02</Name>
 							<Comment><![CDATA[ <summary>Inlet H20</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r1.outlet_co2_error</Name>
+							<Comment><![CDATA[ <summary>AT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r1.AT_03</Name>
@@ -5184,19 +5184,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1.air_flow_error</Name>
-							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r1.AT_04</Name>
 							<Comment><![CDATA[ <summary>Outlet H20</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1.FT_01</Name>
-							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r1.air_flow_error</Name>
+							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r1.filter_diff_pres_error</Name>
@@ -5204,9 +5199,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1.sorbent_diff_pres_error</Name>
-							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r1.FT_01</Name>
+							<Comment><![CDATA[ <summary>Air flow</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r1.PDT_01</Name>
@@ -5214,9 +5209,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1.PDT_02</Name>
-							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r1.sorbent_diff_pres_error</Name>
+							<Comment><![CDATA[ <summary>PDT-02</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r1.fan_diff_pres_error</Name>
@@ -5224,9 +5219,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1.reactor_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r1.PDT_02</Name>
+							<Comment><![CDATA[ <summary>Sorbent diff pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r1.PDT_03</Name>
@@ -5234,9 +5229,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1.PT_01</Name>
-							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>m01_rs1_r1.reactor_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r1.reactor_wall_temp_error</Name>
@@ -5244,9 +5239,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1.outlet_line_temp_error</Name>
-							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>m01_rs1_r1.PT_01</Name>
+							<Comment><![CDATA[ <summary>Reactor pressure</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r1.TT_05</Name>
@@ -5254,9 +5249,18 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
+							<Name>m01_rs1_r1.outlet_line_temp_error</Name>
+							<Comment><![CDATA[ <summary>Outlet line temp</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>m01_rs1_r1.TT_06</Name>
 							<Comment><![CDATA[ <summary>Outlet_line temp</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r1.fan_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r1.fan_vfd_status</Name>
@@ -5265,10 +5269,6 @@
 						<Var>
 							<Name>m01_rs1_r1.fan_vfd_velocity</Name>
 							<Type>WORD</Type>
-						</Var>
-						<Var>
-							<Name>m01_rs1_r1.fan_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r1.fan_vfd_temp</Name>
@@ -5349,18 +5349,13 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._01_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs1_r1._01_TT_01</Name>
 							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._01_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._01_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5369,8 +5364,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._02_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._01_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart01 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5379,8 +5374,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._02_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._02_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5389,8 +5384,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._03_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._02_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart02 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5399,8 +5394,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._03_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._03_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5409,8 +5404,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._04_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._03_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart03 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5419,8 +5414,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._04_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._04_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5429,8 +5424,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._05_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._04_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart04 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5439,8 +5434,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._05_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._05_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5449,8 +5444,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._06_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._05_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart05 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5459,8 +5454,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._06_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._06_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5469,8 +5464,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._07_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._06_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart06 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5479,8 +5474,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._07_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._07_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5489,8 +5484,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._08_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._07_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart07 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5499,8 +5494,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._08_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._08_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5509,8 +5504,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._09_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._08_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart08 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5519,8 +5514,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._09_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._09_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5529,8 +5524,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._10_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._09_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart09 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5539,8 +5534,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._10_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._10_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5549,8 +5544,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._11_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._10_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart10 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5559,8 +5554,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._11_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._11_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5569,8 +5564,8 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._12_TT_01_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._11_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart11 back temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5579,14 +5574,19 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs1_r1._12_TT_03_Error</Name>
-							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Name>m01_rs1_r1._12_TT_01_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 front temperature</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs1_r1._12_TT_03</Name>
 							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs1_r1._12_TT_03_Error</Name>
+							<Comment><![CDATA[ <summary>Cart12 back temperature</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2.circuit_breaker_no_feedback</Name>
@@ -5607,14 +5607,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs2.PCV_01_position</Name>
-							<Comment><![CDATA[ <summary>steam control valve</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs2.steam_control_valve_position_error</Name>
 							<Comment><![CDATA[ <summary>PCV-01</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs2.PCV_01_position</Name>
+							<Comment><![CDATA[ <summary>steam control valve</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs2.dead_air_valve_open</Name>
@@ -5675,14 +5675,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>m01_rs3.steam_control_valve_position_error</Name>
-							<Comment><![CDATA[ <summary>PCV-01</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>m01_rs3.PCV_01_position</Name>
 							<Comment><![CDATA[ <summary>steam control valve</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>m01_rs3.steam_control_valve_position_error</Name>
+							<Comment><![CDATA[ <summary>PCV-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>m01_rs3.dead_air_valve_open</Name>
@@ -5745,10 +5745,6 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.product_blower_vfd_ecat_state</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>u01.product_blower_vfd_status</Name>
 							<Type>WORD</Type>
 						</Var>
@@ -5757,8 +5753,17 @@
 							<Type>WORD</Type>
 						</Var>
 						<Var>
+							<Name>u01.product_blower_vfd_ecat_state</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
 							<Name>u01.dead_air_line_co2_error</Name>
 							<Comment><![CDATA[ <summary>AT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>u01.product_outlet_co2_error</Name>
+							<Comment><![CDATA[ <summary>AT-02</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -5767,9 +5772,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.product_outlet_co2_error</Name>
-							<Comment><![CDATA[ <summary>AT-02</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.AT_02A</Name>
+							<Comment><![CDATA[ <summary>product outlet co2</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.product_outlet_h2o_error</Name>
@@ -5777,9 +5782,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.AT_02A</Name>
-							<Comment><![CDATA[ <summary>product outlet co2</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.product_outlet_temperature_error</Name>
+							<Comment><![CDATA[ <summary>AT-07B</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.AT_07A</Name>
@@ -5787,9 +5792,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.product_outlet_temperature_error</Name>
-							<Comment><![CDATA[ <summary>AT-07B</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.AT_07B</Name>
+							<Comment><![CDATA[ <summary>product outlet h2o</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.product_outlet_o2_error</Name>
@@ -5797,9 +5802,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.AT_07B</Name>
-							<Comment><![CDATA[ <summary>product outlet h2o</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.product_co2sample_h2o_error</Name>
+							<Comment><![CDATA[ <summary>AT-02</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.AT_03</Name>
@@ -5807,9 +5812,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.product_co2sample_h2o_error</Name>
-							<Comment><![CDATA[ <summary>AT-02</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.AT_02B</Name>
+							<Comment><![CDATA[ <summary>product outlet h2o</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.condensate_collection_tank_ph_error</Name>
@@ -5817,9 +5822,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.AT_02B</Name>
-							<Comment><![CDATA[ <summary>product outlet h2o</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.condensate_collection_tank_o2_error</Name>
+							<Comment><![CDATA[ <summary>AT-05</summary>                        ]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.AT_04</Name>
@@ -5827,9 +5832,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.condensate_collection_tank_o2_error</Name>
-							<Comment><![CDATA[ <summary>AT-05</summary>                        ]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.AT_05</Name>
+							<Comment><![CDATA[ <summary>condensate collection tank o2</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.condensate_collection_tank_turbidity_error</Name>
@@ -5837,9 +5842,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.AT_05</Name>
-							<Comment><![CDATA[ <summary>condensate collection tank o2</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.weather_humidity_error</Name>
+							<Comment><![CDATA[ <summary>AT-07</summary>                        ]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.AT_06</Name>
@@ -5847,19 +5852,14 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.weather_humidity_error</Name>
-							<Comment><![CDATA[ <summary>AT-07</summary>                        ]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.AT_07</Name>
+							<Comment><![CDATA[ <summary>weather humidity</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.dead_air_flow_error</Name>
 							<Comment><![CDATA[ <summary>FT-01</summary>]]></Comment>
 							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>u01.AT_07</Name>
-							<Comment><![CDATA[ <summary>weather humidity</summary>]]></Comment>
-							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.FT_01</Name>
@@ -5882,14 +5882,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.FT_02</Name>
-							<Comment><![CDATA[ <summary>product outlet mass flow</summary>]]></Comment>
-							<Type>INT</Type>
-						</Var>
-						<Var>
 							<Name>u01.product_condenser_pump_outlet_liquid_flow_error</Name>
 							<Comment><![CDATA[ <summary>FT-04</summary>]]></Comment>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>u01.FT_02</Name>
+							<Comment><![CDATA[ <summary>product outlet mass flow</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.FT_04</Name>
@@ -5912,19 +5912,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.condensate_collection_tank_flow_error</Name>
-							<Comment><![CDATA[ <summary>FT-07</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>u01.FT_06</Name>
 							<Comment><![CDATA[ <summary>steam header flow</summary>]]></Comment>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.FT_07</Name>
-							<Comment><![CDATA[ <summary>condensate collection tank flow</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.condensate_collection_tank_flow_error</Name>
+							<Comment><![CDATA[ <summary>FT-07</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.weather_wind_speed_error</Name>
@@ -5932,9 +5927,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.product_condensate_drum_level_error</Name>
-							<Comment><![CDATA[ <summary>LT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.FT_07</Name>
+							<Comment><![CDATA[ <summary>condensate collection tank flow</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.AT_08</Name>
@@ -5942,9 +5937,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.LT_01</Name>
-							<Comment><![CDATA[ <summary>product condensate drum level</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.product_condensate_drum_level_error</Name>
+							<Comment><![CDATA[ <summary>LT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.condensate_collection_tank_level_error</Name>
@@ -5952,9 +5947,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.dead_air_line_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.LT_01</Name>
+							<Comment><![CDATA[ <summary>product condensate drum level</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.LT_02</Name>
@@ -5962,9 +5957,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.PT_01</Name>
-							<Comment><![CDATA[ <summary>dead air line pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.dead_air_line_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.purge_product_line_pres_error</Name>
@@ -5972,9 +5967,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.pre_condenser_line_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-03</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.PT_01</Name>
+							<Comment><![CDATA[ <summary>dead air line pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.PT_02</Name>
@@ -5982,9 +5977,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.PT_03</Name>
-							<Comment><![CDATA[ <summary>pre condenser line pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.pre_condenser_line_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-03</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.post_condenser_line_pres_error</Name>
@@ -5992,9 +5987,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.product_vacuum_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-05</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.PT_03</Name>
+							<Comment><![CDATA[ <summary>pre condenser line pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.PT_04</Name>
@@ -6002,9 +5997,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.PT_05</Name>
-							<Comment><![CDATA[ <summary>product vacuum pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.product_vacuum_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-05</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.product_vacuum_inlet_pres_error</Name>
@@ -6012,8 +6007,18 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
+							<Name>u01.PT_05</Name>
+							<Comment><![CDATA[ <summary>product vacuum pres</summary>]]></Comment>
+							<Type>INT</Type>
+						</Var>
+						<Var>
 							<Name>u01.product_outlet_pres_error</Name>
 							<Comment><![CDATA[ <summary>PT-06</summary>]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>u01.boiler_outlet_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-07</summary>]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -6022,9 +6027,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.boiler_outlet_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-07</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.PT_07</Name>
+							<Comment><![CDATA[ <summary>boiler outlet pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.instrument_air_comp_pres_error</Name>
@@ -6032,9 +6037,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.PT_07</Name>
-							<Comment><![CDATA[ <summary>boiler outlet pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.weather_pres_error</Name>
+							<Comment><![CDATA[ <summary>PT-09</summary>                        ]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.PT_08</Name>
@@ -6042,9 +6047,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.weather_pres_error</Name>
-							<Comment><![CDATA[ <summary>PT-09</summary>                        ]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.PT_09</Name>
+							<Comment><![CDATA[ <summary>weather pres</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.purge_product_line_temp_error</Name>
@@ -6052,9 +6057,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.PT_09</Name>
-							<Comment><![CDATA[ <summary>weather pres</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.pre_condenser_line_temp_error</Name>
+							<Comment><![CDATA[ <summary>TT-02</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.TT_01</Name>
@@ -6062,9 +6067,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.pre_condenser_line_temp_error</Name>
-							<Comment><![CDATA[ <summary>TT-02</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.TT_02</Name>
+							<Comment><![CDATA[ <summary>pre condenser line temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.post_condenser_line_temp_error</Name>
@@ -6072,9 +6077,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.TT_02</Name>
-							<Comment><![CDATA[ <summary>pre condenser line temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.product_outlet_temp_error</Name>
+							<Comment><![CDATA[ <summary>TT-04</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.TT_03</Name>
@@ -6082,9 +6087,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.product_outlet_temp_error</Name>
-							<Comment><![CDATA[ <summary>TT-04</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.TT_04</Name>
+							<Comment><![CDATA[ <summary>product outlet temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.product_condenser_pump_outlet_temp_error</Name>
@@ -6092,9 +6097,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.TT_04</Name>
-							<Comment><![CDATA[ <summary>product outlet temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.boiler_outlet_temp_error</Name>
+							<Comment><![CDATA[ <summary>TT-06</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.TT_05</Name>
@@ -6102,9 +6107,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.boiler_outlet_temp_error</Name>
-							<Comment><![CDATA[ <summary>TT-06</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.TT_06</Name>
+							<Comment><![CDATA[ <summary>boiler outlet temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.condensate_collection_tank_temp_error</Name>
@@ -6112,9 +6117,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.TT_06</Name>
-							<Comment><![CDATA[ <summary>boiler outlet temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.condensate_collection_tank_outlet_line_temp_error</Name>
+							<Comment><![CDATA[ <summary>TT-08</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.TT_07</Name>
@@ -6122,9 +6127,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.condensate_collection_tank_outlet_line_temp_error</Name>
-							<Comment><![CDATA[ <summary>TT-08</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.TT_08</Name>
+							<Comment><![CDATA[ <summary>condensate collection tank outlet temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.instrument_air_comp_temp_error</Name>
@@ -6132,9 +6137,9 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.TT_08</Name>
-							<Comment><![CDATA[ <summary>condensate collection tank outlet temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.weather_temp_error</Name>
+							<Comment><![CDATA[ <summary>TT-10</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.TT_09</Name>
@@ -6142,9 +6147,9 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.weather_temp_error</Name>
-							<Comment><![CDATA[ <summary>TT-10</summary>]]></Comment>
-							<Type>BOOL</Type>
+							<Name>u01.TT_10</Name>
+							<Comment><![CDATA[ <summary>instrument air comp temp</summary>]]></Comment>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.weather_noise_level_error</Name>
@@ -6152,19 +6157,14 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.TT_10</Name>
-							<Comment><![CDATA[ <summary>instrument air comp temp</summary>]]></Comment>
-							<Type>INT</Type>
+							<Name>u01.weather_wind_direction_error</Name>
+							<Comment><![CDATA[ <summary>WDT-01</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.NT_01</Name>
 							<Comment><![CDATA[ <summary>weather noise level</summary>]]></Comment>
 							<Type>INT</Type>
-						</Var>
-						<Var>
-							<Name>u01.weather_wind_direction_error</Name>
-							<Comment><![CDATA[ <summary>WDT-01</summary>]]></Comment>
-							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.WDT_01</Name>
@@ -6262,11 +6262,6 @@
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.P02_TSH_1</Name>
-							<Comment><![CDATA[ <summary>product_vacuum_pump_cooling_jacket_temp_trip_switch</summary>]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>u01.product_vacuum_pump_vfd_status</Name>
 							<Comment><![CDATA[ <summary>P-02</summary>]]></Comment>
 							<Type>WORD</Type>
@@ -6280,6 +6275,11 @@
 							<Name>u01.P02_PT_01</Name>
 							<Comment><![CDATA[ <summary>product_vacuum_pump_pressure</summary>]]></Comment>
 							<Type>INT</Type>
+						</Var>
+						<Var>
+							<Name>u01.P02_TSH_1</Name>
+							<Comment><![CDATA[ <summary>product_vacuum_pump_cooling_jacket_temp_trip_switch</summary>]]></Comment>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.P02_TSH_2</Name>
@@ -6296,116 +6296,116 @@
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.l2_current_480_error</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
 							<Name>u01.IT_01</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.IT_02</Name>
-							<Type>INT</Type>
+							<Name>u01.l2_current_480_error</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.l3_current_480_error</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.l1_voltage_480_error</Name>
-							<Type>BOOL</Type>
+							<Name>u01.IT_02</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.IT_03</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.VT_01</Name>
-							<Type>INT</Type>
+							<Name>u01.l1_voltage_480_error</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.l2_voltage_480_error</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.l3_voltage_480_error</Name>
-							<Type>BOOL</Type>
+							<Name>u01.VT_01</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.VT_02</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.VT_03</Name>
-							<Type>INT</Type>
+							<Name>u01.l3_voltage_480_error</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.l1_current_208_error</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.l2_current_208_error</Name>
-							<Type>BOOL</Type>
+							<Name>u01.VT_03</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.IT_04</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.IT_05</Name>
-							<Type>INT</Type>
+							<Name>u01.l2_current_208_error</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.l3_current_208_error</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.l1_voltage_208_error</Name>
-							<Type>BOOL</Type>
+							<Name>u01.IT_05</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.IT_06</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.VT_04</Name>
-							<Type>INT</Type>
+							<Name>u01.l1_voltage_208_error</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.l2_voltage_208_error</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.l3_voltage_208_error</Name>
-							<Type>BOOL</Type>
+							<Name>u01.VT_04</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.VT_05</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.VT_06</Name>
-							<Type>INT</Type>
+							<Name>u01.l3_voltage_208_error</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.l1_current_boiler_error</Name>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
-							<Name>u01.l2_current_boiler_error</Name>
-							<Type>BOOL</Type>
+							<Name>u01.VT_06</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.IT_boiler_01</Name>
 							<Type>INT</Type>
 						</Var>
 						<Var>
-							<Name>u01.IT_boiler_02</Name>
-							<Type>INT</Type>
+							<Name>u01.l2_current_boiler_error</Name>
+							<Type>BOOL</Type>
 						</Var>
 						<Var>
 							<Name>u01.l3_current_boiler_error</Name>
 							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>u01.IT_boiler_02</Name>
+							<Type>INT</Type>
 						</Var>
 						<Var>
 							<Name>u01.IT_boiler_03</Name>

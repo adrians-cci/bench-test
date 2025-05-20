@@ -150,7 +150,7 @@ A_AutoMode();
         <ST><![CDATA[// Phase 0 - P_M01.A_AutoMode
 // Rev 1.0 - May 11, 2024
 
-IF m01.tb_Stop_Process OR P_M01_RS01.utility_error OR P_M01_RS02.utility_error OR P_M01_RS03.utility_error THEN 			// Stop all processes from HMI or if utility error occurs
+IF m01.tb_Stop_Process OR P_M01_RS01.utility_error OR P_M01_RS02.utility_error OR P_M01_RS03.utility_error OR P_U01.sUtilityError <> '' THEN 			// Stop all processes from HMI or if utility error occurs
 	u01.shutdown_process												:= TRUE;
 //	IF m01.tb_Auto_Mode_On THEN
 	P_M01_RS01.stop_rs_automode										:= TRUE;
