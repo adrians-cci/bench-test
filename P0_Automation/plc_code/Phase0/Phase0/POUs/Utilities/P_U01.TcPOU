@@ -207,7 +207,8 @@ tonWriteData(IN:= NOT bWriteData, PT:= T#30M);
     <Action Name="A_BOP_Estop" Id="{5c5d44f9-58ec-48e1-911e-c5376b4fba9d}">
       <Implementation>
         <ST><![CDATA[// close and stop all BOP 
-IF u.utility_error <>  '' AND ( m01_rs1.tb_Process_Running OR  m01_rs2.tb_Process_Running OR  m01_rs3.tb_Process_Running )  THEN
+IF (u.utility_error <>  '' OR P_M01_RS01.utility_error OR P_M01_RS02.utility_error OR P_M01_RS03.utility_error) 
+	AND ( m01_rs1.tb_Process_Running OR  m01_rs2.tb_Process_Running OR  m01_rs3.tb_Process_Running )  THEN
 	u.dead_air_vacuum_pump							:= FALSE;
 	u.product_blower								:= FALSE;
 	u.product_vacuum_backfeed_valve					:= _CLOSED;
@@ -2083,7 +2084,7 @@ M_Repres_Valve_Error													:= SEL(sErr <> '', sErr, CONCAT(sErr, gsRepress
     </LineIds>
     <LineIds Name="P_U01.A_BOP_Estop">
       <LineId Id="1" Count="0" />
-      <LineId Id="13" Count="0" />
+      <LineId Id="13" Count="1" />
       <LineId Id="2" Count="0" />
       <LineId Id="4" Count="8" />
     </LineIds>
