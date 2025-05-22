@@ -217,6 +217,7 @@ IF (u.utility_error <>  '' OR P_M01_RS01.utility_error OR P_M01_RS02.utility_err
 	u.product_vacuum_pump_isolation_valve			:= FALSE;
 	u.product_vacuum_pump_radiator					:= FALSE;
 	u.product_vacuum_pump_vfd						:= 0;
+	u.product_blower_vfd							:= 0;
 	u.steam_bypass_valve							:= FALSE;
 END_IF]]></ST>
       </Implementation>
@@ -2086,7 +2087,9 @@ M_Repres_Valve_Error													:= SEL(sErr <> '', sErr, CONCAT(sErr, gsRepress
       <LineId Id="1" Count="0" />
       <LineId Id="13" Count="1" />
       <LineId Id="2" Count="0" />
-      <LineId Id="4" Count="8" />
+      <LineId Id="4" Count="6" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="11" Count="1" />
     </LineIds>
     <LineIds Name="P_U01.A_Drains">
       <LineId Id="101" Count="57" />

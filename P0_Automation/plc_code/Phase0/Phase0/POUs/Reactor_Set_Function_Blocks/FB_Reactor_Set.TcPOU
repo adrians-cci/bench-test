@@ -3163,6 +3163,7 @@ CASE i7Step OF
 	80:																														// Manual process closing
 		Cycle_Stage														:= 'desorption.stopping';
 		U.product_vacuum_backfeed_valve									:= _CLOSED;
+		R_S.steam_header_valve											:= FALSE;
 		rTime1															:= _STOPPING_TIME;
 		i7Step															:= 81;
 		
@@ -3176,6 +3177,7 @@ CASE i7Step OF
 	90:																														// Automatic process stopping
 		Cycle_Stage														:= 'desorption.stopping';
 		U.product_vacuum_backfeed_valve									:= _CLOSED;											///@ Close valves & turn off pumps
+		R_S.steam_header_valve											:= FALSE;
 		rTime1															:= _STOPPING_TIME;
 		i7Step															:= 91;
 		
@@ -4156,7 +4158,11 @@ END_IF
       <LineId Id="3034" Count="0" />
       <LineId Id="3213" Count="2" />
       <LineId Id="3018" Count="0" />
-      <LineId Id="2895" Count="35" />
+      <LineId Id="2895" Count="2" />
+      <LineId Id="3219" Count="0" />
+      <LineId Id="2898" Count="12" />
+      <LineId Id="3221" Count="0" />
+      <LineId Id="2911" Count="19" />
       <LineId Id="3049" Count="1" />
       <LineId Id="3048" Count="0" />
       <LineId Id="3218" Count="0" />
