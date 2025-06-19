@@ -1420,19 +1420,19 @@ CASE i4Step OF
 END_CASE
 
 IF i4Step > 0 AND i4Step < 80 THEN
-	IF bMultiProcess THEN
-		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
-			sSafeShutdownError1											:= U.safe_shutdown_error_1;
-			giSafeShutdown1RS											:= RS_Number;
-		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
-			sSafeShutdownError2											:= U.safe_shutdown_error_2;
-			giSafeShutdown23RS											:= RS_Number;
-		ELSIF (giEvacuationErrorRS + giDesorptionErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN
-			Cancel_Reactor_Set											:= TRUE;
-		ELSIF U.os_air_unsafe_temp THEN
-			Stop_Reactor_Set											:= TRUE;
-		END_IF
-	END_IF
+//	IF bMultiProcess THEN
+//		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+//			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+//			giSafeShutdown1RS											:= RS_Number;
+//		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+//			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+//			giSafeShutdown23RS											:= RS_Number;
+//		ELSIF (giEvacuationErrorRS + giDesorptionErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN
+//			Cancel_Reactor_Set											:= TRUE;
+//		ELSIF U.os_air_unsafe_temp THEN
+//			Stop_Reactor_Set											:= TRUE;
+//		END_IF
+//	END_IF
 	iStep																:= i4Step;
 	Current_Step														:= iStep;
 	A_Check_Process();
@@ -2484,22 +2484,22 @@ CASE i6Step OF
 END_CASE
 
 IF i6Step > 0 AND i6Step < 80 THEN
-	IF bMultiProcess THEN
-		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
-			sSafeShutdownError1											:= U.safe_shutdown_error_1;
-			giSafeShutdown1RS											:= RS_Number;
-		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
-			sSafeShutdownError2											:= U.safe_shutdown_error_2;
-			giSafeShutdown23RS											:= RS_Number;
-		ELSIF bEvacuationRSError AND giEvacuationErrorRS = 0 THEN															// Error occured in this reactor set
-			bEvacuationRSError											:= FALSE;
-			giEvacuationErrorRS											:= RS_Number;										// Save reactor set number to handle error in other reactor sets
-		ELSIF giDesorptionErrorRS > 0 THEN
-			bStopAfterEvacuation										:= TRUE;
-		ELSIF U.os_air_unsafe_temp OR (giEvacuationErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN 
-			Stop_Reactor_Set											:= TRUE;
-		END_IF
-	END_IF
+//	IF bMultiProcess THEN
+//		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+//			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+//			giSafeShutdown1RS											:= RS_Number;
+//		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+//			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+//			giSafeShutdown23RS											:= RS_Number;
+//		ELSIF bEvacuationRSError AND giEvacuationErrorRS = 0 THEN															// Error occured in this reactor set
+//			bEvacuationRSError											:= FALSE;
+//			giEvacuationErrorRS											:= RS_Number;										// Save reactor set number to handle error in other reactor sets
+//		ELSIF giDesorptionErrorRS > 0 THEN
+//			bStopAfterEvacuation										:= TRUE;
+//		ELSIF U.os_air_unsafe_temp OR (giEvacuationErrorRS + giSafeShutdown1RS + giSafeShutdown23RS) > 0 THEN 
+//			Stop_Reactor_Set											:= TRUE;
+//		END_IF
+//	END_IF
 	iStep																:= i6Step;
 	Current_Step														:= iStep;
 	A_Check_Process();
@@ -3331,43 +3331,43 @@ CASE i7Step OF
 END_CASE
 
 IF i7Step > 0 AND i7Step < 80 THEN
-	IF bMultiProcess THEN
-		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
-			sSafeShutdownError1											:= U.safe_shutdown_error_1;
-			giSafeShutdown1RS											:= RS_Number;
-		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
-			sSafeShutdownError2											:= U.safe_shutdown_error_2;
-			giSafeShutdown23RS											:= RS_Number;
-		ELSIF bDesorptionRSError AND giDesorptionErrorRS = 0 THEN
-			bDesorptionRSError											:= FALSE;
-			giDesorptionErrorRS											:= RS_Number;
-			sMessage													:= gsReactorSetWillStopEvacWillFinishOthersWillCompleteCycle;
-		ELSIF (sSafeShutdownError2 <> '' OR sSafeShutdownError3 <> '') AND giSafeShutdown23RS = 0 THEN
-			giSafeShutdown23RS											:= RS_Number;
-		ELSIF (giDesorptionErrorRS + giSafeShutdown23RS) > 0 THEN
-			Stop_Reactor_Set											:= TRUE;
-		ELSIF (giEvacuationErrorRS + giSafeShutdown1RS) > 0 THEN
-			Cancel_Reactor_Set											:= TRUE;
-		ELSIF U.os_air_unsafe_temp THEN																							// 5.e
-			bStopAfterDesorption										:= TRUE;
-		END_IF
-		IF NOT bDesorptionErrorCheck THEN
-			IF R_S.steam_header_valve_not_closed THEN
-				IF R_S.desorption_high_temp_count > _DESORP_MAX_COUNT THEN														//3.4.3.2_2.b
-					bDesorptionErrorCheck								:= TRUE;
-					i7Step												:= 25;
-				ELSIF R_S.average_reactor_pressure > m01.SP_maximum_safe_reactor_steam_pressure THEN							//3.4.3.2_2.c
-					bDesorptionErrorCheck								:= TRUE;
-					i7Step												:= 27;
-				END_IF
-			ELSIF NOT u.product_vacuum_pump_isolation_valve_closed THEN
-				IF u.post_condenser_line_temp > u01.SP_maximum_inlet_product_vacuum_temperature THEN							//3.4.3.2_2.d
-					bDesorptionErrorCheck								:= TRUE;
-					i7Step												:= 28;
-				END_IF
-			END_IF
-		END_IF
-	END_IF
+//	IF bMultiProcess THEN
+//		IF U.safe_shutdown_error_1 <> '' AND giSafeShutdown1RS = 0 THEN
+//			sSafeShutdownError1											:= U.safe_shutdown_error_1;
+//			giSafeShutdown1RS											:= RS_Number;
+//		ELSIF U.safe_shutdown_error_2 <> '' AND giSafeShutdown23RS = 0 THEN
+//			sSafeShutdownError2											:= U.safe_shutdown_error_2;
+//			giSafeShutdown23RS											:= RS_Number;
+//		ELSIF bDesorptionRSError AND giDesorptionErrorRS = 0 THEN
+//			bDesorptionRSError											:= FALSE;
+//			giDesorptionErrorRS											:= RS_Number;
+//			sMessage													:= gsReactorSetWillStopEvacWillFinishOthersWillCompleteCycle;
+//		ELSIF (sSafeShutdownError2 <> '' OR sSafeShutdownError3 <> '') AND giSafeShutdown23RS = 0 THEN
+//			giSafeShutdown23RS											:= RS_Number;
+//		ELSIF (giDesorptionErrorRS + giSafeShutdown23RS) > 0 THEN
+//			Stop_Reactor_Set											:= TRUE;
+//		ELSIF (giEvacuationErrorRS + giSafeShutdown1RS) > 0 THEN
+//			Cancel_Reactor_Set											:= TRUE;
+//		ELSIF U.os_air_unsafe_temp THEN																							// 5.e
+//			bStopAfterDesorption										:= TRUE;
+//		END_IF
+//		IF NOT bDesorptionErrorCheck THEN
+//			IF R_S.steam_header_valve_not_closed THEN
+//				IF R_S.desorption_high_temp_count > _DESORP_MAX_COUNT THEN														//3.4.3.2_2.b
+//					bDesorptionErrorCheck								:= TRUE;
+//					i7Step												:= 25;
+//				ELSIF R_S.average_reactor_pressure > m01.SP_maximum_safe_reactor_steam_pressure THEN							//3.4.3.2_2.c
+//					bDesorptionErrorCheck								:= TRUE;
+//					i7Step												:= 27;
+//				END_IF
+//			ELSIF NOT u.product_vacuum_pump_isolation_valve_closed THEN
+//				IF u.post_condenser_line_temp > u01.SP_maximum_inlet_product_vacuum_temperature THEN							//3.4.3.2_2.d
+//					bDesorptionErrorCheck								:= TRUE;
+//					i7Step												:= 28;
+//				END_IF
+//			END_IF
+//		END_IF
+//	END_IF
 	iStep																:= i7Step;
 	Current_Step														:= iStep;
 	A_Check_Process();

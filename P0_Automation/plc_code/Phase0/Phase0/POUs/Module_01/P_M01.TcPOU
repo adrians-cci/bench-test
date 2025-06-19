@@ -153,11 +153,15 @@ A_AutoMode();
 IF m01.tb_Stop_Process OR P_M01_RS01.utility_error OR P_M01_RS02.utility_error OR P_M01_RS03.utility_error OR P_U01.sUtilityError <> '' THEN 			// Stop all processes from HMI or if utility error occurs
 	u01.shutdown_process												:= TRUE;
 //	IF m01.tb_Auto_Mode_On THEN
-	P_M01_RS01.stop_rs_automode										:= TRUE;
-	P_M01_RS02.stop_rs_automode										:= TRUE;
-	P_M01_RS03.stop_rs_automode										:= TRUE;
+//	P_M01_RS01.stop_rs_automode										:= TRUE;
+//	P_M01_RS02.stop_rs_automode										:= TRUE;
+//	P_M01_RS03.stop_rs_automode										:= TRUE;
+	P_M01_RS01.stop_rs_automode										:= m01.SP_include_reactor_set_1_in_process;
+	P_M01_RS02.stop_rs_automode										:= m01.SP_include_reactor_set_2_in_process;
+	sCycleModeRS02														:= '';
+	P_M01_RS03.stop_rs_automode										:= m01.SP_include_reactor_set_3_in_process;
 //	END_IF
-	bRSProcess															:= FALSE;
+//	bRSProcess															:= FALSE;
 	m01.tb_Stop_Process													:= FALSE;
 END_IF
 
@@ -204,20 +208,40 @@ IF rtrigStart.Q THEN
 		m01.tb_Auto_Mode_On												:= FALSE;
 		bRSManual														:= STRING_TO_INT(gsCycleMode) >= eRepressurization AND STRING_TO_INT(gsCycleMode) <= eDesorption;
 	ELSE
-		iReactorSetToActivate											:= SEL(bRS01, SEL(bRS02, SEL(bRS03, 0, 3), 2), 1);	// Determine which reactor set to start
-        IF iReactorSetToActivate > 0 THEN																					// Start process if at least one reactor set is selected              
-			bRS01Selected												:= bRS01;
-			bRS02Selected												:= bRS02;
-			bRS03Selected												:= bRS03;
-			m01_rs1.ti_Cycle_Count										:= 0;												// Completed cycles
-			m01_rs2.ti_Cycle_Count										:= 0;
-			m01_rs3.ti_Cycle_Count										:= 0;
-			iRS01Count													:= 0;												// Attempted cycles
-			iRS02Count													:= 0;
-			iRS03Count													:= 0;
-			m01.tb_Auto_Mode_On											:= TRUE;
-			bRSProcess													:= TRUE;
+//		iReactorSetToActivate											:= SEL(bRS01, SEL(bRS02, SEL(bRS03, 0, 3), 2), 1);	// Determine which reactor set to start
+//        IF iReactorSetToActivate > 0 THEN																					// Start process if at least one reactor set is selected              
+//			bRS01Selected												:= bRS01;
+//			bRS02Selected												:= bRS02;
+//			bRS03Selected												:= bRS03;
+//			m01_rs1.ti_Cycle_Count										:= 0;												// Completed cycles
+//			m01_rs2.ti_Cycle_Count										:= 0;
+//			m01_rs3.ti_Cycle_Count										:= 0;
+//			iRS01Count													:= 0;												// Attempted cycles
+//			iRS02Count													:= 0;
+//			iRS03Count													:= 0;
+//			m01.tb_Auto_Mode_On											:= TRUE;
+//			bRSProcess													:= TRUE;
+//		END_IF
+		bRS01Selected												:= bRS01;
+		bRS02Selected												:= bRS02;
+		bRS03Selected												:= bRS03;
+		IF NOT m01_rs1.tb_Process_Running THEN
+			sCycleModeRS01											:= SEL(bRS01, '0', gsCycleMode);
+			m01_rs1.ti_Cycle_Count									:= 0;
+			iRS01Count												:= 0;	
 		END_IF
+		IF NOT m01_rs2.tb_Process_Running THEN
+			sCycleModeRS02											:= SEL(bRS02, '0', gsCycleMode);
+			m01_rs2.ti_Cycle_Count									:= 0;
+			iRS02Count												:= 0;	
+		END_IF
+		IF NOT m01_rs3.tb_Process_Running THEN
+			sCycleModeRS03											:= SEL(bRS03, '0', gsCycleMode);
+			m01_rs3.ti_Cycle_Count									:= 0;
+			iRS03Count												:= 0;	
+		END_IF
+		m01.tb_Auto_Mode_On											:= TRUE;
+		bRSProcess													:= TRUE;
 	END_IF
 
 	
@@ -274,28 +298,49 @@ ELSIF bRSProcess THEN
 		END_IF
 	END_IF
 
-	bRSTimer															:= TRUE;
-	IF tonRSTimer.Q OR NOT bStarted THEN
-		IF iReactorSetToActivate = 1 THEN
-			IF NOT m01_rs1.tb_Process_Running THEN
-				sCycleModeRS01											:= SEL(bRS01, '0', gsCycleMode);
-				iReactorSetToActivate									:= 2;
-				bRSTimer												:= NOT bRS01;
-			END_IF
-		ELSIF iReactorSetToActivate = 2 THEN
-			IF NOT m01_rs2.tb_Process_Running THEN
-				sCycleModeRS02											:= SEL(bRS02, '0', gsCycleMode);
-				iReactorSetToActivate									:= 3;
-				bRSTimer												:= NOT bRS02;
-			END_IF
-		ELSIF iReactorSetToActivate = 3 THEN
-			IF NOT m01_rs3.tb_Process_Running THEN
-				sCycleModeRS03											:= SEL(bRS03, '0', gsCycleMode);
-				iReactorSetToActivate									:= 1;
-				bRSTimer												:= NOT bRS03;
-			END_IF
-		END_IF
+//	bRSTimer															:= TRUE;
+//	IF tonRSTimer.Q OR NOT bStarted THEN
+//		IF iReactorSetToActivate = 1 THEN
+//			IF NOT m01_rs1.tb_Process_Running THEN
+//				sCycleModeRS01											:= SEL(bRS01, '0', gsCycleMode);
+////				iReactorSetToActivate									:= 2;
+////				bRSTimer												:= NOT bRS01;
+//			END_IF
+//			iReactorSetToActivate										:= 2;
+//			bRSTimer													:= NOT bRS01;
+//		ELSIF iReactorSetToActivate = 2 THEN
+//			IF NOT m01_rs2.tb_Process_Running THEN
+//				sCycleModeRS02											:= SEL(bRS02, '0', gsCycleMode);
+////				iReactorSetToActivate									:= 3;
+////				bRSTimer												:= NOT bRS02;
+//			END_IF
+//		iReactorSetToActivate											:= 3;
+//		bRSTimer														:= NOT bRS02;
+//		ELSIF iReactorSetToActivate = 3 THEN
+//			IF NOT m01_rs3.tb_Process_Running THEN
+//				sCycleModeRS03											:= SEL(bRS03, '0', gsCycleMode);
+////				iReactorSetToActivate									:= 1;
+////				bRSTimer												:= NOT bRS03;
+//			END_IF
+//		iReactorSetToActivate											:= 1;
+//		bRSTimer														:= NOT bRS03;
+//		END_IF
+//	END_IF
+
+	IF NOT m01_rs1.tb_Process_Running THEN
+			sCycleModeRS01											:= SEL(bRS01, '', gsCycleMode);
+			
 	END_IF
+	IF NOT m01_rs2.tb_Process_Running THEN
+			sCycleModeRS02											:= SEL(bRS02, '', gsCycleMode);
+	
+	END_IF
+	IF NOT m01_rs3.tb_Process_Running THEN
+			sCycleModeRS03											:= SEL(bRS03, '', gsCycleMode);
+
+	END_IF
+	
+	
 	IF NOT bRS01 AND NOT bRS02 AND NOT bRS03 THEN																				// Stop process when all reactor sets are done
 		iReactorSetToActivate											:= 0;
 		P_M01_RS01.stop_rs_automode										:= TRUE;
@@ -339,25 +384,26 @@ tonRSTimer(IN:= bRSTimer, PT:= REAL_TO_TIME(m01.SP_cycle_start_offset_duration *
         <ST><![CDATA[// Phase 0 - P_M01.A_AutoMode_RS01
 // Rev 1.0 - May 10, 2024
 
-rtrigRS01Restart(CLK:= m01.SP_include_reactor_set_1_in_process);
-IF rtrigRS01Restart.Q THEN
-	IF m01.tb_Auto_Mode_On AND NOT bRS01Selected THEN 
-		m01.SP_include_reactor_set_1_in_process							:= FALSE;
-	ELSE
-		bRS01															:= TRUE;
-		P_M01_RS01.clear_rs_pause										:= TRUE;
-	END_IF
-END_IF
+//rtrigRS01Restart(CLK:= m01.SP_include_reactor_set_1_in_process);
+//IF rtrigRS01Restart.Q THEN
+//	IF m01.tb_Auto_Mode_On AND NOT bRS01Selected THEN 
+//		m01.SP_include_reactor_set_1_in_process							:= FALSE;
+//	ELSE
+//		bRS01															:= TRUE;
+//		P_M01_RS01.clear_rs_pause										:= TRUE;
+//	END_IF
+//END_IF
 
 IF P_M01_RS01.stop_rs_automode THEN
 	m01.SP_include_reactor_set_1_in_process								:= FALSE;
 	bRS01Selected														:= FALSE;
-END_IF
-
-rtrigRS01Offline(CLK:= NOT m01.SP_include_reactor_set_1_in_process);
-IF rtrigRS01Offline.Q THEN
 	bRS01																:= FALSE;
 END_IF
+
+//rtrigRS01Offline(CLK:= NOT m01.SP_include_reactor_set_1_in_process);
+//IF rtrigRS01Offline.Q THEN
+//	bRS01																:= FALSE;
+//END_IF
 
 IF P_M01_RS01.cancel_reactor_set THEN
 	iRS01CyclesToRun													:= SEL(m01_rs1.tb_Process_Running, iRS01Count, iRS01Count + 1);
@@ -370,25 +416,26 @@ END_IF
         <ST><![CDATA[// Phase 0 - P_M01.A_AutoMode_RS02
 // Rev 1.0 - May 10, 2024
 
-rtrigRS02Restart(CLK:= m01.SP_include_reactor_set_2_in_process);
-IF rtrigRS02Restart.Q THEN
-	IF m01.tb_Auto_Mode_On AND NOT bRS02Selected THEN
-		m01.SP_include_reactor_set_2_in_process							:= FALSE;
-	ELSE
-		bRS02															:= TRUE;
-		P_M01_RS02.clear_rs_pause										:= TRUE;
-	END_IF
-END_IF
+//rtrigRS02Restart(CLK:= m01.SP_include_reactor_set_2_in_process);
+//IF rtrigRS02Restart.Q THEN
+//	IF m01.tb_Auto_Mode_On AND NOT bRS02Selected THEN
+//		m01.SP_include_reactor_set_2_in_process							:= FALSE;
+//	ELSE
+//		bRS02															:= TRUE;
+//		P_M01_RS02.clear_rs_pause										:= TRUE;
+//	END_IF
+//END_IF
 
 IF P_M01_RS02.stop_rs_automode THEN
 	m01.SP_include_reactor_set_2_in_process								:= FALSE;
 	bRS02Selected														:= FALSE;
-END_IF
-
-rtrigRS02Offline(CLK:= NOT m01.SP_include_reactor_set_2_in_process);
-IF rtrigRS02Offline.Q THEN
 	bRS02																:= FALSE;
 END_IF
+
+//rtrigRS02Offline(CLK:= NOT m01.SP_include_reactor_set_2_in_process);
+//IF rtrigRS02Offline.Q THEN
+//	bRS02																:= FALSE;
+//END_IF
 
 IF P_M01_RS02.cancel_reactor_set THEN
 	iRS02CyclesToRun													:= SEL(m01_rs2.tb_Process_Running, iRS02Count, iRS02Count + 1);
@@ -401,25 +448,26 @@ END_IF
         <ST><![CDATA[// Phase 0 - P_M01.A_AutoMode_RS03
 // Rev 1.0 - May 10, 2024
 
-rtrigRS03Restart(CLK:= m01.SP_include_reactor_set_3_in_process);
-IF rtrigRS03Restart.Q THEN
-	IF m01.tb_Auto_Mode_On AND NOT bRS03Selected THEN
-		m01.SP_include_reactor_set_3_in_process							:= FALSE;
-	ELSE
-		bRS03															:= TRUE;
-		P_M01_RS03.clear_rs_pause										:= TRUE;
-	END_IF
-END_IF
+//rtrigRS03Restart(CLK:= m01.SP_include_reactor_set_3_in_process);
+//IF rtrigRS03Restart.Q THEN
+//	IF m01.tb_Auto_Mode_On AND NOT bRS03Selected THEN
+//		m01.SP_include_reactor_set_3_in_process							:= FALSE;
+//	ELSE
+//		bRS03															:= TRUE;
+//		P_M01_RS03.clear_rs_pause										:= TRUE;
+//	END_IF
+//END_IF
 
 IF P_M01_RS03.stop_rs_automode THEN
 	m01.SP_include_reactor_set_3_in_process								:= FALSE;
 	bRS03Selected														:= FALSE;
-END_IF
-
-rtrigRS03Offline(CLK:= NOT m01.SP_include_reactor_set_3_in_process);
-IF rtrigRS03Offline.Q THEN
 	bRS03																:= FALSE;
 END_IF
+
+//rtrigRS03Offline(CLK:= NOT m01.SP_include_reactor_set_3_in_process);
+//IF rtrigRS03Offline.Q THEN
+//	bRS03																:= FALSE;
+//END_IF
 
 IF P_M01_RS03.cancel_reactor_set THEN
 	iRS03CyclesToRun													:= SEL(m01_rs3.tb_Process_Running, iRS03Count, iRS03Count + 1);
@@ -501,11 +549,35 @@ END_IF
       <LineId Id="1892" Count="4" />
       <LineId Id="2065" Count="0" />
       <LineId Id="1897" Count="2" />
+      <LineId Id="2126" Count="2" />
+      <LineId Id="2125" Count="0" />
       <LineId Id="2068" Count="0" />
-      <LineId Id="1900" Count="61" />
+      <LineId Id="1900" Count="60" />
+      <LineId Id="2088" Count="1" />
+      <LineId Id="2087" Count="0" />
+      <LineId Id="2090" Count="4" />
+      <LineId Id="2098" Count="3" />
+      <LineId Id="2097" Count="0" />
+      <LineId Id="2103" Count="3" />
+      <LineId Id="2102" Count="0" />
+      <LineId Id="2095" Count="1" />
+      <LineId Id="1961" Count="0" />
       <LineId Id="2072" Count="0" />
       <LineId Id="2070" Count="0" />
-      <LineId Id="1962" Count="96" />
+      <LineId Id="1962" Count="60" />
+      <LineId Id="2080" Count="1" />
+      <LineId Id="2023" Count="5" />
+      <LineId Id="2082" Count="1" />
+      <LineId Id="2029" Count="5" />
+      <LineId Id="2085" Count="1" />
+      <LineId Id="2035" Count="1" />
+      <LineId Id="2110" Count="3" />
+      <LineId Id="2115" Count="3" />
+      <LineId Id="2120" Count="2" />
+      <LineId Id="2124" Count="0" />
+      <LineId Id="2109" Count="0" />
+      <LineId Id="2107" Count="1" />
+      <LineId Id="2037" Count="21" />
       <LineId Id="2074" Count="0" />
       <LineId Id="2073" Count="0" />
       <LineId Id="2076" Count="0" />
@@ -524,7 +596,9 @@ END_IF
       <LineId Id="43" Count="0" />
       <LineId Id="17" Count="0" />
       <LineId Id="19" Count="0" />
-      <LineId Id="21" Count="1" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="22" Count="0" />
       <LineId Id="44" Count="5" />
       <LineId Id="51" Count="0" />
       <LineId Id="50" Count="0" />
@@ -539,7 +613,9 @@ END_IF
       <LineId Id="42" Count="0" />
       <LineId Id="16" Count="0" />
       <LineId Id="18" Count="0" />
-      <LineId Id="20" Count="1" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="21" Count="0" />
       <LineId Id="43" Count="8" />
       <LineId Id="1" Count="0" />
     </LineIds>
@@ -551,7 +627,9 @@ END_IF
       <LineId Id="39" Count="0" />
       <LineId Id="15" Count="0" />
       <LineId Id="17" Count="0" />
-      <LineId Id="19" Count="1" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="20" Count="0" />
       <LineId Id="40" Count="8" />
       <LineId Id="1" Count="0" />
     </LineIds>
