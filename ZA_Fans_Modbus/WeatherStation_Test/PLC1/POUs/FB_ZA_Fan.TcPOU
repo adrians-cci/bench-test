@@ -27,13 +27,13 @@ END_VAR
 	write_value := 0;
 	IF i_enable_cmd <> enable_cmd AND NOT write_cmd THEN
 		enable_cmd := i_enable_cmd;
-		write_address := 1;
-		write_value.0 := enable_cmd;
+		write_address := 1;								// control register h1
+		write_value.0 := enable_cmd;					// enable  bit 0
 		write_cmd := TRUE;
 	END_IF
 	IF i_speed_sp <> speed_sp AND NOT write_cmd THEN
 		speed_sp := i_speed_sp;
-		write_address := 2;
+		write_address := 2;								// speed control register h2
 		write_value := TO_WORD(TO_INT(speed_sp));
 		write_cmd := TRUE;
 	END_IF
@@ -41,9 +41,9 @@ END_IF
 
 IF NOT modbus_control_initialized AND NOT write_cmd  AND fbModbus.o_commsok  THEN
 	write_value := 0;
-	write_address:= 4;
-	write_value.0 := TRUE;  //  modbus speed control 
-	write_value.9 := TRUE;  // modbus fan enable control 
+	write_address:= 4;	     // control mode h4 register 
+	write_value.1 := TRUE;  //  speed control mode bits 0-3 ( 0-100%) 
+	write_value.8 := TRUE;  // buscon enable bit 8 
 	write_cmd := TRUE;
 	modbus_control_initialized := TRUE;
 END_IF
