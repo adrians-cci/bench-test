@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ZA_Fan" Id="{1eb394bf-ec5f-41cd-887a-9157b7bf520d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ZA_Fan
+VAR_INPUT
+	i_enable_cmd	: BOOL;
+	i_speed_sp		: REAL;
+END_VAR
+VAR_OUTPUT
+
+END_VAR
+VAR
+	fbModbus : FB_Modbus_Rs485;
+	raw_data_read : ARRAY[0..9] OF WORD;
+	modbus_error : BOOL;
+	write_cmd : BOOL;
+	enable_cmd 	: BOOL;
+	speed_sp	: REAL;
+	modbus_control_initialized	: BOOL;
+	write_address	: WORD;
+	write_value		: WORD;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF modbus_control_initialized AND NOT write_cmd THEN 
+	write_value := 0;
+	IF i_enable_cmd <> enable_cmd AND NOT write_cmd THEN
+		enable_cmd := i_enable_cmd;
+		write_address := 1;
+		write_value.0 := enable_cmd;
+		write_cmd := TRUE;
+	END_IF
+	IF i_speed_sp <> speed_sp AND NOT write_cmd THEN
+		speed_sp := i_speed_sp;
+		write_address := 2;
+		write_value := TO_WORD(TO_INT(speed_sp));
+		write_cmd := TRUE;
+	END_IF
+END_IF
+
+IF NOT modbus_control_initialized AND NOT write_cmd  AND fbModbus.o_commsok  THEN
+	write_value := 0;
+	write_address:= 4;
+	write_value.0 := TRUE;  //  modbus speed control 
+	write_value.9 := TRUE;  // modbus fan enable control 
+	write_cmd := TRUE;
+	modbus_control_initialized := TRUE;
+END_IF
+
+
+fbModbus(
+	i_slave_id:= 247, 
+	i_start_read_address:= 1,
+	i_registers_read_qty := 5,
+	i_start_write_address := write_address, 
+	i_write_value := write_value,
+	o_error=> modbus_error, 
+	io_raw_data_read:= raw_data_read,
+	io_write_reg_cmd := write_cmd);
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_ZA_Fan">
+      <LineId Id="121" Count="16" />
+      <LineId Id="156" Count="0" />
+      <LineId Id="138" Count="2" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="141" Count="13" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

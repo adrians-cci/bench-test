@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Modbus_Rs485" Id="{eb4f4ac3-3bd0-4445-9e99-7a0badad635e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Modbus_Rs485
+VAR_INPUT
+	i_slave_id		 	 	: BYTE;
+	i_start_read_address 	: WORD;
+	i_registers_read_qty			: WORD;	
+	i_start_write_address	: WORD;
+    i_write_value			: WORD;
+END_VAR
+	
+VAR_OUTPUT
+	o_error : BOOL;
+	o_commsok : BOOL;
+END_VAR
+
+VAR_IN_OUT
+	io_raw_data_read			: ARRAY[*] OF WORD;	
+	io_write_reg_cmd	: BOOL;
+END_VAR
+
+VAR
+	fbModuleEcatState : FB_Ecat_State;
+	
+	fbModbusMaster 														: ModbusRtuMasterV2_KL6x22B;
+//	fbModbusMaster 														: ModbusRtuMasterV2_KL6x5B;		
+	modbus_state														: E_Modbus_State;
+	raw_data_read 														: ARRAY[0..9] OF WORD;
+	
+	_TIMEOUT_MODBUS														: TIME 		:= T#2S;
+	
+	size_local_array :  UINT;
+	size_io_array : UINT;
+	idxReg : DINT;
+	error_modbus : BOOL;
+	error_id : MODBUS_ERRORS;
+	tmrBusy 															: TON;
+	sita1																: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE modbus_state OF
+	
+	E_Modbus_State.Idle:
+		fbModbusMaster(Execute := FALSE);
+//		io_write_reg_cmd := FALSE;
+		IF NOT o_error AND NOT fbModbusMaster.Error THEN
+			modbus_state := E_Modbus_State.ReadInputRegs;
+		ELSE
+			 modbus_state := E_Modbus_State.Error;
+			 o_commsok := FALSE;
+		END_IF
+		
+	
+		
+	E_Modbus_State.ReadInputRegs:
+
+//		fbModbusMaster.ReadInputRegs(Execute := TRUE);
+		
+	fbModbusMaster.ReadInputRegs( 
+						   Execute 			:= TRUE, 
+						   UnitID 			:= i_slave_id,
+						   Quantity			:= i_registers_read_qty, 
+						   MBAddr			:= i_start_read_address, 
+						   cbLength			:= SIZEOF(raw_data_read), 
+						   pMemoryAddr		:= ADR(raw_data_read), 				   
+						   Timeout			:= _TIMEOUT_MODBUS	);
+
+		IF  NOT fbModbusMaster.BUSY   AND NOT fbModbusMaster.Error THEN
+					fbModbusMaster.ReadInputRegs(Execute := FALSE);
+					o_commsok := TRUE;
+					IF io_write_reg_cmd THEN
+						modbus_state := E_Modbus_State.WriteSingleReg;
+					END_IF
+		ELSIF fbModbusMaster.Error THEN	  
+					modbus_state := E_Modbus_State.Error;				
+		END_IF	
+		
+	E_Modbus_State.WriteSingleReg:
+		
+			
+//			fbModbusMaster.WriteSingleRegister(Execute := TRUE);
+			fbModbusMaster.WriteSingleRegister(	
+							   Execute			:= TRUE,	
+							   UnitID 			:= i_slave_id,
+							   Quantity			:= 1, 
+							   MBAddr			:= i_start_write_address, 
+							   cbLength			:= SIZEOF(i_write_value), 
+							   pMemoryAddr		:= ADR(i_write_value), 				   
+							   Timeout			:= _TIMEOUT_MODBUS	);	
+	
+			IF  NOT fbModbusMaster.BUSY   AND NOT fbModbusMaster.Error THEN
+						fbModbusMaster.WriteSingleRegister(Execute := FALSE);
+						io_write_reg_cmd := FALSE;
+						modbus_state := E_Modbus_State.ReadInputRegs;
+			ELSIF fbModbusMaster.Error THEN	  
+						modbus_state := E_Modbus_State.Error;				
+			END_IF	
+		
+		
+	E_Modbus_State.Error :
+		 o_commsok := FALSE;
+		 error_modbus := TRUE;
+		 io_write_reg_cmd := FALSE;
+		 fbModbusMaster.ReadInputRegs(Execute := FALSE);
+		 modbus_state := E_Modbus_State.Error_Reset;
+		 
+	E_Modbus_State.Error_Reset :
+		fbModbusMaster.ReadInputRegs(Execute := TRUE);
+		IF NOT fbModbusMaster.BUSY OR NOT fbModbusMaster.Error THEN
+			modbus_state := E_Modbus_State.Error_Check;
+		END_IF
+		
+	E_Modbus_State.Error_Check :
+	
+		IF  NOT fbModbusMaster.Error THEN
+//		IF  NOT fbModbusMaster.Error THEN
+			error_modbus := FALSE;
+			modbus_state := E_Modbus_State.Idle;
+		ELSE
+			modbus_state := E_Modbus_State.Error;
+		END_IF
+		
+			
+	
+END_CASE
+
+
+
+
+
+//fbModbusMaster.ReadInputRegs(  UnitID 			:= i_slave_id,
+//							   Quantity			:= i_registers_read_qty, 
+//							   MBAddr			:= i_start_read_address, 
+//							   cbLength			:= SIZEOF(raw_data_read), 
+//							   pMemoryAddr		:= ADR(raw_data_read), 				   
+//							   Timeout			:= _TIMEOUT_MODBUS	);
+							   
+
+//fbModbusMaster.WriteSingleRegister(	UnitID 			:= i_slave_id,
+//							   Quantity			:= 1, 
+//							   MBAddr			:= i_start_write_address, 
+//							   cbLength			:= SIZEOF(i_write_value), 
+//							   pMemoryAddr		:= ADR(i_write_value), 				   
+//							   Timeout			:= _TIMEOUT_MODBUS	);				 
+
+					
+
+FOR idxReg := LOWER_BOUND(io_raw_data_read,1) TO UPPER_BOUND(io_raw_data_read,1) DO 
+	io_raw_data_read[idxReg] := raw_data_read[idxReg];
+END_FOR
+
+
+o_error  := NOT fbModuleEcatState.State OR error_modbus ;
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_Modbus_Rs485">
+      <LineId Id="1006" Count="6" />
+      <LineId Id="1121" Count="1" />
+      <LineId Id="1128" Count="0" />
+      <LineId Id="1013" Count="5" />
+      <LineId Id="1097" Count="0" />
+      <LineId Id="1104" Count="1" />
+      <LineId Id="1111" Count="0" />
+      <LineId Id="1110" Count="0" />
+      <LineId Id="1106" Count="3" />
+      <LineId Id="1103" Count="0" />
+      <LineId Id="1020" Count="2" />
+      <LineId Id="1145" Count="0" />
+      <LineId Id="1086" Count="0" />
+      <LineId Id="1023" Count="0" />
+      <LineId Id="1087" Count="0" />
+      <LineId Id="1024" Count="7" />
+      <LineId Id="1113" Count="0" />
+      <LineId Id="1119" Count="0" />
+      <LineId Id="1118" Count="0" />
+      <LineId Id="1114" Count="3" />
+      <LineId Id="1112" Count="0" />
+      <LineId Id="1032" Count="7" />
+      <LineId Id="1041" Count="2" />
+      <LineId Id="1146" Count="0" />
+      <LineId Id="1044" Count="2" />
+      <LineId Id="1124" Count="0" />
+      <LineId Id="1048" Count="2" />
+      <LineId Id="1144" Count="0" />
+      <LineId Id="1132" Count="0" />
+      <LineId Id="1056" Count="0" />
+      <LineId Id="1131" Count="0" />
+      <LineId Id="1129" Count="0" />
+      <LineId Id="1139" Count="0" />
+      <LineId Id="1133" Count="5" />
+      <LineId Id="1130" Count="0" />
+      <LineId Id="1057" Count="3" />
+      <LineId Id="1142" Count="0" />
+      <LineId Id="1141" Count="0" />
+      <LineId Id="1140" Count="0" />
+      <LineId Id="1090" Count="0" />
+      <LineId Id="1061" Count="24" />
+      <LineId Id="766" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

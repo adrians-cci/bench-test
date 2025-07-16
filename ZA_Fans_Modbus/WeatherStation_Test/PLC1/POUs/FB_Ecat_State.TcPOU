@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Ecat_State" Id="{15eb47f6-0c63-44c2-8753-ebab76c85955}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Ecat_State
+VAR_INPUT
+END_VAR
+
+VAR
+	raw_state AT %I* : ST_Ecat_State;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+]]></ST>
+    </Implementation>
+    <Property Name="State" Id="{a16b8eae-3f26-4062-a6b6-677f3643603f}">
+      <Declaration><![CDATA[PROPERTY State : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3e8275b3-c530-4923-9995-e26764597daa}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[State := (NOT raw_state.wc_state) AND raw_state.op_state.3; ]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="FB_Ecat_State">
+      <LineId Id="9" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Ecat_State.State.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
